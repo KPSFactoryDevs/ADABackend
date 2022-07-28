@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<!-- Version 2018-11-04 11:09:21 -->
-<linkbase xmlns="http://www.xbrl.org/2003/linkbase" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.xbrl.org/2003/linkbase http://www.xbrl.org/2003/xbrl-linkbase-2003-12-31.xsd">
-  <roleRef xlink:type="simple" xlink:href="itcc-ci-roles-2018-11-04.xsd#InfoMicro" roleURI="http://www.infocamere.it/itnn/fr/itcc/role/InfoMicro"/>
-  <calculationLink xlink:type="extended" xlink:role="http://www.infocamere.it/itnn/fr/itcc/role/InfoMicro"/>
-</linkbase>
