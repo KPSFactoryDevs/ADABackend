@@ -57,17 +57,23 @@ class BilanciController extends Controller
 	
 	public function copiaBilancio(Request $request) 
 	{
-		dd($request->id);
-		$bilancioReplicated = Bilanci::find($request->id);
-		$newBilancioCopy = $bilancioReplicated->replicate();
-		$newBilancioCopy->created_at = Carbon::now();
-		$newBilancioCopy->save();
-			
-		
-		return response()->json([
-			'error' => false,
-			'data' => "Il Bilancio è stato copiato correttamente"
-		]);
+		if($request->id) {
+			$bilancioReplicated = Bilanci::find($request->id);
+			$newBilancioCopy = $bilancioReplicated->replicate();
+			$newBilancioCopy->created_at = Carbon::now();
+			$newBilancioCopy->save();
+
+
+			return response()->json([
+				'error' => false,
+				'data' => "Il Bilancio è stato copiato correttamente"
+			]);
+		} else {
+			return response()->json([
+				'error' => true,
+				'data' => "ID Bilancio non trovato"
+			], 404);
+		}
 	}
 	
 	public function getLatestYears() 
