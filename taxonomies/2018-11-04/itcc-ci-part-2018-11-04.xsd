@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Version 2018-11-04 11:00:05 -->
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:nonnum="http://www.xbrl.org/dtr/type/non-numeric" xmlns:num="http://www.xbrl.org/dtr/type/numeric" xmlns:itcc-ci-ref="http://www.infocamere.it/itnn/fr/itcc/ci/2018-11-04/ref" targetNamespace="http://www.infocamere.it/itnn/fr/itcc/ci/2018-11-04/ref" elementFormDefault="qualified" attributeFormDefault="unqualified">
+  <import namespace="http://www.xbrl.org/2003/instance" schemaLocation="http://www.xbrl.org/2003/xbrl-instance-2003-12-31.xsd"/>
+  <import namespace="http://www.xbrl.org/2003/linkbase" schemaLocation="http://www.xbrl.org/2003/xbrl-linkbase-2003-12-31.xsd"/>
+  <import namespace="http://www.xbrl.org/dtr/type/numeric" schemaLocation="http://www.xbrl.org/dtr/type/numeric-2009-12-16.xsd"/>
+  <import namespace="http://www.xbrl.org/dtr/type/non-numeric" schemaLocation="http://www.xbrl.org/dtr/type/nonNumeric-2009-12-16.xsd"/>
+  <element id="itcc-ci-ref_Macroclasse" name="Macroclasse" type="string" substitutionGroup="link:part">
+    <annotation>
+      <documentation>Lettere maiuscole</documentation>
+    </annotation>
+  </element>
+  <element id="itcc-ci-ref_Classe" name="Classe" type="string" substitutionGroup="link:part">
+    <annotation>
+      <documentation>Numeri romani</documentation>
+    </annotation>
+  </element>
+  <element id="itcc-ci-ref_Voce" name="Voce" type="string" substitutionGroup="link:part">
+    <annotation>
+      <documentation>Numeri arabi</documentation>
+    </annotation>
+  </element>
+  <element id="itcc-ci-ref_Sottovoce" name="Sottovoce" type="string" substitutionGroup="link:part">
+    <annotation>
+      <documentation>Lettere minuscole</documentation>
+    </annotation>
+  </element>
+  <element id="itcc-ci-ref_Lettera" name="Lettera" type="string" substitutionGroup="link:part">
+    <annotation>
+      <documentation>Lettera</documentation>
+    </annotation>
+  </element>
+</schema>

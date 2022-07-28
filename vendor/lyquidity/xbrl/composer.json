@@ -1,0 +1,28 @@
+{
+	"name": "lyquidity/xbrl",
+	"description": "Classes that implement the XBRL 2.1, XDT, Formulas, Generics and XFI specifications",
+	"keywords": ["lyquidity", "XBRL", "Dimensions", "Formulas"],
+	"type": "library",
+	"homepage": "https://github.com/lyquidity/XBRL",
+	"license": "GPL-3.0-only",
+	"authors": [
+		{
+			"name": "Bill Seddon",
+			"homepage": "https://github.com/bseddon"
+		}
+	],
+	"require": {
+		"php": ">=7.0",
+		"pear/log": ">1.13",
+		"lyquidity/utilities" : "dev-master",
+		"lyquidity/xml" : "dev-master",
+		"lyquidity/xpath2" : "dev-master",
+		"ext-hash" : "*",
+		"ext-json" : "*",
+		"ext-libxml" : "*",
+		"ext-SimpleXML" : "*",
+		"ext-xml" : "*",
+		"lib-libxml" : "*"
+	},
+	"autoload": { "files": ["./XBRL.php"] }
+}

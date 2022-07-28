@@ -1,0 +1,36 @@
+{
+	"name": "lyquidity/xml",
+	"description": "Reads XML Schema documents (.xsd) files and extracts type information for PHP",
+	"keywords": ["lyquidity", "xml", "schema"],
+	"type": "library",
+	"homepage": "https://github.com/bseddon/xml",
+	"license": "GPL-3.0-only",
+	"authors": [
+		{
+			"name": "Bill Seddon",
+			"homepage": "https://github.com/orgs/lyquidity/people/bseddon"
+		}
+	],
+	"require": {
+		"php": "^7.0",
+		"ext-date" : "*",
+		"ext-dom" : "*",
+		"ext-hash" : "*",
+		"ext-intl" : "*",
+		"ext-libxml" : "*",
+		"ext-mbstring" : "*",
+		"ext-pcre" : "*",
+		"ext-SimpleXML" : "*",
+		"ext-SPL" : "*",
+		"ext-xml" : "*",
+		"lib-iconv" : "*",
+		"lib-ICU" : "*",
+		"lib-libxml" : "*",
+		"lib-pcre" : "*",
+		"pear/log": ">1.13"
+	},
+	"autoload": {
+		"files": [ "./bootstrap.php" ]
+	}
+}
+

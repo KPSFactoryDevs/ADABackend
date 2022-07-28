@@ -1,0 +1,998 @@
+<?php
+
+namespace App\Helpers\Allerta;
+
+use App\Helpers\CentraleRischi\CrExtractorHelper;
+use Illuminate\Support\Facades\DB;
+use App\Models\cr;
+use DateTime;
+use Illuminate\Support\Facades\Date;
+
+class AllertaHelper
+{
+    private $crExtractorHelper;
+    public $_period = false;
+    public $_countMonths = false;
+
+    public function getPunteggioCR($alerts)
+    {
+        $scoreCR = 0;
+
+        if (!$alerts['1']) {
+            $scoreCR += 0.04;
+        }
+        if (!$alerts['2']) {
+            $scoreCR += 0.045;
+        }
+        if (!$alerts['3']) {
+            $scoreCR += 0.04;
+        }
+        if (!$alerts['4']) {
+            $scoreCR += 0.05;
+        }
+        if (!$alerts['5']) {
+            $scoreCR += 0.05;
+        }
+        if (!$alerts['6']) {
+            $scoreCR += 0.04;
+        }
+        if (!$alerts['7']) {
+            $scoreCR += 0.04;
+        }
+        if (!$alerts['8']) {
+            $scoreCR += 0.04;
+        }
+        if (!$alerts['9']) {
+            $scoreCR += 0.06;
+        }
+        if (!$alerts['10']) {
+            $scoreCR += 0.06;
+        }
+        if (!$alerts['11']) {
+            $scoreCR += 0.068;
+        }
+        if (!$alerts['12']) {
+            $scoreCR += 0.068;
+        }
+        if (!$alerts['13']) {
+            $scoreCR += 0.068;
+        }
+        if (!$alerts['14']) {
+            $scoreCR += 0.091;
+        }
+        if (!$alerts['15']) {
+            $scoreCR += 0.12;
+        }
+        if (!$alerts['16']) {
+            $scoreCR += 0.12;
+        }
+        return $scoreCR;
+    }
+
+    public function setPeriod($period)
+    {
+        $this->_period = $period;
+    }
+
+    public function getPeriod()
+    {
+        return $this->_period;
+    }
+
+    public function addMonthsToCount()
+    {
+        if (!$this->_countMonths) {
+            $this->setCountMonths();
+        }
+
+        $this->_countMonths++;
+    }
+    public function setCountMonths()
+    {
+        $this->_countMonths = 0;
+    }
+
+    public function getCountMonths()
+    {
+        return $this->_countMonths;
+    }
+
+
+    public function setCrExtractor($CrHelper)
+    {
+        $this->crExtractorHelper = $CrHelper;
+    }
+
+    public function buildPeriodArray()
+    {
+        if (!$this->_period) {
+            return false;
+        }
+
+        $periodsContainer = array();
+        $queryPeriodArray = array();
+        $this->setCountMonths();
+        foreach ($this->_period as $anno => $mesi) {
+            foreach ($mesi as $mese => $index) {
+                $this->addMonthsToCount();
+                $queryPeriodArray['anno'] = $anno;
+                $queryPeriodArray['mese'] = $mese;
+                $periodsContainer[] = $queryPeriodArray;
+            }
+        }
+
+        return $periodsContainer;
+    }
+
+    public function getTotaleAffidamentiPerFirma($categories, $latestYear, $latestMonth)
+    {
+        return cr::groupBy('nome_banca')->groupBy('categoria')->selectRaw("nome_banca, categoria, SUM(accordato_operativo) as totAccordatoOperativo, SUM(utilizzato) as totUtilizzato")->where('anno', $latestYear)->where('sezione', 'Firma')->where('mese', $latestMonth)->whereIn('categoria', $categories)->get()->toArray();
+    }
+
+    public function getLastTwoMonths()
+    {
+
+        $cont = 0;
+        $trimestrePeriod = $this->getTrimestrePeriod($this->crExtractorHelper->getPeriod());
+
+        $lastYear = array_key_last($trimestrePeriod);
+        $lastMonth = array_key_last($trimestrePeriod[$lastYear]);
+        unset($trimestrePeriod[$lastYear][$lastMonth]);
+        $secondLastYear = array_key_last($trimestrePeriod);
+        $secondLastMonth = array_key_last($trimestrePeriod[$secondLastYear]);
+
+        $periods[$secondLastYear][$secondLastMonth] = null;
+        $periods[$lastYear][$lastMonth] = null;
+
+        return $periods;
+    }
+
+    public function getTriennioPeriod($periods, $banks)
+    {
+        $crHelper = new CrExtractorHelper;
+        $crHelper->setPeriod($periods);
+        $cleanCR = $crHelper->getAllDataToArray($banks);
+
+        $latestYear = array_key_last($periods);
+        $latestMonth = array_key_last($periods[$latestYear]);
+        $lastDate = new DateTime((cr::select('date')
+            ->where('anno', '=', $latestYear)
+            ->where('mese', '=', $latestMonth)
+            ->first())->date);
+
+        $triennio = new DateTime($lastDate->format('Y-m-d'));
+        $triennio = $triennio->modify('-35 months');
+
+        $triennioQuery = json_decode(DB::table('crs')
+            ->select('anno', 'mese', 'date')
+            ->whereRaw("date between '" . $triennio->format('Y-m-01') . "' and '" . $lastDate->format('Y-m-t') . "'")
+            ->groupBy('date', 'anno', 'mese')
+            ->orderBy('date')
+            ->get(), true);
+
+        $triennioPeriod = array();
+
+        foreach ($triennioQuery as $index => $value) {
+            $triennioPeriod[$value['anno']][$value['mese']] = null;
+        }
+
+        return $triennioPeriod;
+    }
+
+    public function getTrimestrePeriod($periods)
+    {
+        $crHelper = new CrExtractorHelper;
+        $crHelper->setPeriod($periods);
+
+        $latestYear = array_key_last($periods);
+        $latestMonth = array_key_last($periods[$latestYear]);
+
+        $trimestrePeriod = array();
+
+        $tmp = cr::select('anno', 'mese', 'date')->orderBy('date', 'desc')->distinct()->take(3)->get();
+
+
+        $tmp = cr::select('anno', 'mese', 'date')->orderBy('date', 'desc')->distinct()->take(3)->get();
+
+
+        for ($i = 0; $i <= 2; $i++) {
+            if (isset($tmp[$i])) {
+                $trimestrePeriod[$tmp[$i]->anno][$tmp[$i]->mese] = null;
+            }
+        }
+
+        // dd($trimestrePeriod);
+
+        return $trimestrePeriod;
+    }
+
+    public function getLastYearPeriod($lastYear, $lastMonth)
+    {
+
+        $lastDate = (cr::select('date')
+            ->where('anno', '=', $lastYear)
+            ->where('mese', '=', $lastMonth)
+            ->first())->date;
+        $dateVar = explode('-', $lastDate);
+
+        $ultimoAnno = ((int)$dateVar[0] - 1) . '-' . $dateVar[1] . '-' . $dateVar[2];
+
+        $annoQuery = json_decode(DB::table('crs')
+            ->select('anno', 'mese', 'date')
+            ->whereRaw("date between '" . $ultimoAnno . "' and '" . $lastDate . "'")
+            ->groupBy('date', 'anno', 'mese')
+            ->orderBy('date')
+            ->get(), true);
+
+        $lastPeriod = array();
+
+        foreach ($annoQuery as $index => $value) {
+            $lastPeriod[$value['anno']][$value['mese']] = null;
+        }
+        return $lastPeriod;
+    }
+
+    public function getSconfiniSignificativi($banks)
+    {
+        $categories = array(
+            'RISCHI A SCADENZA',
+            'RISCHI AUTOLIQUIDANTI',
+            'RISCHI A REVOCA',
+        );
+
+        $period = $this->crExtractorHelper->buildPeriodArray();
+        $allMonthsCount = $this->crExtractorHelper->getCountMonths();
+        $affidamenti = array();
+
+        foreach ($period as $index => $queryPeriodArray) {
+            $CentraleRischiModel =
+                cr::selectRaw('utilizzato, anno, mese, nome_banca, categoria')
+                ->whereIn('nome_banca', $banks)
+                ->whereIn('categoria', $categories)
+                ->whereRaw('CAST(utilizzato as SIGNED) >= 0')
+                ->where('sezione', 'Cassa')
+                ->groupBy(array('utilizzato', 'anno', 'mese', 'nome_banca', 'categoria'))
+                ->get();
+
+            foreach ($CentraleRischiModel as $singleIndex => $singleModel) {
+                $affidamenti[$singleModel->nome_banca] = isset($affidamenti[$singleModel->nome_banca]) ? $affidamenti[$singleModel->nome_banca] + $singleModel->utilizzato : $singleModel->utilizzato;
+            }
+        }
+
+        foreach ($affidamenti as $singleBank => $data) {
+            $affidamenti[$singleBank] = $data / $allMonthsCount;
+        }
+
+        foreach ($period as $index => $queryPeriodArray) {
+            $CentraleRischiModel =
+                cr::selectRaw('nome_banca, accordato_operativo, utilizzato')
+                ->whereIn('nome_banca', array_keys($affidamenti))
+                ->whereIn('categoria', $categories)
+                ->whereRaw('CAST(utilizzato as SIGNED) > CAST(accordato_operativo as SIGNED)')
+                ->where('sezione', 'Cassa')
+                ->get();
+
+
+            foreach ($CentraleRischiModel as $singleIndex => $singleModel) {
+                if (((float)$singleModel->accordato_operativo - (float)$singleModel->utilizzato) > ($affidamenti[$singleModel->nome_banca] / 100)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public function getMediaAccordatoOperativo($period, $categories)
+    {
+        $mediaAccordatoOp = array();
+
+        $periodStart = new DateTime((cr::select('date')
+            ->where('anno', array_key_first($period))
+            ->where('mese', array_key_first($period[array_key_first($period)]))
+            ->first())->date);
+
+        $periodEnd = new DateTime((cr::select('date')
+            ->where('anno', array_key_last($period))
+            ->where('mese', array_key_last($period[array_key_last($period)]))
+            ->first())->date);
+
+        $accordatoModel = cr::selectRaw('nome_banca as Banca, SUM(accordato_operativo) as Accordato')
+            ->where('date', '>=', $periodStart->format('Y-m-01'))
+            ->where('date', '<=', $periodEnd->format('Y-m-t'))
+            ->whereIn('categoria', $categories)
+            ->groupBy('nome_banca')
+            ->get()
+            ->toArray();
+
+        $allMonthsCount = $this->getMonthsCountFromPeriod($period);
+
+        $mediaAccordato = array();
+
+        foreach ($accordatoModel as $label => $bankData) {
+            $mediaAccordato[$bankData['Banca']] = $bankData['Accordato'] / $allMonthsCount;
+        }
+
+        return $mediaAccordato;
+    }
+
+    public function getMediaAccordatoOperativoGeneral($period, $categories, $monthsCount)
+    {
+        $mediaAccordato = 0;
+
+        foreach ($period as $singleYear => $months) {
+            foreach ($months as $singleMonth => $patonza) {
+                $accordatoModel = cr::selectRaw('SUM(accordato_operativo) as Accordato')
+                    ->where('anno', $singleYear)
+                    ->where('mese', $singleMonth)
+                    ->whereIn('categoria', $categories)
+                    ->where('accordato_operativo', '>', 0)
+                    ->get()->first()
+                    ->toArray();
+
+                $mediaAccordato = ($mediaAccordato) + $accordatoModel['Accordato'];
+            }
+        }
+
+        return $mediaAccordato / $monthsCount;
+    }
+
+    public function getAccordatoOperativo($period, $categories)
+    {
+        $mediaAccordatoOp = array();
+
+        $periodStart = new DateTime((cr::select('date')
+            ->where('anno', array_key_first($period))
+            ->where('mese', array_key_first($period[array_key_first($period)]))
+            ->first())->date);
+
+        $periodEnd = new DateTime((cr::select('date')
+            ->where('anno', array_key_last($period))
+            ->where('mese', array_key_last($period[array_key_last($period)]))
+            ->first())->date);
+
+        $accordatoModel = cr::selectRaw('nome_banca as Banca, SUM(accordato_operativo) as Accordato')
+            ->where('date', '>=', $periodStart->format('Y-m-01'))
+            ->where('date', '<=', $periodEnd->format('Y-m-t'))
+            ->whereIn('categoria', $categories)
+            ->groupBy('nome_banca')
+            ->get()->toArray();
+
+        $mediaAccordato = array();
+
+        foreach ($accordatoModel as $label => $bankData) {
+            $mediaAccordato[$bankData['Banca']] = $bankData['Accordato'];
+        }
+
+        return $mediaAccordato;
+    }
+
+    public function getAnalisiCRUno($banks)
+    {
+        $scoringCR = $this->crExtractorHelper->getScoring($banks);
+
+        if ($scoringCR <= 0.5) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function getAnalisiCRDue($banks)
+    {
+        $sconfini = $this->crExtractorHelper->getTotaleSconfini($banks);
+
+        // dd($sconfini, $banks);
+
+        return ($sconfini['SconfiniTotali'] > 2 || $this->getSconfiniSignificativi($banks));
+    }
+
+    public function getAnalisiCRTre($banks)
+    {
+        $sconfini = $this->crExtractorHelper->getTotaleSconfini($banks);
+        $sconfiniUltimiDueMesi = array();
+
+        if (isset($sconfini['Categorie']['RISCHI A SCADENZA']) && $sconfini['Categorie']['RISCHI A SCADENZA'] > 2) {
+            return true;
+        }
+
+        $lastTwoMonths = $this->getLastTwoMonths();
+
+        $periods = $lastTwoMonths;
+
+        foreach ($periods as $singleYear => $multipleMonths) {
+            foreach ($multipleMonths as $singleMonth => $nothing) {
+                $items = cr::where('anno', $singleYear)
+                    ->where('mese', $singleMonth)
+                    ->where('categoria', 'RISCHI A SCADENZA')
+                    ->whereRaw('CAST(utilizzato AS SIGNED) > CAST(accordato_operativo AS SIGNED)')
+                    ->get();
+
+                foreach ($items as $singleItem => $data) {
+                    $sconfiniUltimiDueMesi[$data->nome_banca][$data->categoria] = isset($sconfiniUltimiDueMesi[$data->nome_banca][$data->categoria]) ? ($sconfiniUltimiDueMesi[$data->nome_banca][$data->categoria]) + 1 : 1;
+
+                    if ($sconfiniUltimiDueMesi[$data->nome_banca][$data->categoria] >= 2) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public function getMonthsCountFromPeriod($period)
+    {
+        $cont = 0;
+        foreach ($period as $singleYear => $multipleMonths) {
+            foreach ($multipleMonths as $singleMonth => $smt) {
+                $cont++;
+            }
+        }
+        return $cont;
+    }
+
+    public function periodToDateInterval($period)
+    {
+        $periodStart = array('Year' => array_key_first($period), 'Month' => array_key_first($period[array_key_first($period)]));
+
+        $startDate = cr::where([['anno', $periodStart['Year']], ['mese', $periodStart['Month']]])->get()->first()->date;
+
+        $periodEnd = array('Year' => array_key_last($period), 'Month' => array_key_last($period[array_key_last($period)]));
+
+        $endDate = cr::where([['anno', $periodEnd['Year']], ['mese', $periodEnd['Month']]])->get()->first()->date;
+
+        return array('start' => $startDate, 'end' => $endDate);
+    }
+
+    public function getAnalisiCRQuattro($triennioPeriod, $trimestrePeriod, $latestYear, $latestMonth, $categories)
+    {
+        $periods = $this->crExtractorHelper->getPeriod();
+
+        $arrayGaranzie = array();
+
+        $firstYear = array_key_first($periods);
+        $firstYearMonth = array_key_first($periods[$firstYear]);
+        $earlyYearDate = new DateTime((cr::select('date')->where('anno', $firstYear)->where('mese', $firstYearMonth)->first())->date);
+
+        $lastMonthDate = new DateTime((cr::select('date')->where('anno', $latestYear)->where('mese', $latestMonth)->first())->date);
+
+        $triennioYear = array_key_first($triennioPeriod);
+        $threeYearsMonth = array_key_first($triennioPeriod[$triennioYear]);
+        $threeYearsDate = new DateTime((cr::select('date')->where('anno', $triennioYear)->where('mese', $threeYearsMonth)->first())->date);
+
+        $trimestreYear = array_key_first($trimestrePeriod);
+        $trimestreYearMonth = array_key_first($trimestrePeriod[$trimestreYear]);
+        $trimestreYearDate = new DateTime((cr::select('date')->where('anno', $trimestreYear)->where('mese', $trimestreYearMonth)->first())->date);
+
+        $totGaranzie = array(
+            "Anno" => (cr::selectRaw("SUM(garanzia) as totGaranzia")->whereRaw("date between '" . $earlyYearDate->format('Y-m-01') . "' and '" . $lastMonthDate->format('Y-m-t') . "'")->where('sezione', 'Garanti')->get()->toArray())[0]['totGaranzia'],
+            "Triennio" => ((cr::selectRaw("SUM(garanzia) as totGaranzia")->whereRaw("date between '" . $threeYearsDate->format('Y-m-01') . "' and '" . $lastMonthDate->format('Y-m-t') . "'")->where('sezione', 'Garanti')->get()->toArray())[0]['totGaranzia'] / 36) * 12,
+            "Trimestre" => ((cr::selectRaw("SUM(garanzia) as totGaranzia")->whereRaw("date between '" . $trimestreYearDate->format('Y-m-01') . "' and '" . $lastMonthDate->format('Y-m-t') . "'")->where('sezione', 'Garanti')->get()->toArray())[0]['totGaranzia'] / $this->getMonthsCountFromPeriod($trimestrePeriod)),
+            "UltimoMese" => (cr::selectRaw("SUM(garanzia) as totGaranzia")->where("anno", $latestYear)->where('mese', $latestMonth)->where('sezione', 'Garanti')->get()->toArray())[0]['totGaranzia']
+        );
+
+        if ($totGaranzie["Triennio"] != 0) {
+            if ((- (1 - $totGaranzie["Anno"] / $totGaranzie["Triennio"])) > 0.10) {
+                $totAccordato = array(
+                    "Anno" => (cr::selectRaw("SUM(accordato_operativo) as totAccordatoOperativo")->whereRaw("date between '" . $earlyYearDate->format('Y-m-01') . "' and '" . $lastMonthDate->format('Y-m-t') . "'")->whereIn('categoria', $categories)->get()->toArray())[0]['totAccordatoOperativo'],
+                    "Triennio" => ((cr::selectRaw("SUM(accordato_operativo) as totAccordatoOperativo")->whereRaw("date between '" . $threeYearsDate->format('Y-m-01') . "' and '" . $lastMonthDate->format('Y-m-t') . "'")->whereIn('categoria', $categories)->get()->toArray())[0]['totAccordatoOperativo'] / 36) * 12,
+                );
+                if ((- (1 - $totAccordato["Anno"] / $totAccordato["Triennio"])) > 0) {
+                    return true;
+                }
+            }
+        }
+        if ($totGaranzie["Trimestre"] != 0) {
+            if ((- (1 - $totGaranzie["UltimoMese"] / $totGaranzie["Trimestre"])) > 0.10) {
+                $totAccordato = array(
+                    "Trimestre" => ((cr::selectRaw("SUM(accordato_operativo) as totAccordatoOperativo")->whereRaw("date between '" . $trimestreYearDate->format('Y-m-01') . "' and '" . $lastMonthDate->format('Y-m-t') . "'")->whereIn('categoria', $categories)->get()->toArray())[0]['totAccordatoOperativo'] / $this->getMonthsCountFromPeriod($trimestrePeriod)),
+                    "UltimoMese" => (cr::selectRaw("SUM(accordato_operativo) as totAccordatoOperativo")->where("anno", $latestYear)->where('mese', $latestMonth)->whereIn('categoria', $categories)->get()->toArray()[0]['totAccordatoOperativo'])
+                );
+                if ((- (1 - $totAccordato["UltimoMese"] / $totAccordato["Trimestre"])) > 0) {
+                    return true;
+                }
+            }
+        }
+
+
+
+        return false;
+    }
+
+    public function getAnalisiCRCinque($lastYearPeriod)
+    {
+        $aumentiGaranzie = array();
+
+        foreach ($lastYearPeriod as $singleYear => $multipleMonths) {
+            foreach ($multipleMonths as $singleMonth => $platanoPicchiatore) {
+                $currentMonth = new DateTime((cr::select('date')->where('anno', $singleYear)->where('mese', $singleMonth)->first())->date);
+                $nextMonth = (new DateTime($currentMonth->format('Y-m-d')));
+                $nextMonth = $nextMonth->modify('+1 month');
+
+                $joins = DB::table('crs as t1')
+                    ->join('crs as t2', 't1.nome_banca', '=', 't2.nome_banca')
+                    ->selectRaw('t1.nome_banca as banca, t1.garanzia as garantito1, t2.garanzia as garantito2, t1.date as date1, t2.date as date2, t1.categoria as cat1, t2.categoria as cat2, t1.localizzazione as loc1, t2. localizzazione as loc2, t1.garantito as nomeGarantito1, t2.garantito as nomeGarantito2, t1.stato_rapporto as statoRapporto1, t2.stato_rapporto as statoRapporto2, t1.tipo_garanzia as tipoGaranzia1, t2.tipo_garanzia as tipoGaranzia2, t1.codice_coint as coint1, t2.codice_coint as coint2')
+                    ->where('t1.categoria', 'GARANZIE RICEVUTE')
+                    ->where('t2.categoria', 'GARANZIE RICEVUTE')
+                    ->whereRaw("t1.date between '" . $currentMonth->format('Y-m-01') . "' and '" . $currentMonth->format('Y-m-t') . "'")
+                    ->whereRaw("t2.date between '" . $nextMonth->format('Y-m-01') . "' and '" . $nextMonth->format('Y-m-t') . "'")
+                    ->get();
+
+                foreach ($joins as $label => $singleJoin) {
+                    if ($singleJoin->coint1 == $singleJoin->coint2 && $singleJoin->loc1 == $singleJoin->loc2 && $singleJoin->nomeGarantito1 == $singleJoin->nomeGarantito2 && $singleJoin->statoRapporto1 == $singleJoin->statoRapporto2 && $singleJoin->tipoGaranzia1 == $singleJoin->tipoGaranzia2) {
+                        if ((float)str_replace('.', '', $singleJoin->garantito2) > (float)str_replace('.', '', $singleJoin->garantito1)) {
+                            $aumentiGaranzie[$singleJoin->banca][$singleJoin->date1] = isset($aumentiGaranzie[$singleJoin->banca][$singleJoin->date1]) ? ($aumentiGaranzie[$singleJoin->banca][$singleJoin->date1]) + 1 : 1;
+                            if ($aumentiGaranzie[$singleJoin->banca] > 2) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public function getAnalisiCRSei($lastYearPeriod, $categories, $banks)
+    {
+        $aumentiImpagati = array();
+        $impagatiPerBanca = array();
+        $utilizzatoPerBanca = array();
+
+
+        foreach ($lastYearPeriod as $singleYear => $multipleMonths) {
+            foreach ($multipleMonths as $singleMonth => $platanoPicchiatore) {
+                $currentMonth = new DateTime((cr::select('date')->where('anno', $singleYear)->where('mese', $singleMonth)->first())->date);
+                $nextMonth = (new DateTime($currentMonth->format('Y-m-d')));
+                $nextMonth = $nextMonth->modify('+1 month');
+
+                $sum = $this->crExtractorHelper->getPesiAffidamentiPerBanca($categories, $singleYear, $singleMonth, $banks);
+
+                foreach ($sum as $index => $tmpData) {
+                    $utilizzatoPerBanca[$tmpData['nome_banca']] = isset($utilizzatoPerBanca[$tmpData['nome_banca']]) ? ($utilizzatoPerBanca[$tmpData['nome_banca']]) + $tmpData['totUtilizzato'] : $tmpData['totUtilizzato'];
+                }
+
+                $joins = DB::table('crs as t1')
+                    ->join('crs as t2', 't1.nome_banca', '=', 't2.nome_banca')
+                    ->selectRaw('t1.nome_banca as banca, t1.importo_garantito as garantito1, t2.importo_garantito as garantito2, t1.date as date1, t2.date as date2, t1.localizzazione as loc1, t2.localizzazione as loc2, t1.divisa as divisa1, t2.divisa as divisa2, t1.categoria as cat1, t2.categoria as cat2')
+                    ->where('t1.stato_rapporto', 'Crediti impagati')
+                    ->where('t2.stato_rapporto', 'Crediti impagati')
+                    ->where('t1.sezione', 'Informativa')
+                    ->where('t2.sezione', 'Informativa')
+                    ->whereIn('t1.categoria', array('RISCHI AUTOLIQUIDANTI - CREDITI SCADUTI'))
+                    ->whereIn('t2.categoria', array('RISCHI AUTOLIQUIDANTI - CREDITI SCADUTI'))
+                    ->whereRaw("t1.date between '" . $currentMonth->format('Y-m-01') . "' and '" . $currentMonth->format('Y-m-t') . "'")
+                    ->whereRaw("t2.date between '" . $nextMonth->format('Y-m-01') . "' and '" . $nextMonth->format('Y-m-t') . "'")
+                    ->get();
+
+
+                foreach ($joins as $label => $singleJoin) {
+                    $impagatiPerBanca[$singleJoin->banca] = isset($impagatiPerBanca[$singleJoin->banca]) ? ($impagatiPerBanca[$singleJoin->banca]) + ((float)$singleJoin->garantito1) : (float)$singleJoin->garantito1;
+
+                    if ($singleJoin->divisa1 == $singleJoin->divisa2 && $singleJoin->loc1 == $singleJoin->loc2) {
+
+
+                        if ((float)$singleJoin->garantito2 > (float)$singleJoin->garantito1) {
+                            $aumentiImpagati[$singleJoin->banca] = isset($aumentiImpagati[$singleJoin->banca]) ? ($aumentiImpagati[$singleJoin->banca]) + 1 : 1;
+                            if ($aumentiImpagati[$singleJoin->banca] > 2) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        foreach ($impagatiPerBanca as $singleBank => $totImpagati) {
+            if (($utilizzatoPerBanca[$singleBank] / $totImpagati) > 0.25) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function getAnalisiCRSette($lastYearPeriod)
+    {
+        $allMonthsCount = $this->crExtractorHelper->getCountMonths();
+        $categories = array(
+            'RISCHI A REVOCA',
+            'RISCHI A SCADENZA'
+        );
+
+        foreach ($categories as $singleCategoria) {
+            foreach ($lastYearPeriod as $singleYear => $multipleMonths) {
+                foreach ($multipleMonths as $singleMonth => $platanoPicchiatore) {
+                    $currentMonth = new DateTime((cr::select('date')->where('anno', $singleYear)->where('mese', $singleMonth)->first())->date);
+                    $nextMonth = (new DateTime($currentMonth->format('Y-m-d')));
+                    $nextMonth = $nextMonth->modify('+1 month');
+
+                    $sum[] = cr::selectRaw("SUM(accordato_operativo) as mediaAccordatoOperativo, nome_banca")->where('anno', $singleYear)->where('mese', $singleMonth)->where('categoria', $singleCategoria)->groupBy('nome_banca')->get()->toArray();
+
+                    foreach ($sum as $index => $banksArray) {
+                        foreach ($banksArray as $bankIndex => $bankData) {
+                            $accordatoMedioMensile[$bankData['nome_banca']] = isset($accordatoMedioMensile[$bankData['nome_banca']]) ? $accordatoMedioMensile[$bankData['nome_banca']] + $bankData["mediaAccordatoOperativo"] : $bankData["mediaAccordatoOperativo"];
+                        }
+                    }
+                }
+            }
+        }
+
+        foreach ($accordatoMedioMensile as $bank => $totValue) {
+            $accordatoMedioMensile[$bank] = $totValue / $allMonthsCount;
+        }
+
+        $aumentiAccordato = array();
+
+        foreach ($categories as $singleCategoria) {
+            foreach ($lastYearPeriod as $singleYear => $multipleMonths) {
+                foreach ($multipleMonths as $singleMonth => $platanoPicchiatore) {
+                    $currentMonth = new DateTime((cr::select('date')->where('anno', $singleYear)->where('mese', $singleMonth)->first())->date);
+                    $nextMonth = (new DateTime($currentMonth->format('Y-m-d')));
+                    $nextMonth = $nextMonth->modify('+1 month');
+
+
+                    // dd($sum);
+
+                    $joins = DB::table('crs as t1')
+                        ->join('crs as t2', 't1.nome_banca', '=', 't2.nome_banca')
+                        ->selectRaw('t1.nome_banca as banca, t1.accordato_operativo as accordato1, t2.accordato_operativo as accordato2, t1.date as date1, t2.date as date2, t1.localizzazione as loc1, t2.localizzazione as loc2, t1.divisa as divisa1, t2.divisa as divisa2, t1.categoria as cat1, t2.categoria as cat2')
+                        ->where('t1.categoria', $singleCategoria)
+                        ->where('t2.categoria', $singleCategoria)
+                        ->whereRaw("t1.date between '" . $currentMonth->format('Y-m-01') . "' and '" . $currentMonth->format('Y-m-t') . "'")
+                        ->whereRaw("t2.date between '" . $nextMonth->format('Y-m-01') . "' and '" . $nextMonth->format('Y-m-t') . "'")
+                        ->get();
+
+
+                    foreach ($joins as $label => $singleJoin) {
+                        if ($singleJoin->divisa1 == $singleJoin->divisa2 && $singleJoin->loc1 == $singleJoin->loc2) {
+                            if ((float)$singleJoin->accordato2 > (float)$singleJoin->accordato1) {
+                                if (((float)$singleJoin->accordato2 - (float)$singleJoin->accordato1) > ($accordatoMedioMensile[$singleJoin->banca] / 5)) {
+                                    return true;
+                                }
+                                $aumentiAccordato[$singleJoin->banca] = isset($aumentiAccordato[$singleJoin->banca]) ? ($aumentiAccordato[$singleJoin->banca]) + 1 : 1;
+                                if ($aumentiAccordato[$singleJoin->banca] > 2) {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public function getAnalisiCROtto($lastYearPeriod, $latestYear, $latestMonth, $trimestrePeriod, $triennioPeriod)
+    {
+
+        $periods = $this->crExtractorHelper->getPeriod();
+
+        $categories = array(
+            'RISCHI A SCADENZA'
+        );
+
+        $lastMonthDate = new DateTime((cr::select('date')
+            ->where('anno', $latestYear)
+            ->where('mese', $latestMonth)
+            ->first())->date);
+
+        $trimestreDate = new DateTime($lastMonthDate->format('Y-m-d'));
+        $trimestreDate = $trimestreDate->modify('-2 months');
+
+        $lastYearDate = new DateTime($lastMonthDate->format('Y-m-d'));
+        $lastYearDate = $lastYearDate->modify('-11 months');
+
+        $lastThreeYearsDate = new DateTime($lastMonthDate->format('Y-m-d'));
+        $lastThreeYearsDate = $lastThreeYearsDate->modify('-35 months');
+
+        $accordatoScadenzaTrimestre = cr::selectRaw("SUM(accordato_operativo) as somma")
+            ->where('date', '>=', $trimestreDate->format('Y-m-01'))
+            ->where('date', '<=', $lastMonthDate->format('Y-m-t'))
+            ->where('categoria', 'RISCHI A SCADENZA')
+            ->where('tipo_attivita', '<>', 'Leasing')
+            ->where('sezione', 'Cassa')
+            ->get()->first()->somma / $this->getMonthsCountFromPeriod($trimestrePeriod);
+
+        // dd($accordatoScadenzaTrimestre);
+
+
+        $accordatoScadenzaUltimoMese = cr::selectRaw("SUM(accordato_operativo) as somma")
+            ->where('anno', $latestYear)
+            ->where('mese', $latestMonth)
+            ->where('categoria', 'RISCHI A SCADENZA')
+            ->where('tipo_attivita', '<>', 'Leasing')
+            ->where('sezione', 'Cassa')
+            ->get()->first()->somma;
+
+        // dd($latestYear, $latestMonth);
+
+        $accordatoScadenzaUltimoAnno = cr::selectRaw("SUM(accordato_operativo) as somma")
+            ->where('date', '>=', $lastYearDate->format('Y-m-01'))
+            ->where('date', '<=', $lastMonthDate->format('Y-m-t'))
+            ->where('categoria', 'RISCHI A SCADENZA')
+            ->where('tipo_attivita', '<>', 'Leasing')
+            ->where('sezione', 'Cassa')
+            ->get()->first()->somma;
+
+        $accordatoScadenzaUltimiTreAnni = (cr::selectRaw("SUM(accordato_operativo) as somma")
+            ->where('date', '>=', $lastThreeYearsDate->format('Y-m-01'))
+            ->where('date', '<=', $lastMonthDate->format('Y-m-t'))
+            ->where('categoria', 'RISCHI A SCADENZA')
+            ->where('tipo_attivita', '<>', 'Leasing')
+            ->where('sezione', 'Cassa')
+            ->get()->first()->somma / 36) * 12;
+
+        $rapportoTrimestrale = $accordatoScadenzaTrimestre == 0 ? 1 : - (1 - ($accordatoScadenzaUltimoMese / $accordatoScadenzaTrimestre));
+        $rapportoTriennale = $accordatoScadenzaUltimiTreAnni == 0 ? 1 : - (1 - ($accordatoScadenzaUltimoAnno / $accordatoScadenzaUltimiTreAnni));
+
+        return ($rapportoTrimestrale > 0.20 || $rapportoTriennale > 0.20);
+    }
+
+    public function getAnalisiCRNove($lastYearPeriod, $latestYear, $latestMonth)
+    {
+        $categories = array(
+            'RISCHI A REVOCA'
+        );
+
+        $aumentiUtilizzato = array();
+        $importiAumenti = array();
+
+        foreach ($categories as $singleCategoria) {
+            foreach ($lastYearPeriod as $singleYear => $multipleMonths) {
+                foreach ($multipleMonths as $singleMonth => $platanoPicchiatore) {
+                    $currentMonth = new DateTime((cr::select('date')->where('anno', $singleYear)->where('mese', $singleMonth)->first())->date);
+                    $nextMonth = (new DateTime($currentMonth->format('Y-m-d')));
+                    $nextMonth = $nextMonth->modify('+1 month');
+
+                    $joins = DB::table('crs as t1')
+                        ->join('crs as t2', 't1.nome_banca', '=', 't2.nome_banca')
+                        ->selectRaw('t1.nome_banca as banca, t1.utilizzato as utilizzato1, t2.utilizzato as utilizzato2, t1.date as date1, t2.date as date2, t1.localizzazione as loc1, t2.localizzazione as loc2, t1.divisa as divisa1, t2.divisa as divisa2, t1.categoria as cat1, t2.categoria as cat2')
+                        ->where('t1.categoria', $singleCategoria)
+                        ->where('t2.categoria', $singleCategoria)
+                        ->whereRaw("t1.date between '" . $currentMonth->format('Y-m-01') . "' and '" . $currentMonth->format('Y-m-t') . "'")
+                        ->whereRaw("t2.date between '" . $nextMonth->format('Y-m-01') . "' and '" . $nextMonth->format('Y-m-t') . "'")
+                        ->get();
+
+                    foreach ($joins as $label => $singleJoin) {
+                        if ($singleJoin->divisa1 == $singleJoin->divisa2 && $singleJoin->loc1 == $singleJoin->loc2) {
+                            if ((float)$singleJoin->utilizzato2 > (float)$singleJoin->utilizzato1) {
+                                $aumentiUtilizzato[$singleJoin->banca] = isset($aumentiUtilizzato[$singleJoin->banca]) ? ($aumentiUtilizzato[$singleJoin->banca]) + 1 : 1;
+
+                                $importiAumenti[$singleJoin->banca][] = (float)$singleJoin->utilizzato1 == 0 ? 100 : (((float)$singleJoin->utilizzato2 - (float)$singleJoin->utilizzato1) / (float)$singleJoin->utilizzato1) * 100;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        foreach ($aumentiUtilizzato as $singleBank => $aumenti) {
+            if ($aumenti > 4) {
+                if (array_sum($importiAumenti[$singleBank]) / count($importiAumenti[$singleBank]) > 20) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public function getAnalisiCRDieci($lastYearPeriod, $latestYear, $latestMonth)
+    {
+        $categories = array(
+            'RISCHI AUTOLIQUIDANTI - CREDITI SCADUTI',
+            'RISCHI AUTOLIQUIDANTI'
+        );
+
+        $periods = $this->crExtractorHelper->buildPeriodArray();
+
+        $utilizzatoModel = DB::table('crs');
+
+        foreach ($periods as $queryPeriodArray) {
+            $utilizzatoModel->orWhere(function ($query) use ($queryPeriodArray, $categories) {
+                $query->where($queryPeriodArray);
+                $query->whereIn('categoria', $categories);
+                $query->where('utilizzato', '!=', "");
+            });
+        }
+
+        $utilizzatoModel = $utilizzatoModel
+            ->groupBy('date', 'anno', 'mese', 'utilizzato', 'divisa', 'localizzazione', 'nome_banca', 'categoria', 'accordato_operativo')
+            ->selectRaw('anno, mese, utilizzato ,divisa , localizzazione, nome_banca , categoria , date, accordato_operativo')
+            ->orderBy('date')
+            ->get();
+
+        $sortedModel = array();
+
+        foreach ($utilizzatoModel as $singleMode => $modelData) {
+            $dateObj = new DateTime($modelData->date);
+            $sortedModel[$dateObj->format('Y')][$dateObj->format('m')][$modelData->nome_banca] = $modelData;
+        }
+
+        $conteggioAumenti = array();
+        $rapportoAffidamenti = array();
+
+        foreach ($sortedModel as $singleYear => $multipleMonths) {
+            foreach ($multipleMonths as $singleMonth => $multipleBanks) {
+                foreach ($multipleBanks as $singleBank => $singleBankData) {
+                    $currentMonth = new DateTime($singleYear . '-' . $singleMonth);
+
+                    $nextMonth = new DateTime($currentMonth->format('Y-m'));
+
+                    $nextMonth = $nextMonth->modify('+1 month');
+
+                    if (isset($sortedModel[$nextMonth->format('Y')][$nextMonth->format('m')][$singleBank])) {
+                        $currentBankModel = array(
+                            'Banca' => $sortedModel[$currentMonth->format('Y')][$currentMonth->format('m')][$singleBank]->nome_banca,
+                            'Divisa' => $sortedModel[$currentMonth->format('Y')][$currentMonth->format('m')][$singleBank]->divisa,
+                            'Localizzazione' => $sortedModel[$currentMonth->format('Y')][$currentMonth->format('m')][$singleBank]->localizzazione,
+                            'Categoria' => $sortedModel[$currentMonth->format('Y')][$currentMonth->format('m')][$singleBank]->categoria,
+                            'Utilizzato' => (float)$sortedModel[$currentMonth->format('Y')][$currentMonth->format('m')][$singleBank]->utilizzato
+                        );
+
+                        $nextBankModel = array(
+                            'Banca' => $sortedModel[$nextMonth->format('Y')][$nextMonth->format('m')][$singleBank]->nome_banca,
+                            'Divisa' => $sortedModel[$nextMonth->format('Y')][$nextMonth->format('m')][$singleBank]->divisa,
+                            'Localizzazione' => $sortedModel[$nextMonth->format('Y')][$nextMonth->format('m')][$singleBank]->localizzazione,
+                            'Categoria' => $sortedModel[$nextMonth->format('Y')][$nextMonth->format('m')][$singleBank]->categoria,
+                            'Utilizzato' => (float)$sortedModel[$nextMonth->format('Y')][$nextMonth->format('m')][$singleBank]->utilizzato
+                        );
+
+                        if ($currentBankModel['Banca'] == $nextBankModel['Banca'] && $currentBankModel['Divisa'] == $nextBankModel['Divisa'] && $currentBankModel['Localizzazione'] == $nextBankModel['Localizzazione'] && $currentBankModel['Categoria'] == $nextBankModel['Categoria']) {
+                            if (($nextBankModel['Utilizzato'] - $currentBankModel['Utilizzato']) > ($currentBankModel['Utilizzato'] * (15 / 100)) || $nextBankModel['Utilizzato'] > $currentBankModel['Utilizzato'] && $currentBankModel['Utilizzato'] == 0) {
+                                $conteggioAumenti[$currentBankModel['Banca']] = isset($conteggioAumenti[$currentBankModel['Banca']]) ? ($conteggioAumenti[$currentBankModel['Banca']]) + 1 : 1;
+                                if ($conteggioAumenti[$currentBankModel['Banca']] >= 4) {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                    if ((float)$singleBankData->accordato_operativo != 0) {
+                        $rapportoAffidamenti[$singleBank] = isset($rapportoAffidamenti[$singleBank]) ? ($rapportoAffidamenti[$singleBank]) + ((float)$singleBankData->utilizzato / (float)$singleBankData->accordato_operativo) : ((float)$singleBankData->utilizzato / (float)$singleBankData->accordato_operativo);
+                    }
+                }
+            }
+        }
+
+
+        foreach ($rapportoAffidamenti as $bankName => $rapporto) {
+            $rapportoAffidamenti[$bankName] = $rapporto / $this->crExtractorHelper->getCountMonths();
+            if ($rapportoAffidamenti[$bankName] > 0.98) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function getAnalisiCRUndici($triennioPeriod, $trimestrePeriod, $lastYearPeriod, $latestYear, $latestMonth, $categories)
+    {
+        $accordatoRevocaTrimestre = $this->getMediaAccordatoOperativoGeneral($trimestrePeriod, $categories, $this->getMonthsCountFromPeriod($trimestrePeriod));
+        $accordatoRevocaTriennio = ($this->getMediaAccordatoOperativoGeneral($triennioPeriod, $categories, 36)) * 12;
+
+        $accordatoRevocaAnno = $this->getMediaAccordatoOperativoGeneral($lastYearPeriod, $categories, 1);
+        $accordatoRevocaUltimoMese = $this->getMediaAccordatoOperativoGeneral(array($latestYear => array($latestMonth => null)), $categories, 1);
+
+        if ($accordatoRevocaTriennio != 0) {
+            if (- (1 - ($accordatoRevocaAnno / $accordatoRevocaTriennio)) > 0.05) {
+                return true;
+            }
+        }
+
+        if ($accordatoRevocaTrimestre != 0) {
+            if (- (1 - ($accordatoRevocaUltimoMese / $accordatoRevocaTrimestre)) > 0.05) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function getAnalisiCRDodici($triennioPeriod, $trimestrePeriod, $lastYearPeriod, $latestYear, $latestMonth, $categories, $banks)
+    {
+        $accordatoRevocaTrimestre = $this->getMediaAccordatoOperativo($trimestrePeriod, $categories);
+        $accordatoRevocaTriennio = $this->getMediaAccordatoOperativo($triennioPeriod, $categories);
+
+        $accordatoRevocaAnno = array();
+        $accordatoRevocaUltimoMese = array();
+
+        foreach ($lastYearPeriod as $singleYear => $multipleMonths) {
+            foreach ($multipleMonths as $singleMonth => $patata) {
+
+                $totaleAffidamenti = $this->crExtractorHelper->getTotaleAffidamenti($categories, $singleYear, $singleMonth, $banks);
+
+                for ($i = 0; $i < count($totaleAffidamenti); $i++) {
+                    $accordatoRevocaAnno[$totaleAffidamenti[$i]['nome_banca']] = isset($accordatoRevocaAnno[$totaleAffidamenti[$i]['nome_banca']]) ? ($accordatoRevocaAnno[$totaleAffidamenti[$i]['nome_banca']]) + $totaleAffidamenti[$i]['totAccordatoOperativo'] : $totaleAffidamenti[$i]['totAccordatoOperativo'];
+                }
+            }
+        }
+
+        foreach (array($latestYear => array($latestMonth => null)) as $singleYear => $multipleMonths) {
+            foreach ($multipleMonths as $singleMonth => $patata) {
+
+                $totaleAffidamenti = $this->crExtractorHelper->getTotaleAffidamenti($categories, $singleYear, $singleMonth, $banks);
+
+                for ($i = 0; $i < count($totaleAffidamenti); $i++) {
+                    $accordatoRevocaUltimoMese[$totaleAffidamenti[$i]['nome_banca']] = isset($accordatoRevocaUltimoMese[$totaleAffidamenti[$i]['nome_banca']]) ? ($accordatoRevocaUltimoMese[$totaleAffidamenti[$i]['nome_banca']]) + $totaleAffidamenti[$i]['totAccordatoOperativo'] : $totaleAffidamenti[$i]['totAccordatoOperativo'];
+                }
+            }
+        }
+
+        foreach ($accordatoRevocaAnno as $singleBank => $revocaData) {
+          if(isset($accordatoRevocaTriennio[$singleBank])) {
+            if (($accordatoRevocaTriennio[$singleBank] - $revocaData) > (($accordatoRevocaTriennio[$singleBank]) / 25) * 100) {
+                return true;
+            }
+          }
+        }
+        foreach ($accordatoRevocaUltimoMese as $singleBank => $revocaData) {
+          if(isset($accordatoRevocaTrimestre[$singleBank])) {
+            if (($accordatoRevocaTrimestre[$singleBank] - $revocaData) > (($accordatoRevocaTrimestre[$singleBank]) / 25) * 100) {
+                return true;
+            }
+          }
+        }
+        return false;
+    }
+
+    public function getAnalisiCRTredici($triennioPeriod, $trimestrePeriod, $lastYearPeriod, $latestYear, $latestMonth, $categories, $banks)
+    {
+        $accordatoRevocaTrimestre = $this->getMediaAccordatoOperativo($trimestrePeriod, $categories);
+        $accordatoRevocaTriennio = $this->getMediaAccordatoOperativo($triennioPeriod, $categories);
+
+        $accordatoRevocaAnno = array();
+        $accordatoRevocaUltimoMese = array();
+
+        foreach ($lastYearPeriod as $singleYear => $multipleMonths) {
+            foreach ($multipleMonths as $singleMonth => $patata) {
+
+                $totaleAffidamenti = $this->crExtractorHelper->getTotaleAffidamenti($categories, $singleYear, $singleMonth, $banks);
+
+                for ($i = 0; $i < count($totaleAffidamenti); $i++) {
+                    $accordatoRevocaAnno[$totaleAffidamenti[$i]['nome_banca']] = isset($accordatoRevocaAnno[$totaleAffidamenti[$i]['nome_banca']]) ? ($accordatoRevocaAnno[$totaleAffidamenti[$i]['nome_banca']]) + $totaleAffidamenti[$i]['totAccordatoOperativo'] : $totaleAffidamenti[$i]['totAccordatoOperativo'];
+                }
+            }
+        }
+
+        foreach (array($latestYear => array($latestMonth => null)) as $singleYear => $multipleMonths) {
+            foreach ($multipleMonths as $singleMonth => $patata) {
+
+                $totaleAffidamenti = $this->getTotaleAffidamentiPerFirma($categories, $singleYear, $singleMonth);
+
+                for ($i = 0; $i < count($totaleAffidamenti); $i++) {
+                    $accordatoRevocaUltimoMese[$totaleAffidamenti[$i]['nome_banca']] = isset($accordatoRevocaUltimoMese[$totaleAffidamenti[$i]['nome_banca']]) ? ($accordatoRevocaUltimoMese[$totaleAffidamenti[$i]['nome_banca']]) + $totaleAffidamenti[$i]['totAccordatoOperativo'] : $totaleAffidamenti[$i]['totAccordatoOperativo'];
+                }
+            }
+        }
+
+        foreach ($accordatoRevocaAnno as $singleBank => $revocaData) {
+          if(isset($accordatoRevocaTriennio[$singleBank])) {
+            if (($accordatoRevocaTriennio[$singleBank] - $revocaData) > (($accordatoRevocaTriennio[$singleBank]) / 25) * 100) {
+                return true;
+            }
+          }
+        }
+        foreach ($accordatoRevocaUltimoMese as $singleBank => $revocaData) {
+          if(isset($accordatoRevocaTrimestre[$singleBank])) {
+            if (($accordatoRevocaTrimestre[$singleBank] - $revocaData) > (($accordatoRevocaTrimestre[$singleBank]) / 25) * 100) {
+                return true;
+            }
+          }
+        }
+        return false;
+    }
+
+    public function getAnalisiCRQuattordici($banks)
+    {
+        return (count($this->crExtractorHelper->getTotaleSconfini($banks)['SconfiniOltre90Giorni']) > 0 || count($this->crExtractorHelper->getTotaleSconfini($banks)['SconfiniOltre180Giorni']) > 0);
+    }
+    public function getAnalisiCRQuindici($banks)
+    {
+        return ($this->crExtractorHelper->getGaranzieEsitoNegativo($banks) > 0);
+    }
+    public function getAnalisiCRSedici($banks)
+    {
+        return (count($this->crExtractorHelper->getSofferenze($banks)) > 0 || count($this->crExtractorHelper->getCreditiPassatiPerdita($banks)) > 0);
+    }
+}

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Version 2018-11-04 11:01:01 -->
+<linkbase xmlns="http://www.xbrl.org/2003/linkbase" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.xbrl.org/2003/linkbase http://www.xbrl.org/2003/xbrl-linkbase-2003-12-31.xsd">
+  <roleRef xlink:type="simple" xlink:href="itcc-ci-roles-2018-11-04.xsd#NotaIntegrativaParteIniziale" roleURI="http://www.infocamere.it/itnn/fr/itcc/role/NotaIntegrativaParteIniziale"/>
+  <presentationLink xlink:type="extended" xlink:role="http://www.infocamere.it/itnn/fr/itcc/role/NotaIntegrativaParteIniziale">
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_NotaIntegrativaParteIniziale" xlink:label="itcc-ci_NotaIntegrativaParteIniziale"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_IntroduzioneNotaIntegrativa" xlink:label="itcc-ci_IntroduzioneNotaIntegrativa"/>
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="itcc-ci_NotaIntegrativaParteIniziale" xlink:to="itcc-ci_IntroduzioneNotaIntegrativa" order="1" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_PrincipiRedazione" xlink:label="itcc-ci_PrincipiRedazione"/>
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="itcc-ci_NotaIntegrativaParteIniziale" xlink:to="itcc-ci_PrincipiRedazione" order="2" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_CommentoPrincipiRedazione" xlink:label="itcc-ci_CommentoPrincipiRedazione"/>
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="itcc-ci_PrincipiRedazione" xlink:to="itcc-ci_CommentoPrincipiRedazione" order="1" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_CasiEccezionaliExArt2423QuintoCommaCodiceCivile" xlink:label="itcc-ci_CasiEccezionaliExArt2423QuintoCommaCodiceCivile"/>
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="itcc-ci_NotaIntegrativaParteIniziale" xlink:to="itcc-ci_CasiEccezionaliExArt2423QuintoCommaCodiceCivile" order="3" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_CommentoCasiEccezionaliExArt2423QuintoCommaCodiceCivile" xlink:label="itcc-ci_CommentoCasiEccezionaliExArt2423QuintoCommaCodiceCivile"/>
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="itcc-ci_CasiEccezionaliExArt2423QuintoCommaCodiceCivile" xlink:to="itcc-ci_CommentoCasiEccezionaliExArt2423QuintoCommaCodiceCivile" order="1" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_CambiamentiPrincipiContabili" xlink:label="itcc-ci_CambiamentiPrincipiContabili"/>
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="itcc-ci_NotaIntegrativaParteIniziale" xlink:to="itcc-ci_CambiamentiPrincipiContabili" order="4" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_CommentoCambiamentiPrincipiContabili" xlink:label="itcc-ci_CommentoCambiamentiPrincipiContabili"/>
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="itcc-ci_CambiamentiPrincipiContabili" xlink:to="itcc-ci_CommentoCambiamentiPrincipiContabili" order="1" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_CorrezioneErroriRilevanti" xlink:label="itcc-ci_CorrezioneErroriRilevanti"/>
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="itcc-ci_NotaIntegrativaParteIniziale" xlink:to="itcc-ci_CorrezioneErroriRilevanti" order="5" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_CommentoCorrezioneErroriRilevanti" xlink:label="itcc-ci_CommentoCorrezioneErroriRilevanti"/>
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="itcc-ci_CorrezioneErroriRilevanti" xlink:to="itcc-ci_CommentoCorrezioneErroriRilevanti" order="1" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_ProblematicheComparabilitaAdattamento" xlink:label="itcc-ci_ProblematicheComparabilitaAdattamento"/>
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="itcc-ci_NotaIntegrativaParteIniziale" xlink:to="itcc-ci_ProblematicheComparabilitaAdattamento" order="6" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_CommentoProblematicheComparabilitaAdattamento" xlink:label="itcc-ci_CommentoProblematicheComparabilitaAdattamento"/>
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="itcc-ci_ProblematicheComparabilitaAdattamento" xlink:to="itcc-ci_CommentoProblematicheComparabilitaAdattamento" order="1" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_CriteriValutazioneApplicati" xlink:label="itcc-ci_CriteriValutazioneApplicati"/>
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="itcc-ci_NotaIntegrativaParteIniziale" xlink:to="itcc-ci_CriteriValutazioneApplicati" order="7" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_CommentoCriteriValutazioneApplicati" xlink:label="itcc-ci_CommentoCriteriValutazioneApplicati"/>
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="itcc-ci_CriteriValutazioneApplicati" xlink:to="itcc-ci_CommentoCriteriValutazioneApplicati" order="1" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_AltreInformazioni" xlink:label="itcc-ci_AltreInformazioni"/>
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="itcc-ci_NotaIntegrativaParteIniziale" xlink:to="itcc-ci_AltreInformazioni" order="8" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_CommentoAltreInformazioni" xlink:label="itcc-ci_CommentoAltreInformazioni"/>
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="itcc-ci_AltreInformazioni" xlink:to="itcc-ci_CommentoAltreInformazioni" order="1" priority="0" use="optional"/>
+  </presentationLink>
+</linkbase>

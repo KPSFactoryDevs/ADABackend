@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Version 2018-11-04 11:06:30 -->
+<linkbase xmlns="http://www.xbrl.org/2003/linkbase" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.xbrl.org/2003/linkbase http://www.xbrl.org/2003/xbrl-linkbase-2003-12-31.xsd">
+  <roleRef xlink:type="simple" xlink:href="itcc-ci-roles-2018-11-04.xsd#NotaIntegrativaContoEconomico" roleURI="http://www.infocamere.it/itnn/fr/itcc/role/NotaIntegrativaContoEconomico"/>
+  <roleRef xlink:type="simple" xlink:href="itcc-ci-roles-2018-11-04.xsd#NotaIntegrativaContoEconomicoTotale" roleURI="http://www.infocamere.it/itnn/fr/itcc/role/NotaIntegrativaContoEconomicoTotale"/>
+  <roleRef xlink:type="simple" xlink:href="itcc-ci-roles-2018-11-04.xsd#NotaIntegrativaContoEconomicoAltro" roleURI="http://www.infocamere.it/itnn/fr/itcc/role/NotaIntegrativaContoEconomicoAltro"/>
+  <roleRef xlink:type="simple" xlink:href="itcc-ci-roles-2018-11-04.xsd#SommeImportiTupleNotaIntegrativaContoEconomico" roleURI="http://www.infocamere.it/itnn/fr/itcc/role/SommeImportiTupleNotaIntegrativaContoEconomico"/>
+  <calculationLink xlink:type="extended" xlink:role="http://www.infocamere.it/itnn/fr/itcc/role/NotaIntegrativaContoEconomico">
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_TotaleProventiDiversiDividendi" xlink:label="itcc-ci_TotaleProventiDiversiDividendi"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_ProventiDiversiDividendiImpreseControllate" xlink:label="itcc-ci_ProventiDiversiDividendiImpreseControllate"/>
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="itcc-ci_TotaleProventiDiversiDividendi" xlink:to="itcc-ci_ProventiDiversiDividendiImpreseControllate" order="1.0" weight="1" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_ProventiDiversiDividendiImpreseCollegate" xlink:label="itcc-ci_ProventiDiversiDividendiImpreseCollegate"/>
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="itcc-ci_TotaleProventiDiversiDividendi" xlink:to="itcc-ci_ProventiDiversiDividendiImpreseCollegate" order="2.0" weight="1" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_ProventiDiversiDividendiImpreseControllanti" xlink:label="itcc-ci_ProventiDiversiDividendiImpreseControllanti"/>
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="itcc-ci_TotaleProventiDiversiDividendi" xlink:to="itcc-ci_ProventiDiversiDividendiImpreseControllanti" order="3.0" weight="1" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_ProventiDiversiDividendiImpreseSottoposteControlloControllanti" xlink:label="itcc-ci_ProventiDiversiDividendiImpreseSottoposteControlloControllanti"/>
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="itcc-ci_TotaleProventiDiversiDividendi" xlink:to="itcc-ci_ProventiDiversiDividendiImpreseSottoposteControlloControllanti" order="4.0" weight="1" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_ProventiDiversiDividendiAltri" xlink:label="itcc-ci_ProventiDiversiDividendiAltri"/>
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="itcc-ci_TotaleProventiDiversiDividendi" xlink:to="itcc-ci_ProventiDiversiDividendiAltri" order="5.0" weight="1" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_PerditeFiscaliTotalePerditeFiscaliAmmontare" xlink:label="itcc-ci_PerditeFiscaliTotalePerditeFiscaliAmmontare"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_PerditeFiscaliEsercizioAmmontare" xlink:label="itcc-ci_PerditeFiscaliEsercizioAmmontare"/>
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="itcc-ci_PerditeFiscaliTotalePerditeFiscaliAmmontare" xlink:to="itcc-ci_PerditeFiscaliEsercizioAmmontare" order="1.0" weight="1" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_PerditeFiscaliEserciziPrecedentiAmmontare" xlink:label="itcc-ci_PerditeFiscaliEserciziPrecedentiAmmontare"/>
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="itcc-ci_PerditeFiscaliTotalePerditeFiscaliAmmontare" xlink:to="itcc-ci_PerditeFiscaliEserciziPrecedentiAmmontare" order="2.0" weight="1" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_DifferenzeTemporaneeNetteIRES" xlink:label="itcc-ci_DifferenzeTemporaneeNetteIRES"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_TotaleDifferenzeTemporaneeImponibiliIRES" xlink:label="itcc-ci_TotaleDifferenzeTemporaneeImponibiliIRES"/>
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="itcc-ci_DifferenzeTemporaneeNetteIRES" xlink:to="itcc-ci_TotaleDifferenzeTemporaneeImponibiliIRES" order="1.0" weight="1" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_TotaleDifferenzeTemporaneeDeducibiliIRES" xlink:label="itcc-ci_TotaleDifferenzeTemporaneeDeducibiliIRES"/>
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="itcc-ci_DifferenzeTemporaneeNetteIRES" xlink:to="itcc-ci_TotaleDifferenzeTemporaneeDeducibiliIRES" order="2.0" weight="-1" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_DifferenzeTemporaneeNetteIRAP" xlink:label="itcc-ci_DifferenzeTemporaneeNetteIRAP"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_TotaleDifferenzeTemporaneeImponibiliIRAP" xlink:label="itcc-ci_TotaleDifferenzeTemporaneeImponibiliIRAP"/>
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="itcc-ci_DifferenzeTemporaneeNetteIRAP" xlink:to="itcc-ci_TotaleDifferenzeTemporaneeImponibiliIRAP" order="1.0" weight="1" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_TotaleDifferenzeTemporaneeDeducibiliIRAP" xlink:label="itcc-ci_TotaleDifferenzeTemporaneeDeducibiliIRAP"/>
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="itcc-ci_DifferenzeTemporaneeNetteIRAP" xlink:to="itcc-ci_TotaleDifferenzeTemporaneeDeducibiliIRAP" order="2.0" weight="-1" priority="0" use="optional"/>
+  </calculationLink>
+  <calculationLink xlink:type="extended" xlink:role="http://www.infocamere.it/itnn/fr/itcc/role/NotaIntegrativaContoEconomicoTotale">
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_ValoreProduzioneRicaviVenditePrestazioni" xlink:label="itcc-ci_ValoreProduzioneRicaviVenditePrestazioni"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_ValoreEsercizioCorrenteRicaviVenditePrestazioniCategoriaAttivita" xlink:label="itcc-ci_ValoreEsercizioCorrenteRicaviVenditePrestazioniCategoriaAttivita"/>
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="itcc-ci_ValoreProduzioneRicaviVenditePrestazioni" xlink:to="itcc-ci_ValoreEsercizioCorrenteRicaviVenditePrestazioniCategoriaAttivita" order="1.0" weight="1" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_TotaleInteressiAltriOneriFinanziari" xlink:label="itcc-ci_TotaleInteressiAltriOneriFinanziari"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_PrestitiObbligazionariInteressiAltriOneriFinanziari" xlink:label="itcc-ci_PrestitiObbligazionariInteressiAltriOneriFinanziari"/>
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="itcc-ci_TotaleInteressiAltriOneriFinanziari" xlink:to="itcc-ci_PrestitiObbligazionariInteressiAltriOneriFinanziari" order="1.0" weight="1" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_DebitiVersoBancheInteressiAltriOneriFinanziari" xlink:label="itcc-ci_DebitiVersoBancheInteressiAltriOneriFinanziari"/>
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="itcc-ci_TotaleInteressiAltriOneriFinanziari" xlink:to="itcc-ci_DebitiVersoBancheInteressiAltriOneriFinanziari" order="2.0" weight="1" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_AltriInteressiAltriOneriFinanziari" xlink:label="itcc-ci_AltriInteressiAltriOneriFinanziari"/>
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="itcc-ci_TotaleInteressiAltriOneriFinanziari" xlink:to="itcc-ci_AltriInteressiAltriOneriFinanziari" order="3.0" weight="1" priority="0" use="optional"/>
+  </calculationLink>
+  <calculationLink xlink:type="extended" xlink:role="http://www.infocamere.it/itnn/fr/itcc/role/NotaIntegrativaContoEconomicoAltro"/>
+  <calculationLink xlink:type="extended" xlink:role="http://www.infocamere.it/itnn/fr/itcc/role/SommeImportiTupleNotaIntegrativaContoEconomico">
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_ValoreProduzioneRicaviVenditePrestazioni" xlink:label="itcc-ci_ValoreProduzioneRicaviVenditePrestazioni"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_ValoreEsercizioCorrenteRicaviVenditePrestazioniAreaGeografica" xlink:label="itcc-ci_ValoreEsercizioCorrenteRicaviVenditePrestazioniAreaGeografica"/>
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="itcc-ci_ValoreProduzioneRicaviVenditePrestazioni" xlink:to="itcc-ci_ValoreEsercizioCorrenteRicaviVenditePrestazioniAreaGeografica" order="1.0" weight="1" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_TotaleImportoElementiRicavoEntitaIncidenzaEccezionali" xlink:label="itcc-ci_TotaleImportoElementiRicavoEntitaIncidenzaEccezionali"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_ElementiRicavoEntitaIncidenzaEccezionaliImporto" xlink:label="itcc-ci_ElementiRicavoEntitaIncidenzaEccezionaliImporto"/>
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="itcc-ci_TotaleImportoElementiRicavoEntitaIncidenzaEccezionali" xlink:to="itcc-ci_ElementiRicavoEntitaIncidenzaEccezionaliImporto" order="1.0" weight="1" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_TotaleImportoElementiCostoEntitaIncidenzaEccezionali" xlink:label="itcc-ci_TotaleImportoElementiCostoEntitaIncidenzaEccezionali"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_ElementiCostoEntitaIncidenzaEccezionaliImporto" xlink:label="itcc-ci_ElementiCostoEntitaIncidenzaEccezionaliImporto"/>
+    <calculationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/summation-item" xlink:from="itcc-ci_TotaleImportoElementiCostoEntitaIncidenzaEccezionali" xlink:to="itcc-ci_ElementiCostoEntitaIncidenzaEccezionaliImporto" order="1.0" weight="1" priority="0" use="optional"/>
+  </calculationLink>
+</linkbase>

@@ -1,0 +1,37 @@
+[
+    {
+        "model-name": "Account",
+        "resource-file": "accounts.json",
+        "table-name": "accounts"
+    },
+    {
+        "model-name": "Analisi",
+        "resource-file": "analisis.json",
+        "table-name": "analisis"
+    },
+    {
+        "model-name": "vocibilancio",
+        "resource-file": "vocibilancios.json",
+        "table-name": "vocibilancios"
+    },
+    {
+        "model-name": "indici",
+        "resource-file": "indicis.json",
+        "table-name": "indicis"
+    },
+    {
+        "model-name": "cr",
+        "resource-file": "crs.json",
+        "table-name": "crs"
+    },
+    {
+        "model-name": "soglie",
+        "resource-file": "soglies.json",
+        "table-name": "soglies"
+    },
+    {
+        "model-name": "Roe",
+        "resource-file": "roes.json",
+        "table-name": "roes"
+    }
+]

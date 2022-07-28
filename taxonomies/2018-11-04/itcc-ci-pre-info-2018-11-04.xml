@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Version 2018-11-04 11:00:46 -->
+<linkbase xmlns="http://www.xbrl.org/2003/linkbase" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.xbrl.org/2003/linkbase http://www.xbrl.org/2003/xbrl-linkbase-2003-12-31.xsd">
+  <roleRef xlink:type="simple" xlink:href="itcc-ci-roles-2018-11-04.xsd#InfoGenerali" roleURI="http://www.infocamere.it/itnn/fr/itcc/role/InfoGenerali"/>
+  <presentationLink xlink:type="extended" xlink:role="http://www.infocamere.it/itnn/fr/itcc/role/InfoGenerali">
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_InformazioniGeneraliImpresa" xlink:label="itcc-ci_InformazioniGeneraliImpresa"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_DatiAnagrafici" xlink:label="itcc-ci_DatiAnagrafici"/>
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="itcc-ci_InformazioniGeneraliImpresa" xlink:to="itcc-ci_DatiAnagrafici" order="1" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_DatiAnagraficiDenominazione" xlink:label="itcc-ci_DatiAnagraficiDenominazione"/>
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="itcc-ci_DatiAnagrafici" xlink:to="itcc-ci_DatiAnagraficiDenominazione" order="1" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_DatiAnagraficiSede" xlink:label="itcc-ci_DatiAnagraficiSede"/>
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="itcc-ci_DatiAnagrafici" xlink:to="itcc-ci_DatiAnagraficiSede" order="2" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_DatiAnagraficiCapitaleSociale" xlink:label="itcc-ci_DatiAnagraficiCapitaleSociale"/>
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="itcc-ci_DatiAnagrafici" xlink:to="itcc-ci_DatiAnagraficiCapitaleSociale" order="3" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_DatiAnagraficiCapitaleSocialeInteramenteVersato" xlink:label="itcc-ci_DatiAnagraficiCapitaleSocialeInteramenteVersato"/>
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="itcc-ci_DatiAnagrafici" xlink:to="itcc-ci_DatiAnagraficiCapitaleSocialeInteramenteVersato" order="4" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_DatiAnagraficiCodiceCciaa" xlink:label="itcc-ci_DatiAnagraficiCodiceCciaa"/>
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="itcc-ci_DatiAnagrafici" xlink:to="itcc-ci_DatiAnagraficiCodiceCciaa" order="5" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_DatiAnagraficiPartitaIva" xlink:label="itcc-ci_DatiAnagraficiPartitaIva"/>
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="itcc-ci_DatiAnagrafici" xlink:to="itcc-ci_DatiAnagraficiPartitaIva" order="6" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_DatiAnagraficiCodiceFiscale" xlink:label="itcc-ci_DatiAnagraficiCodiceFiscale"/>
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="itcc-ci_DatiAnagrafici" xlink:to="itcc-ci_DatiAnagraficiCodiceFiscale" order="7" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_DatiAnagraficiNumeroRea" xlink:label="itcc-ci_DatiAnagraficiNumeroRea"/>
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="itcc-ci_DatiAnagrafici" xlink:to="itcc-ci_DatiAnagraficiNumeroRea" order="8" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_DatiAnagraficiFormaGiuridica" xlink:label="itcc-ci_DatiAnagraficiFormaGiuridica"/>
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="itcc-ci_DatiAnagrafici" xlink:to="itcc-ci_DatiAnagraficiFormaGiuridica" order="9" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_DatiAnagraficiSettoreAttivitaPrevalenteAteco" xlink:label="itcc-ci_DatiAnagraficiSettoreAttivitaPrevalenteAteco"/>
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="itcc-ci_DatiAnagrafici" xlink:to="itcc-ci_DatiAnagraficiSettoreAttivitaPrevalenteAteco" order="10" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_DatiAnagraficiSocietaLiquidazione" xlink:label="itcc-ci_DatiAnagraficiSocietaLiquidazione"/>
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="itcc-ci_DatiAnagrafici" xlink:to="itcc-ci_DatiAnagraficiSocietaLiquidazione" order="11" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_DatiAnagraficiSocietaSocioUnico" xlink:label="itcc-ci_DatiAnagraficiSocietaSocioUnico"/>
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="itcc-ci_DatiAnagrafici" xlink:to="itcc-ci_DatiAnagraficiSocietaSocioUnico" order="12" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_DatiAnagraficiSocietaSottopostaAltruiAttivitaDirezioneCoordinamento" xlink:label="itcc-ci_DatiAnagraficiSocietaSottopostaAltruiAttivitaDirezioneCoordinamento"/>
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="itcc-ci_DatiAnagrafici" xlink:to="itcc-ci_DatiAnagraficiSocietaSottopostaAltruiAttivitaDirezioneCoordinamento" order="13" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_DatiAnagraficiDenominazioneSocietaEnteEsercitaAttivitaDirezioneCoordinamento" xlink:label="itcc-ci_DatiAnagraficiDenominazioneSocietaEnteEsercitaAttivitaDirezioneCoordinamento"/>
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="itcc-ci_DatiAnagrafici" xlink:to="itcc-ci_DatiAnagraficiDenominazioneSocietaEnteEsercitaAttivitaDirezioneCoordinamento" order="14" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_DatiAnagraficiAppartenenzaGruppo" xlink:label="itcc-ci_DatiAnagraficiAppartenenzaGruppo"/>
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="itcc-ci_DatiAnagrafici" xlink:to="itcc-ci_DatiAnagraficiAppartenenzaGruppo" order="15" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_DatiAnagraficiDenominazioneSocietaCapogruppo" xlink:label="itcc-ci_DatiAnagraficiDenominazioneSocietaCapogruppo"/>
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="itcc-ci_DatiAnagrafici" xlink:to="itcc-ci_DatiAnagraficiDenominazioneSocietaCapogruppo" order="16" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_DatiAnagraficiPaeseCapogruppo" xlink:label="itcc-ci_DatiAnagraficiPaeseCapogruppo"/>
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="itcc-ci_DatiAnagrafici" xlink:to="itcc-ci_DatiAnagraficiPaeseCapogruppo" order="17" priority="0" use="optional"/>
+    <loc xlink:type="locator" xlink:href="itcc-ci-2018-11-04.xsd#itcc-ci_DatiAnagraficiNumeroIscrizioneAlboCooperative" xlink:label="itcc-ci_DatiAnagraficiNumeroIscrizioneAlboCooperative"/>
+    <presentationArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/parent-child" xlink:from="itcc-ci_DatiAnagrafici" xlink:to="itcc-ci_DatiAnagraficiNumeroIscrizioneAlboCooperative" order="18" priority="0" use="optional"/>
+  </presentationLink>
+</linkbase>
