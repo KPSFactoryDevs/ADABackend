@@ -28,7 +28,7 @@ Route::group(['middleware' => ['cors', 'json.response']], function () {
 	Route::post('/analisiBilancioGeneral', 'App\Http\Controllers\AnalisisController@store');
 	
 
-    // BILANCI
+    // BILANCI 
  	Route::post('/copiaBilancio', 'App\Financial\Bilanci\Controllers\BilanciController@copiaBilancio');
     Route::post('/recapBilancio', 'App\Financial\Bilanci\Controllers\BilanciController@recap');
     Route::post('/importBilancio', 'App\Financial\Bilanci\Controllers\BilanciController@store');
