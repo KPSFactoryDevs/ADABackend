@@ -1,5 +1,5 @@
 <?php
-
+namespace XBRL;
 /**
  * Implements the XBRL_Global class.
  *
@@ -28,12 +28,13 @@
  * bases.  This class acts as common repository of these artifacts of a taxonomy.
  * @author Bill Seddon
  */
+  use XBRL;
 class XBRL_Global
 {
 
 	/**
 	 * A reference to this singleton instance
-	 * @var XBRL_Global Singleton
+	 * @var Singleton
 	 */
 	private static $instance;
 
@@ -41,7 +42,7 @@ class XBRL_Global
 
 	/**
 	 * An array containing the set of taxonmies
-	 * @var array
+	 * @var array[XBRL]
 	 */
 	public $importedSchemas = array();
 	/**
@@ -284,7 +285,7 @@ class XBRL_Global
 		if ( is_string( $href ) && \XBRL::endsWith( $href, '.xsd' ) && \XBRL::startsWith( $href, 'http' ) )
 		{
 			if ( ! isset( $this->schemaFileToNamespace[ $href ] ) )
-				return false;
+				return null;
 
 			$xsd = $href;
 		}

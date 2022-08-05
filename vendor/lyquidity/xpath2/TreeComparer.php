@@ -33,7 +33,6 @@ use lyquidity\xml\xpath\XPathItem;
 use lyquidity\XPath2\Value\AnyUriValue;
 use lyquidity\XPath2\Value\UntypedAtomic;
 use lyquidity\XPath2\Proxy\ValueProxy;
-use lyquidity\xml\xpath\XPathNodeIterator;
 use lyquidity\xml\xpath\XPathNodeType;
 use lyquidity\xml\xpath\XPathNavigator;
 use lyquidity\XPath2\Iterator\ExprIterator;
@@ -112,7 +111,7 @@ class TreeComparer
 	//
 	/**
 	 * The attributeToIgnore function allows the caller to define the selection attribute that should not affect equality.
-	 * @var mixed
+	 * @var unknown
 	 */
 	public $attributeToIgnore = null;
 
@@ -266,7 +265,7 @@ class TreeComparer
 			}
 		}
 
-		$res = null;
+		$res;
 		$result = ValueProxy::EqValues( $x, $y, $res) && $res;
 		return $result;
 

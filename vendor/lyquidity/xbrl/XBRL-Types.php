@@ -1,5 +1,5 @@
 <?php
-
+namespace XBRL;
 /**
  * Implements class to hold and manage types.
  *
@@ -45,7 +45,7 @@ class XBRL_Types extends \lyquidity\xml\schema\SchemaTypes
 
 	/**
 	 * Get an instance of the types singleton
-	 * @param Closure $instance (optional) A potentially descendant instance to use
+	 * @param Function $instance (optional) A potentially descendant instance to use
 	 * @return SchemaTypes
 	 */
 	public static function &getInstance( $instance = null )
@@ -55,9 +55,6 @@ class XBRL_Types extends \lyquidity\xml\schema\SchemaTypes
 			return parent::getInstance();
 		}
 
-		/**
-		 * @var XBRL_Types $instance
-		 */
 		$instance = parent::getInstance( new self() );
 		$instance->fromFile();
 		return $instance;
@@ -135,7 +132,7 @@ class XBRL_Types extends \lyquidity\xml\schema\SchemaTypes
 
 	/**
 	 * Allows a constructor to load types from a json file
-	 * @param string $source File name
+	 * @param $source File name
 	 * @return bool
 	 */
 	public function fromFile( $source = null )

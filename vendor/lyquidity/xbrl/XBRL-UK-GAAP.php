@@ -165,7 +165,7 @@ class XBRL_UK_GAAP extends XBRL
 	 * An array of element ids that when they appear in a report their values should be treated as text.
 	 * This has a specific meaning in the default report: the associated values are not shown tied to a
 	 * specific financial year.
-	 * @var string[]
+	 * @var array[string]
 	 */
 	private static $textItems = array(
 		"uk-bus_DescriptionShareType",
@@ -301,6 +301,7 @@ class XBRL_UK_GAAP extends XBRL
 	{
 		if ( $node['nodeclass'] === 'simple' ) return;
 
+		$dimensionItems	= $taxonomy->getDefinitionDimensionItems(); // These are element names in a defintion linkbase that are not primary items
 		$primaryItems	= $taxonomy->getDefinitionPrimaryItems();
 
 		$primaryItem = $primaryItems[ $node['label'] ];

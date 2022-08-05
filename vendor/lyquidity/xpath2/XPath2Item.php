@@ -29,13 +29,10 @@
 
 namespace lyquidity\XPath2;
 
-use lyquidity\xml\TypeCode;
 use lyquidity\xml\xpath\XPathItem;
 use \lyquidity\xml\interfaces\IConvertable;
-use lyquidity\xml\interfaces\IFormatProvider;
 use \lyquidity\XPath2\lyquidity\Type;
 use lyquidity\XPath2\DOM\DOMSchemaType;
-use lyquidity\xml\MS\IXmlNamespaceResolver;
 use lyquidity\xml\MS\XmlTypeCode;
 use lyquidity\xml\MS\XmlSchemaType;
 use lyquidity\XPath2\Value\TimeValue;
@@ -67,14 +64,6 @@ use lyquidity\xml\interfaces\IXmlSchemaType;
 use lyquidity\XPath2\Proxy\ValueProxy;
 use lyquidity\xml\exceptions\NotImplementedException;
 use lyquidity\xml\exceptions\ArgumentException;
-use lyquidity\XPath2\Proxy\DoubleProxy;
-use lyquidity\XPath2\Proxy\BoolProxy;
-use lyquidity\XPath2\Proxy\ByteProxy;
-use lyquidity\XPath2\Proxy\ShortProxy;
-use lyquidity\XPath2\Proxy\SByteProxy;
-use lyquidity\XPath2\Proxy\UShortProxy;
-use lyquidity\XPath2\Proxy\UIntProxy;
-use lyquidity\XPath2\Proxy\ULongProxy;
 
 /**
  * XPath2Item (public final)
@@ -468,7 +457,7 @@ class XPath2Item implements XPathItem, IConvertable
 	{
 		// Unused = XPath2ResultType::Error
 		if ( is_null( $this->_value ) || $this->_value instanceof Undefined )
-			return XPath2ResultType::Any;
+			return XmlTypeCode::Any;
 
 		if ( $this->_value instanceof  XPath2NodeIterator )
 			return XPath2ResultType::NodeSet;
@@ -581,7 +570,7 @@ class XPath2Item implements XPathItem, IConvertable
 
 	/**
 	 * getValueAsDateTime
-	 * @return DateTimeValue
+	 * @return DateTime
 	 */
 	public function getValueAsDateTime()
 	{
@@ -590,7 +579,7 @@ class XPath2Item implements XPathItem, IConvertable
 
 	/**
 	 * getValueAsDouble
-	 * @return DoubleProxy
+	 * @return double
 	 */
 	public function getValueAsDouble()
 	{
@@ -658,7 +647,7 @@ class XPath2Item implements XPathItem, IConvertable
 	/**
 	 * ToBoolean
 	 * @param IFormatProvider $provider
-	 * @return BoolProxy
+	 * @return bool
 	 */
 	public function ToBoolean( $provider )
 	{
@@ -668,7 +657,7 @@ class XPath2Item implements XPathItem, IConvertable
 	/**
 	 * ToByte
 	 * @param IFormatProvider $provider
-	 * @return ByteProxy
+	 * @return byte
 	 */
 	public function ToByte( $provider )
 	{
@@ -678,7 +667,7 @@ class XPath2Item implements XPathItem, IConvertable
 	/**
 	 * ToChar
 	 * @param IFormatProvider $provider
-	 * @return string
+	 * @return char
 	 */
 	public function ToChar( $provider )
 	{
@@ -688,7 +677,7 @@ class XPath2Item implements XPathItem, IConvertable
 	/**
 	 * ToDateTime
 	 * @param IFormatProvider $provider
-	 * @return DateTimeValue
+	 * @return DateTime
 	 */
 	public function ToDateTime( $provider )
 	{
@@ -708,7 +697,7 @@ class XPath2Item implements XPathItem, IConvertable
 	/**
 	 * ToDouble
 	 * @param IFormatProvider $provider
-	 * @return DoubleProxy
+	 * @return double
 	 */
 	public function ToDouble( $provider )
 	{
@@ -718,7 +707,7 @@ class XPath2Item implements XPathItem, IConvertable
 	/**
 	 * ToInt16
 	 * @param IFormatProvider $provider
-	 * @return ShortProxy
+	 * @return short
 	 */
 	public function ToInt16( $provider )
 	{
@@ -728,7 +717,7 @@ class XPath2Item implements XPathItem, IConvertable
 	/**
 	 * ToInt
 	 * @param IFormatProvider $provider
-	 * @return Integer
+	 * @return int
 	 */
 	public function ToInt( $provider )
 	{
@@ -758,7 +747,7 @@ class XPath2Item implements XPathItem, IConvertable
 	/**
 	 * ToSByte
 	 * @param IFormatProvider $provider
-	 * @return SByteProxy
+	 * @return sbyte
 	 */
 	public function ToSByte( $provider )
 	{
@@ -800,7 +789,7 @@ class XPath2Item implements XPathItem, IConvertable
 	/**
 	 * ToUInt16
 	 * @param IFormatProvider $provider
-	 * @return UShortProxy
+	 * @return ushort
 	 */
 	public function ToUInt16( $provider )
 	{
@@ -810,7 +799,7 @@ class XPath2Item implements XPathItem, IConvertable
 	/**
 	 * ToUInt32
 	 * @param IFormatProvider $provider
-	 * @return UIntProxy
+	 * @return uint
 	 */
 	public function ToUInt32( $provider )
 	{
@@ -820,7 +809,7 @@ class XPath2Item implements XPathItem, IConvertable
 	/**
 	 * ToUInt64
 	 * @param IFormatProvider $provider
-	 * @return ULongProxy
+	 * @return ulong
 	 */
 	public function ToUInt64( $provider )
 	{

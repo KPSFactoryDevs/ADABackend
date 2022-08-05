@@ -31,7 +31,6 @@ namespace XBRL\functions;
 
 use lyquidity\XPath2\FunctionTable;
 use lyquidity\XPath2\XPath2ResultType;
-use lyquidity\XPath2\Value\QNameValue;
 use lyquidity;
 
 $functionTable = FunctionTable::getInstance();

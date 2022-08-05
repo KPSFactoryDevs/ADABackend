@@ -84,12 +84,11 @@ class FunctionDesc
 
 	/**
 	 * GetHashCode
-	 * This is unused
 	 * @return int
 	 */
 	public function GetHashCode( )
 	{
-		return $this->name;
+		return $name.GetHashCode( );
 	}
 
 }

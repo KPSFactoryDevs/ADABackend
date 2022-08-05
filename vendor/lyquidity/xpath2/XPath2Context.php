@@ -94,21 +94,6 @@ class XPath2Context
 		{
 			$this->NamespaceManager->addNamespace("local", XmlReservedNs::xQueryLocalFunc);
 		}
-
-		if ( ! $this->NamespaceManager->hasNamespace("math") )
-		{
-			$this->NamespaceManager->addNamespace("math", XmlReservedNs::xQueryMath);
-		}
-
-		if ( ! $this->NamespaceManager->hasNamespace("map") )
-		{
-			$this->NamespaceManager->addNamespace("map", XmlReservedNs::xQueryMap);
-		}
-
-		if ( ! $this->NamespaceManager->hasNamespace("array") )
-		{
-			$this->NamespaceManager->addNamespace("array", XmlReservedNs::xQueryArray);
-		}
 	}
 
 	/**
@@ -125,7 +110,7 @@ class XPath2Context
 
 	/**
 	 * NamespaceManager
-	 * @var \lyquidity\xml\MS\XmlNamespaceManager $NamespaceManager
+	 * @var XmlNamespaceManager $NamespaceManager
 	 */
 	public $NamespaceManager;
 
