@@ -27,10 +27,16 @@ class BilanciController extends Controller
     /**
      * @return \Illuminate\View\View
      */
-    public function index()
+    public function index(Request $request)
     {
-        $bilancis = Bilanci::with('account')->paginate(25);
-
+        $bilancis = Bilanci::with('account');
+		
+			if($request->header('currentcompany') || $request->header('currentcompany') === 0) {
+				$bilancis = $bilancis->where('company_id', $request->header('currentcompany'));
+			}
+		$bilancis = $bilancis->paginate(25);
+			
+		 
         foreach ($bilancis as $singleBilancio) {
             $year = explode(' ', $singleBilancio->year);
             $year = $year[0];
@@ -72,6 +78,24 @@ class BilanciController extends Controller
 			return response()->json([
 				'error' => true,
 				'data' => "ID Bilancio non trovato"
+			], 404);
+		}	
+	}
+	
+	public function bilancioPredefinito(Request $request) {
+		if($request->id) {
+			$bilancio = Bilanci::find($request->id);
+			$bilancio->predefinito = 1;
+			$bilancio->update();
+			
+			return response()->json([
+				'error' => false,
+				'data' => 'Bilancio impostato come predefinito'
+			]);
+		} else {
+			return response()->json([
+				'error' => true,
+				'data' => 'ID Bilancio non trovato'
 			], 404);
 		}
 	}
@@ -534,12 +558,11 @@ class BilanciController extends Controller
      
 
         return response()->json([
-            'error' => 'false',
-            'data' => array(
+
+				'vociBilancioMancanti' => $vociBilancioMancanti,
                 'extNames' => $extNames,
                 'mascheraOrdinata' => $this->mascheraOrdinata(),
                 'formaGiuridica' => $formaGiuridica,
-                'vociBilancioMancanti' => $vociBilancioMancanti,
                 'currentYear' => $currentYear,
                 'prevYear' => $prevYear,
                 'support3' => $support3,
@@ -548,7 +571,7 @@ class BilanciController extends Controller
                 'gradi' => $gradi,
                 'vociExt' => $vociExt,
                 'account_id' => $request->input('account_id')
-            ),
+          
         ]);
     }
 
@@ -647,7 +670,7 @@ class BilanciController extends Controller
                     }
                 }
             }
-            if (count($alerts) != 0) {
+            /*if (count($alerts) != 0) {
                 return
                     view('bilanci.recap')
                     ->with([
@@ -665,7 +688,7 @@ class BilanciController extends Controller
                         'account_id' => session('account_id'),
                         'alerts' => $alerts
                     ]);
-            }
+            }*/
         }
 
 
@@ -683,8 +706,8 @@ class BilanciController extends Controller
             }
         }
 
-        $tipoAzienda = $request->input('tipo_azienda');
-        $formaGiuridica = $request->input('formaGiuridica');
+        $tipoAzienda = $request->tipo_azienda;
+        $formaGiuridica = $request->formaGiuridica;
 
         $jsonData['DebitiEsigibiliEntroEsercizioSuccessivo'] = str_replace('.', '', number_format($DebitiEsigibiliEntroEsercizioSuccessivo['curr'], 3, '.', ','));
         $jsonDataPrev['DebitiEsigibiliEntroEsercizioSuccessivo'] = str_replace('.', '', number_format($DebitiEsigibiliEntroEsercizioSuccessivo['prev'], 3, '.', ','));
@@ -699,18 +722,10 @@ class BilanciController extends Controller
         $currentYear = $request->input('currYear');
         $prevYear = $request->input('prevYear');
 
-
-        dd([
-            'json_data' => $jsonDB,
-            'account_id' => $accountId,
-            'json_data_prev' => $jsonPrevDB,
-            'json_data_anag' => $jsonAnagDB,
-            'current_year' => $currentYear,
-            'prev_year' => $prevYear,
-            'year' => $currentYear,
-            'tipo_azienda' => $tipoAzienda,
-            'forma_giuridica' => $formaGiuridica
-        ]);
+$companyId = 0;
+ if($request->header('currentcompany') || $request->header('currentcompany') === 0) {
+				$companyId = $request->header('currentcompany');
+}
 
         $bilancio = Bilanci::create([
             'json_data' => $jsonDB,
@@ -721,12 +736,19 @@ class BilanciController extends Controller
             'prev_year' => $prevYear,
             'year' => $currentYear,
             'tipo_azienda' => $tipoAzienda,
-            'forma_giuridica' => $formaGiuridica
+            'forma_giuridica' => $formaGiuridica,
+			'company_id' => $companyId
         ]);
 
+		
+        return response()->json([
+				'bilancioImported' => true,
+         		'tipo_azienda' => $tipoAzienda,
+            'forma_giuridica' => $formaGiuridica
+          
+        ]);
 
-        return  redirect()->route('admin.bilanci.bilancio.datatable')->withFlashSuccess(__('Bilancio importato correttamente.'));
-        // return view('bilanci.store', $bilancio)->with(['jsonData' => $jsonData, 'jsonPrevDB'=>$jsonPrevDB, 'jsonAnagDB'=>$jsonAnagDB, 'currentYear'=>$currentYear, 'prevYear'=>$prevYear]);
+      
     }
 
 

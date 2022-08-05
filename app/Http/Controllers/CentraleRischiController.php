@@ -7,6 +7,7 @@ ini_set('max_input_vars', 5000);
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
+use App\Jobs\ElaborateLatestCR;
 use App\Http\Requests;
 use App;
 use Illuminate\Support\Facades\DB;
@@ -57,67 +58,21 @@ class CentraleRischiController extends Controller
         return view('centralerischi.create', compact('accounts'));
     }
 	
-	public function getDocuments() 
+	public function getDocuments(Request $request) 
 	{
-		$documentsCr = Document::all();
+	
+		
+		if($request->header('currentcompany') || $request->header('currentcompany') === 0) {
+				$documentsCr = Document::where('company_id', $request->header('currentcompany'))->get();
+			} else {
+			$documentsCr = Document::all();
+		}
+	 
 		//$documentsBilanci = Document::where('type', 'bilancio')->get();
 		
 		foreach($documentsCr as $singleDocument) {
-			$status = $singleDocument->status;
-			$type = $singleDocument->type;
-			
-			$singleDocument['nome_azienda'] = 'Azienda Test';
-			
-			if($status == 'da_elaborare') {
-				$status = 'Da Elaborare';
-				$singleDocument['status'] = $status;
-			} else if($status == 'completed') {
-				$status = 'Completato';
-				$singleDocument['status'] = $status;
-			} else {
-				$status = 'Elaborato';
-				$singleDocument['status'] = $status;
-			}
-			
-			if($type == 'centrale rischi') {
-				$type = 'Centrale Rischi';
-				
-				$singleDocument['type'] = $type;
-			}
-			
-			if($type == 'bilancio') {
-				$type = 'Bilancio';
-
-				$singleDocument['type'] = $type;
-			}
-			
-			
-			
-		/*	foreach($documentsBilanci as $documentBilancio) {
-				$status = $documentBilancio->status;
-				$type = $documentBilancio->type;
-				
-				$documentBilancio['nome_azienda'] = 'azienda test';
-
-				if($status == 'da_elaborare') {
-					$status = 'Da Elaborare';
-					$documentBilancio['status'] = $status;
-				} else if($status == 'completed') {
-					$status = 'Completato';
-					$documntBilancio['status'] = $status;
-				} else {
-					$status = 'Elaborato';
-					$documentBilancio['status'] = $status;
-				}
-
-				if($type == 'bilancio') {
-					$type = 'Bilancio';
-
-					$documentBilancio['type'] = $type;
-				}
-			} */
-			
-
+			$singleDocument['status'] = ucfirst(str_replace('_', ' ', $singleDocument['status']));
+			$singleDocument['type'] = ucfirst($singleDocument['type']);
 		}  
 		
 
@@ -149,11 +104,11 @@ class CentraleRischiController extends Controller
     {
         // query che recupera 1 sola centrale rischi in status da elaborare
         // passiamo il filepath al python che elabora ed importa i dati.
-        $crFileToElaborate = Document::where('status', 'da_elaborare')->first();
+        $crFileToElaborate = Document::where('status', 'Da Elaborare')->first();
         $filepath = $crFileToElaborate->path;
 
         // $filepath = 'storage/path/to/file/test.pdf';
-        $process = new Process(['python3', 'crExtractor.py', $filepath]);
+        $process = new Process(['python3', base_path().'/crExtractor.py', $filepath]);
 
         $process->setTimeout(10000);
 
@@ -331,11 +286,13 @@ class CentraleRischiController extends Controller
             $yearlyDivision = array();
             $sconfiniPerAnniBanche = array();
             $tensioniLineCtredito = array();
-
+			
+			$codiceDocumento = $crFileToElaborate->codice_documento;
+			$companyId = $crFileToElaborate->company_id;
 
             foreach ($crData as $anno => $months) {
                 foreach ($months as $mese => $data) {
-                    cr::where('anno', $anno)->where('mese', $mese)->delete();
+             
                     foreach ($data as $singleBank => $keys) {
                         foreach ($keys as $index => $value) {
                             $mesiList = ["0" => "fuoriMese", "gennaio" => 1, 'febbraio' => 2, 'marzo' => 3, 'aprile' => 4, 'maggio' => 5, 'giugno' => 6, 'luglio' => 07, "agosto" => 8, 'settembre' => 9, 'ottobre' => 10, 'novembre' => 11, 'dicembre' => 12,];
@@ -401,6 +358,11 @@ class CentraleRischiController extends Controller
                                     $cr->saldo_medio = $saldo_medio;
                                     $cr->importo_garantito = $importo_garantito;
                                     $cr->codice_coint = $codiceCoint;
+									
+									//new data
+									$cr->document_id = $codiceDocumento;
+									$cr->company_id = $companyId;
+									
                                     $cr->save();
                                 }
                             }
@@ -467,6 +429,9 @@ class CentraleRischiController extends Controller
                                     $cr->garantito = $garantito;
                                     $cr->garanzia = $garanzia;
                                     $cr->codice_coint = $codiceCoint;
+																		//new data
+									$cr->document_id = $codiceDocumento;
+									$cr->company_id = $companyId;
                                     $cr->save();
                                 }
                             }
@@ -529,6 +494,9 @@ class CentraleRischiController extends Controller
                                     $cr->saldo_medio = $saldo_medio;
                                     $cr->importo_garantito = $importo_garantito;
                                     $cr->codice_coint = $codiceCoint;
+																		//new data
+									$cr->document_id = $codiceDocumento;
+									$cr->company_id = $companyId;
                                     $cr->save();
                                 }
                             }
@@ -594,6 +562,9 @@ class CentraleRischiController extends Controller
                                         $cr->saldo_medio = $saldo_medio;
                                         $cr->importo_garantito = $importo_garantito;
                                         $cr->codice_coint = $codiceCoint;
+																			//new data
+									$cr->document_id = $codiceDocumento;
+									$cr->company_id = $companyId;
                                         $cr->save();
                                     }
                                 }
@@ -657,6 +628,9 @@ class CentraleRischiController extends Controller
                                         $cr->saldo_medio = $saldo_medio;
                                         $cr->importo_garantito = $importo_garantito;
                                         $cr->codice_coint = $codiceCoint;
+																			//new data
+									$cr->document_id = $codiceDocumento;
+									$cr->company_id = $companyId;
                                         $cr->save();
                                     }
                                 }
@@ -731,7 +705,9 @@ class CentraleRischiController extends Controller
 
                                                 $cr->importo_garantito = $valoreGaranzia;
                                                 $cr->garanzia = $importo_garantito;
-
+									//new data
+									$cr->document_id = $codiceDocumento;
+									$cr->company_id = $companyId;
                                                 $cr->save();
                                             }
                                         }
@@ -743,7 +719,7 @@ class CentraleRischiController extends Controller
                 }
             }
 
-            $crFileToElaborate->status = "completed";
+            $crFileToElaborate->status = "Completato";
             $crFileToElaborate->save();
 
             return response()->json([
@@ -758,21 +734,33 @@ class CentraleRischiController extends Controller
      * @return mixed
      */
     public function store(Request $request)
-    {
+    {	
+		   
         $importCr = $request->base64;
-		
+	 
+	 
         $fileName = time() . '.pdf';
 
-        Storage::disk('public')->put($fileName, base64_decode($importCr));
+       // Storage::disk('public')->put($fileName, base64_decode($importCr));
 
+		 // Storage::disk('public')->put("centraleRischi", $importCr);
+		$stored = Storage::disk('public')->putFile('', $importCr);
+	 
         // $importCr->move(public_path('centraleRischi/'), $fileName, base64_decode($importCr));
 
         $dataCr = [
-            'filename' => $fileName,
-            'path' => asset('centraleRischi') . '/' . $fileName,
+            'filename' => $stored,
+            'path' => asset('centraleRischi') . '/' . $stored,
             'type' => 'centrale rischi'
         ];
-
+		
+		if($request->header('currentcompany') || $request->header('currentcompany') === 0) {
+				$dataCr["company_id"] = $request->header('currentcompany');
+			}
+$dataCr["codice_documento"] = rand(1, 999999999);
+		$dataCr["status"] = "Da Elaborare";
+		
+		
         Document::create($dataCr);
 
 
@@ -785,7 +773,7 @@ class CentraleRischiController extends Controller
         $accountId = $request->input('account_id');
 
 
-
+  		ElaborateLatestCR::dispatch();
 
 
         return response()->json([
@@ -898,6 +886,7 @@ class CentraleRischiController extends Controller
         } else {
             $lastDate = new DateTime(cr::select('date')->orderBy('date', 'desc')->first()->date);
 
+		/*
             switch ($crAndamentaleData['period']) {
                 case 1:
                     $earlierDate = (new DateTime(cr::select('date')->orderBy('date', 'desc')->first()->date))->modify('-11 months');
@@ -911,7 +900,8 @@ class CentraleRischiController extends Controller
                 case 0:
                     $earlierDate = new DateTime(cr::select('date')->orderBy('date', 'asc')->first()->date);
             }
-
+*/
+	     $earlierDate = new DateTime(cr::select('date')->orderBy('date', 'desc')->get()->last()->date);
          $latestDate = new DateTime(cr::select('date')->orderBy('date', 'desc')->first()->date);
 
             $banksScoring = array();
@@ -921,7 +911,8 @@ class CentraleRischiController extends Controller
 
             $unrefinedPeriods = json_decode(DB::table('crs')
                 ->select('anno', 'mese', 'date')
-                ->where("date", '>', $earlierDate->modify('first day of this month')->format('Y-m-d'))->where("date", '<', $lastDate->modify('last day of this month')->format('Y-m-d'))
+               // ->where("date", '>', $earlierDate->modify('first day of this month')->format('Y-m-d'))->where("date", '<', $lastDate->modify('last day of this month')->format('Y-m-d'))
+				->where('document_id', $crAndamentaleData['period'])
                 ->groupBy('date', 'anno', 'mese')
                 ->orderBy('date')
                 ->get(), true);

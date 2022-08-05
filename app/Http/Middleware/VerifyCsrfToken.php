@@ -23,6 +23,7 @@ class VerifyCsrfToken extends Middleware
      */
     protected $except = [
         'api/importBilancio',
+		'api/recapBilancio',
         'api/*',
 		'api/importCr',
     ];

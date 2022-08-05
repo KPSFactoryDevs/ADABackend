@@ -28,7 +28,8 @@ class Bilanci extends Model
 
 
 
-    protected $fillable = ['id', 'json_data', 'name', 'account_id', 'json_data_prev', 'json_data_anag', 'current_year', 'prev_year', 'year', 'tipo_azienda', 'forma_giuridica', 'provvisorio'];
+    protected $fillable = ['id', 'json_data', 'name', 'account_id', 'json_data_prev', 'json_data_anag', 'current_year', 'prev_year', 'year', 'tipo_azienda', 'forma_giuridica', 'provvisorio', 'predefinito', 'company_id'];
+
 
     /**
      * Get the phone associated with the user.

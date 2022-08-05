@@ -468,7 +468,9 @@ class AllertaController extends Controller
         // ### ADEGUATEZZA_PATRIMONIALE ###
         $TotaleDebiti = (isset($bilancioJSON->TotaleDebiti) ? $bilancioJSON->TotaleDebiti : 0);
         $PassivoRateiRisconti = (isset($bilancioJSON->PassivoRateiRisconti) ? $bilancioJSON->PassivoRateiRisconti : 0);
-        $ADEGUATEZZA_PATRIMONIALE = number_format((float)($PN_NEGATIVO / ($TotaleDebiti + $PassivoRateiRisconti)) * 100, 2, ',', '');
+ 
+        $ADEGUATEZZA_PATRIMONIALE = number_format((float)($PN_NEGATIVO / ($TotaleDebiti + (float)$PassivoRateiRisconti)) * 100, 2, ',', '');
+		
         $dataAnalisis['ADEGUATEZZA_PATRIMONIALE'] = $ADEGUATEZZA_PATRIMONIALE . '%';
         $arrayConVoci['ADEGUATEZZA_PATRIMONIALE'] = array('TotaleDebiti', 'PassivoRateiRisconti');
 
@@ -525,7 +527,7 @@ class AllertaController extends Controller
             $LIQUIDITA = 0;
             $dataAnalisis['LIQUIDITA'] = $LIQUIDITA . '%';
         } else {
-            $LIQUIDITA = number_format((float)(($UtilePerditaEsercizio + $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni + $CostiProduzioneAccantonamentiRischi + $CostiProduzioneAltriAccantonamenti) / $TotaleAttivo) * 100, 2, ',', '');
+            $LIQUIDITA = number_format((float)(($UtilePerditaEsercizio + (float)$CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni + (float)$CostiProduzioneAccantonamentiRischi + (float)$CostiProduzioneAltriAccantonamenti) / (float)$TotaleAttivo) * 100, 2, ',', '');
             $dataAnalisis['LIQUIDITA'] = $LIQUIDITA . '%';
         }
         $arrayConVoci['LIQUIDITA'] = array('UtilePerditaEsercizio', 'CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni', 'CostiProduzioneAccantonamentiRischi', 'CostiProduzioneAltriAccantonamenti', 'TotaleAttivo');
@@ -704,11 +706,11 @@ class AllertaController extends Controller
 
         // CURRENT RADIO (VEDI INDICE RITORNO LIQUIDO ATT)
         $denominatoreRitornoLiquidoAttivo = 0;
-        if (($TotaleDebitiEntroDodiciMesi + $PassivoRateiRisconti) == 0) {
+        if (((float)$TotaleDebitiEntroDodiciMesi + (float)$PassivoRateiRisconti) == 0) {
             $denominatoreRitornoLiquidoAttivo = 1;
         }
 
-        $formula = ($TotaleDisponibilitaLiquide + $AttivoRateiRisconti + $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + $TotaleRimanenze + $TotaleCreditiEntroDodiciMesi) / ($TotaleDebitiEntroDodiciMesi + $PassivoRateiRisconti + $denominatoreRitornoLiquidoAttivo);
+        $formula = ((float)$TotaleDisponibilitaLiquide + (float)$AttivoRateiRisconti + (float)$TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + (float)$TotaleRimanenze + (float)$TotaleCreditiEntroDodiciMesi) / ((float)$TotaleDebitiEntroDodiciMesi + (float)$PassivoRateiRisconti + (float)$denominatoreRitornoLiquidoAttivo);
 
         $RITORNO_LIQUIDO_ATTIVO = number_format((float)$formula * 100, 2, ',', '');
         $dataAnalisis['Current_Ratio'] = $RITORNO_LIQUIDO_ATTIVO . '%';
@@ -744,13 +746,13 @@ class AllertaController extends Controller
         $CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo : 0);
 
         if ($QuarantaNove > 0 || $PassivoRateiRisconti > 0) {
-            $Attivita_a_breve_Passivita_a_Breve_Semplificato = number_format((float)((($TotaleDisponibilitaLiquide + $TrentaCinque + $TotaleRimanenze + $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + $AttivoRateiRisconti) / ($QuarantaNove + $PassivoRateiRisconti))), 2, ',', '');
+            $Attivita_a_breve_Passivita_a_Breve_Semplificato = number_format((float)((((float)$TotaleDisponibilitaLiquide + (float)$TrentaCinque + (float)$TotaleRimanenze + (float)$TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + (float)$AttivoRateiRisconti) / ((float)$QuarantaNove + (float)$PassivoRateiRisconti))), 2, ',', '');
             //$dataAnalisis['Attivita_a_breve_Passività_a_Breve_Semplificato'] = $Attivita_a_breve_Passivita_a_Breve_Semplificato.'%';
         }
-        $Attivita_a_breve_Passivita_a_Breve_Ordinario_divisore = $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo + $DebitiAccontiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo + $DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo + $PassivoRateiRisconti;
+        $Attivita_a_breve_Passivita_a_Breve_Ordinario_divisore = (float)$DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo + (float)$DebitiAccontiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo + (float)$DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo + (float)$PassivoRateiRisconti;
 
         if ($Attivita_a_breve_Passivita_a_Breve_Ordinario_divisore > 0) {
-            $Attivita_a_breve_Passivita_a_Breve_Ordinario = number_format((float)((($TotaleDisponibilitaLiquide + $CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo + $CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo + $CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo + $CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo + $TotaleRimanenze + $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + $AttivoRateiRisconti) / ($Attivita_a_breve_Passivita_a_Breve_Ordinario_divisore))) * 100, 2, ',', '');
+            $Attivita_a_breve_Passivita_a_Breve_Ordinario = number_format((float)((($TotaleDisponibilitaLiquide + (float)$CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo + (float)$CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + (float)$CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + (float)$CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo + (float)$CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo + (float)$CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo + (float)$TotaleRimanenze + (float)$TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + (float)$AttivoRateiRisconti) / ($Attivita_a_breve_Passivita_a_Breve_Ordinario_divisore))) * 100, 2, ',', '');
             $dataAnalisis['Attivita_a_breve_Passività_a_Breve_Ordinario'] = $Attivita_a_breve_Passivita_a_Breve_Ordinario . '%';
         }
 
@@ -760,17 +762,17 @@ class AllertaController extends Controller
         // ACID TEST
         if ($DebitiEsigibiliEntroEsercizioSuccessivo > 0 || $PassivoRateiRisconti > 0) {
 
-            $AcidTest = number_format((float)(($TotaleCrediti + $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + $TotaleDisponibilitaLiquide + $AttivoRateiRisconti) / ($DebitiEsigibiliEntroEsercizioSuccessivo + $PassivoRateiRisconti)), 2, ',', '');
+            $AcidTest = number_format((float)(((float)$TotaleCrediti + (float)$TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + (float)$TotaleDisponibilitaLiquide + (float)$AttivoRateiRisconti) / ((float)$DebitiEsigibiliEntroEsercizioSuccessivo + (float)$PassivoRateiRisconti)), 2, ',', '');
             //            $dataAnalisis['AcidTest'] = $AcidTest.'%';
         }
         if ($QuarantaNove > 0 || $PassivoRateiRisconti > 0) {
-            $ACID_TEST_Semplificato = number_format((float)((($TotaleDisponibilitaLiquide + $TrentaCinque + $TotaleRimanenze + $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + $AttivoRateiRisconti - $TotaleRimanenze) / ($QuarantaNove + $PassivoRateiRisconti))), 2, ',', '');
+            $ACID_TEST_Semplificato = number_format((float)((((float)$TotaleDisponibilitaLiquide + (float)$TrentaCinque + (float)$TotaleRimanenze + (float)$TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + (float)$AttivoRateiRisconti - (float)$TotaleRimanenze) / ((float)$QuarantaNove + (float)$PassivoRateiRisconti))), 2, ',', '');
             // $dataAnalisis['ACID_TEST_Semplificato'] = $ACID_TEST_Semplificato.'%';
         }
-        $ACID_TEST_Ordinario_divisore = $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo + $DebitiAccontiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo + $DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo + $PassivoRateiRisconti;
+        $ACID_TEST_Ordinario_divisore = (float)$DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo + (float)$DebitiAccontiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo + (float)$DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo + (float)$PassivoRateiRisconti;
 
         if ($ACID_TEST_Ordinario_divisore > 0) {
-            $ACID_TEST_Ordinario = number_format((float)((($TotaleDisponibilitaLiquide + $CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo + $CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo + $CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo + $CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo + $TotaleRimanenze + $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + $AttivoRateiRisconti - $TotaleRimanenze) / ($ACID_TEST_Ordinario_divisore))) * 100, 2, ',', '');
+            $ACID_TEST_Ordinario = number_format((float)((((float)$TotaleDisponibilitaLiquide + (float)$CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo + (float)$CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + (float)$CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + (float)$CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo + (float)$CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo + (float)$CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo + (float)$TotaleRimanenze + (float)$TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + (float)$AttivoRateiRisconti - $TotaleRimanenze) / ($ACID_TEST_Ordinario_divisore))) * 100, 2, ',', '');
             $dataAnalisis['Acid_Test'] = $ACID_TEST_Ordinario . '%';
         }
         //dd('TotaleDisponibilitaLiquide', $TotaleDisponibilitaLiquide, 'CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo', $CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo, 'CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo', $CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo, 'CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo', $CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo, 'CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo', $CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo, 'CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo', $CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo, 'CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo', $CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo, 'TotaleRimanenze', $TotaleRimanenze, 'TotaleRimanenze', $TotaleRimanenze, 'AttivoRateiRisconti', $AttivoRateiRisconti, 'TotaleRimanenze', $TotaleRimanenze, 'DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo', $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo, 'DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo', $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo, 'DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo', $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo, 'DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo', $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo, 'DebitiAccontiEsigibiliEntroEsercizioSuccessivo', $DebitiAccontiEsigibiliEntroEsercizioSuccessivo, 'DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo', $DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo, 'DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo', $DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo, 'DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo', $DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo, 'DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo', $DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo, 'DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo', $DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo, 'DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo', $DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo, 'DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo', $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo, 'DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo', $DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo, 'DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo', $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo, 'PassivoRateiRisconti', $PassivoRateiRisconti);
@@ -806,7 +808,7 @@ class AllertaController extends Controller
             $PFN_EBITDA = number_format((float)(($debitiFinanziariCurr - $TotaleDisponibilitaLiquide - $ImmobilizzazioniFinanziarieCreditiTotaleCrediti) / 1), 2, '.', ',');
             $dataAnalisis['PFN_EBITDA'] = (float)$PFN_EBITDA * 100;
         } else {
-            $PFN_EBITDA = number_format((float)(($debitiFinanziariCurr - $TotaleDisponibilitaLiquide - $ImmobilizzazioniFinanziarieCreditiTotaleCrediti) / $MOLcurr), 2, '.', ',');
+            $PFN_EBITDA = number_format((float)(((float)$debitiFinanziariCurr - (float)$TotaleDisponibilitaLiquide - (float)$ImmobilizzazioniFinanziarieCreditiTotaleCrediti) / (float)$MOLcurr), 2, '.', ',');
             $dataAnalisis['PFN_EBITDA'] = (float)$PFN_EBITDA * 100;
         }
         // dd($PFN_EBITDA, $OF_RICAVI);
@@ -838,7 +840,7 @@ class AllertaController extends Controller
             $EBIT_OF = number_format((float)(($TotaleValoreProduzione - $CostiProduzioneMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneServizi - $CostiProduzioneGodimentoBeniTerzi - $CostiProduzionePersonaleTotaleCostiPersonale - $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneOneriDiversiGestione - $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni - $CostiProduzioneAccantonamentiRischi - $CostiProduzioneAltriAccantonamenti) / 1), 2, '.', ',');
             $dataAnalisis['EBIT_OF'] = (float)$EBIT_OF * 100;
         } else {
-            $EBIT_OF = number_format((float)(($TotaleValoreProduzione - $CostiProduzioneMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneServizi - $CostiProduzioneGodimentoBeniTerzi - $CostiProduzionePersonaleTotaleCostiPersonale - $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneOneriDiversiGestione - $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni - $CostiProduzioneAccantonamentiRischi - $CostiProduzioneAltriAccantonamenti) / $ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari), 2, '.', ',');
+            $EBIT_OF = number_format((float)(((float)$TotaleValoreProduzione - (float)$CostiProduzioneMateriePrimeSussidiarieConsumoMerci - (float)$CostiProduzioneServizi - (float)$CostiProduzioneGodimentoBeniTerzi - (float)$CostiProduzionePersonaleTotaleCostiPersonale - (float)$CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci - (float)$CostiProduzioneOneriDiversiGestione - (float)$CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni - (float)$CostiProduzioneAccantonamentiRischi - (float)$CostiProduzioneAltriAccantonamenti) / (float)$ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari), 2, '.', ',');
             $dataAnalisis['EBIT_OF'] = (float)$EBIT_OF * 100;
         }
 
@@ -862,7 +864,7 @@ class AllertaController extends Controller
             $dataAnalisis['CF_Attivo'] = $CF_ATTIVO . '%';
         } else {
             $CreditiImposteAnticipateTotaleImposteAnticipate = (isset($bilancioJSON->CreditiImposteAnticipateTotaleImposteAnticipate) ? $bilancioJSON->CreditiImposteAnticipateTotaleImposteAnticipate : 0);
-            $CF_ATTIVO = number_format((float)(($UtilePerditaEsercizio + $CostiProduzioneAccantonamentiRischi + $CostiProduzioneAltriAccantonamenti + $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni - $imposteRedditoEsercizioImposteAnticipate) / $TotaleAttivo) * 100, 2, '.', ',');
+            $CF_ATTIVO = number_format((float)(((float)$UtilePerditaEsercizio + (float)$CostiProduzioneAccantonamentiRischi + (float)$CostiProduzioneAltriAccantonamenti + (float)$CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni - (float)$imposteRedditoEsercizioImposteAnticipate) / (float)$TotaleAttivo) * 100, 2, '.', ',');
             $dataAnalisis['CF_Attivo'] = $CF_ATTIVO . '%';
         }
 
@@ -876,7 +878,7 @@ class AllertaController extends Controller
             $dataAnalisis['Indice_di_Indebitamento'] = $Indice_di_Indebitamento . '%';
         } else {
             $MOLannoCorrente = $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo + $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo;
-            $Indice_di_Indebitamento = number_format((float)(($MOLannoCorrente - $TotaleDisponibilitaLiquide - $ImmobilizzazioniFinanziarieCreditiTotaleCrediti) / $TotalePatrimonioNetto) * 100, 2, ',', '');
+            $Indice_di_Indebitamento = number_format((float)(((float)$MOLannoCorrente - (float)$TotaleDisponibilitaLiquide - (float)$ImmobilizzazioniFinanziarieCreditiTotaleCrediti) / (float)$TotalePatrimonioNetto) * 100, 2, ',', '');
             $dataAnalisis['Indice_di_Indebitamento'] = $Indice_di_Indebitamento . '%';
         }
 
@@ -896,7 +898,7 @@ class AllertaController extends Controller
             $SaldoDebitiVSFisco = number_format(($FondiRischiOneriTrattamentoQuiescenzaObblighiSimiliCorrente + $DebitiDebitiTributariTotaleDebitiTributariCorrente) / 1, 2, '.', ',');
             $dataAnalisis['Saldo_dei_Debiti_verso_il_Fisco'] = $SaldoDebitiVSFisco * 100;
         } else {
-            $SaldoDebitiVSFisco = number_format(($FondiRischiOneriTrattamentoQuiescenzaObblighiSimiliCorrente + $DebitiDebitiTributariTotaleDebitiTributariCorrente) / $DifferenzaImposteReddito, 2, '.', ',');
+            $SaldoDebitiVSFisco = number_format(((float)$FondiRischiOneriTrattamentoQuiescenzaObblighiSimiliCorrente + (float)$DebitiDebitiTributariTotaleDebitiTributariCorrente) / (float)$DifferenzaImposteReddito, 2, '.', ',');
             $dataAnalisis['Saldo_dei_Debiti_verso_il_Fisco'] = (float)$SaldoDebitiVSFisco * 100;
         }
 

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Document extends Model
 {
@@ -32,11 +33,8 @@ class Document extends Model
                   'path',
                   'filename',
                   'type',
+		          'company_id',
               ];
 
 
-    protected $attributes = [
-        'codice_documento' => '1234',
-        'status' => 'Da Elaborare'
-    ];
 }

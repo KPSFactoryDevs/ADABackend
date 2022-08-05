@@ -55,7 +55,7 @@ class Handler extends ExceptionHandler
      * @throws \Throwable
      */
     public function render($request, Throwable $exception)
-    {
+    {	dd($exception);
         if ($exception instanceof UnauthorizedException) {
             return redirect()
                 ->route(homeRoute())
