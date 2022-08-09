@@ -754,7 +754,7 @@ class CentraleRischiController extends Controller
         $fileToRead = file_get_contents($storeFullPath);
         $totalPages = preg_match_all("/\/Page\W/", $fileToRead, $dummy);
 
-        if($totalPages > 1) {
+        if($totalPages > 0 && is_int($totalPages)) {
             for ($pageToExtract = 1; $pageToExtract <= $totalPages; $pageToExtract++) {
                 $liveStatus = round( (($pageToExtract / $totalPages) * 100), 1 ). "% processato";
                 if($pageToExtract == $totalPages) {
@@ -762,6 +762,11 @@ class CentraleRischiController extends Controller
                 }
                 ElaborateLatestCR::dispatch($pageToExtract, $dataCr["codice_documento"], $liveStatus);
             }
+        } else {
+            return response()->json([
+                'error' => true,
+                'message' => "No pages detected on file"
+            ]);
         }
 
         return response()->json([
