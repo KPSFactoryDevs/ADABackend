@@ -110,7 +110,7 @@ class CentraleRischiController extends Controller
 
 
         // $filepath = 'storage/path/to/file/test.pdf';
-        $process = new Process(['python3', base_path() . '/crExtractor.py', $filepath, $page]);
+        $process = new Process(['sudo','python3', base_path() . '/crExtractor.py', $filepath, $page]);
 
         $process->setTimeout(10000);
 
@@ -730,7 +730,7 @@ class CentraleRischiController extends Controller
         $storedFile = Storage::disk('public')->putFile('', $base64CentraleRischi);
         $storeFullPath = asset('centraleRischi') . '/' . $storedFile;
 
-        $dataCr = [
+        $newDocumentData = [
             'filename' => $storedFile,
             'path' => $storeFullPath,
             'type' => 'centrale rischi',
@@ -740,11 +740,11 @@ class CentraleRischiController extends Controller
         ];
 
         if ($request->header('currentcompany') || $request->header('currentcompany') == 0) {
-            $dataCr["company_id"] = $request->header('currentcompany');
+            $newDocumentData["company_id"] = $request->header('currentcompany');
         }
 
         try {
-            $documentCreated = Document::create($dataCr);
+            $documentCreated = Document::create($newDocumentData);
         } catch (Exception $e) {
             return response()->json([
                 'exception' => $e,
@@ -761,7 +761,7 @@ class CentraleRischiController extends Controller
                 if($pageToExtract == $totalPages) {
                     $liveStatus = "Completato";
                 }
-                ElaborateLatestCR::dispatch($pageToExtract, $dataCr["codice_documento"], $liveStatus);
+                ElaborateLatestCR::dispatch($pageToExtract, $documentCreated["codice_documento"], $liveStatus);
             }
         } else {
             return response()->json([

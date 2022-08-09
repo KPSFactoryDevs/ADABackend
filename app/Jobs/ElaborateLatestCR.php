@@ -55,9 +55,6 @@ class ElaborateLatestCR implements ShouldQueue
 
     public function failed(Throwable $exception)
     {
-
         Log::debug($exception);
-
-
     }
 }
