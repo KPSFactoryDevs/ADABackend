@@ -101,14 +101,13 @@ class CentraleRischiController extends Controller
     }
 
 
-    public function recap(Request $request, $documentId, $page = "all")
+    public function recap(Request $request, $documentId, $liveStatus, $page = "all")
     {
         // query che recupera 1 sola centrale rischi in status da elaborare
         // passiamo il filepath al python che elabora ed importa i dati.
         $crFileToElaborate = Document::where('codice_documento', $documentId)->first();
         $filepath = $crFileToElaborate->path;
-        $crFileToElaborate->status = "In Elaborazione";
-        $crFileToElaborate->save();
+
 
         // $filepath = 'storage/path/to/file/test.pdf';
         $process = new Process(['python3', base_path() . '/crExtractor.py', $filepath, $page]);
@@ -711,14 +710,13 @@ class CentraleRischiController extends Controller
                 }
             }
 
-            // $crFileToElaborate->status = "Completato";
-            // $crFileToElaborate->save();
+            $crFileToElaborate->status = $liveStatus;
+            $crFileToElaborate->save();
 
             return response()->json([
                 'error' => false,
                 'data' => 'File Centrale Rischi' . $crFileToElaborate->status
             ]);
-            return Redirect::route('admin.cr.centralerischi.datatable');
         }
     }
 
@@ -728,16 +726,17 @@ class CentraleRischiController extends Controller
     public function store(Request $request)
     {
 
-        $importCr = $request->base64;
-
-        $stored = Storage::disk('public')->putFile('', $importCr);
+        $base64CentraleRischi = $request->base64;
+        $storedFile = Storage::disk('public')->putFile('', $base64CentraleRischi);
+        $storeFullPath = asset('centraleRischi') . '/' . $storedFile;
 
         $dataCr = [
-            'filename' => $stored,
-            'path' => asset('centraleRischi') . '/' . $stored,
+            'filename' => $storedFile,
+            'path' => $storeFullPath,
             'type' => 'centrale rischi',
             'codice_documento' => rand(1, 999999999),
             'status' => 'Da Elaborare',
+            'company_id' => null
         ];
 
         if ($request->header('currentcompany') || $request->header('currentcompany') == 0) {
@@ -752,11 +751,17 @@ class CentraleRischiController extends Controller
             ]);
         }
 
-        $pdftext = file_get_contents(asset('centraleRischi') . '/' . $stored);
-        $totalPages = preg_match_all("/\/Page\W/", $pdftext, $dummy);
+        $fileToRead = file_get_contents($storeFullPath);
+        $totalPages = preg_match_all("/\/Page\W/", $fileToRead, $dummy);
 
-        for($pageToExtract = 1; $pageToExtract<=$totalPages; $pageToExtract++) {
-            ElaborateLatestCR::dispatch($pageToExtract, $dataCr["codice_documento"]);
+        if($totalPages > 1) {
+            for ($pageToExtract = 1; $pageToExtract <= $totalPages; $pageToExtract++) {
+                $liveStatus = round( (($pageToExtract / $totalPages) * 100), 1 ). "% processato";
+                if($pageToExtract == $totalPages) {
+                    $liveStatus = "Completato";
+                }
+                ElaborateLatestCR::dispatch($pageToExtract, $dataCr["codice_documento"], $liveStatus);
+            }
         }
 
         return response()->json([

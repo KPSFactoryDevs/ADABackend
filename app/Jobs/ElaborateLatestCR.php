@@ -24,10 +24,14 @@ class ElaborateLatestCR implements ShouldQueue
 
     public $documentId;
 
-    public function __construct($page, $documentId)
+    public $liveStatus;
+
+    public function __construct($page, $documentId, $liveStatus)
     {
         $this->page = $page;
         $this->documentId = $documentId;
+
+        $this->liveStatus = $liveStatus;
     }
 
     /**
@@ -42,6 +46,7 @@ class ElaborateLatestCR implements ShouldQueue
             $params = [
                 'documentId' => $this->documentId,
                 'page'=> $this->page,
+                'liveStatus'=> $this->liveStatus,
             ];
 
             app()->call(CentraleRischiController::class . '@' . 'recap',$params);
