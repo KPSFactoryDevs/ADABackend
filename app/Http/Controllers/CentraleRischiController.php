@@ -748,11 +748,12 @@ class CentraleRischiController extends Controller
         } catch (Exception $e) {
             return response()->json([
                 'exception' => $e,
-            ]);
+            ], 500);
         }
 
         $fileToRead = file_get_contents($storeFullPath);
         $totalPages = preg_match_all("/\/Page\W/", $fileToRead, $dummy);
+
 
         if($totalPages > 0 && is_int($totalPages)) {
             for ($pageToExtract = 1; $pageToExtract <= $totalPages; $pageToExtract++) {
@@ -766,12 +767,12 @@ class CentraleRischiController extends Controller
             return response()->json([
                 'error' => true,
                 'message' => "No pages detected on file"
-            ]);
+            ], 500);
         }
 
         return response()->json([
             'newDocumentCreated' => $documentCreated,
-        ]);
+        ], 200);
 
     }
 
