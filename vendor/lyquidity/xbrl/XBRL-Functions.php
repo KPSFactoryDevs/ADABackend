@@ -29,9 +29,30 @@
 
 namespace XBRL\functions;
 
+use lyquidity\XPath2\Iterator\EmptyIterator;
 use lyquidity\XPath2\FunctionTable;
 use lyquidity\XPath2\XPath2ResultType;
-use lyquidity;
+use lyquidity\XPath2\Value\QNameValue;
+use lyquidity\xml\MS\XmlTypeCode;
+use lyquidity\xml\xpath\XPathNodeIterator;
+use lyquidity\xml\xpath\XPathNodeType;
+use lyquidity\XPath2\CoreFuncs;
+use lyquidity\XPath2\DOM\DOMXPathItem;
+use lyquidity\XPath2\DOM\DOMXPathNavigator;
+use lyquidity\XPath2\ExtFuncs;
+use lyquidity\XPath2\Iterator\EmptyIterator as IteratorEmptyIterator;
+use lyquidity\XPath2\Iterator\NodeIterator;
+use lyquidity\XPath2\MathsFuncs;
+use lyquidity\XPath2\NodeProvider;
+use lyquidity\XPath2\Value\DateTimeValue;
+use lyquidity\XPath2\Value\DateTimeValueBase;
+use lyquidity\XPath2\Value\DateValue;
+use lyquidity\XPath2\Value\TimeValue;
+use lyquidity\XPath2\XPath2Context;
+use lyquidity\XPath2\XPath2Expression;
+use lyquidity\XPath2\XPath2Item;
+use lyquidity\XPath2\XPath2NodeIterator;
+use lyquidity\XPath2\XPath2NodeIterator\SingleIterator;
 
 $functionTable = FunctionTable::getInstance();
 $functionTable->AddWithArity( \XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_FUNCTION_INSTANCE ], "context", 1, XPath2ResultType::NodeSet, function( $context, $provider, $args )
@@ -434,6 +455,25 @@ $functionTable->AddWithArity( \XBRL_Constants::$standardPrefixes[ STANDARD_PREFI
 	require_once "XPathFunctions/getFactTypedDimensionValue.php";
 	return getFactTypedDimensionValue( $context, $provider, $args );
 });
+$functionTable->AddWithArity( \XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_FUNCTION_INSTANCE ], "fact-typed-dimension-simple-value", 2, XPath2ResultType::Navigator, function( $context, $provider, $args )
+{
+	require_once "XPathFunctions/getFactTypedDimensionValue.php";
+	$member = getFactTypedDimensionValue( $context, $provider, $args );
+	if ( $member instanceof DOMXPathNavigator )
+	{
+		if( $member->MoveToChild( XPathNodeType::Element ) )
+		{
+			$nil = filter_var( $member->GetAttribute( 'nil', \XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_SCHEMA_INSTANCE ] ), FILTER_VALIDATE_BOOLEAN );
+			if ( $nil || ! $member->getUnderlyingObject()->childNodes->length ) return IteratorEmptyIterator::$Shared;			
+			$type = $member->getXmlType();
+			$x = CoreFuncs::Atomize( $member );
+			$item = XPath2Item::fromValueAndType( $x, $type );
+			$iter = SingleIterator::Create( $item );
+			return $iter;
+		}
+	}
+	return $member;
+});
 $functionTable->AddWithArity( \XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_FUNCTION_INSTANCE ], "fact-explicit-dimensions", 1, XPath2ResultType::NodeSet, function( $context, $provider, $args )
 {
 	require_once "XPathFunctions/getFactExplicitDimensions.php";
@@ -603,6 +643,439 @@ $functionTable->AddWithArity( \XBRL_Constants::$standardPrefixes[ STANDARD_PREFI
 	require_once __DIR__ . "/XPathFunctions/lyquidity/minimizedDateString.php";
 	return \XBRL\functions\lyquidity\getMinimizedDateString( $context, $provider, $args );
 });
+
+/** Math functions */
+
+$functionTable->AddWithArity( \XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_XFM ], "pi", 0, XPath2ResultType::Number, function( $context, $provider, $args ) {
+	return MathsFuncs::pi();
+});
+
+$functionTable->AddWithArity( \XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_XFM ], "pow", 2, XPath2ResultType::Number, function( $context, $provider, $args ) {
+	return MathsFuncs::pow( CoreFuncs::Atomize( $args[0] ), CoreFuncs::Atomize( $args[1] ) );
+});
+
+$functionTable->AddWithArity( \XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_XFM ], "exp", 1, XPath2ResultType::Number, function( $context, $provider, $args ) {
+	return MathsFuncs::exp( CoreFuncs::Atomize( $args[0] ) );
+});
+
+$functionTable->AddWithArity( \XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_XFM ], "exp10", 1, XPath2ResultType::Number, function( $context, $provider, $args ) {
+	return MathsFuncs::exp10( CoreFuncs::Atomize( $args[0] ) );
+});
+
+$functionTable->AddWithArity( \XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_XFM ], "log", 1, XPath2ResultType::Number, function( $context, $provider, $args ) {
+	return MathsFuncs::log( CoreFuncs::Atomize( $args[0] ) );
+});
+
+$functionTable->AddWithArity( \XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_XFM ], "log10", 1, XPath2ResultType::Number, function( $context, $provider, $args ) {
+	return MathsFuncs::log10( CoreFuncs::Atomize( $args[0] ) );
+});
+
+$functionTable->AddWithArity( \XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_XFM ], "sqrt", 1, XPath2ResultType::Number, function( $context, $provider, $args ) {
+	return MathsFuncs::sqrt( CoreFuncs::Atomize( $args[0] ) );
+});
+
+$functionTable->AddWithArity( \XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_XFM ], "sin", 1, XPath2ResultType::Number, function( $context, $provider, $args ) {
+	return MathsFuncs::sin( CoreFuncs::Atomize( $args[0] ) );
+});
+
+$functionTable->AddWithArity( \XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_XFM ], "cos", 1, XPath2ResultType::Number, function( $context, $provider, $args ) {
+	return MathsFuncs::cos( CoreFuncs::Atomize( $args[0] ) );
+});
+
+$functionTable->AddWithArity( \XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_XFM ], "tan", 1, XPath2ResultType::Number, function( $context, $provider, $args ) {
+	return MathsFuncs::tan( CoreFuncs::Atomize( $args[0] ) );
+});
+
+$functionTable->AddWithArity( \XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_XFM ], "asin", 1, XPath2ResultType::Number, function( $context, $provider, $args ) {
+	return MathsFuncs::asin( CoreFuncs::Atomize( $args[0] ) );
+});
+
+$functionTable->AddWithArity( \XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_XFM ], "acos", 1, XPath2ResultType::Number, function( $context, $provider, $args ) {
+	return MathsFuncs::acos( CoreFuncs::Atomize( $args[0] ) );
+});
+
+$functionTable->AddWithArity( \XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_XFM ], "atan", 1, XPath2ResultType::Number,function( $context, $provider, $args ) {
+	return MathsFuncs::atan( CoreFuncs::Atomize( $args[0] ) );
+});
+
+$functionTable->AddWithArity( \XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_XFM ], "atan2", 2, XPath2ResultType::Number, function( $context, $provider, $args ) {
+	return MathsFuncs::atan2( CoreFuncs::Atomize( $args[0] ), CoreFuncs::Atomize( $args[1] ) );
+});
+
+// 80300
+
+$functionTable->Add( \XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_FUNCTION_INSTANCE ], "taxonomy-refs", XPath2ResultType::NodeSet, function( $context, $provider, $args ) 
+{
+	/**
+	 * @var \XBRL_Instance $instance
+	 */
+	$instance = $context->xbrlInstance;
+	foreach( $instance->getInstanceXml()->children(\XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_LINK] )->schemaRef as $element )
+	{
+		/** @var \SimpleXMLElement $element */
+		$result[] = (string)$element->attributes( \XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_XLINK] )['href'];
+	}
+	return $result;
+} );
+
+$functionTable->Add( \XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_FUNCTION_INSTANCE ], "any-identifier", XPath2ResultType::NodeSet, function( $context, $provider, $args ) 
+{
+	$expression = 'for $contextRef in distinct-values(//@contextRef) return //context[@id=$contextRef]/entity/identifier';
+	$result = FunctionUtilities::executeExpression( $expression, $context, $provider );
+
+	return $result->moveNext()
+		? $result->getCurrent()
+		: EmptyIterator::$Shared;
+} );
+
+$functionTable->Add( \XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_FUNCTION_INSTANCE ], "unique-identifiers", XPath2ResultType::NodeSet, function( $context, $provider, $args ) 
+{
+	$expression = 'for $contextRef in distinct-values(//@contextRef) return //context[@id=$contextRef]/entity/identifier';
+	$result = FunctionUtilities::executeExpression( $expression, $context, $provider );
+
+	// Create a list of the items and make them unique and in order
+	$ordered = FunctionUtilities::createUniqueList( $result, true );
+
+	// Return them using an iterator
+	return FunctionUtilities::createNodeIterator( $ordered );
+} );
+
+$functionTable->Add( \XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_FUNCTION_INSTANCE ], "single-unique-identifier", XPath2ResultType::NodeSet, function( $context, $provider, $args ) 
+{
+	$expression = 'for $contextRef in distinct-values(//@contextRef) return //context[@id=$contextRef]/entity/identifier';
+	$result = FunctionUtilities::executeExpression( $expression, $context, $provider );
+
+	// Create a list of the items and make them unique and in order
+	$ordered = FunctionUtilities::createUniqueList( $result, true );
+
+	return count( $ordered ) == 1 ? CoreFuncs::$True : CoreFuncs::$False;
+} );
+
+$functionTable->Add( \XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_FUNCTION_INSTANCE ], "any-start-date", XPath2ResultType::NodeSet, function( $context, $provider, $args ) 
+{
+	$expression = 'for $contextRef in distinct-values(//@contextRef) return //context[@id=$contextRef]/period/startDate';
+	$result = FunctionUtilities::executeExpression( $expression, $context, $provider );
+	return $result->moveNext()
+		? CoreFuncs::Atomize( $result->getCurrent() )
+		: EmptyIterator::$Shared;
+} );
+
+$functionTable->Add( \XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_FUNCTION_INSTANCE ], "unique-start-dates", XPath2ResultType::NodeSet, function( $context, $provider, $args ) 
+{
+	$expression = 'for $contextRef in distinct-values(//@contextRef) return //context[@id=$contextRef]/period/startDate';
+	$result = FunctionUtilities::executeExpression( $expression, $context, $provider );
+
+	// Create a list of the items and make them unique and in order
+	$ordered = FunctionUtilities::createStartDateList( $result, true );
+
+	// Return them using an iterator
+	return FunctionUtilities::createNodeIterator( $ordered );
+} );
+
+$functionTable->Add( \XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_FUNCTION_INSTANCE ], "single-unique-start-date", XPath2ResultType::NodeSet, function( $context, $provider, $args ) 
+{
+	$expression = 'for $contextRef in distinct-values(//@contextRef) return //context[@id=$contextRef]/period/startDate';
+	$result = FunctionUtilities::executeExpression( $expression, $context, $provider );
+
+	// Create a list of the items and make them unique and in order
+	$ordered = FunctionUtilities::createStartDateList( $result );
+
+	return count( $ordered ) == 1 ? CoreFuncs::$True : CoreFuncs::$False;
+} );
+
+$functionTable->Add( \XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_FUNCTION_INSTANCE ], "any-end-date", XPath2ResultType::NodeSet, function( $context, $provider, $args ) 
+{
+	$expression = 'for $contextRef in distinct-values(//@contextRef) return //context[@id=$contextRef]/period/endDate';
+	$result = FunctionUtilities::executeExpression( $expression, $context, $provider );
+	if ( ! $result->moveNext() )
+		return EmptyIterator::$Shared;
+
+	$value = FunctionUtilities::getEndDate( CoreFuncs::Atomize( $result->getCurrent() ) );
+
+	return $value;
+} );
+
+$functionTable->Add( \XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_FUNCTION_INSTANCE ], "unique-end-dates", XPath2ResultType::NodeSet, function( $context, $provider, $args ) 
+{
+	$expression = 'for $contextRef in distinct-values(//@contextRef) return //context[@id=$contextRef]/period/endDate';
+	$result = FunctionUtilities::executeExpression( $expression, $context, $provider );
+
+	// Create a list of the items and make them unique and in order
+	$ordered = FunctionUtilities::createEndDateList( $result, true );
+
+	// Return them using an iterator
+	return FunctionUtilities::createNodeIterator( $ordered );
+} );
+
+$functionTable->Add( \XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_FUNCTION_INSTANCE ], "single-unique-end-date", XPath2ResultType::NodeSet, function( $context, $provider, $args ) 
+{
+	$expression = 'for $contextRef in distinct-values(//@contextRef) return //context[@id=$contextRef]/period/endDate';
+	$result = FunctionUtilities::executeExpression( $expression, $context, $provider );
+
+	// Create a list of the items and make them unique and in order
+	$ordered = FunctionUtilities::createEndDateList( $result );
+
+	return count( $ordered ) == 1 ? CoreFuncs::$True : CoreFuncs::$False;
+} );
+
+$functionTable->Add( \XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_FUNCTION_INSTANCE ], "any-instant-date", XPath2ResultType::NodeSet, function( $context, $provider, $args ) 
+{
+	$expression = 'for $contextRef in distinct-values(//@contextRef) return //context[@id=$contextRef]/period/instant';
+	$result = FunctionUtilities::executeExpression( $expression, $context, $provider );
+	if ( ! $result->moveNext() )
+		return EmptyIterator::$Shared;
+
+	$value = FunctionUtilities::getEndDate( CoreFuncs::Atomize( $result->getCurrent() ) );
+
+	return $value;
+} );
+
+$functionTable->Add( \XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_FUNCTION_INSTANCE ], "unique-instant-dates", XPath2ResultType::NodeSet, function( $context, $provider, $args ) 
+{
+	$expression = 'for $contextRef in distinct-values(//@contextRef) return //context[@id=$contextRef]/period/instant';
+	$result = FunctionUtilities::executeExpression( $expression, $context, $provider );
+
+	// Create a list of the items and make them unique and in order
+	$ordered = FunctionUtilities::createEndDateList( $result, true, 'Y-m-d-H-i-s-e' );
+
+	// Return them using an iterator
+	return FunctionUtilities::createNodeIterator( $ordered );
+} );
+
+$functionTable->Add( \XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_FUNCTION_INSTANCE ], "single-unique-instant-date", XPath2ResultType::NodeSet, function( $context, $provider, $args ) 
+{
+	$expression = 'for $contextRef in distinct-values(//@contextRef) return //context[@id=$contextRef]/period/instant';
+	$result = FunctionUtilities::executeExpression( $expression, $context, $provider );
+
+	// Create a list of the items and make them unique and in order
+	$ordered = FunctionUtilities::createEndDateList( $result, true, 'Y-m-d-H-i-s-e' );
+
+	return count( $ordered ) == 1 ? CoreFuncs::$True : CoreFuncs::$False;
+} );
+
+$functionTable->Add( \XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_FUNCTION_INSTANCE ], "positive-filing-indicators", XPath2ResultType::NodeSet, function( $context, $provider, $args ) 
+{
+	return FunctionUtilities::checkFilings( 
+		'/xbrl/find:fIndicators/find:filingIndicator[not(@find:filed="false")]',
+		'for $contextRef in /xbrl/fi:filed[text()="true"]/@contextRef	return /xbrl/context[@id=$contextRef]/*/xbrldi:typedMember/fi:templateDomain',
+		null,
+		$context,
+		$provider
+	);
+} );
+
+$functionTable->Add( \XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_FUNCTION_INSTANCE ], "negative-filing-indicators", XPath2ResultType::NodeSet, function( $context, $provider, $args ) 
+{
+	return FunctionUtilities::checkFilings( 
+		'/xbrl/find:fIndicators/find:filingIndicator[@find:filed="false"]',
+		'for $contextRef in /xbrl/fi:filed[text()="false"]/@contextRef	return /xbrl/context[@id=$contextRef]/*/xbrldi:typedMember/fi:templateDomain',
+		null,
+		$context,
+		$provider
+	);
+} );
+
+$functionTable->AddWithArity( \XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_FUNCTION_INSTANCE ], "positive-filing-indicator", 1, XPath2ResultType::NodeSet, function( $context, $provider, $args ) 
+{
+	return FunctionUtilities::checkFilings( 
+		'count(/xbrl/find:fIndicators/find:filingIndicator[not(@find:filed="false") and text() = $template])',
+		'count(for $contextRef in /xbrl/fi:filed[text()="true"]/@contextRef return /xbrl/context[@id=$contextRef]/*/xbrldi:typedMember/fi:templateDomain[text() = $template])',
+		CoreFuncs::Atomize( $args[0] ),
+		$context,
+		$provider
+	);
+} );
+
+$functionTable->AddWithArity( \XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_FUNCTION_INSTANCE ], "negative-filing-indicator", 1, XPath2ResultType::NodeSet, function( $context, $provider, $args ) 
+{
+	return FunctionUtilities::checkFilings( 
+		'count(/xbrl/find:fIndicators/find:filingIndicator[@find:filed="false" and text() = $template])',
+		'count(for $contextRef in /xbrl/fi:filed[text()="false"]/@contextRef return /xbrl/context[@id=$contextRef]/*/xbrldi:typedMember/fi:templateDomain[text() = $template])',
+		CoreFuncs::Atomize( $args[0] ),
+		$context,
+		$provider
+	);
+} );
+
+class FunctionUtilities
+{
+	/**
+	 * Check both types of filing codes using XPath queries
+	 * @param string $findExpression
+	 * @param string $fiExpression
+	 * @param object $template
+	 * @param XPath2Context $context
+	 * @param NodeProvider $provider
+	 * @return CoreFuncs::$False|CoreFuncs::$True
+	 */
+	public static function checkFilings( $findExpression, $fiExpression, $template, $context, $provider )
+	{
+		$parameters = array();
+
+		if ( $template )
+		{
+			if ( ! is_string( $template ) && ! ( $template instanceof XPath2Item && $template->getSchemaType()->TypeCode == XmlTypeCode::String ) )
+				return EmptyIterator::$Shared;
+			$parameters = array( 'template' => $template );
+		}
+
+		/** @var XPath2Context $context */
+		try
+		{
+			$result = FunctionUtilities::executeExpression( $findExpression, $context, $provider, $parameters );
+			return $result instanceof XPath2NodeIterator
+				? $result
+				: ( $result >= 1 ? CoreFuncs::$True : CoreFuncs::$False );
+		}
+		catch( \Exception $ex )
+		{
+			// Do nothing
+		}
+	
+		try
+		{
+			$result = FunctionUtilities::executeExpression( $fiExpression, $context, $provider, $parameters );
+			return $result instanceof XPath2NodeIterator
+				? $result
+				: ( $result >= 1 ? CoreFuncs::$True : CoreFuncs::$False );
+		}
+		catch( \Exception $ex )
+		{
+			return EmptyIterator::$Shared;
+			// return CoreFuncs::$False;
+		}
+	
+	}
+
+	/**
+	 * Excute an XPath expression
+	 * @param string $expression
+	 * @param mixed[] $parameters
+	 * @param XPath2Context $context
+	 * @param NodeProvider $provider
+	 * @return object
+	 */
+	public static function executeExpression( $expression, $context, $provider, $parameters = array() ) 
+	{
+		/** @var XPath2Context $context */
+		$expression = XPath2Expression::Compile( $expression, $context->NamespaceManager );
+		$expression->AddToContext( "xbrlInstance", $context->xbrlInstance );
+		$expression->AddToContext( "xbrlTaxonomy", $context->xbrlInstance ? $context->xbrlInstance->getInstanceTaxonomy() : null );
+		return $expression->EvaluateWithVars( $provider, $parameters );
+	}
+
+	/**
+	 * Created a unique list of items
+	 * @param XPathNodeIterator $iter
+	 * @return array
+	 */
+	public static function createUniqueList( $iter, $sort = false )
+	{
+		// Create a list of the items and make them unique and in order
+		$ordered = array();
+		foreach( $iter as $item )
+		{
+			/** @var DOMXPathItem $item */
+			// Get the value
+			$value = $item->getValue();
+
+			/** @var \DOMElement */
+			$dom = $item->getUnderlyingObject();
+			$scheme = $dom->getAttribute('scheme');
+
+			if ( isset( $ordered["$scheme!$value"] ) ) continue;
+			$ordered["$scheme!$value"] = $item->CloneInstance();
+		}
+
+		if ( $sort )
+			ksort( $ordered );
+
+		return $ordered;
+	}
+
+	/**
+	 * Create a list of unique end date items
+	 * @param XPathNodeIterator $iter
+	 * @param boolean $sort
+	 * @return array
+	 */
+	public static function createEndDateList( $iter, $sort = false, $format = 'Y-m-d-e')
+	{
+		$ordered = array();
+		foreach( $iter as $item )
+		{
+			/** @var DOMXPathItem $item */
+			// Get the value
+			$value = self::getEndDate( $item->getTypedValue() );
+	
+			$formatted = $value->Value->format( $format );
+	
+			if ( isset( $ordered[ $formatted ] ) ) continue;
+			$ordered[ $formatted ] = $value;
+		}
+
+		if ( $sort )
+			ksort( $ordered );
+
+		return $ordered;
+	}
+
+	/**
+	 * Create a list of unique start date items
+	 * @param XPathNodeIterator $iter
+	 * @return array
+	 */
+	public static function createStartDateList( $iter, $sort = false )
+	{
+		// Create a list of the items and make them unique and in order
+		$ordered = array();
+		foreach( $iter as $item )
+		{
+			/** @var DOMXPathItem $item */
+			// Get the value
+			$value = $item->getTypedValue()->Value->format('Y-m-d-e');
+			if ( isset( $ordered["$value"] ) ) continue;
+			$ordered["$value"] = $item->CloneInstance();
+		}
+
+		if ( $sort )
+			ksort( $ordered );
+
+		return $ordered;
+	}
+
+	/**
+	 * Create a node iterator to return the $ordered array
+	 * @param array $ordered
+	 * @return NodeIterator
+	 */
+	public static function createNodeIterator( $ordered )
+	{
+		return new NodeIterator( function() use( $ordered ) 
+		{
+			foreach( $ordered as $item )
+			{
+				yield $item;
+			}
+		
+		} );		
+	}
+
+	/**
+	 * Get the end date value
+	 * @param DateTimeValueBase $value
+	 * @return DateTimeValue
+	 */
+	public static function getEndDate( $value )
+	{
+		if ( $value instanceof DateValue )
+		{
+			// In XBRL the end date is thevery end of the last day
+			$value = ExtFuncs::CreateDateTime( $value, TimeValue::Parse('24:00:00') );
+		}
+		return $value;
+	}
+}
 
 /**
  * A class to convey relationship information

@@ -57,42 +57,42 @@ class CentraleRischiController extends Controller
 
         return view('centralerischi.create', compact('accounts'));
     }
-	
-	public function getDocuments(Request $request) 
+
+	public function getDocuments(Request $request)
 	{
-	
-		
+
+
 		if($request->header('currentcompany') || $request->header('currentcompany') === 0) {
 				$documentsCr = Document::where('company_id', $request->header('currentcompany'))->get();
 			} else {
 			$documentsCr = Document::all();
 		}
-	 
+
 		//$documentsBilanci = Document::where('type', 'bilancio')->get();
-		
+
 		foreach($documentsCr as $singleDocument) {
 			$singleDocument['status'] = ucfirst(str_replace('_', ' ', $singleDocument['status']));
 			$singleDocument['type'] = ucfirst($singleDocument['type']);
-		}  
-		
+		}
+
 
 				return response()->json([
 				$documentsCr,
-				]); 
+				]);
 
 	/*	$documentsBilanci = Document::where('type', 'bilancio')->get();
-		
+
 		return response()->json([
 			'error' => false,
 			'cr' => $documentsCr,
 			'bilanci' => $documentsBilanci
 		]);  */
 	}
-	
-	public function getDocumentsById($id) 
+
+	public function getDocumentsById($id)
 	{
 		$singleDocument = Document::findOrFail($id);
-		
+
 		return response()->json([
 		'error' => false,
 		'data' => $singleDocument
@@ -100,7 +100,7 @@ class CentraleRischiController extends Controller
 	}
 
 
-    public function recap(Request $request)
+    public function recap(Request $request, $page = "all")
     {
         // query che recupera 1 sola centrale rischi in status da elaborare
         // passiamo il filepath al python che elabora ed importa i dati.
@@ -108,7 +108,7 @@ class CentraleRischiController extends Controller
         $filepath = $crFileToElaborate->path;
 
         // $filepath = 'storage/path/to/file/test.pdf';
-        $process = new Process(['python3', base_path().'/crExtractor.py', $filepath]);
+        $process = new Process(['python3', base_path().'/crExtractor.py', $filepath, $page]);
 
         $process->setTimeout(10000);
 
@@ -286,13 +286,13 @@ class CentraleRischiController extends Controller
             $yearlyDivision = array();
             $sconfiniPerAnniBanche = array();
             $tensioniLineCtredito = array();
-			
+
 			$codiceDocumento = $crFileToElaborate->codice_documento;
 			$companyId = $crFileToElaborate->company_id;
 
             foreach ($crData as $anno => $months) {
                 foreach ($months as $mese => $data) {
-             
+
                     foreach ($data as $singleBank => $keys) {
                         foreach ($keys as $index => $value) {
                             $mesiList = ["0" => "fuoriMese", "gennaio" => 1, 'febbraio' => 2, 'marzo' => 3, 'aprile' => 4, 'maggio' => 5, 'giugno' => 6, 'luglio' => 07, "agosto" => 8, 'settembre' => 9, 'ottobre' => 10, 'novembre' => 11, 'dicembre' => 12,];
@@ -358,11 +358,11 @@ class CentraleRischiController extends Controller
                                     $cr->saldo_medio = $saldo_medio;
                                     $cr->importo_garantito = $importo_garantito;
                                     $cr->codice_coint = $codiceCoint;
-									
+
 									//new data
 									$cr->document_id = $codiceDocumento;
 									$cr->company_id = $companyId;
-									
+
                                     $cr->save();
                                 }
                             }
@@ -719,8 +719,8 @@ class CentraleRischiController extends Controller
                 }
             }
 
-            $crFileToElaborate->status = "Completato";
-            $crFileToElaborate->save();
+           // $crFileToElaborate->status = "Completato";
+           // $crFileToElaborate->save();
 
             return response()->json([
                 'error' => false,
@@ -734,18 +734,18 @@ class CentraleRischiController extends Controller
      * @return mixed
      */
     public function store(Request $request)
-    {	
-		   
+    {
+
         $importCr = $request->base64;
-	 
-	 
+
+
         $fileName = time() . '.pdf';
 
        // Storage::disk('public')->put($fileName, base64_decode($importCr));
 
 		 // Storage::disk('public')->put("centraleRischi", $importCr);
 		$stored = Storage::disk('public')->putFile('', $importCr);
-	 
+
         // $importCr->move(public_path('centraleRischi/'), $fileName, base64_decode($importCr));
 
         $dataCr = [
@@ -753,14 +753,14 @@ class CentraleRischiController extends Controller
             'path' => asset('centraleRischi') . '/' . $stored,
             'type' => 'centrale rischi'
         ];
-		
-		if($request->header('currentcompany') || $request->header('currentcompany') === 0) {
+
+		if($request->header('currentcompany') || $request->header('currentcompany') == 0) {
 				$dataCr["company_id"] = $request->header('currentcompany');
 			}
 $dataCr["codice_documento"] = rand(1, 999999999);
 		$dataCr["status"] = "Da Elaborare";
-		
-		
+
+
         Document::create($dataCr);
 
 
@@ -773,8 +773,9 @@ $dataCr["codice_documento"] = rand(1, 999999999);
         $accountId = $request->input('account_id');
 
 
-  		ElaborateLatestCR::dispatch();
-
+        for($pageToExtract = 1; $pageToExtract<=149; $pageToExtract++) {
+            ElaborateLatestCR::dispatch($pageToExtract);
+        }
 
         return response()->json([
             'error' => false,
@@ -1089,7 +1090,7 @@ $dataCr["codice_documento"] = rand(1, 999999999);
             $sconfiniDivisi = $crHelper->divideAnomalie($numeroSconfiniTotali, $banks);
 
 			$informazioniGarantiAnomalie = [];
-			
+
 					foreach($informazioniGaranti['Anomalie'] as $nomeBanca=>$multipleDates) {
 						foreach($multipleDates as $singleDate=>$multipleTypes) {
 							foreach($multipleTypes as $singleType=>$multipleAnomalie) {
@@ -1105,13 +1106,13 @@ $dataCr["codice_documento"] = rand(1, 999999999);
 							}
 						}
 					}
-			
+
 	foreach($totAffidamentiConPesiPerBanca as $singleBank) {
 				$totaleAccordatoGeneral = $totAffidamentiConPesiPerBanca[0]['totAccordatoOperativo'] + $singleBank['totAccordatoOperativo'];
 				$totaleUtilizzatoGeneral = $totAffidamentiConPesiPerBanca[0]['totUtilizzato'] + $singleBank['totUtilizzato'];
 			}
-			
-	
+
+
             return response()->json([
                 'error' => false,
                 'anomalieStatoRapporto' => $anomalieStatoRapporto,
@@ -1181,13 +1182,13 @@ $dataCr["codice_documento"] = rand(1, 999999999);
         foreach ($trimestri as $trimestre => $singlePeriod) {
             //Pagina 1 - Composizione delle linee di credito, Composizione delle linee di credito per banca e modalità utilizzo linee di credito
             $affidamentiPerCategoria[$trimestre] = $crHelper->getAffidamentiGeneralTrimestrale($singlePeriod);
-            //Pagina 1 - Verifica presenza di sconfini  
+            //Pagina 1 - Verifica presenza di sconfini
             $presenzaSconfini[$trimestre] = $crHelper->getPresenzaSconfini($singlePeriod);
             //Pagina 1 - Verifica sui crediti scaduti
             $presenzaCreditiScaduti[$trimestre] = $crHelper->verificaImpagati($singlePeriod);
             //Pagina 1 - verifica disponibilità inutilizzata
             $disponibilitaInutilizzata[$trimestre] = $crHelper->verificaDisponibilita($singlePeriod);
-            //Pagina 1 - peso debiti a breve termine 
+            //Pagina 1 - peso debiti a breve termine
             $pesoDebitiBreveTermine[$trimestre] = $crHelper->pesoDebitiBreveTermine($singlePeriod);
             //Pagina 1 - Segnalazioni gravi
             $segnalazioniGravi[$trimestre] = $crHelper->verificaSegnalazioniGravi($singlePeriod);
@@ -1195,11 +1196,11 @@ $dataCr["codice_documento"] = rand(1, 999999999);
             $verificaGaranzie[$trimestre] = $crHelper->verificaGaranzie($singlePeriod);
             //Pagina 2 - Uso degli affidamenti
             $affidamenti[$trimestre] = $crHelper->usoAffidamenti($singlePeriod);
-            //Pagina 3 - Analisi sconfini 
+            //Pagina 3 - Analisi sconfini
             $analisiSconfini[$trimestre] = $crHelper->analisiSconfini($singlePeriod);
             //Pagina 4 - Analisi crediti e situazioni a rischio
             $creditiRischi[$trimestre] = $crHelper->creditiRischi($singlePeriod);
-            //Pagina 5 - Peso debiti breve termine 
+            //Pagina 5 - Peso debiti breve termine
             $creditiScadutiBreveTermine[$trimestre] = $crHelper->getCreditiScadutiBreveTermine($singlePeriod);
             //Pagina 6 - Informazioni sui garanti
             $informazioniSuiGaranti[$trimestre] = $crHelper->getInformazioniGarantiTrimestrale($singlePeriod);

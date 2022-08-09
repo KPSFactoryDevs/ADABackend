@@ -1,5 +1,5 @@
 <?php
-namespace XBRL;
+
 /**
  * XBRL specification constants
  *
@@ -25,7 +25,8 @@ namespace XBRL;
 /**
  * Include the QName code
  */
- use XBRL;
+use lyquidity\xml\QName;
+
 require_once( 'XBRL-QName.php' );
 
 define( "ASSERTION_SEVERITY_OK", "OK" );
@@ -46,12 +47,16 @@ define( "STANDARD_PREFIX_XL", "xl" );
 // BMS 2018-04-09 Fixing the kluge
 define( "STANDARD_PREFIX_SCHEMA", "xs" );
 define( "STANDARD_PREFIX_SCHEMA_ALTERNATIVE", "xsd" );
+define( "STANDARD_PREFIX_SCHEMA_XHTML", "xhtml" );
 define( "STANDARD_PREFIX_SCHEMA_INSTANCE", "xsi" );
 define( "STANDARD_PREFIX_GENERIC", "gen" );
 define( "STANDARD_PREFIX_ISO4217", "iso4217" );
 define( "STANDARD_PREFIX_IX", "ix" );
 define( "STANDARD_PREFIX_IX11", "ix11" );
-define( "STANDARD_PREFIX_IXT", "ixt" );
+define( "STANDARD_PREFIX_IXTV1", "ixtv1" );
+define( "STANDARD_PREFIX_IXTV2", "ixtv2" );
+define( "STANDARD_PREFIX_IXTV3", "ixtv3" );
+define( "STANDARD_PREFIX_IXTV4", "ixtv4" );
 define( "STANDARD_PREFIX_LABEL", "label" );
 define( "STANDARD_PREFIX_MODEL", "model" );
 define( "STANDARD_PREFIX_REFERENCE", "reference" );
@@ -59,6 +64,7 @@ define( "STANDARD_PREFIX_REFERENCE_ERROR", "xbrlre" );
 define( "STANDARD_PREFIX_LABEL_ERROR", "xbrlle" );
 define( "STANDARD_PREFIX_GENERIC_ERROR", "xbrlgene" );
 define( "STANDARD_PREFIX_XML", "xml" );
+define( "STANDARD_PREFIX_XMLNS", "xmlns" );
 define( "STANDARD_PREFIX_TABLE", "table" );
 define( "STANDARD_PREFIX_TABLE_ERROR", "xbrlte" );
 define( "STANDARD_PREFIX_TABLE_MODEL", "tablemodel" );
@@ -119,6 +125,10 @@ define( "STANDARD_PREFIX_DTR_NUMERIC", "num" );
 define( "STANDARD_PREFIX_DTR_NONNUMERIC", "nonnum" );
 define( "STANDARD_PREFIX_DTR_TYPES", "dtr-types" );
 
+define( "STANDARD_PREFIX_IXBRL10", "ix10" );
+define( "STANDARD_PREFIX_IXBRL11", "ix11" );
+define( "STANDARD_PREFIX_XFM", "xfm" );
+
 /**
  * A collection of constants from the XBRL 2.1, XBRL Dimensions 1.0 and XBRL Formula specifications
  *
@@ -163,7 +173,10 @@ class XBRL_Constants
 		STANDARD_PREFIX_ISO4217							=> "http://www.xbrl.org/2003/iso4217",
 		STANDARD_PREFIX_IX								=> "http://www.xbrl.org/2008/inlineXBRL",
 		STANDARD_PREFIX_IX11							=> "http://www.xbrl.org/2013/inlineXBRL",
-		STANDARD_PREFIX_IXT								=> "http://www.xbrl.org/inlineXBRL/transformation/2010-04-20",
+		STANDARD_PREFIX_IXTV1							=> "http://www.xbrl.org/inlineXBRL/transformation/2010-04-20",
+		STANDARD_PREFIX_IXTV2							=> "http://www.xbrl.org/inlineXBRL/transformation/2011-07-31",
+		STANDARD_PREFIX_IXTV3							=> "http://www.xbrl.org/inlineXBRL/transformation/2015-02-26",
+		STANDARD_PREFIX_IXTV4							=> "http://www.xbrl.org/inlineXBRL/transformation/2020-02-12",
 		STANDARD_PREFIX_LABEL							=> "http://xbrl.org/2008/label",
 		STANDARD_PREFIX_MODEL							=> "http://www.eurofiling.info/xbrl/ext/model",
 		STANDARD_PREFIX_REFERENCE						=> "http://xbrl.org/2008/reference",
@@ -181,7 +194,7 @@ class XBRL_Constants
 		STANDARD_PREFIX_XL								=> "http://www.xbrl.org/2003/XLink",
 		STANDARD_PREFIX_SCHEMA							=> "http://www.w3.org/2001/XMLSchema",
 		STANDARD_PREFIX_SCHEMA_ALTERNATIVE				=> "http://www.w3.org/2001/XMLSchema",
-		"xhtml"											=> "http://www.w3.org/1999/xhtml",
+		STANDARD_PREFIX_SCHEMA_XHTML					=> "http://www.w3.org/1999/xhtml",
 		STANDARD_PREFIX_SCHEMA_INSTANCE					=> "http://www.w3.org/2001/XMLSchema-instance",
 		STANDARD_PREFIX_XML								=> "http://www.w3.org/XML/1998/namespace",
 		STANDARD_PREFIX_TABLE							=> "http://xbrl.org/2014/table",
@@ -240,8 +253,23 @@ class XBRL_Constants
 		STANDARD_PREFIX_DTR_NUMERIC						=> "http://www.xbrl.org/dtr/type/numeric",
 		STANDARD_PREFIX_DTR_NONNUMERIC					=> "http://www.xbrl.org/dtr/type/non-numeric",
 		STANDARD_PREFIX_DTR_TYPES						=> "http://www.xbrl.org/dtr/type/2020-01-21",
+		STANDARD_PREFIX_IXBRL10							=> "http://www.xbrl.org/2008/inlineXBRL",
+		STANDARD_PREFIX_IXBRL11							=> "http://www.xbrl.org/2013/inlineXBRL",
+		STANDARD_PREFIX_XFM								=> "http://www.xbrl.org/2008/function/math",
 	);
 
+	/**
+	 * Namespace for XMLNS
+	 * @var string
+	 */
+	public static $xmlns = "http://www.w3.org/2000/xmlns";
+
+	/**
+	 * The supported iXBRL namespaces indexed by the canonical prefixes
+	 * @var string[]
+	 */
+	public static $ixbrlNamespaces = array( STANDARD_PREFIX_IXBRL10 => "http://www.xbrl.org/2008/inlineXBRL", STANDARD_PREFIX_IXBRL11 => "http://www.xbrl.org/2013/inlineXBRL" );
+	
 	/**
 	 * A list of the standard XBRL namespaces indexed by namespace.  Populated by the static constructor.
 	 */
@@ -281,14 +309,28 @@ class XBRL_Constants
 		STANDARD_PREFIX_VALIDATION_MESSAGE_ERROR	=> "http://www.xbrl.org/2010/validation-message.xsd",
 		STANDARD_PREFIX_VALIDATION					=> "http://www.xbrl.org/2008/validation.xsd",
 		STANDARD_PREFIX_MESSAGE						=> "http://www.xbrl.org/2010/generic-message.xsd",
-		STANDARD_PREFIX_ACF							=> "http://www.xbrl.org/2010/aspect-cover-filter.xsd"
+		STANDARD_PREFIX_ACF							=> "http://www.xbrl.org/2010/aspect-cover-filter.xsd",
+		STANDARD_PREFIX_IXBRL10						=> "http://www.xbrl.org/2008/inlineXBRL/xhtml-inlinexbrl-1_0.xsd",
+		STANDARD_PREFIX_IXBRL11						=> "http://www.xbrl.org/2013/inlineXBRL/xhtml-inlinexbrl-1_1.xsd",
 	);
+
+	/**
+	 * The current TRR namespaces
+	 */
+	public static $ixtNamespaces = array();
 
 	/**
 	 * Initialize the static class
 	 */
 	public static function __static()
 	{
+		self::$ixtNamespaces = array( 
+			\XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_IXTV1 ],
+			\XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_IXTV2 ],
+			\XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_IXTV3 ],
+			\XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_IXTV4 ]
+		);
+
 		$prefixes = array( STANDARD_PREFIX_SCHEMA, STANDARD_PREFIX_XBRLI, STANDARD_PREFIX_LINK, STANDARD_PREFIX_XLINK, STANDARD_PREFIX_GENERIC, STANDARD_PREFIX_XBRLDT, STANDARD_PREFIX_XBRLDI );
 		self::$standardNamespaces = $temp = array_flip( array_intersect_key( self::$standardPrefixes, array_flip( $prefixes ) ) );
 
@@ -634,6 +676,11 @@ class XBRL_Constants
 	 * @var string
 	 */
 	public static $xbrliNonZeroDecimalUnion	= "xbrli:nonZeroDecimal";
+	/**
+	 * Domaim member typenonnum:domainItemType
+	 * @var string
+	 */
+	public static $nonnumDomainItemType	= "nonnum:domainItemType";
 
 	/* -----------------------------------------------------------------------------
 	 * Instances element tuple attributes
@@ -1303,6 +1350,18 @@ class XBRL_Constants
 	 */
 	public static $enumSetItemType			= "enum:enumerationSetItemType";
 
+	/**
+	 * Returns enum2:enumerationItemType
+	 * @var string $enum2ItemType
+	 */
+	public static $enum2ItemType			= "enum2:enumerationItemType";
+
+	/**
+	 * Returns enum2:enumerationSetItemType
+	 * @var string $enum2SetItemType
+	 */
+	public static $enum2SetItemType			= "enum2:enumerationSetItemType";
+
 	/* -----------------------------------------------------------------------------
 	 * Inline-XBRL
 	 * -----------------------------------------------------------------------------
@@ -1671,6 +1730,7 @@ class XBRL_Constants
 
 	/**
 	 * Report Date [Axis]
+	 * @var string $dfrReportDateAxis
 	 */
 	public static $dfrReportDateAxis = "ReportDateAxis";
 
@@ -2145,7 +2205,7 @@ class XBRL_Constants
 	 */
 	public static function isResourceArcrole( $arcrole )
 	{
-		return isset( self::$resourceArcRoles[ $arcrole ] ) || isFormulaArcrole( $arcrole );
+		return isset( self::$resourceArcRoles[ $arcrole ] ) || self::isFormulaArcrole( $arcrole );
 	}
 
 	/**

@@ -13,14 +13,11 @@
         "arcanedev/log-viewer": "8.x",
         "asantibanez/livewire-select": "^2.0",
         "barryvdh/laravel-dompdf": "^0.9.0",
-        "consoletvs/charts": "7.*",
-        "darkghosthunter/laraguard": "dev-master",
         "fideloper/proxy": "^4.4",
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
         "inertiajs/inertia-laravel": "^0.3.4",
         "intervention/image": "^2.7",
-        "jamesmills/laravel-timezone": "^1.9",
         "lab404/laravel-impersonate": "^1.6",
         "langleyfoxall/laravel-nist-password-rules": "^4.1",
         "laravel/framework": "^8.12",
@@ -36,11 +33,13 @@
         "lyquidity/xbrl": "dev-master",
         "lyquidity/xml": "dev-master",
         "lyquidity/xpath2": "dev-master",
+        "psr/log": "^1.0",
         "rappasoft/laravel-livewire-tables": "^0.3.3",
         "rappasoft/lockout": "^3.0",
         "spatie/laravel-activitylog": "^3.14",
         "spatie/laravel-permission": "^3.11",
         "symfony/process": "^5.2",
+        "symfony/symfony": "5.4.x",
         "tabuna/breadcrumbs": "^2.2"
     },
     "repositories":
@@ -62,13 +61,18 @@
         "laravel/sail": "^0.0.5",
         "mockery/mockery": "^1.4.2",
         "nunomaduro/collision": "^5.0",
-        "phpunit/phpunit": "^9.3.3",
-        "roave/security-advisories": "dev-master"
+        "phpunit/phpunit": "^9.3.3"
     },
     "config": {
         "optimize-autoloader": true,
         "preferred-install": "dist",
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "treeware/plant": true
+        },
+        "platform": {
+            "php": "7.4.30"
+        }
     },
     "extra": {
         "laravel": {

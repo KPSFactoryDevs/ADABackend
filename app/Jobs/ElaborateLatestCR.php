@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use Illuminate\Support\Facades\Log;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -12,10 +13,19 @@ use Illuminate\Queue\SerializesModels;
 use App\Http\Controllers\CentraleRischiController;
 use Illuminate\Http\Request;
 
+use Illuminate\Bus\Batchable;
+use Throwable;
+
 class ElaborateLatestCR implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public $page;
+
+    public function __construct($page)
+    {
+        $this->page = $page;
+    }
 
     /**
      * Execute the job.
@@ -24,6 +34,21 @@ class ElaborateLatestCR implements ShouldQueue
      */
     public function handle()
     {
-        app()->call(CentraleRischiController::class . '@' . 'recap');
+
+            $params = array();
+            $params = [
+                'page'=> $this->page
+            ];
+
+            app()->call(CentraleRischiController::class . '@' . 'recap',$params);
+
+    }
+
+    public function failed(Throwable $exception)
+    {
+
+        Log::debug($exception);
+
+
     }
 }

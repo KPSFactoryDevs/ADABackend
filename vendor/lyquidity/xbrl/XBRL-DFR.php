@@ -28,6 +28,7 @@
 require_once('XBRL.php');
 
 use XBRL\Formulas\Resources\Filters\ConceptName;
+use XBRL\Formulas\Resources\Formulas\Formula;
 use lyquidity\xml\QName;
 use XBRL\Formulas\Resources\Assertions\ExistenceAssertion;
 use XBRL\Formulas\Resources\Assertions\ValueAssertion;
@@ -590,7 +591,7 @@ class XBRL_DFR
 	 * @param array $networks
 	 * @param XBRL_Instance $instance
 	 * @param array $report
-	 * @param Observer $observer
+	 * @param \Log_observer $observer
 	 * @param string|null $lang			(optional: default = null) The language to use or null for the default
 	 * @param bool $echo
 	 * @param array $factsData			@reference If not null an array
@@ -629,7 +630,7 @@ class XBRL_DFR
 	 * @param string $elr
 	 * @param XBRL_Instance $instance
 	 * @param array $report
-	 * @param Observer $observer
+	 * @param \Log_observer $observer
 	 * @param bool $entityHasReport
 	 * @param string|null $lang			(optional: default = null) The language to use or null for the default
 	 * @param bool $echo
@@ -672,11 +673,15 @@ class XBRL_DFR
 
 	/**
 	 * Validate the the taxonomy against the model structure rules
-	 * @param array $formulaSummaries An evaluated formulas instance
-	 * @param string $lang a locale to use when returning the text. Defaults to null to use the default.
+	 * @param array $formulaSummaries				An evaluated formulas instance
+	 * @param bool $rebuildDefinitionsCache
+	 * @param string $lang							A locale to use when returning the text. Defaults to null to use the default.
+	 * @param bool $keepDefinitionlessPresentations This will be true if the caller wants to keep presentations 
+	 * 												for which there is no matching definition and the caller is 
+	 * 												going to handle the unmatched presentations.
 	 * @return array|null
 	 */
-	public function validateDFR( &$formulaSummaries, $rebuildDefinitionsCache = false, $lang = null )
+	public function validateDFR( &$formulaSummaries, $rebuildDefinitionsCache = false, $lang = null, $keepDefinitionlessPresentations = false )
 	{
 		global $reportModelStructureRuleViolations;
 
@@ -939,23 +944,28 @@ class XBRL_DFR
 		{
 			$this->presentationPIs[$elr] = array();
 
-			foreach ( $role['locators'] as $id => $label )
+			foreach ( $role['locators'] as $locatorId => $label )
 			{
-				$taxonomy = $this->taxonomy->getTaxonomyForXSD( $label );
-				$element = $taxonomy->getElementById( $label );
+				$locatorTaxonomy = $this->taxonomy->getTaxonomyForXSD( $label );
+				if ( ! $locatorTaxonomy )
+					continue;
+				$locatorElement = $locatorTaxonomy->getElementById( $label );
 
-				if ( $element['abstract'] || $element['type'] == 'nonnum:domainItemType' ) continue;
+				if ( $locatorElement['abstract'] || $locatorElement['type'] == 'nonnum:domainItemType' ) continue;
 
 				// BMS 2019-03-23 TODO Check the concept is not a tuple
-				if ( $element['substitutionGroup'] == "xbrli:tuple" )
+				if ( $locatorElement['substitutionGroup'] == "xbrli:tuple" )
 				{
 					continue;
 				}
 
 				// One or more of the labels may include the preferred label role so convert all PIs back to their id
-				$this->presentationPIs[$elr][] = $taxonomy->getTaxonomyXSD() . "#{$element['id']}";
+				$this->presentationPIs[$elr][] = $locatorTaxonomy->getTaxonomyXSD() . "#{$locatorElement['id']}";
 
 			}
+			unset( $locatorElement );
+			unset( $locatorId );
+			unset( $locatorTaxonomy );
 
 			// If there were preferred label roles in any of the PIs then there will be duplicates.  This also sorts the list.
 			$this->presentationPIs[ $elr ] = array_unique( $this->presentationPIs[ $elr ] );
@@ -1109,10 +1119,10 @@ class XBRL_DFR
 					unset( $tableLabel );
 				}
 			}
-			else if ( $tables )
+			else if ( $tables && ! $keepDefinitionlessPresentations )
 			{
 				// If there are tables defined in the presentation but no tables in the definition then drop the presentation
-				unset( $this->presentationNetworks['$elr'] );
+				unset( $this->presentationNetworks[ $elr ] );
 			}
 
 			$role['axes'] = $axes;
@@ -1178,7 +1188,7 @@ class XBRL_DFR
 	/**
 	 * Look for a concept in each formula's filter
 	 * @param array $formulaSummariesForELR (ref) Array of formulas defined for the ELR
-	 * @param XBRL_DFR $taxonomy
+	 * @param XBRL $taxonomy
 	 * @param array $element
 	 * @return boolean
 	 */
@@ -1217,6 +1227,8 @@ class XBRL_DFR
 
 		if ( ! $classEquivalents ) return;
 
+		// $count = array_reduce( $classEquivalents['arcs'], function( $acc, $arcs ) { return $acc + count( $arcs ); }, 0 );
+
 		foreach ( $this->taxonomy->getImportedSchemas() as $label => $taxonomy )
 		{
 			if ( ! $taxonomy->getHasFormulas() ) continue;
@@ -1229,10 +1241,12 @@ class XBRL_DFR
 			foreach ( $classEquivalents['arcs'] as $fac => $gaaps )
 			{
 				$facTaxonomy = $this->taxonomy->getTaxonomyForXSD( $fac );
-				if ( ! $facTaxonomy ) continue;
+				if ( ! $facTaxonomy ) 
+					continue;
 
 				$facElement = $facTaxonomy->getElementById( $fac );
-				if ( ! $facElement ) continue;
+				if ( ! $facElement ) 
+					continue;
 
 				$facClark = "{{$facTaxonomy->getNamespace()}}{$facElement['name']}";
 
@@ -1242,15 +1256,18 @@ class XBRL_DFR
 
 					foreach ( $resource['filter']['qnames'] as $qnIndex => $qname )
 					{
-						if ( $qname != $facClark ) continue;
+						if ( $qname != $facClark )
+							continue;
 
 						foreach ( $gaaps as $gaapLabel => $gaap )
 						{
 							$gaapTaxonomy = $this->taxonomy->getTaxonomyForXSD( $gaapLabel );
-							if ( ! $gaapTaxonomy ) continue;
+							if ( ! $gaapTaxonomy )
+								continue;
 
 							$gaapElement = $gaapTaxonomy->getElementById( $gaapLabel );
-							if ( ! $gaapElement ) continue;
+							if ( ! $gaapElement )
+								continue;
 
 							// $gaapClark = "{{$gaapTaxonomy->getNamespace()}}{$gaapElement['name']}";
 							$gaapClark = $baseTaxonomy
@@ -1273,6 +1290,8 @@ class XBRL_DFR
 							{
 								$resource['filter']['qnames'][] = $gaapClark;
 							}
+
+							$classEquivalents['arcs'][ $fac ][ $gaapLabel ]['used'] = true;
 							$changed = true;
 						}
 					}
@@ -1284,6 +1303,19 @@ class XBRL_DFR
 				}
 			}
 		}
+
+		// For debugging to check the numbers of arcs
+		// $countUsed = array_reduce( $classEquivalents['arcs'], function( $acc, $arcs ) { return $acc + count( array_filter( $arcs, function( $arc ) { return $arc['used'] ?? false; } ) ); }, 0 );
+		// $unused = \XBRL::array_reduce_key( $classEquivalents['arcs'], function( $acc, $arcs, $key )
+		// {
+		//	foreach( $arcs as $arc )
+		//	{
+		//		if ( $arc['used'] ?? false ) continue;
+		//		$acc[ $key ][] = $arc['label'];
+		//	}
+		//	return $acc;
+		// }, [] );
+
 	}
 
 	/**
@@ -1319,7 +1351,7 @@ class XBRL_DFR
 	 * @param string $parentLabel
 	 * @param string $source What hypercube aspect to use (primaryitems, members, dimensions)
 	 * @param string $recurse If true the hierarchy will be tested recursively
-	 * @return unknown|boolean|unknown|boolean
+	 * @return mixed|boolean
 	 */
 	private function hasHypercubeItem( $label, $elr, $parentLabel, $source = 'primaryitems', $recurse = true )
 	{
@@ -2809,7 +2841,7 @@ class XBRL_DFR
 	 * @param XBRL_Instance $instance
 	 * @param QName $entityQName
 	 * @param array $report	The evaluated formulas
-	 * @param Observer $observer		An obsever with any validation errors
+	 * @param \Log_observer $observer		An obsever with any validation errors
 	 * @param array $resultFactsLayout
 	 * @param array $accumulatedTables
 	 * @param array $nodesToProcess
@@ -3183,7 +3215,7 @@ class XBRL_DFR
 						{
 							// Get the axis text
 							$nextAxisLabel = reset( $multiMemberAxes );
-							/** @var XBRL_DFR $axisTaxonomy */
+							/** @var XBRL $axisTaxonomy */
 							$axisTaxonomy = $this->taxonomy->getTaxonomyForXSD( $nextAxisLabel );
 							$axisText = $axisTaxonomy->getTaxonomyDescriptionForIdWithDefaults( $nextAxisLabel, null, $lang, $elr );
 
@@ -3245,7 +3277,7 @@ class XBRL_DFR
 
 								foreach ( $axisMembers as $memberLabel )
 								{
-									/** @var XBRL_DFR $memberTaxonomy */
+									/** @var XBRL $memberTaxonomy */
 									$memberTaxonomy = $this->taxonomy->getTaxonomyForXSD( $memberLabel );
 									$memberText = $memberTaxonomy->getTaxonomyDescriptionForIdWithDefaults( $memberLabel, null, $lang, $elr );
 
@@ -3451,7 +3483,7 @@ class XBRL_DFR
 
 		/**
 		 * Return the fact corresponding to the originally stated or restated condition
-		 * @param XBRL_DFR $nodeTaxonomy
+		 * @param XBRL $nodeTaxonomy
 		 * @param array $facts (ref)
 		 * @param array $axis an entry for an axis in $axes
 		 * @param ContextsFilter $cf A filter of instant contexts
@@ -3522,7 +3554,7 @@ class XBRL_DFR
 				$first = $node == $firstRow;
 				$last = $node == $lastRow;
 
-				/** @var XBRL_DFR $nodeTaxonomy */
+				/** @var XBRL $nodeTaxonomy */
 				$nodeTaxonomy = $this->taxonomy->getTaxonomyForXSD( $label );
 				$nodeElement = $nodeTaxonomy->getElementById( $label );
 
@@ -4271,7 +4303,7 @@ class XBRL_DFR
 				$lineItems |= $thisLineItems | $abstractLineItems;
 				if ( $lineItems )
 				{
-					/** @var XBRL_DFR $nodeTaxonomy */
+					/** @var XBRL $nodeTaxonomy */
 					$nodeTaxonomy = $this->taxonomy->getTaxonomyForXSD( $label );
 					$nodeElement = $nodeTaxonomy->getElementById( $label );
 					$preferredLabels = isset( $node['preferredLabel'] ) ? array( $node['preferredLabel'] ) : null;
@@ -4757,9 +4789,9 @@ class XBRL_DFR
 	 * @param XBRL_Instance $instance	The instance being reported
 	 * @param QName $entityQName
 	 * @param array	$report				The evaluated formulas
-	 * @param Observer $observer		An obsever with any validation errors
+	 * @param \Log_observer $observer		An obsever with any validation errors
 	 * @param bool $hasReport
-	 * @param $echo						If true the HTML will be echoed
+	 * @param bool $echo				If true the HTML will be echoed
 	 * @param array $factsData			@reference If not null an array
 	 * @return string
 	 */
@@ -4917,12 +4949,12 @@ class XBRL_DFR
 	/**
 	 * Render a report with information about a taxonomy
 	 * @param array $network			An array generated by the validsateDLR process
-	 * @param Observer $observer		An obsever with any validation errors
+	 * @param Log_observer $observer	An obsever with any validation errors
 	 * @param bool $hasReport
-	 * @param $echo						If true the HTML will be echoed
+	 * @param bool $echo				If true the HTML will be echoed
 	 * @return string
 	 */
-	public function renderTaxonomy( $networks, $observer, $lang = null, $echo = true )
+	public function renderTaxonomy( $networks, $observer, $lang = null, $echo = true, $allowConstrained = false )
 	{
 		$result = array();
 
@@ -5225,10 +5257,8 @@ class XBRL_DFR
 		if ( ! $formulas->processFormulasAgainstInstances( $instance, null, null, $roleFilterPart ) )
 		{
 			// Report the failure
-			$log->formula_validation( "Test failed", "The test failed to complete",
+			$log->formula_validation( "Formulas failed", "The test failed to complete",
 				array(
-					'test id' => 1,
-					'instance' => $test
 				)
 			);
 		}
@@ -5266,7 +5296,7 @@ class XBRL_DFR
 						'id' => $formula->id,
 						'label' => $formula->label,
 						'value' => $formula->value,
-						'linkbase' => $variableSet->linkbase,
+						'linkbase' => $consistencyAssertion->linkbase,
 						'parameters' => array(),
 						'evaluations' => array(),
 					);
@@ -5277,7 +5307,7 @@ class XBRL_DFR
 							'label' => $parameter->label,
 							'select' => $parameter->select
 						);
-					}, $variableSet->parameters );
+					}, $formula->parameters );
 
 					foreach ( $formula->factsContainer->facts[ $formula->label ] as $key => $derivedFact )
 					{
@@ -5326,7 +5356,7 @@ class XBRL_DFR
 		{
 			foreach ( $variableSetsForQName as /** @var VariableSetAssertion $variableSet */ $variableSet )
 			{
-				if ( $variableSet instanceof Formula ) continue;
+				if ( $variableSet instanceof \XBRL\Formulas\Resources\Formulas\Formula ) continue;
 
 				$formula = array(
 					'id' => $variableSet->id,

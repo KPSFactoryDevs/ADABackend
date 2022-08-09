@@ -24,7 +24,7 @@ use Laravel\Passport\HasApiTokens;
 /**
  * Class User.
  */
-class User extends Authenticatable implements MustVerifyEmail, TwoFactorAuthenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens,
         HasFactory,
@@ -33,7 +33,6 @@ class User extends Authenticatable implements MustVerifyEmail, TwoFactorAuthenti
         MustVerifyEmailTrait,
         Notifiable,
         SoftDeletes,
-        TwoFactorAuthentication,
         UserAttribute,
         UserMethod,
         UserRelationship,

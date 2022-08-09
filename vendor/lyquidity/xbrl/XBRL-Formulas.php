@@ -50,7 +50,9 @@ use lyquidity\XPath2\Iterator\DocumentOrderNodeIterator;
 use XBRL\Formulas\Resources\Variables\Instance;
 use lyquidity\xml\QName;
 use XBRL\Formulas\Resources\Assertions\ValueAssertion;
+use XBRL\Formulas\Resources\Assertions\ExistenceAssertion;
 use lyquidity\XPath2\DOM\DOMXPathNavigator;
+use XBRL\Formulas\Resources\Filters\Filter;
 
 /**
  * Main class for formula evaluation
@@ -71,7 +73,7 @@ class XBRL_Formulas extends Resource
 
 	/**
 	 * A list of parameter variables indexed by qname
-	 * @var array[Parameter] $parameterQnames
+	 * @var Parameter[] $parameterQnames
 	 */
 	private $parameterQnames = null;
 
@@ -95,7 +97,7 @@ class XBRL_Formulas extends Resource
 
 	/**
 	 * The QName to use for the output instance
-	 * @var string $instanceQName
+	 * @var string|QName $instanceQName
 	 */
 	private $instanceQName = 'instances:standard-output-instance';
 
@@ -113,7 +115,7 @@ class XBRL_Formulas extends Resource
 
 	/**
 	 * A list of variable sets and parameters by name (not qname)
-	 * @var array[VariableSet] $variableSets
+	 * @var VariableSet[] $variableSets
 	 */
 	private $variableSets = array();
 
@@ -152,6 +154,29 @@ class XBRL_Formulas extends Resource
 	 * @var bool $canEvaluate
 	 */
 	private $canEvaluate = false;
+
+	/**
+	 * Stores an ru structure representing the beginning of a timing session.
+	 */
+	private function startTiming()
+	{
+		if ( version_compare( PHP_VERSION, "7.0", "<" ) ) return;
+		$this->rustart = getrusage();
+	}
+
+	/**
+	 * Generate a progress value in milliseconds
+	 * @param string $index An index such as 'utime' or 'stime'
+	 * @return int|number|bool
+	 */
+	private function elapsedTime( $index = 'utime')
+	{
+		if ( version_compare( PHP_VERSION, "7.0", "<" ) ) return false;
+
+		$rus = $this->rustart;
+		$ru = getrusage();
+		return ( $ru[ "ru_$index.tv_sec" ] * 1000 + intval( $ru[ "ru_$index.tv_usec" ] / 1000 ) ) - ( $rus ? $rus[ "ru_$index.tv_sec" ] * 1000 + intval( $rus[ "ru_$index.tv_usec" ] / 1000 ) : 0 );
+	}
 
 	/**
 	 * Default constructor
@@ -339,7 +364,7 @@ class XBRL_Formulas extends Resource
 			$schemasWithFormulas = array_filter( $instanceTaxonomy->getImportedSchemas(), function( $taxonomy ) { return $taxonomy->getHasFormulas(); } );
 
 			// // For now, take just one of the taxonomies with formulas
-			// // $taxonomy = reset( $schemasWithFormulas );
+			// $schemasWithFormulas = array( reset( $schemasWithFormulas ) );
 
 			foreach ( $schemasWithFormulas as $namespace => $taxonomy )
 			{
@@ -414,7 +439,7 @@ class XBRL_Formulas extends Resource
 				// }
 				// exit();
 
-				if ( ! $this->validateCommon( $taxonomy, $contextParameters, $roleFilterPart ) )
+				if ( ! $this->validateCommon( $taxonomy, $contextParameters, null ) )
 				{
 					$result = false;
 					// return false;
@@ -433,11 +458,22 @@ class XBRL_Formulas extends Resource
 	 * @param array $additionalNamespaces		(optional) An array of namespaces indexed by prefix
 	 * 											These could be from a test cases or other document
 	 * @param array $contextParameters			A list of parameters to be added to the context
+	 * @param bool $validateTest				True (default) if the variable set tests should be checked.  This is slow.
 	 * @return void
 	 */
-	public function processFormulasForTaxonomy( $taxonomy, $additionalNamespaces = null, $contextParameters = null )
+	public function processFormulasForTaxonomy( $taxonomy, $additionalNamespaces = null, $contextParameters = null, $roleFilterPart = null, $validateTest = true )
 	{
-		if ( ! $taxonomy->getHasFormulas() ) return;
+		// BMS 2018-12-13
+		$schemasWithFormulas = array_filter( $taxonomy->getImportedSchemas(), function( $taxonomy ) use( $roleFilterPart )
+		{
+			/** @var \XBRL $taxonomy */
+			if ( $roleFilterPart && $roleFilterPart != $taxonomy->getNamespace() )
+			{
+				return false;
+			}
+
+			 return $taxonomy->getHasFormulas(); 
+		} );
 
 		if ( is_null( $contextParameters ) )
 		{
@@ -446,11 +482,9 @@ class XBRL_Formulas extends Resource
 
 		XBRL_Instance::reset();
 
-		// BMS 2018-12-13
-		$schemasWithFormulas = array_filter( $taxonomy->getImportedSchemas(), function( $taxonomy ) { return $taxonomy->getHasFormulas(); } );
-
-		// // For now, take just one of the taxonomies with formulas
-		// // $taxonomy = reset( $schemasWithFormulas );
+		// $this->startTiming();
+		// $lastElapsed = 0;
+		// $lastCount = 0;
 
 		$result = true;
 		foreach ( $schemasWithFormulas as $namespace => $taxonomy )
@@ -463,11 +497,23 @@ class XBRL_Formulas extends Resource
 			$this->instanceQNames[ $this->instanceQName->localName ] = $this->instanceQName;
 			$this->instances[ $this->instanceQName->clarkNotation() ] = null;
 
-			if ( ! $this->validateCommon( $taxonomy, $contextParameters ) )
+			if ( ! $this->validateCommon( $taxonomy, $contextParameters, null, $validateTest ) )
 			{
 				// return false;
 				$result = false;
 			}
+
+			// $count = \XBRL::array_reduce_key( $this->variableSets, function( $carry, $assertions ) { $carry += count( $assertions ); return $carry; }, 0 );
+			// $diffCount = $count - $lastCount;
+
+			// $elapsed = $this->elapsedTime();
+			// $diffElapsed = $elapsed - $lastElapsed;
+			// $lastElapsed = $elapsed;
+			// $lastCount = $count;
+
+			// $perCount = $diffCount ? $diffElapsed / $diffCount : '-';
+
+			// error_log( "$diffElapsed $diffCount $perCount $elapsed $namespace" );
 		}
 
 		return $result;
@@ -498,7 +544,7 @@ class XBRL_Formulas extends Resource
 		{
 			if ( ( ! $this->consistencyAssertions || $this->formulaFactsContainer->hasInstanceFile( $expectedResultNode ) ) )
 			{
-				if ( $this->formulaFactsContainer->compareResult( $testCaseFolder, $expectedResultNode, $this->instances[ $this->instanceQName->clarkNotation() ] ) )
+				if ( $this->formulaFactsContainer->compareResult( $testCaseFolder, $expectedResultNode, $this->instances[ $this->instanceQName instanceof \lyquidity\xml\QName ? $this->instanceQName->clarkNotation() : $this->instanceQName ] ) )
 				{
 					return false; // False means no error
 				}
@@ -535,9 +581,10 @@ class XBRL_Formulas extends Resource
 	 * @param XBRL $taxonomy
 	 * @param array $contextParameters A list of the parameter values to be used as sources for formula parameters
 	 * @param string|null $roleFilterPart (optional) Retrict the evaluation of formulas to those with $roleFilterPart in the roleUri
+	 * @param bool $validateTest When true (default) the test will be compiled. If the formulas are not going to be evaluated, it can be quicker to skip this test.
 	 * @return bool
 	 */
-	private function validateCommon( $taxonomy, $contextParameters, $roleFilterPart = null )
+	private function validateCommon( $taxonomy, $contextParameters, $roleFilterPart = null, $validateTest = true )
 	{
 		// if ( ! $this->validateParameters( $taxonomy, $contextParameters ) )
 		// {
@@ -549,7 +596,7 @@ class XBRL_Formulas extends Resource
 			return false;
 		}
 
-		if ( ! $this->validateVariableSets( $taxonomy, $contextParameters, $roleFilterPart ) )
+		if ( ! $this->validateVariableSets( $taxonomy, $contextParameters, $roleFilterPart, $validateTest ) )
 		{
 			return false;
 		}
@@ -640,7 +687,7 @@ class XBRL_Formulas extends Resource
 
 		/**
 		 * Examines parameter dependcies
-		 * @var Function $hasCircularReference
+		 * @var Closure $hasCircularReference
 		 */
 		$parameterQnames = $this->parameterQnames;
 		$hasCircularReference = function( $dependencies, $history = array() ) use( &$hasCircularReference, $parameterDependencies, $parameterQnames )
@@ -820,13 +867,13 @@ class XBRL_Formulas extends Resource
 	 * @param string|null $roleFilterPart (optional) Retrict the evaluation of formulas to those with $roleFilterPart in the roleUri
 	 * @return bool
 	 */
-	private function validateVariableSets( $taxonomy, $contextParameters, $roleFilterPart = null )
+	private function validateVariableSets( $taxonomy, $contextParameters, $roleFilterPart = null, $validateTest = true )
 	{
 		// Variable sets are headed by a formula or assertion
 		$variableSets = $taxonomy->getGenericResource( 'variableset', null );
 
 		if ( $variableSets )
-		foreach ( $variableSets as $index => $variableSet )
+		foreach ( $variableSets as $variableSet )
 		{
 			if ( $roleFilterPart )
 			{
@@ -942,13 +989,13 @@ class XBRL_Formulas extends Resource
 					{
 						$this->log->formula_validation( "Variables", "Invalid variable type",
 							array(
-								'variable type' => $resource['variableType'],
+								'variable type' => $variableResource['variableType'],
 							)
 						);
 						return false;
 					}
 
-					/** @var \XBRL\Formulas\Resources\Variables\Variable $variable */
+					/** @var Variable $variable */
 					$variable = $variableClassName::fromArray( $variableResource );
 					$variable->extendedLinkRoleUri = $variableResource['linkRoleUri'];
 
@@ -1016,11 +1063,15 @@ class XBRL_Formulas extends Resource
 			}
 
 			// Now the variables are known validate the formula
+			if ( $validateTest )
 			if ( ! $variableSetInstance->validate( null, $this->nsMgr ) )
 			{
 				return false;
 			}
 
+			/**
+			 * @var VariableSet $variableSetInstance
+			 */
 			$variableSetInstance->validateMessages( $taxonomy->getDefaultLanguage() );
 
 			// The variable refs MUST either refer to variables or parameters
@@ -1421,9 +1472,9 @@ class XBRL_Formulas extends Resource
 		        	}
 		        }
 
-		        // No need to evaluate a formula if its already been evaluated
+		        // No need to evaluate a formula if its already been evaluated or cannot be evaluated (for example there is no instance document)
 		        // Handy to have this test here so a break point can be assigned to the evaluate line
-				if ( ! isset( $variableSetInstance->evaluated ) )
+				if ( $this->canEvaluate && ! isset( $variableSetInstance->evaluated ) )
 				{
 					// Evaluate the variable set
 					if ( ! $this->evaluate( $variableSetInstance ) )
@@ -1436,7 +1487,7 @@ class XBRL_Formulas extends Resource
 
 		if ( $this->formulaFactsContainer )
 		{
-			$document = $this->formulaFactsContainer->generateInstanceDocument( $this->instances[ $this->instanceQName->clarkNotation() ], $this->nsMgr );
+			$document = $this->formulaFactsContainer->generateInstanceDocument( $this->instances[ $this->instanceQName instanceof \lyquidity\xml\QName ? $this->instanceQName->clarkNotation() : $this->instanceQName ], $this->nsMgr );
 		}
 
 		return true;
@@ -1542,7 +1593,7 @@ class XBRL_Formulas extends Resource
 	 * Process all the variable filters that are the target of an arc.
 	 * @param XBRL $taxonomy
 	 * @param string $arcRole
-	 * @param Variable $variable (by reference)
+	 * @param VariableSet $variable (by reference)
 	 * @param VariableSet $variableSet
 	 * @return bool
 	 */
@@ -1642,7 +1693,7 @@ class XBRL_Formulas extends Resource
 				{
 					$this->log->formula_validation( "Filter", "Invalid filter type",
 						array(
-							'Filter type' => $resource['filterType'],
+							'Filter type' => $filterResource['filterType'],
 						)
 					);
 					return false;
@@ -1675,7 +1726,7 @@ class XBRL_Formulas extends Resource
 					);
 				}
 
-				/** @var \XBRL\Formulas\Resources\Filters\Filter $filter */
+				/** @var Filter $filter */
 				$filter = $filterClassName::fromArray( $filterResource );
 
 				if ( ! $filter->validate( $variableSet, $this->nsMgr ) )
@@ -1707,6 +1758,9 @@ class XBRL_Formulas extends Resource
 					}
 				}
 
+				/**
+				 * @var VariableSet $variable
+				 */
 				$variable->addFilter( $filter );
 			}
 		}
@@ -2098,7 +2152,7 @@ class XBRL_Formulas extends Resource
 	private function validateEqualityDefinition( $taxonomy )
 	{
 		\XBRL_Log::getInstance()->info( "Need to implement equality definition validation" );
-		$taxonomy->getGenericArc( XBRL_Constants::$arcRoleVariableEqualityDefinition );
+		$taxonomy->getGenericArc( XBRL_Constants::$arcRoleVariableEqualityDefinition, null );
 		return true;
 	}
 
@@ -2109,13 +2163,13 @@ class XBRL_Formulas extends Resource
 	 */
 	private function evaluate( $variableSet )
 	{
-		if ( ! $this->canEvaluate ) return;
+		if ( ! $this->canEvaluate ) return false;
 		if ( isset( $variableSet->evaluated ) ) return true;
 
 		// Process the variables in hierarchy order
 		// $variableSet->parameters =& $this->parameterQnames;
 		$variableSet->nsMgr = $this->nsMgr;
-		$variableSet->xbrlInstance = $this->instances[ $this->instanceQName->clarkNotation() ];
+		$variableSet->xbrlInstance = $this->instances[ $this->instanceQName instanceof \lyquidity\xml\QName ? $this->instanceQName->clarkNotation() : $this->instanceQName ];
 		if ( $variableSet->evaluate() )
 		{
 			// If the variable set is a formula then add a facts container
@@ -2125,6 +2179,9 @@ class XBRL_Formulas extends Resource
 				$variableSet->factsContainer = $this->formulaFactsContainer;
 			}
 
+			/**
+			 * @var ExistenceAssertion|Formula|ValueAssertion  $variableSet
+			 */
 			$variableSet->ProcessEvaluationResult( $this->log );
 
 			// If the variable set is a formula recover the facts container
