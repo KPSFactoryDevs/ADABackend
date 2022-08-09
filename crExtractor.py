@@ -16,7 +16,10 @@ if headings.n > 0:
         except ValueError:
             print(f)
 
-    json_data = json.dumps(json.load(json_file))
+    with open("merged_file.json", "w") as outfile:
+        json.dump(result, outfile)
+
+    json_data = json.dumps(result)
     print(json_data)
 else:
     data = []
