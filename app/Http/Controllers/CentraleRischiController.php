@@ -110,7 +110,7 @@ class CentraleRischiController extends Controller
 
 
         // $filepath = 'storage/path/to/file/test.pdf';
-        $process = new Process(['sudo','python3', base_path() . '/crExtractor.py', $filepath, $page]);
+        $process = new Process(['python3', base_path() . '/crExtractor.py', $filepath, $page]);
 
         $process->setTimeout(10000);
 
