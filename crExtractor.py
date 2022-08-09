@@ -16,7 +16,7 @@ if headings.n > 0:
         except ValueError:
             print(f)
 
-    with open("/var/www/html/staging/merged_file.json", "w") as outfile:
+    with open("merged_file.json", "w") as outfile:
         json.dump(result, outfile)
 
     json_data = json.dumps(result)
