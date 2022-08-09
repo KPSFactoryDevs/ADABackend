@@ -354,28 +354,4 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => 'admin'], f
 
 
 
-Route::group([
-	'prefix' => 'crs',
-], function () {
-	Route::get('/', 'CrsController@index')
-		->name('crs.cr.index');
-	Route::get('/create', 'CrsController@create')
-		->name('crs.cr.create');
-	Route::get('/show/{cr}', 'CrsController@show')
-		->name('crs.cr.show');
-	Route::get('/{cr}/edit', 'CrsController@edit')
-		->name('crs.cr.edit');
-	Route::post('/', 'CrsController@store')
-		->name('crs.cr.store');
-	Route::put('cr/{cr}', 'CrsController@update')
-		->name('crs.cr.update');
-	Route::delete('/cr/{cr}', 'CrsController@destroy')
-		->name('crs.cr.destroy');
-});
 
-
-
-Route::group([
-	'prefix' => 'FAQ',
-], function () {
-});

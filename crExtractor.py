@@ -1,7 +1,6 @@
 import camelot
 import json
 import glob
-import mysql.connector
 import os
 import random
 import sys

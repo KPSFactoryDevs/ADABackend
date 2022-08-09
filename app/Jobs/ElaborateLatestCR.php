@@ -22,9 +22,12 @@ class ElaborateLatestCR implements ShouldQueue
 
     public $page;
 
-    public function __construct($page)
+    public $documentId;
+
+    public function __construct($page, $documentId)
     {
         $this->page = $page;
+        $this->documentId = $documentId;
     }
 
     /**
@@ -37,7 +40,8 @@ class ElaborateLatestCR implements ShouldQueue
 
             $params = array();
             $params = [
-                'page'=> $this->page
+                'documentId' => $this->documentId,
+                'page'=> $this->page,
             ];
 
             app()->call(CentraleRischiController::class . '@' . 'recap',$params);

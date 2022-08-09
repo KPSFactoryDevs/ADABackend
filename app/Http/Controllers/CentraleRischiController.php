@@ -100,12 +100,14 @@ class CentraleRischiController extends Controller
 	}
 
 
-    public function recap(Request $request, $page = "all")
+    public function recap(Request $request, $documentId, $page = "all")
     {
         // query che recupera 1 sola centrale rischi in status da elaborare
         // passiamo il filepath al python che elabora ed importa i dati.
-        $crFileToElaborate = Document::where('status', 'Da Elaborare')->first();
+        $crFileToElaborate = Document::where('codice_documento', $documentId)->first();
         $filepath = $crFileToElaborate->path;
+         $crFileToElaborate->status = "In Elaborazione";
+         $crFileToElaborate->save();
 
         // $filepath = 'storage/path/to/file/test.pdf';
         $process = new Process(['python3', base_path().'/crExtractor.py', $filepath, $page]);
@@ -773,8 +775,12 @@ $dataCr["codice_documento"] = rand(1, 999999999);
         $accountId = $request->input('account_id');
 
 
-        for($pageToExtract = 1; $pageToExtract<=149; $pageToExtract++) {
-            ElaborateLatestCR::dispatch($pageToExtract);
+
+        $pdftext = file_get_contents(asset('centraleRischi') . '/' . $stored);
+        $totalPages = preg_match_all("/\/Page\W/", $pdftext, $dummy);
+
+        for($pageToExtract = 1; $pageToExtract<=$totalPages; $pageToExtract++) {
+            ElaborateLatestCR::dispatch($pageToExtract, $dataCr["codice_documento"]);
         }
 
         return response()->json([
