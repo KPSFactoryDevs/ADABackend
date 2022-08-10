@@ -755,7 +755,7 @@ class CentraleRischiController extends Controller
         //$fileToRead = file_get_contents($storeFullPath);
       //  $totalPages = preg_match_all("/\/Page\W/", $fileToRead, $dummy);
 
-        $processGetPages = new Process(['qpdf --show-npages '. $storeFullPath]);
+        $processGetPages = new Process(['sudo qpdf --show-npages /var/www/html/staging/public/centraleRischi/'. $storedFile]);
 
         $processGetPages->setTimeout(120);
 
