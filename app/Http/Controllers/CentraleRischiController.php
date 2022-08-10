@@ -752,8 +752,8 @@ class CentraleRischiController extends Controller
         }
 
 
-        $fileToRead = file_get_contents($storeFullPath);
-        $totalPages = preg_match_all("/\/Page\W/", $fileToRead, $dummy);
+        //$fileToRead = file_get_contents($storeFullPath);
+      //  $totalPages = preg_match_all("/\/Page\W/", $fileToRead, $dummy);
 
         $processGetPages = new Process(['qpdf --show-npages '. $storeFullPath]);
 
@@ -768,6 +768,7 @@ class CentraleRischiController extends Controller
             dd($e);
         }
 
+        $totalPages = $processGetPages->getOutput();
         if($totalPages > 0 && is_int($totalPages)) {
             for ($pageToExtract = 1; $pageToExtract <= $totalPages; $pageToExtract++) {
                 $liveStatus = round( (($pageToExtract / $totalPages) * 100), 1 ). "% processato";
