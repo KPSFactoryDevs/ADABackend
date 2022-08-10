@@ -751,9 +751,22 @@ class CentraleRischiController extends Controller
             ], 500);
         }
 
+
         $fileToRead = file_get_contents($storeFullPath);
         $totalPages = preg_match_all("/\/Page\W/", $fileToRead, $dummy);
 
+        $processGetPages = new Process(['qpdf --show-npages '. $storeFullPath]);
+
+        $processGetPages->setTimeout(120);
+
+        try {
+            $processGetPages->run();
+            if (!$processGetPages->isSuccessful()) {
+                throw new ProcessFailedException($processGetPages);
+            }
+        } catch (ProcessFailedException $e) {
+            dd($e);
+        }
 
         if($totalPages > 0 && is_int($totalPages)) {
             for ($pageToExtract = 1; $pageToExtract <= $totalPages; $pageToExtract++) {
