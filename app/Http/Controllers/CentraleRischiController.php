@@ -769,8 +769,10 @@ class CentraleRischiController extends Controller
         }
 
         $totalPages = $processGetPages->getOutput();
-        dd($totalPages);
-        if($totalPages > 0 && is_int((int)$totalPages)) {
+        $totalPages = str_replace('/n','',$totalPages);
+        $totalPages = (int)$totalPages;
+
+        if($totalPages > 0 && is_int($totalPages)) {
             for ($pageToExtract = 1; $pageToExtract <= $totalPages; $pageToExtract++) {
                 $liveStatus = round( (($pageToExtract / $totalPages) * 100), 1 ). "% processato";
                 if($pageToExtract == $totalPages) {
