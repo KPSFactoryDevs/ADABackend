@@ -585,7 +585,78 @@ class CentraleRischiController extends Controller
 				$totaleUtilizzatoGeneral = $totAffidamentiConPesiPerBanca[0]['totUtilizzato'] + $singleBank['totUtilizzato'];
 			}
 
+            $response = [
+                'Scoring' => [
+                    'Panoramica' => [
+                        'PeriodoRiferimento' => "Gennaio 2000 - Dicembre 2022",
+                        'NumeroIntermediari' => 10,
+                        'NumeroPosizioniContestate' => 20,
+                        'FinalScore' => 7.9
+                    ],
+                    'AnomalieUtilizzi' => [
+                        'TensioneAutoliquidanti' => $numeroSconfiniTotali['PresenzaSconfini']['Tensioni']['RISCHI AUTOLIQUIDANTI'],
+                        'TensioneRevoca' => $numeroSconfiniTotali['PresenzaSconfini']['Tensioni']['RISCHI A REVOCA'],
+                        'TensioneScadenza' => $numeroSconfiniTotali['PresenzaSconfini']['Tensioni']['RISCHI A SCADENZA'],
+                    ],
+                    'AnomalieLievi' => [
+                        'Impagati' => $impagati,
+                        'Sconfini' => $numeroSconfiniTotali['PresenzaSconfini'],
+                    ],
+                    'AnomalieQuasiPregiudizievoli' => [
+                        'SconfiniEntroNovantaGiorni' => true,
+                        'SconfiniEntroCentoOttantaGiorni' => true,
+                        'SconfiniOltreCentoOttantaGiorni' => true,
+                    ],
+                    'AnomaliePregiudizievoli' => [
+                        'GaranzieAttivateEsitoNegativo' => true,
+                        'Sofferenze' => true,
+                        'CreditiPassatiPerdita' => true,
+                    ],
+                ],
+                'ResocontoAnomalie' => [
+                    'ListaSconfiniEntroNovantaGiorni' => [],
+                    'ListaSconfiniEntroCentoOttantaGiorni' => [],
+                    'ListaSconfiniOltreCentoOttantaGiorni' => [],
+                    'ListaAnomalie' => [],
+                ],
+                'AnalisiAffidamenti' => [
+                    'ListaAffidamenti' => []
+                ],
+                'AnalisiIndebitamento' => [],
+                'AnalisiPerBanca' => [
+                    'ListaScoringBanche' => []
+                ],
+                'RischiGaranzie' => [
+                    'PosizioniDiRischio' => [
+                        'Gestibili' => [
+                            'TotaleCreditiScaduti' => 200.00,
+                            'TotaleCreditiScadutiImpoagati' => 200.00,
+                            'PercentualeIncidenzaImpagati' => 70.8,
+                        ],
+                        'QuasiPregiudizievoli' => [
+                            'TotaleScadutiSconfinatiEntroNovantaGiorni' => 200.00,
+                            'TotaleScadutiSconfinatiEntroCentoOttantaGiorni' => 200.00,
+                            'TotaleScadutiSconfinatiOltreCentoOttantaGiorni' => 200.0,
+                        ],
+                        'Pregiudizievoli' => [
+                            'TotaleSofferenze' => 200.00,
+                            'TotaleCreditiPassatiPerdita' => 200.00,
+                            'TotaleCreditiContestati' => 200.0,
+                        ],
+                    ],
+                    'Garanzie' => [
+                        'InfoGaranti' => [
+                            'TotaleValore' => 200.00,
+                            'TotaleImporto' => 200.00,
+                        ],
+                        'GaranzieRicevute' => [
+                            'TotaleValore' => 200.00,
+                            'TotaleImporto' => 200.00,
+                        ],
+                    ]
+                ],
 
+            ];
             return response()->json([
                 'error' => false,
                 'anomalieStatoRapporto' => $anomalieStatoRapporto,
@@ -596,7 +667,6 @@ class CentraleRischiController extends Controller
                 'accordatoPie' => $accordatoPie,
                 'earlierDate' => $earlierDate,
                 'garanzieRicevute' => $garanzieRicevute,
-                'anomalie' => $anomalie,
                 'informazioniGaranti' => $informazioniGaranti,
                 'monthsList' => $monthsList,
                 'affidamentiPerMese' => $affidamentiPerMese,
@@ -614,7 +684,6 @@ class CentraleRischiController extends Controller
                 'garanzieEsitoNegativo' => $garanzieEsitoNegativo,
                 'impagati' => $impagati,
                 'numeroRapportiContestati' => $numeroRapportiContestati,
-                'intermediari' => $intermediari,
                 'inizioPeriodo' => $inizioPeriodo,
                 'finePeriodo' => $finePeriodo,
                 'intermediari' => $intermediari,
@@ -625,11 +694,9 @@ class CentraleRischiController extends Controller
 				'totaleAccordatoOperativoPerBancaGeneral' => $totaleAccordatoGeneral,
 				'totaleUtilizzatoPerBancaGeneral' => $totaleUtilizzatoGeneral,
 				'informazioniGarantiAnomalie' => $informazioniGarantiAnomalie,
-                'scoreCR' => $scoreCR
+                'scoreCR' => $scoreCR,
+                'newFutureArray' => $response
             ]);
-
-            // dd($sconfiniDivisi);
-            return view('centralerischi.crandamentale', compact('anomalieStatoRapporto', 'anomalie', 'missingMonths', 'sconfiniDivisi', 'utilizzatoPie', 'accordatoPie', 'earlierDate', 'garanzieRicevute', 'anomalie', 'informazioniGaranti', 'monthsList', 'affidamentiPerMese', 'banksScoring', 'totaleAffidamentiGeneral', 'incidenzaImpagati', 'rischiGaranzie', 'percentualiUtilizzato', 'percentualiAccordato', 'latestMonth', 'latestYear', 'importiSconfini', 'creditiPassatiPerdita', 'sofferenze', 'garanzieEsitoNegativo', 'impagati', 'numeroRapportiContestati', 'intermediari', 'inizioPeriodo', 'finePeriodo', 'intermediari', 'numeroSconfiniTotali', 'mediaAnalisiIndebitamento', 'totaleAffidamentiTable', 'totAffidamentiConPesiPerBanca', 'scoreCR'));
         }
     }
 

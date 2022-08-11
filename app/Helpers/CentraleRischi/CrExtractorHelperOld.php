@@ -439,6 +439,10 @@ AND t.divisa = t2.divisa');
         $countBanks = $this->getCountBanks($banks);
         $allMonthsCount = $this->getCountMonths();
 
+        $this->_tensioni['RISCHI AUTOLIQUDIANTI'] = false;
+        $this->_tensioni['RISCHI A SCADENZA'] = false;
+        $this->_tensioni['RISCHI A REVOCA'] = false;
+
         foreach ($cleanData['SconfiniTotali'] as $singleSconfino) {
             $this->numeroSconfiniTotali += $singleSconfino->sconfiniTotali;
             if ($countBanks == 1) {
@@ -1357,6 +1361,9 @@ AND t.divisa = t2.divisa');
     {
 
         $importiSconfini = array();
+        $importiSconfini["Sconfini entro 90 giorni"] = [];
+        $importiSconfini["Sconfini oltre 90 giorni"] = [];
+        $importiSconfini["Sconfini oltre 180 giorni"] = [];
 
         // $this->errateSegnalazioni($banks, $numeroSconfiniTotali);
 
