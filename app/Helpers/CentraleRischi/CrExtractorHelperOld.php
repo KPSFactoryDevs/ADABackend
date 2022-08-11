@@ -439,6 +439,7 @@ AND t.divisa = t2.divisa');
         $countBanks = $this->getCountBanks($banks);
         $allMonthsCount = $this->getCountMonths();
 
+
         $this->_tensioni['RISCHI AUTOLIQUDIANTI'] = false;
         $this->_tensioni['RISCHI A SCADENZA'] = false;
         $this->_tensioni['RISCHI A REVOCA'] = false;

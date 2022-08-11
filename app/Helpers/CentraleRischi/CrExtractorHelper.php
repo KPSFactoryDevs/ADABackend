@@ -442,6 +442,9 @@ AND t.divisa = t2.divisa');
         $this->numeroSconfiniTotali = 0;
         $countBanks = $this->getCountBanks($banks);
         $allMonthsCount = $this->getCountMonths();
+        $this->_tensioni['RISCHI AUTOLIQUDIANTI'] = false;
+        $this->_tensioni['RISCHI A SCADENZA'] = false;
+        $this->_tensioni['RISCHI A REVOCA'] = false;
 
         foreach ($cleanData['SconfiniTotali'] as $singleSconfino) {
             $this->numeroSconfiniTotali += $singleSconfino->sconfiniTotali;
@@ -484,7 +487,7 @@ AND t.divisa = t2.divisa');
 
         return $cleanData;
     }
-	
+
 	public function getTotaleSconfini($banks)
     {
         $cleanData = array();
@@ -526,17 +529,17 @@ AND t.divisa = t2.divisa');
                     ->whereIn('nome_banca', $banks)
                     ->whereIn('categoria', $categories)
                     ->whereRaw('CAST(t.accordato_operativo as SIGNED) < CAST(t.utilizzato as SIGNED)')
-                    
-				
+
+
                    	->where('stato_rapporto', 'not like',  "Rapporti non contestati-crediti".  '%')
 				 	->where('stato_rapporto', 'not like',  "Rapp non contestati".  '%');
                     });
             }
-     
+
         $sconfiniEntro90Giorni = $CentraleRischiModel
             ->get()
             ->sortBy('date')
-            ->toArray(); 
+            ->toArray();
         $cleanData['SconfiniEntro90Giorni'] = $sconfiniEntro90Giorni;
 
 
@@ -547,7 +550,7 @@ AND t.divisa = t2.divisa');
                         $query->where($queryPeriodArray)
                     ->whereIn('nome_banca', $banks)
                     ->whereIn('categoria', $categories)
-                    ->whereRaw('CAST(t.accordato_operativo as SIGNED) < CAST(t.utilizzato as SIGNED)')  
+                    ->whereRaw('CAST(t.accordato_operativo as SIGNED) < CAST(t.utilizzato as SIGNED)')
 				 	->where('stato_rapporto', 'like', "Rapp non contestati".  '%');
                     });
         }
@@ -564,7 +567,7 @@ AND t.divisa = t2.divisa');
         $CentraleRischiModel = DB::table('crs as t');
         foreach ($periods as $queryPeriodArray) {
             $CentraleRischiModel->orWhere(function ($query) use ($queryPeriodArray, $categories, $banks) {
-	
+
                          $query->where($queryPeriodArray)
                     ->whereIn('nome_banca', $banks)
                     ->whereIn('categoria', $categories)
@@ -575,7 +578,7 @@ AND t.divisa = t2.divisa');
         $sconfiniOltre180Giorni = $CentraleRischiModel
             ->get()
             ->sortBy('date')
-            ->toArray(); 
+            ->toArray();
         $cleanData['SconfiniOltre180Giorni'] = $sconfiniOltre180Giorni;
         if (count($sconfiniOltre180Giorni) > 0) {
             $this->_sconfiniOltre180 = true;
@@ -634,8 +637,8 @@ AND t.divisa = t2.divisa');
 		//dd($cleanData);
         return $cleanData;
     }
-	
-	
+
+
     public function getAlertImpagati($banks)
     {
         $totaleImpagati = count($this->getImpagati($banks));
@@ -680,7 +683,7 @@ AND t.divisa = t2.divisa');
         $countBanks = $this->getCountBanks($banks);
         $sconfiniOld = $this->getTotaleSconfiniOld($banks);
 		$sconfini = $this->getTotaleSconfini($banks);
-	 
+
         $numeroSconfiniOltre90 = count($sconfini['SconfiniOltre90Giorni']);
         $numeroSconfiniOltre180 = count($sconfini['SconfiniOltre180Giorni']);
 
@@ -864,7 +867,7 @@ AND t.divisa = t2.divisa');
             ->toArray();
 
         $this->_sofferenze = $sofferenze;
- 
+
         return $this->_sofferenze;
     }
 
@@ -1093,9 +1096,9 @@ AND t.divisa = t2.divisa');
 
     public function getScadutiSconfinantiEntro90($banks)
     {
-		
-		      
-				   
+
+
+
 		$allMonthsCount = $this->getCountMonths();
         $periods = $this->buildPeriodArray();
         $CentraleRischiModel = DB::table('crs');
@@ -1113,17 +1116,17 @@ AND t.divisa = t2.divisa');
         }
 
         $scadutiSconfinanti90 = $CentraleRischiModel->select('importo_garantito')->get()
-            ->toArray(); 
+            ->toArray();
         return $scadutiSconfinanti90;
-				   
-				   
+
+
     }
 
 
     public function getScadutiSconfinanti90($banks)
     {
 		// OLTRE I 90 GIORNI
-					
+
         $allMonthsCount = $this->getCountMonths();
         $periods = $this->buildPeriodArray();
         $CentraleRischiModel = DB::table('crs');
@@ -1140,13 +1143,13 @@ AND t.divisa = t2.divisa');
 
         $scadutiSconfinanti90 = $CentraleRischiModel->select('importo_garantito')->get()
             ->toArray();
- 
+
         return $scadutiSconfinanti90;
     }
 
     public function getScadutiSconfinanti180($banks)
     {
-		
+
 // OLTRE I 180
         $allMonthsCount = $this->getCountMonths();
         $periods = $this->buildPeriodArray();
@@ -1161,14 +1164,14 @@ AND t.divisa = t2.divisa');
                 //$query->where('stato_rapporto', 'not like', '%non oltre 180%');
                 //$query->where('stato_rapporto', 'like', '%oltre 180%');
 				//$query->where('stato_rapporto', '!=', "Rapporti non contestati-crediti scaduti o sconfinanti da piu di");
-			
+
 				$query->Where('stato_rapporto', 'like', "Rapporti non contestati-crediti"."%");
                 //$query->where('stato_rapporto', "Rapporti non contestati-crediti scaduti o sconfinanti da piu di");
             });
         }
         $scadutiSconfinanti90 = $CentraleRischiModel->select('categoria', 'importo_garantito')->get()
             ->groupBy(array('categoria'))
-            ->toArray(); 
+            ->toArray();
         return $scadutiSconfinanti90;
     }
 
@@ -1279,29 +1282,29 @@ AND t.divisa = t2.divisa');
         foreach ($crediti['Sofferenze'] as $singleSofferenza => $singleSofferenzaValue) {
             $mediaSofferenze += (float)str_replace('.', '', $singleSofferenzaValue->importo_garantito);
         }
-        $mediaRischiGaranzie['Sofferenze'] = $mediaSofferenze / $allMonthsCount; 
+        $mediaRischiGaranzie['Sofferenze'] = $mediaSofferenze / $allMonthsCount;
         foreach ($crediti['CreditiPassatiPerdita'] as $singleCreditoPassatoPerdita => $singleCreditoPassatoPerditaValue) {
 			$mediaCreditiPassatiPerdita += (float)str_replace('.', '', $singleCreditoPassatoPerditaValue->importo_garantito);
         }
         $mediaRischiGaranzie['CreditiPassatiPerdita'] = $mediaCreditiPassatiPerdita / $allMonthsCount;
- 
+
 		foreach ($crediti['Entro90'] as $singleCreditoEntro90 => $singleCreditoEntro90Value) {
-			
+
             $mediaCreditiEntro90 += (float)str_replace('.', '', $singleCreditoEntro90Value->importo_garantito);
         }
-		 
+
         $mediaRischiGaranzie['Entro90'] = $mediaCreditiEntro90 / $allMonthsCount;
- 
+
         foreach ($crediti['Oltre90'] as $singleCreditoOltre90 => $singleCreditoOltre90Value) {
             $mediaCreditiOltre90 += (float)str_replace('.', '', $singleCreditoOltre90Value->importo_garantito);
         }
         $mediaRischiGaranzie['Oltre90'] = $mediaCreditiOltre90 / $allMonthsCount;
 
-        foreach ($crediti['Oltre180'] as $singleCreditoOltre180 => $singleCreditoOltre180Value) { 
+        foreach ($crediti['Oltre180'] as $singleCreditoOltre180 => $singleCreditoOltre180Value) {
             foreach ($singleCreditoOltre180Value as $label => $singleCreditoOltre180) {
                 $mediaCreditiOltre180 += (float)str_replace('.', '', $singleCreditoOltre180->importo_garantito);
             }
-        } 
+        }
         $mediaRischiGaranzie['Oltre180'] = $mediaCreditiOltre180 / $allMonthsCount;
 
         foreach ($crediti['CreditiContestati'] as $singleCreditoContestato => $singleCreditoContestatoValue) {
@@ -1677,7 +1680,7 @@ AND t.divisa = t2.divisa');
                         'Probabile errata segnalazione' => $probErrataSegnalazione
                     );
                 }
-             
+
             } else if ($item->categoria == 'RISCHI AUTOLIQUIDANTI') {
                 if (($item->utilizzato - $item->accordato_operativo) > 0) {
                     $probErrataSegnalazione = 'Sconfino da verificare, possibile errore di valuta';
@@ -1715,7 +1718,7 @@ AND t.divisa = t2.divisa');
             }
         }
 
- 
+
         foreach ($numeroSconfiniTotali['SconfiniOltre180Giorni'] as $label => $item) {
 
             $probErrataSegnalazione = '';
@@ -1755,7 +1758,7 @@ AND t.divisa = t2.divisa');
                         'Probabile errata segnalazione' => $probErrataSegnalazione
                     );
                 }
-            
+
             } else if ($item->categoria == 'RISCHI AUTOLIQUIDANTI') {
                 if (($item->utilizzato - $item->accordato_operativo) > 0) {
                     $probErrataSegnalazione = 'Sconfino da verificare, possibile errore di valuta';
@@ -1919,7 +1922,7 @@ AND t.divisa = t2.divisa');
     }
     public function getAffidamentiGeneralTrimestrale($trimestre)
     {
- 
+
         $totAffidamenti = 0;
         $affidamentiPerCategoria = array();
         $affidamentiPerBanca = array();
@@ -1930,7 +1933,7 @@ AND t.divisa = t2.divisa');
 
         $categories = array('RISCHI AUTOLIQUIDANTI', 'RISCHI A REVOCA', 'RISCHI A SCADENZA');
 		$categoriesColumnChart = array('RISCHI AUTOLIQUIDANTI', 'RISCHI A REVOCA', 'RISCHI A SCADENZA', array("role" => 'style'));
-		
+
 
         $queryPeriodArray = array();
         $CentraleRischiModel = DB::table('crs');
@@ -1968,25 +1971,25 @@ AND t.divisa = t2.divisa');
         }
 
         $affidamentiPerBancaFormatted = array(array_merge(array('Banche'), $categories));
- 
+
         foreach ($affidamentiPerBanca[$lastMonth] as $singleBank => $multipleCategories) {
             $singleBankArray = array($singleBank);
             foreach ($categories as $singolaCategoria) {
                 if (isset($multipleCategories[$singolaCategoria])) {
                     array_push($singleBankArray, $multipleCategories[$singolaCategoria]);
-					
-				 
+
+
                 } else {
                     array_push($singleBankArray, 0);
                 }
             }
-			
-			  
-				 
-            
+
+
+
+
             array_push($affidamentiPerBancaFormatted, $singleBankArray);
         }
-		 
+
         return array('General' => $affidamentiFormatted, 'Banche' => $affidamentiPerBancaFormatted, 'Utilizzo' => $utilizzoLineeCredito);
     }
     public function getPresenzaSconfini($singleTrimestre)
@@ -2776,7 +2779,7 @@ AND t.divisa = t2.divisa');
                 $totaleUtilizzato = 0;
 
                 foreach ($affidamenti as $singleAffidamento) {
-				 
+
                     $creditiScaduti[$singleMonth['mese']][$singolaBanca->nome_banca]['AccordatoTotale'] += $singleAffidamento->totAccordatoOperativo;
                     $mensile[$singleMonth['mese']]['AccordatoTotale'] += $singleAffidamento->totAccordatoOperativo;
                 }
