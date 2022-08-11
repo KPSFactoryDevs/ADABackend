@@ -979,7 +979,7 @@ AND t.divisa = t2.divisa');
                     $sconfinoImporto =  $singleRow->utilizzato - $singleRow->accordato_operativo;
                     $mediaAnalisiIndebitamento[$singleLine]['Sconfinamenti'] += $sconfinoImporto;
                 }
-                if (!is_numeric($singleRow->accordato_operativo)) {
+                if (!is_numeric((float)$singleRow->accordato_operativo)) {
                     dd($data);
                 }
 
