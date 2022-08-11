@@ -594,9 +594,9 @@ class CentraleRischiController extends Controller
                         'FinalScore' => 7.9
                     ],
                     'AnomalieUtilizzi' => [
-                        'TensioneAutoliquidanti' => $numeroSconfiniTotali['PresenzaSconfini']['Tensioni']['RISCHI AUTOLIQUIDANTI'],
-                        'TensioneRevoca' => $numeroSconfiniTotali['PresenzaSconfini']['Tensioni']['RISCHI A REVOCA'],
-                        'TensioneScadenza' => $numeroSconfiniTotali['PresenzaSconfini']['Tensioni']['RISCHI A SCADENZA'],
+                        'TensioneAutoliquidanti' => $numeroSconfiniTotali['Tensioni']['RISCHI AUTOLIQUIDANTI'],
+                        'TensioneRevoca' => $numeroSconfiniTotali['Tensioni']['RISCHI A REVOCA'],
+                        'TensioneScadenza' => $numeroSconfiniTotali['Tensioni']['RISCHI A SCADENZA'],
                     ],
                     'AnomalieLievi' => [
                         'Impagati' => $impagati,
