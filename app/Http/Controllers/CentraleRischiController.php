@@ -666,7 +666,7 @@ class CentraleRischiController extends Controller
             ];
             return response()->json([
                 'error' => false,
-              /*  'anomalieStatoRapporto' => $anomalieStatoRapporto,
+                'anomalieStatoRapporto' => $anomalieStatoRapporto,
                 'anomalie' => $anomalie,
                 'missingMonths' => $missingMonths,
                 'sconfiniDivisi' => $sconfiniDivisi,
@@ -701,7 +701,7 @@ class CentraleRischiController extends Controller
 				'totaleAccordatoOperativoPerBancaGeneral' => $totaleAccordatoGeneral,
 				'totaleUtilizzatoPerBancaGeneral' => $totaleUtilizzatoGeneral,
 				'informazioniGarantiAnomalie' => $informazioniGarantiAnomalie,
-                'scoreCR' => $scoreCR,*/
+                'scoreCR' => $scoreCR,
                 'newFutureArray' => $response
             ]);
         }
