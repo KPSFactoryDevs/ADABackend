@@ -1030,20 +1030,20 @@ AND t.divisa = t2.divisa');
 
             $probErrataSegnalazione = '';
 
-            // dd($item, ((float)(float)$item->utilizzato / (float)$item->accordato_operativo));
+            // dd($item, ((float)(float)$item->utilizzato / (float)(float)$item->accordato_operativo));
 
-            if ($item->accordato_operativo == 0) {
+            if ((float)$item->accordato_operativo == 0) {
                 $probErrataSegnalazione = 'Accordato Nullo';
             } else if ($item->categoria == 'RISCHI A SCADENZA') {
-                if (((float)(float)$item->utilizzato / (float)$item->accordato_operativo) < 1) {
+                if (((float)(float)$item->utilizzato / (float)(float)$item->accordato_operativo) < 1) {
                     $probErrataSegnalazione = 'Utilizzo anomalo, probabile errata segnalazione';
                 }
             } else if ($item->categoria == 'RISCHI A SCADENZA') {
-                if (((float)(float)$item->utilizzato / (float)$item->accordato_operativo) > 1) {
+                if (((float)(float)$item->utilizzato / (float)(float)$item->accordato_operativo) > 1) {
                     $probErrataSegnalazione = 'Presenza di rate insolute o probabile errata segnalazione';
                 }
             } else if ($item->categoria == 'RISCHI AUTOLIQUIDANTI') {
-                if (((float)(float)$item->utilizzato - (float)$item->accordato_operativo) > 0) {
+                if (((float)(float)$item->utilizzato - (float)(float)$item->accordato_operativo) > 0) {
                     $probErrataSegnalazione = 'Sconfino da verificare, possibile errore di valuta';
                 }
             } else if (str_contains($item->stato_rapporto, 'crediti scaduti o sconfinanti da più di 90 giorni e non oltre 180 giorni') || str_contains($item->stato_rapporto, 'crediti scaduti o sconfinanti da più di oltre 180')) {
@@ -1055,7 +1055,7 @@ AND t.divisa = t2.divisa');
                 'Banca' => $item->nome_banca,
                 'Categoria' => $item->categoria,
                 'Tipo attività' => $item->tipo_attivita,
-                'Importo Sconfinamento' => $item->accordato_operativo - (float)$item->utilizzato,
+                'Importo Sconfinamento' => (float)$item->accordato_operativo - (float)$item->utilizzato,
                 'Utilizzo Posizione Sconfinata' => (float)$item->utilizzato,
                 'Probabile errata segnalazione' => $probErrataSegnalazione
             );
@@ -1585,50 +1585,50 @@ AND t.divisa = t2.divisa');
 
             $dataSconfino = new DateTime($item->date);
 
-            if ($item->accordato_operativo == 0) {
+            if ((float)$item->accordato_operativo == 0) {
                 $probErrataSegnalazione = 'Accordato Nullo';
                 $importiSconfini['Sconfini entro 90 giorni'][] =  array(
                     'Data' => $item->anno . ' ' . $item->mese,
                     'Banca' => $item->nome_banca,
                     'Categoria' => $item->categoria,
                     'Tipo attività' => $item->tipo_attivita,
-                    'Importo Sconfinamento' => $item->accordato_operativo - (float)$item->utilizzato,
+                    'Importo Sconfinamento' => (float)$item->accordato_operativo - (float)$item->utilizzato,
                     'Utilizzo Posizione Sconfinata' => (float)$item->utilizzato,
                     'Probabile errata segnalazione' => $probErrataSegnalazione
                 );
             } else if ($item->categoria == 'RISCHI A SCADENZA') {
-                if (((float)$item->utilizzato / $item->accordato_operativo) < 1) {
+                if (((float)$item->utilizzato / (float)$item->accordato_operativo) < 1) {
                     $probErrataSegnalazione = 'Utilizzo anomalo, probabile errata segnalazione';
                     $importiSconfini['Sconfini entro 90 giorni'][] =  array(
                         'Data' => $item->anno . ' ' . $item->mese,
                         'Banca' => $item->nome_banca,
                         'Categoria' => $item->categoria,
                         'Tipo attività' => $item->tipo_attivita,
-                        'Importo Sconfinamento' => $item->accordato_operativo - (float)$item->utilizzato,
+                        'Importo Sconfinamento' => (float)$item->accordato_operativo - (float)$item->utilizzato,
                         'Utilizzo Posizione Sconfinata' => (float)$item->utilizzato,
                         'Probabile errata segnalazione' => $probErrataSegnalazione
                     );
-                } else if (((float)$item->utilizzato / $item->accordato_operativo) > 1) {
+                } else if (((float)$item->utilizzato / (float)$item->accordato_operativo) > 1) {
                     $probErrataSegnalazione = 'Presenza di rate insolute o probabile errata segnalazione';
                     $importiSconfini['Sconfini entro 90 giorni'][] =  array(
                         'Data' => $item->anno . ' ' . $item->mese,
                         'Banca' => $item->nome_banca,
                         'Categoria' => $item->categoria,
                         'Tipo attività' => $item->tipo_attivita,
-                        'Importo Sconfinamento' => $item->accordato_operativo - (float)$item->utilizzato,
+                        'Importo Sconfinamento' => (float)$item->accordato_operativo - (float)$item->utilizzato,
                         'Utilizzo Posizione Sconfinata' => (float)$item->utilizzato,
                         'Probabile errata segnalazione' => $probErrataSegnalazione
                     );
                 }
             } else if ($item->categoria == 'RISCHI AUTOLIQUIDANTI') {
-                if (((float)$item->utilizzato - $item->accordato_operativo) > 0) {
+                if (((float)$item->utilizzato - (float)$item->accordato_operativo) > 0) {
                     $probErrataSegnalazione = 'Sconfino da verificare, possibile errore di valuta';
                     $importiSconfini['Sconfini entro 90 giorni'][] =  array(
                         'Data' => $item->anno . ' ' . $item->mese,
                         'Banca' => $item->nome_banca,
                         'Categoria' => $item->categoria,
                         'Tipo attività' => $item->tipo_attivita,
-                        'Importo Sconfinamento' => $item->accordato_operativo - (float)$item->utilizzato,
+                        'Importo Sconfinamento' => (float)$item->accordato_operativo - (float)$item->utilizzato,
                         'Utilizzo Posizione Sconfinata' => (float)$item->utilizzato,
                         'Probabile errata segnalazione' => $probErrataSegnalazione
                     );
@@ -1640,7 +1640,7 @@ AND t.divisa = t2.divisa');
                     'Banca' => $item->nome_banca,
                     'Categoria' => $item->categoria,
                     'Tipo attività' => $item->tipo_attivita,
-                    'Importo Sconfinamento' => $item->accordato_operativo - (float)$item->utilizzato,
+                    'Importo Sconfinamento' => (float)$item->accordato_operativo - (float)$item->utilizzato,
                     'Utilizzo Posizione Sconfinata' => (float)$item->utilizzato,
                     'Probabile errata segnalazione' => $probErrataSegnalazione
                 );
@@ -1650,7 +1650,7 @@ AND t.divisa = t2.divisa');
                     'Banca' => $item->nome_banca,
                     'Categoria' => $item->categoria,
                     'Tipo attività' => $item->tipo_attivita,
-                    'Importo Sconfinamento' => $item->accordato_operativo - (float)$item->utilizzato,
+                    'Importo Sconfinamento' => (float)$item->accordato_operativo - (float)$item->utilizzato,
                     'Utilizzo Posizione Sconfinata' => (float)$item->utilizzato,
                     'Probabile errata segnalazione' => 'Sconfino da verificare'
                 );
@@ -1662,51 +1662,51 @@ AND t.divisa = t2.divisa');
 
             $probErrataSegnalazione = '';
 
-            if ($item->accordato_operativo == 0) {
+            if ((float)$item->accordato_operativo == 0) {
                 $probErrataSegnalazione = 'Accordato Nullo';
                 $importiSconfini['Sconfini oltre 90 giorni'][] =  array(
                     'Data' => $item->anno . ' ' . $item->mese,
                     'Banca' => $item->nome_banca,
                     'Categoria' => $item->categoria,
                     'Tipo attività' => $item->tipo_attivita,
-                    'Importo Sconfinamento' => $item->accordato_operativo - (float)$item->utilizzato,
+                    'Importo Sconfinamento' => (float)$item->accordato_operativo - (float)$item->utilizzato,
                     'Utilizzo Posizione Sconfinata' => (float)$item->utilizzato,
                     'Probabile errata segnalazione' => $probErrataSegnalazione
                 );
             } else if ($item->categoria == 'RISCHI A SCADENZA') {
-                if (((float)$item->utilizzato / $item->accordato_operativo) < 1) {
+                if (((float)$item->utilizzato / (float)$item->accordato_operativo) < 1) {
                     $probErrataSegnalazione = 'Utilizzo anomalo, probabile errata segnalazione';
                     $importiSconfini['Sconfini oltre 90 giorni'][] =  array(
                         'Data' => $item->anno . ' ' . $item->mese,
                         'Banca' => $item->nome_banca,
                         'Categoria' => $item->categoria,
                         'Tipo attività' => $item->tipo_attivita,
-                        'Importo Sconfinamento' => $item->accordato_operativo - (float)$item->utilizzato,
+                        'Importo Sconfinamento' => (float)$item->accordato_operativo - (float)$item->utilizzato,
                         'Utilizzo Posizione Sconfinata' => (float)$item->utilizzato,
                         'Probabile errata segnalazione' => $probErrataSegnalazione
                     );
-                } else if (((float)$item->utilizzato / $item->accordato_operativo) > 1) {
+                } else if (((float)$item->utilizzato / (float)$item->accordato_operativo) > 1) {
                     $probErrataSegnalazione = 'Presenza di rate insolute o probabile errata segnalazione';
                     $importiSconfini['Sconfini oltre 90 giorni'][] =  array(
                         'Data' => $item->anno . ' ' . $item->mese,
                         'Banca' => $item->nome_banca,
                         'Categoria' => $item->categoria,
                         'Tipo attività' => $item->tipo_attivita,
-                        'Importo Sconfinamento' => $item->accordato_operativo - (float)$item->utilizzato,
+                        'Importo Sconfinamento' => (float)$item->accordato_operativo - (float)$item->utilizzato,
                         'Utilizzo Posizione Sconfinata' => (float)$item->utilizzato,
                         'Probabile errata segnalazione' => $probErrataSegnalazione
                     );
                 }
 
             } else if ($item->categoria == 'RISCHI AUTOLIQUIDANTI') {
-                if (((float)$item->utilizzato - $item->accordato_operativo) > 0) {
+                if (((float)$item->utilizzato - (float)$item->accordato_operativo) > 0) {
                     $probErrataSegnalazione = 'Sconfino da verificare, possibile errore di valuta';
                     $importiSconfini['Sconfini oltre 90 giorni'][] =  array(
                         'Data' => $item->anno . ' ' . $item->mese,
                         'Banca' => $item->nome_banca,
                         'Categoria' => $item->categoria,
                         'Tipo attività' => $item->tipo_attivita,
-                        'Importo Sconfinamento' => $item->accordato_operativo - (float)$item->utilizzato,
+                        'Importo Sconfinamento' => (float)$item->accordato_operativo - (float)$item->utilizzato,
                         'Utilizzo Posizione Sconfinata' => (float)$item->utilizzato,
                         'Probabile errata segnalazione' => $probErrataSegnalazione
                     );
@@ -1718,7 +1718,7 @@ AND t.divisa = t2.divisa');
                     'Banca' => $item->nome_banca,
                     'Categoria' => $item->categoria,
                     'Tipo attività' => $item->tipo_attivita,
-                    'Importo Sconfinamento' => $item->accordato_operativo - (float)$item->utilizzato,
+                    'Importo Sconfinamento' => (float)$item->accordato_operativo - (float)$item->utilizzato,
                     'Utilizzo Posizione Sconfinata' => (float)$item->utilizzato,
                     'Probabile errata segnalazione' => $probErrataSegnalazione
                 );
@@ -1728,7 +1728,7 @@ AND t.divisa = t2.divisa');
                     'Banca' => $item->nome_banca,
                     'Categoria' => $item->categoria,
                     'Tipo attività' => $item->tipo_attivita,
-                    'Importo Sconfinamento' => $item->accordato_operativo - (float)$item->utilizzato,
+                    'Importo Sconfinamento' => (float)$item->accordato_operativo - (float)$item->utilizzato,
                     'Utilizzo Posizione Sconfinata' => (float)$item->utilizzato,
                     'Probabile errata segnalazione' => 'Sconfino da verificare'
                 );
@@ -1740,51 +1740,51 @@ AND t.divisa = t2.divisa');
 
             $probErrataSegnalazione = '';
 
-            if ($item->accordato_operativo == 0) {
+            if ((float)$item->accordato_operativo == 0) {
                 $probErrataSegnalazione = 'Accordato Nullo';
                 $importiSconfini['Sconfini oltre 180 giorni'][] =  array(
                     'Data' => $item->anno . ' ' . $item->mese,
                     'Banca' => $item->nome_banca,
                     'Categoria' => $item->categoria,
                     'Tipo attività' => $item->tipo_attivita,
-                    'Importo Sconfinamento' => $item->accordato_operativo - (float)$item->utilizzato,
+                    'Importo Sconfinamento' => (float)$item->accordato_operativo - (float)$item->utilizzato,
                     'Utilizzo Posizione Sconfinata' => (float)$item->utilizzato,
                     'Probabile errata segnalazione' => $probErrataSegnalazione
                 );
             } else if ($item->categoria == 'RISCHI A SCADENZA') {
-                if (((float)$item->utilizzato / $item->accordato_operativo) < 1) {
+                if (((float)$item->utilizzato / (float)$item->accordato_operativo) < 1) {
                     $probErrataSegnalazione = 'Utilizzo anomalo, probabile errata segnalazione';
                     $importiSconfini['Sconfini oltre 180 giorni'][] =  array(
                         'Data' => $item->anno . ' ' . $item->mese,
                         'Banca' => $item->nome_banca,
                         'Categoria' => $item->categoria,
                         'Tipo attività' => $item->tipo_attivita,
-                        'Importo Sconfinamento' => $item->accordato_operativo - (float)$item->utilizzato,
+                        'Importo Sconfinamento' => (float)$item->accordato_operativo - (float)$item->utilizzato,
                         'Utilizzo Posizione Sconfinata' => (float)$item->utilizzato,
                         'Probabile errata segnalazione' => $probErrataSegnalazione
                     );
-                } else if (((float)$item->utilizzato / $item->accordato_operativo) > 1) {
+                } else if (((float)$item->utilizzato / (float)$item->accordato_operativo) > 1) {
                     $probErrataSegnalazione = 'Presenza di rate insolute o probabile errata segnalazione';
                     $importiSconfini['Sconfini oltre 180 giorni'][] =  array(
                         'Data' => $item->anno . ' ' . $item->mese,
                         'Banca' => $item->nome_banca,
                         'Categoria' => $item->categoria,
                         'Tipo attività' => $item->tipo_attivita,
-                        'Importo Sconfinamento' => $item->accordato_operativo - (float)$item->utilizzato,
+                        'Importo Sconfinamento' => (float)$item->accordato_operativo - (float)$item->utilizzato,
                         'Utilizzo Posizione Sconfinata' => (float)$item->utilizzato,
                         'Probabile errata segnalazione' => $probErrataSegnalazione
                     );
                 }
 
             } else if ($item->categoria == 'RISCHI AUTOLIQUIDANTI') {
-                if (((float)$item->utilizzato - $item->accordato_operativo) > 0) {
+                if (((float)$item->utilizzato - (float)$item->accordato_operativo) > 0) {
                     $probErrataSegnalazione = 'Sconfino da verificare, possibile errore di valuta';
                     $importiSconfini['Sconfini oltre 180 giorni'][] =  array(
                         'Data' => $item->anno . ' ' . $item->mese,
                         'Banca' => $item->nome_banca,
                         'Categoria' => $item->categoria,
                         'Tipo attività' => $item->tipo_attivita,
-                        'Importo Sconfinamento' => $item->accordato_operativo - (float)$item->utilizzato,
+                        'Importo Sconfinamento' => (float)$item->accordato_operativo - (float)$item->utilizzato,
                         'Utilizzo Posizione Sconfinata' => (float)$item->utilizzato,
                         'Probabile errata segnalazione' => $probErrataSegnalazione
                     );
@@ -1796,7 +1796,7 @@ AND t.divisa = t2.divisa');
                     'Banca' => $item->nome_banca,
                     'Categoria' => $item->categoria,
                     'Tipo attività' => $item->tipo_attivita,
-                    'Importo Sconfinamento' => $item->accordato_operativo - (float)$item->utilizzato,
+                    'Importo Sconfinamento' => (float)$item->accordato_operativo - (float)$item->utilizzato,
                     'Utilizzo Posizione Sconfinata' => (float)$item->utilizzato,
                     'Probabile errata segnalazione' => $probErrataSegnalazione
                 );
@@ -1806,7 +1806,7 @@ AND t.divisa = t2.divisa');
                     'Banca' => $item->nome_banca,
                     'Categoria' => $item->categoria,
                     'Tipo attività' => $item->tipo_attivita,
-                    'Importo Sconfinamento' => $item->accordato_operativo - (float)$item->utilizzato,
+                    'Importo Sconfinamento' => (float)$item->accordato_operativo - (float)$item->utilizzato,
                     'Utilizzo Posizione Sconfinata' => (float)$item->utilizzato,
                     'Probabile errata segnalazione' => 'Sconfino da verificare'
                 );
@@ -2036,7 +2036,7 @@ AND t.divisa = t2.divisa');
 
 
         foreach ($sconfiniTotali as $label => $item) {
-            $sconfiniPerMese[$item->mese][$item->categoria]['Importo'] = isset($sconfiniPerMese[$item->mese][$item->categoria]['Importo']) ? $sconfiniPerMese[$item->mese][$item->categoria]['Importo'] + ((float)(float)$item->utilizzato - (float)$item->accordato_operativo) : (float)(float)$item->utilizzato - (float)$item->accordato_operativo;
+            $sconfiniPerMese[$item->mese][$item->categoria]['Importo'] = isset($sconfiniPerMese[$item->mese][$item->categoria]['Importo']) ? $sconfiniPerMese[$item->mese][$item->categoria]['Importo'] + ((float)(float)$item->utilizzato - (float)(float)$item->accordato_operativo) : (float)(float)$item->utilizzato - (float)(float)$item->accordato_operativo;
         }
 
         if (!empty($sconfiniTotali)) {
