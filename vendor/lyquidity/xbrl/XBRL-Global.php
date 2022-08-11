@@ -1,5 +1,5 @@
 <?php
-
+namespace XBRL;
 /**
  * Implements the XBRL_Global class.
  *
@@ -28,12 +28,13 @@
  * bases.  This class acts as common repository of these artifacts of a taxonomy.
  * @author Bill Seddon
  */
+  use XBRL;
 class XBRL_Global
 {
 
 	/**
 	 * A reference to this singleton instance
-	 * @var XBRL_Global Singleton
+	 * @var Singleton
 	 */
 	private static $instance;
 
@@ -41,7 +42,7 @@ class XBRL_Global
 
 	/**
 	 * An array containing the set of taxonmies
-	 * @var array
+	 * @var array[XBRL]
 	 */
 	public $importedSchemas = array();
 	/**
@@ -119,13 +120,12 @@ class XBRL_Global
 	/**
 	 * Reset the global context. This is necessary when compiling multiple taxonomies.
 	 * Without it the globals accumulate and get stored in each successive compiled file.
-	 * @param callable? $fn This is a dummy parameter to get around the intelliphense type checking which insists that the arg to libxml_set_external_entity_loader cannot be null.
 	 */
-	public static function reset( $fn = null )
+	public static function reset()
 	{
 		if ( version_compare( PHP_VERSION, "5.4", ">=" ) && false )
 		{
-			libxml_set_external_entity_loader( $fn );
+			libxml_set_external_entity_loader( null );
 		}
 		self::$instance = null;
 	}
@@ -285,7 +285,7 @@ class XBRL_Global
 		if ( is_string( $href ) && \XBRL::endsWith( $href, '.xsd' ) && \XBRL::startsWith( $href, 'http' ) )
 		{
 			if ( ! isset( $this->schemaFileToNamespace[ $href ] ) )
-				return false;
+				return null;
 
 			$xsd = $href;
 		}
@@ -602,13 +602,12 @@ class XBRL_Global
 
 	/**
 	 * Unload an entity loader callback
-	 * @param callable? $fn This is a dummy parameter to get around the intelliphense type checking which insists that the arg to libxml_set_external_entity_loader cannot be null.
 	 */
-	public function resetEntityLoader( $fn = null)
+	public function resetEntityLoader()
 	{
 		if ( version_compare( PHP_VERSION, "5.4", ">=" ) && false )
 		{
-			libxml_set_external_entity_loader( $fn );
+			libxml_set_external_entity_loader( null );
 		}
 	}
 

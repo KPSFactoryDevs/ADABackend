@@ -45,8 +45,6 @@ class MathsFuncs
 		if ( $value instanceof XPath2Item )
 		{
 			$value = $value->getTypedValue();
-			if ( $value instanceof DecimalValue ) 
-				$value = $value->ToDouble(null);
 		}
 		else if ( $value instanceof DecimalValue )
 		{
@@ -56,7 +54,7 @@ class MathsFuncs
 		{
 			return $value->ToDouble( null );
 		}
-		else if ( is_int( $value ) || is_double( $value ) )
+		else if ( is_int( $value ) )
 		{
 			// Do nothing
 		}
@@ -93,30 +91,15 @@ class MathsFuncs
 		$value = self::toDouble( $value );
 		$power = self::toDouble( $power );
 
-		// if ( $value === 0 || $value === 0.0 )
-		// {
-		// 	if ( $power < 0 && is_int( $power ) && abs( $power ) % 2 == 1 )
-		// 	{
-		// 		return XPath2Item::fromValueAndType( INF, XmlSchema::$Double );
-		// 	}
-		// }
+		if ( $value === 0 || $value === 0.0 )
+		{
+			if ( $power < 0 && is_int( $power ) && abs( $power ) % 2 == 1 )
+			{
+				return XPath2Item::fromValueAndType( INF, XmlSchema::$Double );
+			}
+		}
 		return XPath2Item::fromValueAndType( pow( $value, $power ), XmlSchema::$Double );
 
-	}
-
-	/**
-	 * sqrt
-	 * @param object $value
-	 * @return object
-	 */
-	public static function sqrt( $value )
-	{
-		if ( $value instanceof Undefined )
-			return $value;
-
-		$value = self::toDouble( $value );
-
-		return XPath2Item::fromValueAndType( sqrt( $value ), XmlSchema::$Double );
 	}
 
 	/**
@@ -294,7 +277,7 @@ class MathsFuncs
 			return $value;
 
 		$value = self::toDouble( $value );
-		return XPath2Item::fromValueAndType( pow( 10, $value ), XmlSchema::$Double );
+		return XPath2Item::fromValueAndType( exp( $value ), XmlSchema::$Double );
 
 	}
 
@@ -324,7 +307,7 @@ class MathsFuncs
 			return $value;
 
 		$value = self::toDouble( $value );
-		return XPath2Item::fromValueAndType( log10( $value ), XmlSchema::$Double );
+		return XPath2Item::fromValueAndType( log( $value ), XmlSchema::$Double );
 
 	}
 }

@@ -80,7 +80,7 @@ EOT;
 	/**
 	 * Returns true if the zip file represents an SEC package
 	 * {@inheritDoc}
-	 * @see XBRL_Package::isPackage()
+	 * @see XBRL_IPackage::isPackage()
 	 */
 	public function isPackage()
 	{
@@ -153,9 +153,6 @@ EOT;
 	{
 		foreach ( $elements as $name => $value )
 		{
-			/**
-			 * @var SimpleXMLElement $value
-			 */
 			if ( $value->count() ) continue;
 
 			if ( ! property_exists( $this, $name ) ) continue;
@@ -183,9 +180,6 @@ EOT;
 
 		foreach ( $elements as $name => $element )
 		{
-			/**
-			 * @var SimpleXMLElement $element
-			 */
 			$xbrlFile = array();
 
 			foreach ( $element->attributes( XBRL_SEC_XML_Package::edgarNamespace ) as $attributeName => $value )

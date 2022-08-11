@@ -73,13 +73,13 @@ class ValueAssertion extends VariableSetAssertion
 
 	/**
 	 * A list of satified evaluation results
-	 * @var bool[] $satisfied
+	 * @var array[bool] $satisfied
 	 */
 	public $satisfied = array();
 
 	/**
 	 * A list of unsatified evaluation results
-	 * @var bool[] $unsatisfied
+	 * @var array[bool] $unsatisfied
 	 */
 	public $unsatisfied = array();
 

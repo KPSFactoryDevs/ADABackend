@@ -1,5 +1,5 @@
 <?php
-
+namespace XBRL;
 /**
  * XBRL Instance
  * @author Bill Seddon
@@ -20,8 +20,13 @@
  */
 
 use XBRL\Formulas\Exceptions\FormulasException;
+use lyquidity\xml\schema\SchemaTypes;
 use lyquidity\xml\QName;
-
+use XBRL;
+use XBRL_Log; 
+use Utilities\TupleDictionary;
+use XBRL\SimpleXMLElement;
+use DOMDocument;
 /**
  * XBRL instance document class
  *
@@ -217,9 +222,8 @@ class XBRL_Instance
 		{
 			$instance = new XBRL_Instance();
 			$instance->compiledLocation = $compiledLocation;
-			$instance->className = $className;
-
-			if ( ! $instance->initialise( $instance_document, null, $useCache ) )
+			$instance->className = $className; 
+			if ( ! $instance->initialise( $instance_document, $compiledLocation, $useCache ) )
 			{
 				return false;
 			}
@@ -277,7 +281,6 @@ class XBRL_Instance
 	 * @param string $cache_basename
 	 * @param string $taxonomyNamespace
 	 * @param string $compiledTaxonomyFile
-	 * @param \SimpleXMLElement $originalXml
 	 * @return XBRL_Instance
 	 */
 	public static function FromInstanceCache( $cache_path, $cache_basename, $taxonomyNamespace, $compiledTaxonomyFile, $originalXml = null )
@@ -401,7 +404,7 @@ class XBRL_Instance
 	/**
 	 * Returns the type of the element
 	 * @param string $element The element from which to access the type
-	 * @return string The type as a string
+	 * @return the type as a string
 	 */
 	public static function getElementType( $element )
 	{
@@ -688,7 +691,7 @@ class XBRL_Instance
 	/**
 	 * Get a specific element
 	 * @param string $id The id of the element to retrieve
-	 * @return string[][]|null
+	 * @return string|null
 	 */
 	public function getElement( $id )
 	{
@@ -904,7 +907,7 @@ class XBRL_Instance
 	 * @param array|string $contextRef If a string the name of a context; if an array, one containing the context detail
 	 * @param boolean|array[string] $getText If true include the element text in the result.  If the argument is an array it will be an array of preferred labels.
 	 * @param string $elementName The name of the element within the entity element to use [segment|scenario]
-	 * @return string[][] False if the requested context id does not exist or the context is not dimensional otherwise any array of dimension member elements
+	 * @return False if the requested context id does not exist or the context is not dimensional otherwise any array of dimension member elements
 	 * @TODO If the context does not contain an explicitMember element the function should check the dimensional taxonomy.
 	 *       This will require that the primary element is passed as an argument
 	 */
@@ -1150,10 +1153,14 @@ class XBRL_Instance
 			}
 		}
 
-		libxml_clear_errors();
-		// $this->instance_xml = new SimpleXMLElement( file_get_contents( $instance_document ) );
-		/** @var \SimpleXMLElement */
-		$this->instance_xml = simplexml_load_file( $instance_document, "SimpleXMLElement", LIBXML_NOBLANKS );
+		libxml_clear_errors(); 
+		 //$this->instance_xml = new SimpleXMLElement( file_get_contents( $instance_document ) );   
+		
+		 
+ 
+		 $data = file_get_contents($instance_document); 
+		 
+		$this->instance_xml = simplexml_load_string( html_entity_decode($data, ENT_COMPAT, "UTF-8"), "SimpleXMLElement", LIBXML_DTDLOAD   );
 		$xml_errors = libxml_get_errors();
 
 		if ( ! is_a( $this->instance_xml, 'SimpleXMLElement' ) || $xml_errors )
@@ -1569,7 +1576,6 @@ class XBRL_Instance
 						$members[ $name ] = array();
 						foreach ( $namespaceMembers as $namespaceMember )
 						{
-							/** @var \SimpleXMLElement $namespaceMember */
 							$xml = $namespaceMember->asXML();
 							foreach ( $prefixMap as $localPrefix => $globalPrefix )
 							{
@@ -1665,8 +1671,8 @@ class XBRL_Instance
 							$attributes[ $attributeNode->name ] = array(
 								'name' => $attributeNode->name,
 								'value' => (string)$attributeNode->nodeValue,
-								'type' => ! $type || is_null( $type['parent'] ) ? null : $type['parent'],
-								'prefix' => ! $type || is_null( $type['prefix'] ) ? null : $type['prefix']
+								'type' => is_null( $type['parent'] ) ? null : $type['parent'],
+								'prefix' => $type['prefix']
 							);
 						}
 
@@ -1805,7 +1811,7 @@ class XBRL_Instance
 
 	/**
 	 * A list of duplicate facts.  Duplicate facts require a validate warning.
-	 * @var TupleDictionary
+	 * @var array
 	 */
 	private $duplicateFacts = null;
 
@@ -1849,7 +1855,6 @@ class XBRL_Instance
 			{
 				foreach ( $rootElement->children( $namespace ) as $elementKey => $element )
 				{
-					/** @var \SimpleXMLElement $element */
 					$attributes = $element->attributes();
 
 					switch ( $elementKey )
@@ -2045,8 +2050,6 @@ class XBRL_Instance
 
 				foreach ( $rootElement->children( $namespace ) as $elementKey => $element )
 				{
-					/** @var \SimpleXMLElement $element */
-
 					switch ( $elementKey )
 					{
 						case 'footnoteLink':
@@ -2247,25 +2250,11 @@ class XBRL_Instance
 
 				continue;
 			}
-			// Make sure a signature is ignored
-			else if ( $namespace == 'http://www.w3.org/2000/09/xmldsig#' )
-			{
-				continue;
-			}
-			else if ( isset( XBRL_Constants::$standardNamespaces[ $namespace ] ) )
+			else if ( isset( XBRL_Constants::$standardNamespaces[ $namespace ] ) || ! isset( $this->taxonomyToNamespaceMap[ $namespace ] ) )
 			{
 				if ( count( $rootElement->children( $namespace ) ) )
 				{
 					$this->log()->instance_validation( "4.1", "There should be no elements in the standard namespace", array( 'namespace' => $namespace ) );
-				}
-
-				continue;
-			}
-			else if ( ! isset( $this->taxonomyToNamespaceMap[ $namespace ] ) )
-			{
-				if ( count( $rootElement->children( $namespace ) ) )
-				{
-					$this->log()->instance_validation( "4.1", "There should be no elements not in a namespace supported by the taxonomy ", array( 'namespace' => $namespace ) );
 				}
 
 				continue;
@@ -2282,8 +2271,6 @@ class XBRL_Instance
 
 			foreach ( $rootElement->children( $namespace ) as $elementKey => $element )
 			{
-				/** @var \SimpleXMLElement $element */
-
 				// $this->log()->err( "$indent$elementKey" );
 				$guid = XBRL::GUID();
 
@@ -2361,7 +2348,7 @@ class XBRL_Instance
 						if ( $elementType )
 						{
 							// The tuple type may be complex and allow any elements
-							$type = isset( $elementType['types'][0] ) ? $elementType['types'][0] : $elementType;
+							$type = isset( $elementType['types'][0] ) ? $elementType['types'][0] : $type;
 							if ( is_string( $type ) )
 							{
 								$type = $types->getType( $type );
@@ -2624,7 +2611,7 @@ class XBRL_Instance
 	 * This is a simplified version of the code in XBRL processLabelLinkbase().  Simplified because
 	 * footnote locators can only be to elements in the same document.
 	 *
-	 * @param \SimpleXMLElement $footnoteLink The element containing the link base type to process
+	 * @param array $footnoteLink The element containing the link base type to process
 	 * @return boolean
 	 */
 	private function processFootnoteLinkbase( $footnoteLink )
@@ -2723,7 +2710,7 @@ class XBRL_Instance
 				continue;
 			}
 
-			$lang = property_exists( $xmlAttributes, 'lang' ) ? (string) $xmlAttributes->lang : $this->getInstanceTaxonomy()->getDefaultLanguage();
+			$lang = property_exists( $xmlAttributes, 'lang' ) ? (string) $xmlAttributes->lang : $this->getDefaultLanguage();
 			$text = $footnoteEl->__toString();
 
 			if ( ! isset( $footnotes[ $role ] ) )
@@ -3735,7 +3722,7 @@ class XBRL_Instance
 				{
 					$this->log()->instance_validation( "5.2.6.2.4", "The concept of the target does not exist in the DTS",
 						array(
-							'to' => $parts['fragment'],
+							'to' => $to,
 						)
 					);
 					continue;
@@ -3780,7 +3767,7 @@ class XBRL_Instance
 		 * Examine the arcs recursively to look for directed cycles.
 		 * If there are directed cyles then the $alias of an arc will appear in the list of $parents
 		 *
-		 * @var Closure $detectDirected
+		 * @var function $detectDirected
 		 * @param string $essence
 		 * @param array $parents
 		 * @return bool
@@ -4245,7 +4232,7 @@ class XBRL_Instance
 		 * Examine the arcs recursively to look for directed cycles.
 		 * If there are directed cyles then the $alias of an arc will appear in the list of $parents
 		 *
-		 * @var Closure $detectDirected
+		 * @var function $detectDirected
 		 * @param string $source
 		 * @param array $parents
 		 * @return bool
@@ -4306,7 +4293,7 @@ class XBRL_Instance
 		 * Examine the arcs recursively to look for directed cycles.
 		 * If there are directed cyles then the $alias of an arc will appear in the list of $parents
 		 *
-		 * @var Closure $detectDirected
+		 * @var function $detectDirected
 		 * @param string $arcroleKey
 		 * @param string $arcrole
 		 * @param string $source
@@ -4425,7 +4412,7 @@ class XBRL_Instance
 		 * Examine the arcs recursively to look for directed cycles.
 		 * If there are directed cyles then the $alias of an arc will appear in the list of $parents
 		 *
-		 * @var Closure $detectDirected
+		 * @var function $detectDirected
 		 * @param string $source
 		 * @param array $parents
 		 * @return bool
@@ -5439,7 +5426,6 @@ class XBRL_Instance
 				{
 					foreach ( $dimInfo as $dimInfoKey => $item )
 					{
-						/** @var string[][] $item */
 						if ( isset( $item['dimension'] ) )
 						{
 							$dimTaxonomy = $this->getInstanceTaxonomy()->getTaxonomyForNamespace( $item['dimension']['namespace'] );
@@ -5474,7 +5460,6 @@ class XBRL_Instance
 							{
 								foreach ( $item['member'] as $type => $codes )
 								{
-											/** @var string[] $codes */
 									foreach ( $codes as $code )
 									{
 										$code = trim( $code );
@@ -5513,7 +5498,7 @@ class XBRL_Instance
 					$taxonomy = $this->getInstanceTaxonomy()->getTaxonomyForXSD( $dimensionId );
 					if ( ! $taxonomy )
 					{
-								$this->log()->warning( "A taxonomy cannot be located for dimensionId '$dimensionId'" );
+						$this->log()->warning( "A taxonomy cannot be located for namespace '$namespace'" );
 						continue;
 					}
 
@@ -5620,7 +5605,7 @@ class XBRL_Instance
 	/**
 	 * Validates the measure component of a unit definition
 	 *
-	 * @param string[][] $divide
+	 * @param string $divide
 	 * @param string $unitId
 	 * @param XBRL_Types $types
 	 */
@@ -6322,8 +6307,8 @@ class XBRL_Instance
 
 	/**
 	 * Tests whether a context is valid for the dimensions of a hypercube
-	 * @param stirng[]|string $context
-	 * @param string[] $hypercubeDimensions
+	 * @param array|string $context
+	 * @param array $hypercubeDimensions
 	 * @param boolean $closed
 	 * @return boolean
 	 */
@@ -6336,20 +6321,7 @@ class XBRL_Instance
 
 		// The context dimensions must be hypercube dimensions
 		$contextDimensions = $this->getContextDimensions( $context );
-
-		// Make sure the prefixes of the keys use taxonomy prefixes
-		$contextDimensions = array_reduce( array_keys( $contextDimensions ), function( $carry, $key ) use( &$contextDimensions ) 
-		{
-			$newKey = $key;
-			list( $prefix, $name ) = explode( ':', $key );
-			if ( isset( $this->instance_namespaces[ $prefix ] ) )
-			{
-				if ( $newPrefix = $this->normalizePrefix( $prefix ) )
-					$newKey = "$newPrefix:$name";
-			}
-			$carry[ $newKey ] = $contextDimensions[ $key ];
-			return $carry;
-		}, array() );
+		// $hypercubeDimensions = $details['details']['dimensions'];
 
 		$invalidDimensions = array_diff_key( $contextDimensions, $hypercubeDimensions );
 
@@ -7154,7 +7126,7 @@ class ContextsFilter
 
 	/**
 	 * Remove one or more contexts.  The instance will be changed and will be removed.
-	 * @param string|string[]|ContextsFilter $contexts
+	 * @param string|string[]|ContextFilter $contexts
 	 * @return ContextsFilter
 	 */
 	public function remove( $contexts )
@@ -7323,7 +7295,7 @@ class InstanceElementsFilter
 
 	/**
 	 * Return a list of elements based on a set of contexts
-	 * @param ContextsFilter|string $contexts The parameter can be the name of an context, a comma delimited list of contexts or an array of contexts
+	 * @param array|string $contexts The parameter can be the name of an context, a comma delimited list of contexts or an array of contexts
 	 * @throws Exception
 	 * @return InstanceElementsFilter
 	 */
@@ -7555,7 +7527,7 @@ class InstanceElementsFilter
 	 * Compare $entry with $existingElements to determine if the associated contextRefs are equivalent.
 	 * @param array $existingElements An array of instance entries to compare to $entry for context and value equivalence
 	 * @param array $entry An entry node representing a record in the instance document
-	 * @return bool Returns true if $entry is unique.
+	 * @return Returns true if $entry is unique.
 	 */
 	private function entry_is_unique( $existingElements, $entry )
 	{

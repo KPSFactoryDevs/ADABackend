@@ -638,7 +638,7 @@ class XBRL_US_GAAP_2015 extends XBRL
 	 * An array of element ids that when they appear in a report their values should be treated as text.
 	 * This has a specific meaning in the default report: the associated values are not shown tied to a
 	 * specific financial year.
-	 * @var string[]
+	 * @var array[string]
 	 */
 	private static $textItems = array(
 		"dei_AccountingAddressMember",
@@ -862,14 +862,6 @@ class XBRL_US_GAAP_2015 extends XBRL
 			XBRL_US_GAAP_2015::$us_GAAP_2018_NS => XBRL_US_GAAP_2015::$us_GAAP_2018_ROLES_NS,
 			XBRL_US_GAAP_2015::$us_GAAP_2018_ALL_NS => XBRL_US_GAAP_2015::$us_GAAP_2018_ROLES_NS,
 			XBRL_US_GAAP_2015::$us_GAAP_2018_ENTRY_POINT_ALL_NS => XBRL_US_GAAP_2015::$us_GAAP_2018_ROLES_NS,
-
-			XBRL_US_GAAP_2015::$us_GAAP_2019_NS => XBRL_US_GAAP_2015::$us_GAAP_2019_ROLES_NS,
-			XBRL_US_GAAP_2015::$us_GAAP_2019_ALL_NS => XBRL_US_GAAP_2015::$us_GAAP_2019_ROLES_NS,
-			XBRL_US_GAAP_2015::$us_GAAP_2019_ENTRY_POINT_ALL_NS => XBRL_US_GAAP_2015::$us_GAAP_2019_ROLES_NS,
-
-			XBRL_US_GAAP_2015::$us_GAAP_2020_NS => XBRL_US_GAAP_2015::$us_GAAP_2020_ROLES_NS,
-			XBRL_US_GAAP_2015::$us_GAAP_2020_ALL_NS => XBRL_US_GAAP_2015::$us_GAAP_2020_ROLES_NS,
-			XBRL_US_GAAP_2015::$us_GAAP_2020_ENTRY_POINT_ALL_NS => XBRL_US_GAAP_2015::$us_GAAP_2020_ROLES_NS,
 		);
 
 		/**
@@ -1089,7 +1081,7 @@ class XBRL_US_GAAP_2015 extends XBRL
 	public function treatAsLabel( $key )
 	{
 		if ( isset( XBRL_US_GAAP_2015::$labelItems[ $key ] ) ) return XBRL_US_GAAP_2015::$labelItems[ $key ];
-		return parent::treatAsText( $key, null );
+		return parent::treatAsText( $key );
 	}
 
 	/**

@@ -35,9 +35,6 @@ use lyquidity\XPath2\Iterator\ChildNodeIterator;
 use lyquidity\XPath2\Iterator\ElementOrderNodeIterator;
 use lyquidity\xml\MS\XmlTypeCode;
 use lyquidity\xml\MS\XmlReservedNs;
-use lyquidity\xml\xpath\XPathItem;
-use lyquidity\xml\xpath\XPathNavigator;
-use lyquidity\xml\xpath\XPathNodeIterator;
 
 /**
  * DEqualComparer (public)
@@ -184,8 +181,8 @@ class DEqualComparer extends TreeComparer
 			}
 		}
 
-		$res = null;
-		$result = \lyquidity\XPath2\Proxy\ValueProxy::EqValues( $x, $y, $res) && $res;
+		$res;
+		$result = ValueProxy::EqValues( $x, $y, $res) && $res;
 		return $result;
 
 	}

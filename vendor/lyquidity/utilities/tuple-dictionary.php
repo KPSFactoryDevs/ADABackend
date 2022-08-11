@@ -1,5 +1,5 @@
 <?php
-
+namespace Utilities;
 /**
  * Implements the class TupleDictionary.
  *

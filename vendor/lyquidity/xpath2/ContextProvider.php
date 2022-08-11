@@ -29,8 +29,6 @@
 
 namespace lyquidity\XPath2;
 
-use lyquidity\xml\xpath\XPathItem;
-
 /**
  * ContextProvider (internal final)
  */

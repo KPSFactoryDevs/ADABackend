@@ -72,8 +72,6 @@ use lyquidity\xml\schema\SchemaTypes;
 use lyquidity\xml\exceptions\ArgumentException;
 use lyquidity\xml\exceptions\InvalidCastException;
 use lyquidity\xml\exceptions\UriFormatException;
-use lyquidity\xml\interfaces\IEnumerable;
-use lyquidity\xml\TypeCode;
 
 /**
  * ExtFuncs ( public static )
@@ -87,7 +85,7 @@ class ExtFuncs
 	 */
 	public static function GetNameWithProvider( $provider )
 	{
-		return self::GetName( CoreFuncs::NodeValue( CoreFuncs::ContextNode( $provider ) ) );
+		return GetName( CoreFuncs::NodeValue( CoreFuncs::ContextNode( $provider ) ) );
 	}
 
 	/**
@@ -334,8 +332,8 @@ class ExtFuncs
 		for ( $k = count( $uri ) - 1; $k >= 0; $k-- )
 		{
 		    $res = is_null( $res )
-		    	? $uri[$k]
-		    	: SchemaTypes::resolve_path( $res, $uri[$k] );
+		    	? uri[k]
+		    	: SchemaTypes::resolve_path( $res, $uri[k] );
 		}
 
 		return is_null( $res )
@@ -502,7 +500,7 @@ class ExtFuncs
 							 ! is_null( $nav->getSchemaInfo()->getSchemaType() ) &&
 							 ! ( $nav->getSchemaInfo()->getSchemaType() instanceof XmlSchemaSimpleType ) )
 						{
-							throw XPath2Exception::withErrorCodeAndParam( "FOTY0012", Resources::FOTY0012, new QName( $nav->LocalName, $nav->NamespaceURI, false ) );
+							throw XPath2Exception::withErrorCodeAndParam( "FOTY0012", Resources::FOTY0012, new XmlQualifiedName( $nav->LocalName, $nav->NamespaceURI, false ) );
 						}
 					}
 				}
@@ -672,7 +670,7 @@ class ExtFuncs
 		}
 
 		$pos = intval( Round( $startingLoc ) ) - 1;
-		$len = 0;
+		$len;
 		if ( $length == INF )
 		    $len = PHP_INT_MAX;
 		else
@@ -776,7 +774,7 @@ class ExtFuncs
 		}
 
 		$value = $arg . "";
-		return normalizer_normalize( $value, \Normalizer::FORM_C );
+		return normalizer_normalize( $arg, \Normalizer::FORM_C );
 	}
 
 	/**
@@ -953,13 +951,13 @@ class ExtFuncs
 	 */
 	public static function StartsWith( $arg1, $arg2 )
 	{
-		$str = null;
+		$str;
 		if ( $arg1 instanceof Undefined )
 		    $str = "";
 		else
 		    $str = $arg1 . "";
 
-		$substr = null;
+		$substr;
 		if ( $arg2 instanceof Undefined )
 		    $substr = "";
 		else
@@ -993,13 +991,13 @@ class ExtFuncs
 	 */
 	public static function EndsWith( $arg1, $arg2 )
 	{
-		$str = null;
+		$str;
 		if ( $arg1 instanceof Undefined )
 		    $str = "";
 		else
 		    $str = $arg1 . "";
 
-		$substr = null;
+		$substr;
 		if ( $arg2 instanceof Undefined )
 		    $substr = "";
 		else
@@ -2269,7 +2267,7 @@ class ExtFuncs
 
 		if ( $value instanceof Long )
 		{
-			return new Long( abs( (int) $value->getValue() ) );
+			return new Long( abs( $value->getValue() ) );
 		}
 
 		if ( Integer::IsDerivedSubtype( $value ) )
@@ -2283,7 +2281,7 @@ class ExtFuncs
 			 * @var Integer $integer
 			 */
 			$integer = $value;
-		    return Integer::FromValue( abs( (int) $integer->getValue() ) );
+		    return Integer::FromValue( abs( $integer->getValue() ) );
 		}
 		else
 		    throw XPath2Exception::withErrorCodeAndParams( "XPTY0004", Resources::XPTY0004,
@@ -2557,10 +2555,10 @@ class ExtFuncs
 		if ( $value instanceof Integer )
 		{
 			/**
-			 * @var \lyquidity\XPath2\Value\Integer $integer
+			 * @var Integer $integer
 			 */
 			$integer = $value;
-			return Integer::FromValue( round( (int) $integer->getValue(), $p, PHP_ROUND_HALF_EVEN ) );
+			return Integer::FromValue( round( $integer->getValue(), $p, PHP_ROUND_HALF_EVEN ) );
 		}
 		else
 		   throw XPath2Exception::withErrorCodeAndParams( "XPTY0004", Resources::XPTY0004,
@@ -2588,8 +2586,8 @@ class ExtFuncs
 
 		if ( $collation == XmlReservedNs::collationCodepoint )
 		{
-			$s1 = \normalizer_normalize( (string) $a, \Normalizer::FORM_C );
-			$s2 = \normalizer_normalize( (string) $b, \Normalizer::FORM_C );
+			$s1 = \normalizer_normalize( $a, \Normalizer::FORM_C );
+			$s2 = \normalizer_normalize( $b, \Normalizer::FORM_C );
 
 			// On Windows the strcmp function return -1, 0, 1 but on Linux the strcmp function
 			// returns a value which is the difference in the ascii value of the first mismatched char
@@ -2722,7 +2720,7 @@ class ExtFuncs
 		 */
 		foreach( $iter as $item )
 		{
-			// $res = 0;
+		    $res;
 		    $curr = $item instanceof XPathNavigator
 		    	? $item->GetTypedValue()
 		    	: $item;
@@ -3342,7 +3340,7 @@ class ExtFuncs
 			throw XPath2Exception::withErrorCodeAndParams( "FORG0006", Resources::FORG0006,
 				array(
 					"fn:sum()",
-					SequenceType::WithTypeCodeAndCardinality( SequenceType::GetXmlTypeCodeFromObject( TypeCode::Object ), XmlTypeCardinality::One )
+					SequenceType::WithTypeCodeAndCardinality( SequenceType::GetXmlTypeCodeFromObject( $item->GetTypedValue() ), XmlTypeCardinality::One )
 				)
 			);
 		}
@@ -3371,7 +3369,7 @@ class ExtFuncs
 			/**
 			 * @var ValueProxy $acc
 			 */
-			$arg = null;
+			$arg;
 		    try
 		    {
 		    	// $value = $value instanceof DayTimeDurationValue || $value instanceof YearMonthDurationValue || $value instanceof DurationValue
@@ -3460,7 +3458,7 @@ class ExtFuncs
 			/**
 			 * @var ValueProxy $acc
 			 */
-			$arg = null;
+			$arg;
 		    try
 		    {
 				$arg = ValueProxy::Create( CoreFuncs::CastToNumber1( $context, $item ) );
@@ -3590,7 +3588,7 @@ class ExtFuncs
 		// $dtv = DateTimeValue::Parse( $date->Value->format("Y-m-d") . "T" . $time->Value->format("H:i:s$microseconds$offsetChar") );
 		$dtv = DateTimeValue::Parse( $date->Value->format("Y-m-d") . "T" . $time->Value->format("H:i:s$microseconds") . $offsetChar );
 		// BMS 2018-03-23 Changed to this.  Handles test case 48230 V-05.
-		// 				  The XPath 2.0 specification is clear that these two are equivalent and even give an example:
+		// 				  The XPath 2.0 specification is clear that these two are equivalent and event give an example:
 		//						fn:dateTime(xs:date('2018-03-23'),xs:time('00:00:00'))
 		//						fn:dateTime(xs:date('2018-03-23'),xs:time('24:00:00'))
 		//				  That is, '00:00:00' and '24:00:00' are synonyms for midnight at the beginning of the day.
@@ -3996,7 +3994,7 @@ class ExtFuncs
 		    throw XPath2Exception::withErrorCode( "FONS0005", Resources::FONS0005 );
 		try
 		{
-		    return new AnyUriValue( SchemaTypes::resolve_path( $context->RunningContext->baseUri, $rel ) );
+		    return new AnyUriValue( SchemaTypes::resolve_path( $context->RunningContext->getBaseUri(), $rel ) );
 		}
 		catch ( UriFormatException $ex )
 		{

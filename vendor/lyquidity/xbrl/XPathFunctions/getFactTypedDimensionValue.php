@@ -55,7 +55,9 @@ require_once "xbrlInstance.php";
  * @param XPath2Context $context
  * @param NodeProvider	$provider
  * @param array $args
- * @return DOMXPathNavigator	Returns the DOMXPathNavigator of the located member
+ * @return xs:QName?	Returns the QName of the value for the dimension that is reported in the segment or scenario
+ * 						of the item and the empty sequence if the dimension is not reported for the item and no default
+ * 						is applicable. (Reports the dimension default value when applicable.)
  *
  * @throws xfie:invalidTypedDimensionQName	This error MUST be thrown the dimension QName is not a explicit dimension
  * 											in the reference discoverable taxonomy set. This error is only raised if

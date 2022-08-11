@@ -5,7 +5,7 @@
  *
  * @author Bill Seddon
  * @version 0.9
- * @copyright (C) 2018 Lyquidity Solutions Limited
+ * @Copyright (C) 2018 Lyquidity Solutions Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -163,7 +163,7 @@ EOT;
 
 	/**
 	 * The meta file as a SimpleXMLElement
-	 * @var SimpleXMLElement
+	 * @var string
 	 */
 	protected  $metaFile;
 
@@ -265,31 +265,26 @@ EOT;
 	 * @param string $output_basename Name of the compiled taxonomy to create
 	 * @param string $compiledPath (optional) Path to the compiled taxonomies folder
 	 * @param string $schemaFile
-	 * @param bool $prettyPrint
 	 * @return bool
 	 * @throws Exception
 	 */
-	public function compile( $output_basename = null, $compiledPath = null,  $schemaFile = null, $prettyPrint = false )
+	public function compile( $output_basename = null, $compiledPath = null,  $schemaFile = null  )
 	{
 		$schemaNamespace = $this->schemaNamespace;
 
 		if ( $schemaFile )
 		{
-			$schemaNamespace = rtrim( $this->getNamespaceForSchema( $schemaFile ), '/' );
+			$schemaNamespace = $this->getNamespaceForSchema( $schemaFile );
 		}
 		else
 		{
 			$schemaFile = $this->schemaFile;
 		}
 
-		$schemaPath = $schemaFile == basename( $schemaFile )
-			? "$schemaNamespace/$schemaFile"
-			: $schemaFile;
-
 		if ( $this->isExtensionTaxonomy( $schemaFile ) )
 		{
 			return XBRL::compileExtensionXSD(
-				$schemaPath,
+				$schemaFile,
 				$this->getXBRLClassname(),
 				$schemaNamespace,
 				$output_basename,
@@ -299,25 +294,11 @@ EOT;
 		else
 		{
 			return XBRL::compile(
-				$schemaPath,
+				$schemaFile,
 				$schemaNamespace,
-				$compiledPath . ( is_null( $output_basename ) ? $this->getSchemaFileBasename() : $output_basename ),
-				$prettyPrint
+				$compiledPath . ( is_null( $output_basename ) ? $this->getSchemaFileBasename() : $output_basename )
 			);
 		}
-	}
-
-	/**
-	 * If a package type supports multiple entry points this method can be overridden to compile all entry point taxonmies
-	 * @param string $cacheLocation
-	 * @param string $compiledPath (optional) Path to the compiled taxonomies folder
-	 * @return array A list of compiled entry points
-	 * @param bool $prettyPrint
-	 * @throws Exception
-	 */
-	public function compileAll( $cacheLocation, $compiledPath, $prettyPrint = false )
-	{
-		// Do nothing here
 	}
 
 	/**
@@ -389,14 +370,13 @@ EOT;
 
 		// If the schema in the package imports one of the schemas with an entry point namespace then an extension compilation should be used
 		$xml = $this->getFileAsXML( $this->getActualUri( $schemaFile ) );
-		if ( ! $xml ) return false;
 		$xml->registerXPathNamespace( SCHEMA_PREFIX, SCHEMA_NAMESPACE );
 		foreach ( $xml->xpath("/xs:schema/xs:import") as $tag => /** @var SimpleXMLElement $element */ $element )
 		{
 			$attributes = $element->attributes();
 			if ( ! isset( $attributes['namespace'] ) ) continue;
 			// echo "{$attributes['namespace']}\n";
-			$nameOfXBRLClass = $this->getXBRLClassname();
+			// $nameOfXBRLClass = $this->getXBRLClassname();
 			if ( ( $className = $nameOfXBRLClass::class_from_namespace( (string)$attributes['namespace'] ) ) == "XBRL" ) continue;
 
 			return true;
@@ -467,7 +447,7 @@ EOT;
 
 	/**
 	 * Traverses the contents folders and files calling $callback for each node
-	 * @param Closure $callback Three arguents will be passed to the the callback:
+	 * @param Funtion $callback Three arguents will be passed to the the callback:
 	 * 		1) The path preceding the Name
 	 * 		2) The name
 	 * 		3) PATHINFO_BASENAME if the name is a file or PATHINFO_DIRNAME
@@ -671,7 +651,7 @@ EOT;
 	/**
 	 * Retrieves the taret namespace from $content which is expected to be an XM schema document
 	 * @param string $schemaName Name of the schema represented by $content
-	 * @param string $content Expected to be an XML schema
+	 * @param bytes $content Expected to be an XML schema
 	 * @param bool $throwException True if an exception should be thrown on error or false is returned otherwise
 	 * @return bool
 	 * @throws \Exception
@@ -713,7 +693,7 @@ EOT;
 	/**
 	 * Processes the schema document in a consistent way
 	 * @param \XBRL_Global $context A reference to the global context
-	 * @param string $content Expected to be an XML schema
+	 * @param bytes $content Expected to be an XML schema
 	 * @param bool $throwException True if an exception should be thrown on error or false is returned otherwise
 	 * @return bool
 	 * @throws \Exception
@@ -753,7 +733,7 @@ EOT;
 				throw new \Exception( $msg );
 			}
 
-			return true;
+			return false;
 		}
 
 		if ( ! $context->saveCacheFile( "$schemaFile", $content ) )
@@ -840,7 +820,7 @@ EOT;
 
 		if ( $schemaFile )
 		{
-			$schemaNamespace = rtrim( $this->getNamespaceForSchema( $schemaFile ), '/' );
+			$schemaNamespace = $this->getNamespaceForSchema( $schemaFile );
 		}
 		else
 		{
@@ -861,10 +841,6 @@ EOT;
 			);
 		}
 
-		$schemaPath = $schemaFile == basename( $schemaFile )
-			? "$schemaNamespace/$schemaFile"
-			: $schemaFile;
-
-		return XBRL::withTaxonomy( $schemaPath );
+		return XBRL::withTaxonomy( $schemaFile );
 	}
 }

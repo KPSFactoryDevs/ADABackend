@@ -97,8 +97,7 @@ class DateProxy extends ValueProxy implements IXmlSchemaType
 	 */
 	protected function Eq( $val )
 	{
-		$code = $val->GetValueCode();
-	    if ( $code != DateProxyFactory::Code && $code != DateTimeProxyFactory::Code )
+	    if ( $val->GetValueCode() != DateProxyFactory::Code )
 	        throw XPath2Exception::withErrorCodeAndParams( "XPTY0004", Resources::BinaryOperatorNotDefined,
 				array(
 					"op:eq",

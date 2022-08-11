@@ -58,7 +58,7 @@ class NameBinder
 	 */
 	public function getLength()
 	{
-		return $this->_slotIndex;
+		return _slotIndex;
 	}
 
 	/**

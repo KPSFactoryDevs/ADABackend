@@ -89,7 +89,7 @@ class FactVariable extends Variable
 
 	/**
 	 * An array of filters that apply to this variable
-	 * @var Filter[] $filters
+	 * @var array[Filter] $filters
 	 */
 	public $filters = array();
 

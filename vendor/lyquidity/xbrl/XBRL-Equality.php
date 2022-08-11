@@ -1,5 +1,5 @@
 <?php
-
+namespace XBRL;
 /**
  * XBRL specification equality tests
  *
@@ -792,7 +792,6 @@ class XBRL_Equality {
 		if ( ! count( $array1 ) ) return true;
 
 		$types = XBRL_Types::getInstance();
-		$log = XBRL_Log::getInstance();
 
 		for( $i = 0; $i < count( $array1 ); $i++ )
 		{
@@ -812,11 +811,11 @@ class XBRL_Equality {
 				$pattern = "/^" . SchemaTypes::$ncName . "$/u";
 				if ( ! preg_match( $pattern, $value1, $matches ) )
 				{
-					$log->taxonomy_validation( "context", "id attribute is not a valid NCName", array( 'id' => $value1 ) );
+					$this->log()->taxonomy_validation( "context", "id attribute is not a valid NCName", array( 'id' => $value1 ) );
 				}
 				if ( ! preg_match( $pattern, $value2, $matches ) )
 				{
-					$log->taxonomy_validation( "context", "id attribute is not a valid NCName", array( 'id' => $value2 ) );
+					$this->log()->taxonomy_validation( "context", "id attribute is not a valid NCName", array( 'id' => $value2 ) );
 				}
 			}
 

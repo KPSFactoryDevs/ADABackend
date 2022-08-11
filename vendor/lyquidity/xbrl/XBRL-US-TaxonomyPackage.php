@@ -42,6 +42,7 @@ class XBRL_US_TaxonomyPackage extends XBRL_SimplePackage
 		'2020-01-31' => 'http://xbrl.fasb.org/us-gaap/2020/entire/us-gaap-entryPoint-all-2020-01-31.xsd'
 	);
 
+
 	/**
 	 * Notes about using this package instance
 	 * @var string
@@ -104,7 +105,7 @@ EOT;
 	/**
 	 * Returns true if the zip file represents an SEC package
 	 * {@inheritDoc}
-	 * @see XBRL_Package::isPackage()
+	 * @see XBRL_IPackage::isPackage()
 	 */
 	public function isPackage()
 	{
@@ -367,8 +368,6 @@ EOT;
 				} );
 
 			}
-
-			return true;
 		}
 		catch( \Exception $ex )
 		{

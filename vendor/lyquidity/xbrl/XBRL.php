@@ -39,10 +39,132 @@
  */
 
 use XBRL\Formulas\Formulas;
+use XBRL\Formulas\Resources\Message\Message;
 use lyquidity\xml\QName;
 use lyquidity\xml\schema\SchemaTypes;
-use XBRL\Formulas\Resources\Filters\ConceptName;
-use XBRL\Formulas\Resources\Variables\VariableSet;
+use XBRL\XBRL_Constants;
+use XBRL\XBRL_Global;
+
+
+if ( ! function_exists("__") )
+{
+	/**
+	 * A polyfill for the getText __() function
+	 * @param string $message
+	 * @param string $domain
+	 * @return string
+	 */
+	function __( $message, $domain )
+	{
+		return "$message\n";
+	}
+}
+
+/**
+ * Load XBRL class files
+ * @param string $classname
+ */
+function xbrl_autoload( $classname )
+{
+	// Special case
+	if ( $classname == "QName" )
+	{
+		require_once __DIR__ . '/XBRL-QName.php';
+		return true;
+	}
+
+	if ( substr( $classname, 0, 4 ) != "XBRL" )
+	{
+		return false;
+	}
+
+	if ( strpos( $classname, 'XBRL\\' ) === 0 )
+	{
+		$classname = substr( $classname, 5 );
+	}
+	$filename = __DIR__ . "/" . str_replace( "_", "-", $classname . ".php" );
+	if ( ! file_exists( $filename ) )
+	{
+		return false;
+	}
+
+	require_once $filename;
+}
+
+spl_autoload_register( 'xbrl_autoload' );
+
+/**
+ * Called to begin initialization of the class
+ * Each taxonomy specific decendent PHP file name will begin 'XBRL-' (case insensitive)
+ * and this function will load each one automatically.  This means that when a taxonomy
+ * is loaded and if it needs to use a taxonomy specific descendent class, it will be
+ * available.
+ *
+ * @return void
+ */
+function initialize_xsd_to_class_map()
+{
+	$xbrl_directory = __DIR__;
+
+	if ( $handle = opendir( $xbrl_directory ) )
+	{
+		try
+		{
+			while ( false !== ( $file = readdir( $handle ) ) )
+			{
+				if ( $file === "." || $file === ".." || $file === "xbrl.php" || strpos( strtolower( $file ), 'xbrl-' ) !== 0 ) continue;
+
+				$filename  = $xbrl_directory . DIRECTORY_SEPARATOR . $file;
+
+				if ( ! is_file( $filename ) ) continue;
+
+				require_once $filename;
+			}
+		}
+		catch(Exception $ex)
+		{}
+
+		closedir( $handle );
+	}
+}
+
+/**
+ * Call the function
+ */
+// initialize_xsd_to_class_map();
+// With the bootloader in place these are two classes that MUST be loaded
+require_once __DIR__ . '/XBRL-Constants.php';
+
+global $use_xbrl_functions;
+if ( $use_xbrl_functions )
+{
+	// If composer autoload is being used this class will be loaded automatically
+	if ( ! class_exists( "\lyquidity\XPath2\FunctionTable", true ) )
+	{
+		$xpathPath = isset( $_ENV['XPATH20_LIBRARY_PATH'] )
+			? $_ENV['XPATH20_LIBRARY_PATH']
+			: ( defined( 'XPATH20_LIBRARY_PATH' ) ? XPATH20_LIBRARY_PATH : __DIR__ . "/../XPath2/" );
+
+		require_once $xpathPath . '/bootstrap.php';
+	}
+
+	require_once __DIR__ . '/XBRL-Functions.php';
+	require_once __DIR__ . '/Formulas/Formulas.php';
+}
+else
+{
+	// If composer autoload is being used this class will be loaded automatically
+	if ( ! class_exists( "\lyquidity\xml\schema\SchemaTypes", true ) )
+	{
+		$xmlSchemaPath = isset( $_ENV['XML_LIBRARY_PATH'] )
+			? $_ENV['XML_LIBRARY_PATH']
+			: ( defined( 'XML_LIBRARY_PATH' ) ? XML_LIBRARY_PATH : __DIR__ . "/../xml/" );
+
+		require_once $xmlSchemaPath . '/bootstrap.php';
+	}
+}
+
+XBRL::constructor();
 
 /**
  * Main XBRL control class
@@ -81,42 +203,6 @@ class XBRL {
 	 * @var XBRL_Global $context
 	 */
 	public $context								= null;
-
-	/**
-	 * A list of the schemas directly imported by this schema
-	 * @var array
-	 */	private $indirectNamespaces				= array();
-
-	/**
-	 * An array of schema files imported by this taxonomy
-	 */
-	public function getIndirectNamespaces()
-	{
-		return $this->indirectNamespaces;
-	}
-
-	/**
-	 * An array of the schema namespaces that have used this schema
-	 * @var array
-	 */	private $usedByNamespaces				= array();
-
-	/**
-	 *
-	 * @param XBRL $taxonomy
-	 */
-	public function AddUserNamespace( $taxonomy )
-	{
-		if ( ! ( $taxonomy instanceof XBRL ) ) return;
-		$this->usedByNamespaces[] = $taxonomy->getNamespace();
-	}
-
-	/**
-	 * A list of the schemas that have used this schema
-	 */
-	public function getUsedByNamespaces()
-	{
-		return $this->usedByNamespaces;
-	}
 
 	/**
 	 * The XML of the texonomy schema document
@@ -248,7 +334,7 @@ class XBRL {
 
 	/**
 	 * A list of role ref details for roles that are maintained in another taxonomy
-	 * These will be saved with a compiled taxonomy or removed.
+	 * These willl be saved with a compiled taxonomy or removed.
 	 * @var array
 	 */
 	protected $foreignDefinitionRoleRefs		= array();
@@ -304,14 +390,6 @@ class XBRL {
 	 * @var array $schemaFiles
 	 */
 	private $importedFiles						= array();
-
-	/**
-	 * An array of schema files imported by this taxonomy
-	 */
-	public function getImportedFiles()
-	{
-		return is_array( $this->importedFiles ) ? $this->importedFiles : array();
-	}
 
 	/**
 	 * A list of the schema files included by this schema
@@ -543,7 +621,7 @@ class XBRL {
 	}
 
 	/**
-	 * This function returns the name of the compiled taxonomy to use in place of the XSD
+	 * This function returns the name of the compile taxonomy to use in place of the XSD
 	 * @param string $xsd  The name of the XSD to be loaded
 	 * @return string The name of the corresponding compiled taxonomy
 	 */
@@ -901,23 +979,16 @@ class XBRL {
 				return;
 			}
 
-			// If there is no xbrl document then the taxonomy has been loaded from a compiled taxonomy so linkbases will be loaded
-			if ( $taxonomy->xbrlDocument )
-			{
-				$taxonomy->loadLinkbases( $depth + 1, $processXsd );
-			}
+			$taxonomy->loadLinkbases( $depth + 1, $processXsd );
 
 			return $taxonomy;
 		};
 
-		/**
-		 * @var \XBRL $taxonomy
-		 */
 		$taxonomy = $processXsd( $depth );
 
 		if ( $taxonomy )
 		{
-			if ( $taxonomy->xbrlDocument && \XBRL::isValidating() )
+			if ( XBRL::isValidating() )
 			{
 				// Look for circular references in each of the extended links
 				foreach ( $taxonomy->context->presentationRoleRefs as $role => $roleRef )
@@ -1047,7 +1118,7 @@ class XBRL {
 
 		/**
 		 *
-		 * @var XBRL $taxonomy
+		 * @var XBRL_US_GAAP_2015 $taxonomy
 		 */
 		$taxonomy = new $classname();
 		$taxonomy->context =& $xbrl->context;
@@ -1055,7 +1126,7 @@ class XBRL {
 		$data = $store['schemas'][ $namespace ];
 		$taxonomy->fromStore( $data );
 
-		// Fixup the context when the taxonomy extends one or more base taxonomies
+		// Fixup the cotext when the taxonomy extends one or more base taxonomies
 		$context =& $taxonomy->context;
 		if ( ! empty( $store['context']['calculationRoleRefs'] ) )
 		{
@@ -1154,10 +1225,9 @@ class XBRL {
 	 * @param string $namespace The namespace of the extension taxonomy.
 	 * @param string $output_basename A name to use as the base for output files. 'xxx' will result in 'xxx.zip' and 'xxx.json' output files. If a name is not supplied, the basename of the schema file will be used.
 	 * @param string $compiledPath
-	 * @param bool $prettyPrint
 	 * @return boolean|XBRL <false, XBRL>
 	 */
-	public static function compileExtensionXSD( $taxonomy_file, $className, $namespace = null, $output_basename = null, $compiledPath = null, $prettyPrint = false )
+	public static function compileExtensionXSD( $taxonomy_file, $className, $namespace = null, $output_basename = null, $compiledPath = null )
 	{
 		if ( ! filter_var( $taxonomy_file, FILTER_VALIDATE_URL ) ) $taxonomy_file = str_replace( '\\', '/', $taxonomy_file );
 
@@ -1180,7 +1250,7 @@ class XBRL {
 			return isset( $tax->labels[ XBRL_Constants::$defaultLinkRole ] );
 		} );
 
-		// Now remove the existing labels, arcs and locators so the saved file only contains the extension components
+		// Now remove the existng labels, arcs and locators so the saved file only contains the extension components
 		if ( count( $labelTaxonomies ) == 0 )
 		{
 			XBRL_Log::getInstance()->err( "There are no labels in the extension taxonomy" );
@@ -1204,7 +1274,7 @@ class XBRL {
 				if ( count( $taxonomy->context->labels ) )
 				{
 					// Now there is a set of locators, arcs, labels and $labelsByHref to store in the context
-					$taxonomy->context->addLabels( $labelDetail['locators'], $labelDetail['arcs'], $labelDetail['labels'], $labelDetail['labelsByHref'], $roleRefsKey );
+					$this->context->addLabels( $labelDetail['locators'], $labelDetail['arcs'], $labelDetail['labels'], $labelDetail['labelsByHref'], $roleRefsKey );
 
 				}
 				else
@@ -1216,10 +1286,11 @@ class XBRL {
 
 		unset( $tax );
 
-		// Temporarily delete the other schemas
-		$typesJSON = null;
-		$previouslyImportedTaxonomies = $taxonomy->removePreviousTaxonomies( $typesJSON );
+		// Delete the other schemas
+		// $taxonomy->context->importedSchemas = array( $namespace => $taxonomy );
+		$taxonomy->context->importedSchemas = array_diff_key( $taxonomy->context->importedSchemas, $taxonomy->previouslyImportedSchemas );
 
+		// Remove types belonging to previouslyImportedSchemas
 		$types = $taxonomy->context->types;
 
 		foreach( $taxonomy->previouslyImportedSchemas as $namespace => $tax )
@@ -1229,19 +1300,7 @@ class XBRL {
 		}
 
 		// Create and save the JSON
-		$json = $taxonomy->toJSON( $taxonomy->baseTaxonomy, $prettyPrint );
-
-		// Now the JSON store has been created restore the imported schemas 
-		// and types or the taxonomy returned will not be complete
-		foreach( $previouslyImportedTaxonomies as $namespace => $previousTaxonomy )
-		{
-			$taxonomy->context->importedSchemas[ $namespace ] = $previousTaxonomy;
-		}
-
-		$types->mergeTypes( json_decode( $typesJSON, true ) );
-
-		// Make sure this exists
-		$taxonomy->context->previouslyImportedSchemaNamespaces = array_keys( $previouslyImportedTaxonomies );
+		$json = $taxonomy->toJSON( $taxonomy->baseTaxonomy );
 
 		file_put_contents( "$output_path/$output_basename.json", $json );
 		$zip = new ZipArchive();
@@ -1255,34 +1314,6 @@ class XBRL {
 		}
 
 		return $taxonomy;
-	}
-
-	/**
-	 * Removes the effect of previous taxonomies by removing the taxonomies from
-	 * the list of imported taxonomies and their types from the context
-	 * @param string $typesJSON
-	 * @return \XBRL[] An array of the removed taxonomies indexed by namespaces just like the context->importedSchemas array
-	 */
-	function removePreviousTaxonomies( &$typesJSON )
-	{
-		/** @var XBRL[] */
-		$previouslyImportedTaxonomies = array_filter( $this->context->importedSchemas, function( $importedTaxonomy ) 
-		{
-			return isset( $this->previouslyImportedSchemas[ $importedTaxonomy->getNamespace() ] );
-		} );
-		$this->context->importedSchemas = array_diff_key( $this->context->importedSchemas, $this->previouslyImportedSchemas );
-
-		// Remove types belonging to previouslyImportedSchemas but make a persistent copy first
-		$types = $this->context->types;
-		$typesJSON = json_encode( $types->toArray() );
-
-		foreach( $this->previouslyImportedSchemas as $namespace => $tax )
-		{
-			$count = $types->removeElementsTaxonomy( $tax );
-			// echo "$count elements removed for {$tax->getPrefix()}\n";
-		}
-
-		return $previouslyImportedTaxonomies;
 	}
 
 	/**
@@ -1606,7 +1637,6 @@ class XBRL {
 	private static function fixupForeignDefinitionsFromStore( $schemas )
 	{
 		$context = XBRL_Global::getInstance();
-		$mergedRoles = array();
 
 		foreach ( $schemas as $namespace => $data )
 		{
@@ -1657,10 +1687,9 @@ class XBRL {
 	 * @param string $taxonomy_file The name of the taxonomy file (xsd) to load
 	 * @param string $namespace The namespace of the taxonomy imported by the one being loaded that is to be returned.
 	 * @param string $output_basename A name to use as the base for output files. 'xxx' will result in 'xxx.zip' and 'xxx.json' output files
-	 * @param bool $prettyPrint (Default: false)
 	 * @return false|XBRL <false, XBRL>
 	 */
-	public static function compile( $taxonomy_file, $namespace = null, $output_basename = null, $prettyPrint = false )
+	public static function compile( $taxonomy_file, $namespace = null, $output_basename = null )
 	{
 		$xbrl = XBRL::load_taxonomy( $taxonomy_file, true );
 		if ( $xbrl === false )
@@ -1671,7 +1700,7 @@ class XBRL {
 
 		$taxonomy = $namespace === null ? $xbrl : $xbrl->getTaxonomyForNamespace( $namespace );
 
-		$xbrl->saveTaxonomy( $namespace, $output_basename, $prettyPrint );
+		$xbrl->saveTaxonomy( $namespace, $output_basename );
 
 		return $taxonomy;
 	}
@@ -1681,9 +1710,8 @@ class XBRL {
 	 * @param XBRL $taxonomy
 	 * @param string $namespace
 	 * @param string $output_basename
-	 * @param bool $prettyPrint
 	 */
-	public function saveTaxonomy( $namespace = null, $output_basename = null, $prettyPrint = false  )
+	public function saveTaxonomy( $namespace = null, $output_basename = null  )
 	{
 		if ( $output_basename === null )
 		{
@@ -1696,10 +1724,7 @@ class XBRL {
 		}
 		else
 		{
-			// Attempt to free memory
-			gc_collect_cycles();
-
-			$json = $this->toJSON( null, $prettyPrint );
+			$json = $this->toJSON( null, false );
 
 			file_put_contents( "$output_basename.json", $json );
 			$zip = new ZipArchive();
@@ -1868,18 +1893,7 @@ class XBRL {
 						{
 							$value = 0;
 						}
-						else
-						{
-							$locale = locale_get_default();
-							setlocale( LC_ALL, str_replace('_', '-', $this->context->locale ) );
-							$thousandsSep = localeconv()['thousands_sep'];
-							setlocale( LC_ALL, str_replace('_', '-', $locale ) );
 
-							if ( $thousandsSep && strpos( $value, $thousandsSep ) !== false )
-							{
-								$value = str_replace( $thousandsSep, '', $value );
-							}
-						}
 						// Lookup the format
 						$parts = isset( $element['format'] ) ? array_filter( explode( ':', $element['format'] ) ) : array();
 						if ( count( $parts ) > 1 )
@@ -2270,7 +2284,7 @@ class XBRL {
 	 *
 	 * @param array $nodes
 	 * @param string $path
-	 * @param Closure $callback
+	 * @param function $callback
 	 * @return boolean
 	 */
 	public function processNode( &$nodes, $path, $callback = null )
@@ -2345,7 +2359,7 @@ class XBRL {
 		$languages = array();
 		foreach ( $this->context->labels as $linkRole => $linkLabels )
 		{
-			foreach ( $linkLabels['labels'] ?? array() as $labelRole => $languageLabels )
+			foreach ( $linkLabels['labels'] as $labelRole => $languageLabels )
 			{
 				$languages = array_unique( array_merge( $languages, array_keys( $languageLabels ) ) );
 			}
@@ -2455,7 +2469,7 @@ class XBRL {
 	/**
 	 * Provide access to the roleTypes array
 	 * @param $href string|array The href is likely to come from a locator and can be the string or an array produced by parse_url.
-	 * @return array An array of roleTypes corresponding to the taxonomy implied by the $href
+	 * @return An array of roleTypes corresponding to the taxonomy implied by the $href
 	 */
 	public function getRoleTypes( $href = null )
 	{
@@ -2473,7 +2487,7 @@ class XBRL {
 	/**
 	 * Provide access to the arcroleTypes array
 	 * @param $href string|array The href is likely to come from a locator and can be the string or an array produced by parse_url.
-	 * @return array An array of arcroleTypes corresponding to the taxonomy implied by the $href
+	 * @return An array of arcroleTypes corresponding to the taxonomy implied by the $href
 	 */
 	public function getArcroleTypes( $href = null )
 	{
@@ -2510,7 +2524,7 @@ class XBRL {
 	 * @param array[string]|null $filter
 	 * @param boolean $sort
 	 * @param string $lang a locale to use when returning the text. Defaults to null to use the default.
-	 * @return array
+	 * @return void
 	 */
 	public function &getPresentationRoleRefs( $filter = array(), $sort = true, $lang = null )
 	{
@@ -2840,7 +2854,7 @@ class XBRL {
 	/**
 	 * Return the dimension references for the $role passed
 	 * @param string $roleRefsKey The role for which dimension should be retrieved
-	 * @return array An array of dimensions references
+	 * @return An array of dimensions references
 	 */
 	public function getDefinitionRoleDimensions( $roleRefsKey )
 	{
@@ -3120,9 +3134,9 @@ class XBRL {
 
 					// Flag to indicate whether further hypercubes should be accumulated
 					$collect = $targetRole
-						? ( $ELR
+						? $ELR
 							? ! isset( $rolePrimaryItems[ $id ]['roleUri'] ) || ( /* Target is in same ELR */ $toELR == $targetRole )
-							: true )
+							: true // $toELR == $targetRole
 						: true;
 
 					if ( ! $collect ) // P5 (e.g. 203 v-39)
@@ -3507,7 +3521,7 @@ class XBRL {
 
 			if ( $options['description'] )
 			{
-				$description = $this->getTaxonomyDescriptionForIdWithDefaults( $node[ $options['labelName'] ], null, $this->getDefaultLanguage() );
+				$description = $this->getTaxonomyDescriptionForIdWithDefaults( $node[ $options['labelName'] ], null, getDefaultLanguage() );
 				if ( $description !== false )
 				{
 					$index .= " '$description'";
@@ -3519,7 +3533,7 @@ class XBRL {
 
 			if ( isset( $options['callback'] ) )
 			{
-				if ( $callback_string = call_user_func( array( $this, $options['callback'] ), $node, $this ) )
+				if ( $callback_string = call_user_func( array( $this, $options['callback'] ), $node, $taxonomy ) )
 				{
 					$index .= " [$callback_string]";
 				}
@@ -3539,7 +3553,7 @@ class XBRL {
 	 * Creates a summary array containing only the labels of the presentation nodes of just one role or all roles.
 	 * Useful to pass through json_encode() to be able to visualize the hierarchy.
 	 * @param string|array $roleUri A roleUri to select the specific role hierarch(y|ise) to summarize.  If no argument is passed all role hierarchies will be summarized.
-	 * @return array An array of labels still organized into a hierarchy
+	 * @return An array of labels still organized into a hierarchy
 	 */
 	public function getPresentationSummary( $roleUri = null )
 	{
@@ -3560,7 +3574,7 @@ class XBRL {
 	 * Creates a summary array containing only the labels of the definition nodes of just one role or all roles.
 	 * Useful to pass through json_encode() to be able to visualize the hierarchy.
 	 * @param string|array $roleUri A roleUri to select the specific role hierarch(y|ise) to summarize. If no argument is passed all role hierarchies will be summarized.
-	 * @return array An array of labels still organized into a hierarchy
+	 * @return An array of labels still organized into a hierarchy
 	 */
 	public function getDefinitionSummary( $roleUri = null )
 	{
@@ -3579,7 +3593,7 @@ class XBRL {
 
 	/**
 	 * Returns true if the id is one for an arcrole type
-	 * @param mixed $id
+	 * @param unknown $id
 	 * @return  bool
 	 */
 	public function hasArcRoleTypeId( $id )
@@ -3657,9 +3671,6 @@ class XBRL {
 		$this->linkbaseIds			=& $data['linkbaseIds'];
 		$this->hasFormulas			=& $data['hasFormulas'];
 		$this->linkbases			=& $data['linkbases'];
-		$this->importedFiles		=& $data['importedFiles'];
-		$this->indirectNamespaces	=& $data['indirectNamespaces'];
-		$this->usedByNamespaces		=& $data['usedByNamespaces'];
 
 		if ( ( $key = array_search( $this->namespace, $this->documentPrefixes ) ) !== false )
 		{
@@ -3835,9 +3846,6 @@ class XBRL {
 			'hasFormulas'				=> $this->hasFormulas,
 			'linkbases'					=> $this->linkbases,
 			'foreignDefinitionRoleRefs'	=> &$this->foreignDefinitionRoleRefs,
-			'importedFiles'				=> &$this->importedFiles,
-			'indirectNamespaces'		=> &$this->indirectNamespaces,
-			'usedByNamespaces'			=> &$this->usedByNamespaces,
 		);
 
 		if ( $this->context->isExtensionTaxonomy() && $this->extraElements )
@@ -3856,7 +3864,7 @@ class XBRL {
 	 * @param SimpleXMLElement $xbrlDocument An instance of SimpleXMLElement representing the schema file XML content
 	 * @param string $targetNamespace The namespace of the taxonomy being loaded
 	 * @param int $depth (Optional) The nesting depth at which this taxonomy is being loaded
-	 * @param Closure $callback (Optional) A callback to process additional schema files
+	 * @param function $callback (Optional) A callback to process additional schema files
 	 * @return XBRL The newly created taxonomy instance
 	 */
 	public function loadSchema( $taxonomy_schema, $xbrlDocument, $targetNamespace, $depth = 0, $callback = null )
@@ -3967,24 +3975,22 @@ class XBRL {
 	/**
 	 * Initializes a specific schema
 	 * @param int $depth (Optional) The nesting depth at which this taxonomy is being loaded
-	 * @param Closure $callback (Optional) A callback to process additional schema files
+	 * @param function $callback (Optional) A callback to process additional schema files
 	 * @return XBRL The newly created taxonomy instance
 	 */
 	public function loadLinkbases( $depth = 0, $callback = null )
 	{
 		if ( $this->linkbasesProcessed ) return $this;
 
-		if ( $this->importedFiles )
-			foreach ( $this->importedFiles as $importedFile )
+		foreach ( $this->importedFiles as $importedFile )
+		{
+			$taxonomy = $this->getTaxonomyForXSD( $importedFile );
+			if ( ! $taxonomy )
 			{
-				// echo "$importedFile\n";
-				$taxonomy = $this->getTaxonomyForXSD( $importedFile );
-				if ( ! $taxonomy )
-				{
-					XBRL_Log::getInstance()->warning( "The taxonomy for '$importedFile' cannot be found." );
-				}
-				$taxonomy->loadLinkbases( $depth + 1 );
+				XBRL_Log::getInstance()->warning( "The taxonomy for '$importedFile' cannot be found." );
 			}
+			$taxonomy->loadLinkbases( $depth + 1 );
+		}
 
 		$xsd = $this->getTaxonomyXSD();
 		// echo strftime('%b %d %H:%M:%S ') . "Processing linkbases: $xsd\n";
@@ -4219,7 +4225,7 @@ class XBRL {
 	/**
 	 * Gets an element based on its name
 	 * @param string $name The name of the element to return
-	 * @return array An element array or false
+	 * @return An element array or false
 	 */
 	public function &getElementByName( $name )
 	{
@@ -4314,12 +4320,12 @@ class XBRL {
 
 	/**
 	 * Get the taxonomy that has the prefix used in the QName
-	 * @param string|QName $prefix
+	 * @param string|\QName $prefix
 	 * @return XBRL
 	 */
 	public function getTaxonomyForQName( $qname )
 	{
-		$prefix = $qname instanceof \lyquidity\xml\QName
+		$prefix = $qname instanceof \QName
 			? $qname->localName
 			: strstr( $qname, ":", true );
 		return $this->getTaxonomyForPrefix( $prefix );
@@ -4853,12 +4859,12 @@ class XBRL {
 		$linkRoleType = $arcroleTypes[ $arcroleType ];
 		if ( ! isset( $linkRoleType[ $arcrole ] ) )
 		{
-			$this->log()->warning( "The roleURI of the arcrole type '$arcrole' does not exist." );
+			$this->log()->warning( "The roleURI of the arcrole type '$arcroleUri' does not exist." );
 			return false;
 		}
 
 		$link = $linkRoleType[ $arcrole ];
-		return isset( $link['definition'] ) ? trim( $link['definition'] ) : $link['roleURI'];
+		return isset( $link['definition'] ) ? trim( $link['definition'] ) : $role['roleURI'];
 	}
 
 	/**
@@ -4925,8 +4931,6 @@ class XBRL {
 		{
 			// Apply the filter if one is provided
 			if ( count( $filter ) && ! isset( $filter[ strtolower( $refKey ) ] ) ) continue;
-
-			if ( ! isset( $ref['calculations'] ) || ! count( $ref['calculations'] ) ) continue;
 
 			$result[ $refKey ] = $this->context->calculationRoleRefs[ $refKey ];
 
@@ -5319,25 +5323,11 @@ class XBRL {
 								$labelsByHref[ $parts[0] ] = array();
 							}
 
-							if ( is_array( $items['id'] ) )
-							{
-								foreach( $items['id'] as $id )
-								{
-									$labelsByHref[ $parts[0] ][ $id ][] = array(
-										'role'	=> $roleKey,
-										'label'	=> $labelLabel,
-										'lang'	=> $lang,
-									);
-								}
-							}
-							else
-							{
-								$labelsByHref[ $parts[0] ][ $items['id'] ][] = array(
-									'role'	=> $roleKey,
-									'label'	=> $labelLabel,
-									'lang'	=> $lang,
-								);
-							}
+							$labelsByHref[ $parts[0] ][ $items['id'] ][] = array(
+								'role'	=> $roleKey,
+								'label'	=> $labelLabel,
+								'lang'	=> $lang,
+							);
 						}
 					}
 				}
@@ -5543,7 +5533,7 @@ class XBRL {
 						if ( ! isset( $hypercube['parents'][ $key ] ) )
 						{
 							// Should never happen
-							$this->log()->warning( "The parents of hypercube '$hypercubeId' do not include primary item '$key' and this should never happen" );
+							$this->log()->warning( "The parents of hypercube '$hypercubeId' do not include primary item '$primaryItemId' and this should never happen" );
 							continue;
 						}
 
@@ -5754,9 +5744,6 @@ class XBRL {
 	 */
 	private function processLinkbases()
 	{
-		// If the document does not exist the taxonomy has been loaded from a comiled file
-		if ( ! $this->xbrlDocument ) return;
-	
 		// Begin processing any in the appinfo element
 		$this->xbrlDocument->registerXPathNamespace( 'link', XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_LINK ] );
 		$this->xbrlDocument->registerXPathNamespace( 'xlink', XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_XLINK ] );
@@ -5980,7 +5967,7 @@ class XBRL {
 	public function getAllArcRoleTypes()
 	{
 		// Gather all arcrole types
-		return array_reduce( $this->context->importedSchemas, function( $carry, $taxonomy )
+		return array_reduce( $this->context->importedSchemas, function( $carry, &$taxonomy )
 		{
 			$arts = $taxonomy->getArcroleTypes();
 			$taxonomy->normalizeUsedOn( $arts, $taxonomy );
@@ -6021,7 +6008,7 @@ class XBRL {
 	public function getAllDimensions()
 	{
 		// Gather all arcrole types
-		return array_reduce( $this->context->importedSchemas, function( $carry, /** @var XBRL $taxonomy */ $taxonomy )
+		return array_reduce( $this->context->importedSchemas, function( $carry, /** @var XBRL $taxonomy */ &$taxonomy )
 		{
 			$dimensionNames = $taxonomy->getElementDimensions();
 			$dimensionElements = array();
@@ -6047,7 +6034,7 @@ class XBRL {
 	public function getAllLinkbaseRoleTypes()
 	{
 		// Gather all role types
-		return array_reduce( $this->context->importedSchemas, function( $carry, /** @var XBRL $taxonomy */ $taxonomy )
+		return array_reduce( $this->context->importedSchemas, function( $carry, /** @var XBRL $taxonomy */ &$taxonomy )
 		{
 			$lrts = $taxonomy->getLinkbaseRoleTypes();
 
@@ -6076,7 +6063,7 @@ class XBRL {
 	public function getAllRoleTypes()
 	{
 		// Gather all role types
-		return array_reduce( $this->context->importedSchemas, function( $carry, /** @var XBRL $taxonomy */ $taxonomy )
+		return array_reduce( $this->context->importedSchemas, function( $carry, /** @var XBRL $taxonomy */ &$taxonomy )
 		{
 			$rts = $taxonomy->getRoleTypes();
 			$taxonomy->normalizeUsedOn( $rts, $taxonomy );
@@ -6147,6 +6134,7 @@ class XBRL {
 
 		// TODO Change this to use SchemaTypes::resolve_path
 		$path = XBRL::resolve_path( $linkbaseRef['href'], $linkbaseRef['base'] . $xml_basename );
+		// $path = str_replace( "//", "/", pathinfo( $linkbaseRef['href'], PATHINFO_DIRNAME ) . "/" . $linkbaseRef['base'] . $xml_basename );
 		$xml = XBRL::getXml( $path, $this->context );
 		if ( $xml === null )
 		{
@@ -6208,8 +6196,6 @@ class XBRL {
 						else if ( ! isset( XBRL_Global::$taxonomiesToIgnore[ $schemaLocation ] ) )
 						{
 							$result = XBRL::withTaxonomy( $schemaLocation, true );
-							$this->indirectNamespaces[] = $result->getNamespace();
-							$result->AddUserNamespace( $this );
 						}
 					}
 
@@ -6279,14 +6265,12 @@ class XBRL {
 				$href = XBRL::resolve_path( pathinfo( $linkbaseRef['href'], PATHINFO_DIRNAME ), $parts[0] );
 				XBRL::withTaxonomy( $href, true ); // BMS 2017-04-03 Should probably use XBRL::WithTaxonomy
 				$taxonomy = $this->getTaxonomyForXSD( basename( $parts[0] ) );
+
 				if ( ! $taxonomy )
 				{
 					$this->log()->warning( "The schema ('{$parts[0]}') specified arcrole '$arcroleUri' does not exist.  The linkbase content that makes use of elements defined in this schema cannot be read." );
 					continue;
 				}
-
-				$this->indirectNamespaces[] = $taxonomy->getNamespace();
-				$taxonomy->AddUserNamespace( $this );
 
 				// Re-build the lists in case there are new roles and arcroles
 				$arcroleTypes = $this->getAllArcRoleTypes();
@@ -6393,15 +6377,13 @@ class XBRL {
 				// $href = XBRL::resolve_path( $linkbaseRef['href'], $parts['path'] );
 				$href = XBRL::resolve_path( str_replace( "//", "/", pathinfo( $linkbaseRef['href'], PATHINFO_DIRNAME ) . "/" ), $parts[0] );
 				XBRL::withTaxonomy( $href, true ); // BMS 2017-04-03 Should probably use XBRL::WithTaxonomy
-				$this->indirectNamespaces[] = $taxonomy->getNamespace();
+				$taxonomy = $this->getTaxonomyForXSD( basename( $parts[0] ) );
+
 				if ( ! $taxonomy )
 				{
 					$this->log()->warning( "The schema ('{$parts[0]}') specified arcrole '$arcroleUri' does not exist.  The linkbase content that makes use of elements defined in this schema cannot be read." );
 					continue;
 				}
-
-				$taxonomy = $this->getTaxonomyForXSD( basename( $parts[0] ) );
-				$taxonomy->AddUserNamespace( $this );
 
 				// Re-build the lists in case there are new roles and arcroles
 				$arcroleTypes = $this->getAllArcRoleTypes();
@@ -6496,10 +6478,9 @@ class XBRL {
 	 * @param string $searchLabel
 	 * @param string $searchLang
 	 * @param string $linkPath
-	 * @param string $linkbase
-	 * @return boolean|mixed[][]
+	 * @return boolean|unknown[][]|mixed[][]
 	 */
-	public function getGenericLabel( $searchRole, $searchLabel = null, $searchLang = null, $linkPath = null, $linkbase = null )
+	public function getGenericLabel( $searchRole, $searchLabel = null, $searchLang = null, $linkPath = null )
 	{
 		if ( ! isset( $this->genericRoles['roles'] ) ) return false;
 
@@ -6507,10 +6488,8 @@ class XBRL {
 
 		if ( ! isset( $this->genericRoles['roles'][ $searchRole ]['labels'] ) ) return $results;
 
-		foreach ( $this->genericRoles['roles'][ $searchRole ]['labels'] as $lb => $labels )
+		foreach ( $this->genericRoles['roles'][ $searchRole ]['labels'] as $linkbase => $labels )
 		{
-			if ( ! is_null( $linkbase ) && $lb != $linkbase ) continue;
-
 			foreach ( $labels as $label => $langs )
 			{
 				if ( ! is_null( $searchLabel ) && $label != $searchLabel ) continue;
@@ -6520,7 +6499,7 @@ class XBRL {
 					if ( ! is_null( $searchLang ) && $lang != $searchLang ) continue;
 
 					$results[ $label ] = array(
-						'linkbase' => $lb,
+						'linkbase' => $linkbase,
 						'label' => $label,
 						'lang' => $lang,
 						'text' => isset( $text[ $linkPath ] ) ? $text[ $linkPath] : reset( $text ),
@@ -6543,7 +6522,7 @@ class XBRL {
 	 * @param string|null $resourceSubType	This value will be a valid sub type for the resource type passed in $resourceType
 	 * 									such as 'fact' for 'variable' or 'formula' for 'variableset'
 	 * 									If null then any resource of the type $resourceType will be returned.
-	 * @param Closure $callback	(optional) A callback to process results (see below)
+	 * @param Function $callback	(optional) A callback to process results (see below)
 	 * @param string $roleUri		(optional)
 	 * @param string $label			(optional)
 	 * @param string $linkbase		(optional) Filter based on the linkbase in which the resource should appear
@@ -6630,175 +6609,6 @@ class XBRL {
 	}
 
 	/**
-	 * Returns a list of the concepts used in formulas defined in taxonomies
-	 * @param string|array $namespace A taxonomy namespace or an array of namespaces to restrict the query
-	 * @return QName[]
-	 */
-	function getFormulaConcepts( $namespace = null )
-	{
-		// This is an array with elements 'qname' and 'usedBy' indexed by the clark notation of the qname.  'usedBy' is a reference into $variableSets
-		$concepts = array();
-		/**
-		 * Is a list of elements that includes 'test', 'text' and 'label' where:
-		 *	test: the test defined on an assertion
-		 *	text: a description provided with the assertion definition
-		 *	label: the label of the respective assertion
-		 * @var array $variableSets
-		 */
-		$variableSets = array();
-
-		$formulas = new \XBRL_Formulas();
-		if ( $formulas->processFormulasForTaxonomy( $this, null, null, null, false ) )
-		{
-			$variableSetIndex = array();
-			$concepts = array();
-			foreach( $formulas->getVariableSets() as $variableSetLabel => $variableSets )
-			{
-				foreach( $variableSets as $variableSet )
-				{
-					/** @var VariableSet $variableSet */
-					$key = "{$variableSet->linkbase}/{$variableSet->id}";
-					if ( ! isset( $variableSetIndex[ $key ] ) )
-					{
-						$variableSetIndex[ $key ] = array(
-							'test' => $variableSet->test,
-							'text' => array( $variableSet->description ),
-							'label' => $variableSet->label
-						);
-					}
-
-					foreach( $variableSet->variablesByQName as $qname => $variable )
-					{
-						foreach( $variable->filters as $filter )
-						{
-							/** @var ConceptName $filter */
-							if ( ! ( $filter instanceof ConceptName ) ) continue;
-	
-							foreach( $filter->qnames as $clark )
-							{
-								if ( isset( $concepts[ $clark ] ) ) 
-								{
-									$concepts[ $clark ]['usedBy'][] = $key;
-									continue;
-								}
-								$qname = qname( $clark, $this->getDocumentNamespaces() );
-								$concepts[ $clark ] = array(
-									'qname' => $qname,
-									'usedBy' => array( $key )
-								);
-							}
-						}
-					}
-				}
-			}
-		}
-	
-		return array( $concepts, $variableSetIndex );
-
-		// The code below yields thesame results a bit quicker but is more fragile and it's less obvious what's going on.
-		foreach( $this->context->importedSchemas as $schemaNamespace => $schema )
-		{
-			/** @var \XBRL $schema */
-
-			if ( $namespace )
-			{
-				if ( is_array( $namespace ) )
-				{
-					if ( array_search( $schemaNamespace, $namespace ) === false ) continue;
-				}
-				else if ( $namespace != $schemaNamespace ) continue;
-			}
-
-			if ( ! isset( $schema->genericRoles ) || ! count( $schema->genericRoles ) ) continue;
-
-			$link =& $schema->genericRoles['roles'][ \XBRL_Constants::$defaultLinkRole ];
-			$linkArcRoles = $link['arcroles'];
-			$filterArcs =& $linkArcRoles[ \XBRL_Constants::$arcRoleVariableFilter ]['links'][ \XBRL_Constants::$genLink ]['arcelements'][ \XBRL_Constants::$linkVariableFilterArc ]['arcs'];
-			$variableArcs =& $linkArcRoles[ \XBRL_Constants::$arcRoleVariableSet ]['links'][ \XBRL_Constants::$genLink ]['arcelements'][ \XBRL_Constants::$linkVariableArc ]['arcs'];
-			// $labels =& $schema->genericRoles['roles'][ \XBRL_Constants::$genericRoleLabel ]['labels'];
-			$labelArcs =& $linkArcRoles[ \XBRL_Constants::$genericElementLabel ]['links'][ \XBRL_Constants::$genLink ]['arcelements'][ \XBRL_Constants::$genArc ]['arcs'];
-
-			foreach ( $filterArcs as $variableLabel => $filters )
-			{
-				foreach ( $filters as $filter => $filterDetails )
-				{
-					foreach ( $filterDetails as $filterDetail )
-					{
-						$fromLinkbase = $filterDetail['fromlinkbase'];
-						$thisVariableSets = array();
-
-						foreach( $link['resources'][ $fromLinkbase ] as $variables )
-						{
-							foreach( $variables as $variable )
-							{
-								if ( $variable['type'] == 'variableset' )
-								{
-									$labels = array();
-									foreach( $labelArcs[ $variable['label'] ] as $variableArcLabel => $variableArcLabels )
-									{
-										/** @var string|false */
-										$variableArcPath = false;
-
-										foreach( $variableArcLabels as $varibleArc )
-										{
-											if ( $varibleArc['linkbase'] == $fromLinkbase )
-											{
-												$variableArcPath = $variable['path'];
-												break;
-											}
-										}
-										$label = $schema->getGenericLabel( XBRL_Constants::$genericRoleLabel, $variableArcLabel, 'en', $variableArcPath, $fromLinkbase );
-										$labels[] = trim( $label[ $variableArcLabel ]['text'] ?? '' );
-										unset( $label );
-									}
-
-									$key = "$fromLinkbase/{$variable['id']}";
-									$thisVariableSets[ $key ] = $variableSets[ $key ] = array(
-										'test' => $variable['test'],
-										'text' => $labels,
-										'label' => $variable['label']
-									);
-									unset( $key );
-								}
-							}
-						}
-
-						// Add the qname of any ConceptName filters to the list of $concepts
-						foreach ( $link['resources'][ $fromLinkbase ][ $filter ] as $resourceFilterDetail )
-						{
-							foreach ( $resourceFilterDetail['qnames'] as $qname )
-							{
-								// if ( array_search( $qname, $concepts ) !== false ) continue;
-								if ( ! isset( $concepts[ $qname ] ) )
-								{
-									$concepts[ $qname ] = array( 'qname' => qname( $qname, $schema->getDocumentNamespaces() ), 'usedBy' => array() );
-								}
-
-								foreach( $thisVariableSets as $variableSetLabel => $variableSet )
-								{
-									$label = $variableSet['label'];
-									if ( isset( $variableArcs[ $label ][ $variableLabel ] ) )
-									{
-										$concepts[ $qname ][ 'usedBy' ][] = $variableSetLabel;
-									}
-								}
-
-								unset( $variableSetLabel );
-								unset( $variableSet );
-							}
-							unset( $qname );
-						}
-						unset( $thisVariableSets );
-						unset( $resourceFilterDetail );
-					}
-				}
-			}
-		}
-
-		return array( $concepts, $variableSets );
-	}
-
-	/**
 	 * Get an arc for an arcrole and an optional resource.  If the label of a source resource
 	 * is not supplied all resources associated with an arc role are returned
 	 * @param string $arcRole
@@ -6850,11 +6660,11 @@ class XBRL {
 
 	/**
 	 * Process custom links and populate the $this->context->customRoleRefs variable with locators, arcs and links
-	 * @param QName[] $links A list of QName values that are valid link names
-	 * @param QName[] $roleTypes
-	 * @param QName[] $arcroleTypes
-	 * @param string[] $roleRefs
-	 * @param string[] $arcroleRefs
+	 * @param array[QName] $links A list of QName values that are valid link names
+	 * @param array[QName] $roleTypes
+	 * @param array[QName] $arcroleTypes
+	 * @param array[string] $roleRefs
+	 * @param array[string] $arcroleRefs
 	 * @param SimpleXMLElement $linkbase // The linkbase root element
 	 * @param array $linkbaseRef
 	 * @return boolean
@@ -7241,7 +7051,6 @@ class XBRL {
 				{
 					foreach ( $childElement->children() as $child )
 					{
-						/** @var \SimpleXMLElement $child */
 						$content[] = $child->asXML();
 					}
 				}
@@ -8849,7 +8658,7 @@ class XBRL {
 
 							/**
 							 * @param string $fromId A list of 'from' nodes.  These can be used to recursively follow the arc trail
-							 * @var Closure $detectCycle
+							 * @var function $detectCycle
 							 */
 							$detectCycle = function( $fromId, $parents ) use( &$detectCycle, &$arcs, &$toList, &$arcroleTypes )
 							{
@@ -9182,31 +8991,29 @@ class XBRL {
 
 						// echo "Essence Alias\n";
 
-						$taxonomy = $this->getTaxonomyForXSD( $from );
-						$fromElement = $taxonomy ? $taxonomy->getElementById( $from ) : false;
-						$taxonomy = $this->getTaxonomyForXSD( $to );
-						$toElement = $taxonomy ? $taxonomy->getElementById( $to ) : false;
+						$fromElement = $this->getElementById( $from );
+						$toElement = $this->getElementById( $to );
 
-						if ( ( $fromElement && ! $toElement ) || ( ! $fromElement && $toElement ) || $fromElement['periodType'] != $toElement['periodType'] )
+						if ( $fromElement['periodType'] != $toElement['periodType'] )
 						{
 							$this->log()->taxonomy_validation( "5.2.6.2.2", "The essence type pair do not have the same period type",
 								array(
 									'from' => $from,
 									'to' => $to,
-									'from periodType' => $fromElement ? $fromElement['periodType'] : 'unknown',
-									'to periodType' => $toElement ? $toElement['periodType'] : 'unknown',
+									'from periodType' => $fromElement['periodType'],
+									'to periodType' => $toElement['periodType'],
 								)
 							);
 						}
 
-						if ( ( $fromElement && ! $toElement ) || ( ! $fromElement && $toElement ) || $fromElement['type'] != $toElement['type'] )
+						if ( $fromElement['type'] != $toElement['type'] )
 						{
 							$this->log()->taxonomy_validation( "5.2.6.2.2", "The essence type pair do not have the same type",
 								array(
 									'from' => $from,
 									'to' => $to,
-									'from type' => $fromElement ? $fromElement['type'] : 'unknown',
-									'to type' => $toElement ? $toElement['type'] : 'unknown',
+									'from type' => $fromElement['type'],
+									'to type' => $toElement['type'],
 								)
 							);
 						}
@@ -9322,7 +9129,7 @@ class XBRL {
 						if ( XBRL::isValidating() )
 						{
 							$taxonomy = $this->getTaxonomyForXSD( $from );
-							$element = $taxonomy->getElementByID( $from );
+							$element = $taxonomy->getElementByID( trim( strstr( $from, '#' ), '#' ) );
 							if ( $element )
 							{
 								if ( ! XBRL_Types::getInstance()->resolvesToBaseType( $element['type'], array( 'xs:decimal' ) ) )
@@ -9339,7 +9146,7 @@ class XBRL {
 							}
 
 							$taxonomy = $this->getTaxonomyForXSD( $to );
-							$element = $taxonomy->getElementByID( $to );
+							$element = $taxonomy->getElementByID( trim( strstr( $to, '#' ), '#' ) );
 							if ( $element )
 							{
 								if ( ! XBRL_Types::getInstance()->resolvesToBaseType( $element['type'], array( 'xs:decimal' ) ) )
@@ -9589,7 +9396,7 @@ class XBRL {
 	 * @param SimpleXMLElement $link
 	 * @param string $linkType The base name of the link such as 'calculation'
 	 * @param string $href The name of the document containing $link
-	 * @param Closure $callback The Callback will be passed the locator $label, $xsd, $fragment
+	 * @param function $callback The Callback will be passed the locator $label, $xsd, $fragment
 	 * @return array
 	 */
 	private function retrieveLocators( $link, $linkType, $href, $callback = null )
@@ -9744,8 +9551,6 @@ class XBRL {
 								$this->log()->taxonomy_validation( "3.2", "The locator reference is to an element that is not part of the DTS", array( 'href' => $locatorHref ) );
 								continue;
 							}
-							$this->indirectNamespaces[] = $taxonomy->getNamespace();
-							$taxonomy->AddUserNamespace( $this );
 						}
 					}
 
@@ -9781,7 +9586,7 @@ class XBRL {
 	 * If validating and there are validation errors then conformance warning messages will be emitted
 	 * @param string $fragment
 	 * @param SimpleXMLElement $xml
-	 * @param XBRL $taxonomy An XBRL instance will be passed if the fragment MUST be a concept
+	 * @param XBRL $taxonomy An XBR instance will be passed if the fragment MUST be a concept
 	 * @param string $name (by reference) Will store the name attribtute
 	 * @param DOMNode|string|null $domNode Returns the node pointed to by the fragment if relevant or null
 	 * @return true if the fragment is an XPointer (whether valid or not)
@@ -10305,8 +10110,6 @@ class XBRL {
 
 			$this->context->calculationRoleRefs[ XBRL_Constants::$defaultLinkRole ] = array(
 				'type' => 'simple',
-				// Why is this being done?  It can lead to an invalid url as happens when compiling a fac
-				// where the linkbases are in the relations folder and the schema in the reporting styles folder
 				'href' => XBRL::resolve_path( $linkbaseRef['href'], $this->getTaxonomyXSD() ), // $linkbaseRef['href'],
 				'roleUri' => $roleUri,
 			);
@@ -10498,6 +10301,7 @@ class XBRL {
 				$xsd = $this->resolve_path( $linkbaseRef['href'], $xsd );
 				// If the taxonomy is not already loaded, try loading it.
 				$taxonomy = $xsd ? XBRL::withTaxonomy( $xsd ) : null;
+
 				if ( ! $taxonomy )
 				{
 					$this->log()->taxonomy_validation( "5.1.3.4", "Taxonomy for arcroleRef href does not exist",
@@ -10509,8 +10313,6 @@ class XBRL {
 
 					continue;
 				}
-				$this->indirectNamespaces[] = $taxonomy->getNamespace();
-				$taxonomy->AddUserNamespace( $this );
 			}
 
 			// This role MUST be defined as 'usedOn' in the linkbaseRef for link:definitionArc
@@ -10584,6 +10386,7 @@ class XBRL {
 				$xsd = $this->resolve_path( $linkbaseRef['href'], $roleRefHref );
 
 				$taxonomy = XBRL::withTaxonomy( strpos( $xsd, '#' ) ? strstr( $xsd, '#', true ) : $xsd );
+
 				$taxonomy = $this->getTaxonomyForXSD( $roleRefHref );
 				if ( ! $taxonomy )
 				{
@@ -10598,8 +10401,6 @@ class XBRL {
 					}
 					continue;
 				}
-				$this->indirectNamespaces[] = $taxonomy->getNamespace();
-				$taxonomy->AddUserNamespace( $this );
 			}
 
 			// This role MUST be defined as 'usedOn' in the linkbaseRef for link:definitionLink IN THE TAXONOMY POINTED TO BY THE HREF
@@ -11640,7 +11441,6 @@ class XBRL {
 								{
 									foreach ( $memberNodes as $key => $memberNode )
 									{
-										if ( isset ( $memberNode['arcrole'] ) )
 										if ( $memberNode['arcrole'] == XBRL_Constants::$arcRoleHypercubeDimension ||
 											 $memberNode['arcrole'] == XBRL_Constants::$arcRoleDimensionDomain )
 										{
@@ -11735,13 +11535,11 @@ class XBRL {
 						$this->log()->warning( "Sorting: can't find parent $label" );
 					}
 
-					$aOrder = $a['parents'][ $label ]['order'] ?? 0;
-					$bOrder = $b['parents'][ $label ]['order'] ?? 0;
-					if ( $aOrder == $bOrder )
+					if ( $a['parents'][ $label ]['order'] == $b['parents'][ $label ]['order'] )
 					{
-						return strcmp( $a['label'], $b['label'] ); // If the orders are the same order by label
+						return strcmp( $a['label'], $b['label'] );
 					}
-					return $aOrder < $bOrder ? -1 : 1;
+					return ( $a['parents'][ $label ]['order'] < $b['parents'][ $label ]['order'] ) ? -1 : 1;
 				} );
 			}
 
@@ -11750,7 +11548,7 @@ class XBRL {
 			//	return ! isset( $node['parents'] );
 			// });
 
-			$hierarchy = array_filter( $nodes, function( $node ) use( $hypercubes ) {
+			$hierarchy = array_filter( $nodes, function( &$node ) use( $hypercubes ) {
 				return ! isset( $node['parents'] ) && ! isset( $hypercubes[ $node['label'] ] );
 			});
 
@@ -12092,6 +11890,7 @@ class XBRL {
 				$xsd = $this->resolve_path( $linkbaseRef['href'], $xsd );
 				// If the taxonomy is not already loaded, try loading it.
 				$taxonomy = $xsd ? XBRL::withTaxonomy( $xsd ) : null;
+
 				if ( ! $taxonomy )
 				{
 					$this->log()->taxonomy_validation( "5.1.3.4", "Taxonomy for arcroleRef href does not exist",
@@ -12102,8 +11901,6 @@ class XBRL {
 					);
 					continue;
 				}
-				$this->indirectNamespaces[] = $taxonomy->getNamespace();
-				$taxonomy->AddUserNamespace( $this );
 			}
 
 			// This role MUST be defined as 'usedOn' in the linkbaseRef for link:referenceArc
@@ -12175,6 +11972,7 @@ class XBRL {
 				$xsd = $this->resolve_path( $this->getSchemaLocation(), $roleRefHref );
 
 				$taxonomy = XBRL::withTaxonomy( strpos( $xsd, '#' ) ? strstr( $xsd, '#', true ) : $xsd );
+
 				$taxonomy = $this->getTaxonomyForXSD( $roleRefHref );
 				if ( ! $taxonomy )
 				{
@@ -12189,8 +11987,6 @@ class XBRL {
 					}
 					continue;
 				}
-				$this->indirectNamespaces[] = $taxonomy->getNamespace();
-				$taxonomy->AddUserNamespace( $this );
 			}
 
 			// This role MUST be defined as 'usedOn' in the linkbaseRef for link:referenceArc IN THE TAXONOMY POINTED TO BY THE HREF
@@ -12313,8 +12109,8 @@ class XBRL {
 	 */
 	public function __toString()
 	{
-		return $this->schemaLocation
-		? "$this->schemaLocation"
+		return $this->$schemaLocation
+		? "$this->$schemaLocation"
 		: "<unknown>";
 	}
 
@@ -12323,9 +12119,9 @@ class XBRL {
 	 * @param array $nodes An array of nodes, ones that have a 'children' element
 	 * @param array $paths An array of paths accumulated to date.  Defaults to an empty array.
 	 * @param string $path The node path of the parent.  Defaults to an empty string
-	 * @return array An array indexed by node labels of paths to each node
+	 * @return An array indexed by node labels of paths to each node
 	 */
-	public function createHierarchyPaths( $nodes, $paths = array(), $path = "" )
+	private function createHierarchyPaths( $nodes, $paths = array(), $path = "" )
 	{
 		foreach ( $nodes as $nodeKey => $node )
 		{
@@ -12383,7 +12179,7 @@ class XBRL {
 	 *   priority   The priority (default 'optional')
 	 *   use		Default 'optional'
 	 *
-	 * @param array $linkbaseRef Is a linkbaseRef array
+	 * @param $linkbaseRef Is a linkbaseRef array
 	 * @return void
 	 */
 	public function processPresentationLinkbase( $linkbaseRef )
@@ -12496,6 +12292,7 @@ class XBRL {
 				$xsd = $this->resolve_path( $linkbaseRef['href'], $xsd );
 				// If the taxonomy is not already loaded, try loading it.
 				$taxonomy = $xsd ? XBRL::withTaxonomy( $xsd ) : null;
+
 				if ( ! $taxonomy )
 				{
 					$this->log()->taxonomy_validation( "5.1.3.4", "Taxonomy for arcroleRef href does not exist",
@@ -12506,8 +12303,6 @@ class XBRL {
 					);
 					continue;
 				}
-				$this->indirectNamespaces[] = $taxonomy->getNamespace();
-				$taxonomy->AddUserNamespace( $this );
 			}
 
 			// This role MUST be defined as 'usedOn' in the linkbaseRef for link:definitionArc
@@ -13229,10 +13024,10 @@ class XBRL {
 						return 0;
 					}
 
-					// if ( ! isset( $a['parents'][ $label ]['order'] ) || ! isset( $b['parents'][ $label ]['order'] ) )
-					// {
-					//	$x = 1;
-					// }
+					if ( ! isset( $a['parents'][ $label ]['order'] ) || ! isset( $b['parents'][ $label ]['order'] ) )
+					{
+						$x = 1;
+					}
 
 					if ( $a['parents'][ $label ]['order'] == $b['parents'][ $label ]['order'] )
 					{
@@ -13285,7 +13080,7 @@ class XBRL {
 				return $new_nodes;
 			}; // $realizeHierarchy
 
-			$hierarchy = array_filter( $nodes, function( $node ) {
+			$hierarchy = array_filter( $nodes, function( &$node ) {
 				return ! isset( $node['parents'] ) || count( $node['parents'] ) === 0;
 			});
 
@@ -13308,8 +13103,13 @@ class XBRL {
 						if ( isset( $nodes[ $node['label'] ]['children'][ $childNodeKey ] ) )
 						{
 							// Need to compare the priority of the existing node with the priority of the new node
-							$currentPriority = $nodes[ $node['label'] ]['children'][ $childNodeKey ]['priority'] ?? 0;
-							$newPriority = $childNode['priority'] ?? 0;
+							$currentPriority = isset( $nodes[ $node['label'] ]['children'][ $childNodeKey ]['priority'] )
+								? $nodes[ $node['label'] ]['children'][ $childNodeKey ]['priority']
+								: 0;
+
+							$newPriority = isset( $childNode['priority'] )
+								? $childNode['priority']
+								: 0;
 
 							// If the new priority is the same or greater than the existing priority then it needs to be removed
 							if ( $newPriority >= $currentPriority )
@@ -13429,7 +13229,7 @@ class XBRL {
 	 * @param string $callback	A function called for each node.  The node and id are passed.
 	 * 							If the function returns false the processing will stop
 	 */
-	public static function processAllNodes( &$nodes, $callback = false )
+	public function processAllNodes( &$nodes, $callback = false )
 	{
 		if ( ! $callback ) return; // Nothing to do except waste time
 
@@ -13450,10 +13250,10 @@ class XBRL {
 	 * @param array $nodes		 		A root node collection in which to find $node
 	 * @param array $paths		 		An array of path indices
 	 * @param string $node		 		A label representing the node to find
-	 * @param Closure $successCallback	A function to call when a node is located.
+	 * @param function $successCallback	A function to call when a node is located.
 	 * 							 		Will pass $node, the path to $node and the parent key of $node.
 	 * 							 		The parent key will be false if $node is the root.
-	 * @param Closure $failureCallback Called if $node is not found in $nodes.  Passes $path.
+	 * @param function $failureCallback Called if $node is not found in $nodes.  Passes $path.
 	 * @return boolean|array	 		An array representing the the node of $node from the $nodes hierarchy
 	 */
 	public function processNodeByPath( &$nodes, &$paths, $node, $successCallback = false, $failureCallback = false )
@@ -13562,7 +13362,7 @@ class XBRL {
 	 * @return false
 	 */
 	private function reportMissingLocatorAttribute( $section, $attributeName, $linkbase ) {
-		$this->reportMissingXLinkAttribute( $section, "Locators MUST include required XLink attributes", $attributeName, $linkbase );
+		$this->log()->reportMissingXLinkAttribute( $section, "Locators MUST include required XLink attributes", $attributeName, $linkbase );
 		return false;
 	}
 
@@ -13660,7 +13460,7 @@ class XBRL {
 	 */
 	private function reportXLinkLocatorTypeError( $section, $linkbase, $value )
 	{
-		$this->reportXLinkTypeError( $section, "The content of the locator type MUST be 'locator'", $linkbase, $value );
+		$this->log()->reportXLinkTypeError( $section, "The content of the locator type MUST be 'locator'", $linkbase, $value );
 		return false;
 	}
 
@@ -13674,7 +13474,7 @@ class XBRL {
 	 */
 	private function reportXLinkResourceTypeError( $section, $linkbase, $value )
 	{
-		$this->reportXLinkTypeError( $section, "The content of the locator type MUST be 'resource'", $linkbase, $value );
+		$this->log()->reportXLinkTypeError( $section, "The content of the locator type MUST be 'resource'", $linkbase, $value );
 		return false;
 	}
 
@@ -13688,7 +13488,7 @@ class XBRL {
 	 */
 	private function reportXLinkArcTypeError( $section, $linkbase, $value )
 	{
-		$this->reportXLinkTypeError( $section, "The content of the locator type MUST be 'arc'", $linkbase, $value );
+		$this->log()->reportXLinkTypeError( $section, "The content of the locator type MUST be 'arc'", $linkbase, $value );
 		return false;
 	}
 
@@ -13834,8 +13634,7 @@ class XBRL {
 		// 		$xsd = strpos( $xsd, '#' ) ? strstr( $xsd, '#', true ) : $xsd;
         //
 		// 		$taxonomy = XBRL::withTaxonomy( $xsd );
-		//		$this->indirectNamespaces[] = $taxonomy->getNamespace();
-		//		$taxonomy->AddUserNamespace( $this );
+		// 		// $taxonomy = $this->getTaxonomyForXSD( $xsd );
 		// 	}
 		// }
         //
@@ -13880,7 +13679,7 @@ class XBRL {
 	{
 		$result = true;
 
-		$href = (string) $xlinkAttributes->href;
+		// $href = (string) $xlinkAttributes->href;
 		// $parts = parse_url( $href );
 		if ( ! isset( $locatorParts['path'] ) )
 		{
@@ -13889,7 +13688,7 @@ class XBRL {
 				$this->log()->taxonomy_validation( "3.5.3.7.2", "The href of the locator is not valid",
 					array(
 						'linkbase' => $linkbaseName,
-						'href' => $linkbaseUrl,
+						'href' => $href,
 					)
 				);
 
@@ -13954,19 +13753,12 @@ class XBRL {
 			}
 			else
 			{
-				if ( PHP_SAPI === 'cli' && function_exists( 'xdebug_break' ) ) 
-				{
-					xdebug_break();
-					error_log('xdebug_break');					
-				}
-				
 				// Look for the taxonomy and include its contents in the DTS
 				$xsd = $this->resolve_path( $this->getSchemaLocation(), $href );
 				$xsd = strpos( $xsd, '#' ) ? strstr( $xsd, '#', true ) : $xsd;
 
 				$taxonomy = XBRL::withTaxonomy( $xsd );
-				$this->indirectNamespaces[] = $taxonomy->getNamespace();
-				$taxonomy->AddUserNamespace( $this );
+				// $taxonomy = $this->getTaxonomyForXSD( $xsd );
 			}
 		}
 
@@ -14338,7 +14130,6 @@ class XBRL {
 
 			foreach ( $node->attributes( $namespace ) as $key => $attribute )
 			{
-				/** @var \SimpleXMLElement $attribute */
 				$illegalAttributes[] = $prefix . ":" . $attribute->getName();
 			}
 		}
@@ -14366,7 +14157,7 @@ class XBRL {
 	 * @param string $role The extended link role
 	 * @param array $nodes A hierarchical set of node to examine
 	 * @param array $existingParents An array of ids that represent existing parents which should not recur.
-	 * @param Closure $errorCallback A callback to report the error.  The function will be passed
+	 * @param function $errorCallback A callback to report the error.  The function will be passed
 	 * 								  the role, the node and the linkbase containing the error.
 	 * @return bool
 	 */
@@ -14533,6 +14324,7 @@ class XBRL {
 				$xsd = $this->resolve_path( $linkbaseRef['href'], $xsd );
 				// If the taxonomy is not already loaded, try loading it.
 				$taxonomy = $xsd ? XBRL::withTaxonomy( $xsd ) : null;
+
 				if ( ! $taxonomy )
 				{
 					$this->log()->taxonomy_validation( "5.1.3.4", "Taxonomy for arcroleRef href does not exist",
@@ -14543,8 +14335,6 @@ class XBRL {
 					);
 					continue;
 				}
-				$this->indirectNamespaces[] = $taxonomy->getNamespace();
-				$taxonomy->AddUserNamespace( $this );
 			}
 
 			// This role MUST be defined as 'usedOn' in the linkbaseRef for link:labelArc
@@ -14661,6 +14451,7 @@ class XBRL {
 					$xsd = $this->resolve_path( $this->getSchemaLocation(), $roleRefHref );
 
 					$taxonomy = XBRL::withTaxonomy( strpos( $xsd, '#' ) ? strstr( $xsd, '#', true ) : $xsd );
+
 					$taxonomy = $this->getTaxonomyForXSD( $roleRefHref );
 					if ( ! $taxonomy )
 					{
@@ -14676,8 +14467,6 @@ class XBRL {
 						}
 						continue;
 					}
-					$this->indirectNamespaces[] = $taxonomy->getNamespace();
-					$taxonomy->AddUserNamespace( $this );
 				}
 
 				// This role MUST be defined as 'usedOn' in the linkbaseRef for link:labelLink
@@ -14821,7 +14610,7 @@ class XBRL {
 						continue;
 					}
 
-					$role = (string)$xlinkAttributes->role;
+					$role = (string) $xlinkAttributes->role;
 					if ( ! $role ) $role = XBRL_Constants::$labelRoleLabel;
 
 					if ( ! isset( $this->context->labelRoleRefs[ $role ] ) )
@@ -15305,7 +15094,7 @@ class XBRL {
 			{
 				$this->log()->taxonomy_validation( "5.1", "Unable to locate the ancestor element for the derived element",
 					array(
-						'concept' => $element['name'],
+						'concept' => $name,
 					)
 				);
 			}
@@ -15337,8 +15126,6 @@ class XBRL {
 
 		foreach ( $this->xbrlDocument->children( XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_SCHEMA ] ) as $nodeKey => $node )
 		{
-			/** @var \SimpleXMLElement $node */
-
 			if ( $nodeKey == 'redefine' )
 			{
 				if ( XBRL::isValidating() )
@@ -15419,7 +15206,7 @@ class XBRL {
 			// Ignore standard namespaces
 			// BMS 2018-04-09 Fixing the kluge
 			// if ( $prefix == "xs" ) $prefix = "xsd";
-			if ( empty( $prefix ) || isset( \XBRL_Constants::$standardPrefixes[ $prefix ] ) )
+			if ( empty( $prefix ) || isset( XBRL_Constants::$standardPrefixes[ $prefix ] ) )
 			{
 				continue;
 			}
@@ -15707,7 +15494,7 @@ class XBRL {
 		{
 			$step = "1 - $roleUri";
 			// Traverse all the nodes to look for any with a preferred label
-			self::processAllNodes( $roleRef['hierarchy'], function( $node, $id ) use( $roleRef, $roleUri )
+			$this->processAllNodes( $roleRef['hierarchy'], function( $node, $id ) use( $roleRef, $roleUri )
 			{
 				// To distinguish presentation hiearchy nodes that are periodStart or periodEnd but have the same id
 				// (such as uk-gaap-pt-2004-12-01.xsd#uk-gaap-pt_NetDebtFunds) the process of creating the hierarchy
@@ -17127,14 +16914,14 @@ class XBRL {
 					{
 						if ( isset( $newRole['primaryitems'][ $targetPrimaryItemKey ]['parents'][ $targetParentKey ] ) )
 						{
-							$newRolePriority = $newRole['primaryitems'][ $targetPrimaryItemKey ]['parents'][ $targetParentKey ]['priority'] ?? 0;
-							$newRoleUse = $newRole['primaryitems'][ $targetPrimaryItemKey ]['parents'][ $targetParentKey ]['use'] ?? XBRL_Constants::$xlinkUseOptional;
+							$newRolePriority = $newRole['primaryitems'][ $targetPrimaryItemKey ]['parents'][ $targetParentKey ]['priority'];
+							$newRoleUse = $newRole['primaryitems'][ $targetPrimaryItemKey ]['parents'][ $targetParentKey ]['use'];
 
 							// If the $targetParent use is 'prohibited' and the $targetParent priority is = the newRole parent or
 							// if the $targetParent priority is < the newRole parent then there is nothing to do because newRole wins
 							if (
-									$targetParent['priority'] ?? 0 < $newRolePriority ||
-									( $targetParent['priority'] ?? 0 == $newRolePriority && ( $targetParent['use'] ?? XBRL_Constants::$xlinkUseOptional ) != XBRL_Constants::$xlinkUseProhibited )
+									$targetParent['priority'] < $newRolePriority ||
+									( $targetParent['priority'] == $newRolePriority && $targetParent['use'] != XBRL_Constants::$xlinkUseProhibited )
 							)
 							{
 								continue;
@@ -17170,13 +16957,13 @@ class XBRL {
 					{
 						if ( isset( $newRole['dimensions'][ $targetDimensionKey ]['parents'][ $targetParentKey ] ) )
 						{
-							$newRolePriority = $newRole['dimensions'][ $targetDimensionKey ]['parents'][ $targetParentKey ]['priority'] ?? 0;
-							$newRoleUse = $newRole['dimensions'][ $targetDimensionKey ]['parents'][ $targetParentKey ]['use'] ?? XBRL_Constants::$xlinkUseOptional;
+							$newRolePriority = $newRole['dimensions'][ $targetDimensionKey ]['parents'][ $targetParentKey ]['priority'];
+							$newRoleUse = $newRole['dimensions'][ $targetDimensionKey ]['parents'][ $targetParentKey ]['use'];
 
 							// If the $targetParent use is 'prohibited' and the $targetParent priority is = the newRole parent or
 							// if the $targetParent priority is < the newRole parent then there is nothing to do because newRole wins
-							if ( $targetParent['priority'] ?? 0 < $newRolePriority ||
-								 ( $targetParent['priority'] ?? 0 == $newRolePriority && ( $targetParent['use'] ?? XBRL_Constants::$xlinkUseOptional ) != XBRL_Constants::$xlinkUseProhibited )
+							if ( $targetParent['priority'] < $newRolePriority ||
+								 ( $targetParent['priority'] == $newRolePriority && $targetParent['use'] != XBRL_Constants::$xlinkUseProhibited )
 							)
 							{
 								continue;
@@ -17230,13 +17017,13 @@ class XBRL {
 					{
 						if ( isset( $newRole['members'][ $targetMemberKey ]['parents'][ $targetParentKey ] ) )
 						{
-							$newRolePriority = $newRole['members'][ $targetMemberKey ]['parents'][ $targetParentKey ]['priority'] ?? 0;
-							$newRoleUse = $newRole['members'][ $targetMemberKey ]['parents'][ $targetParentKey ]['use'] ?? XBRL_Constants::$xlinkUseOptional;
+							$newRolePriority = $newRole['members'][ $targetMemberKey ]['parents'][ $targetParentKey ]['priority'];
+							$newRoleUse = $newRole['members'][ $targetMemberKey ]['parents'][ $targetParentKey ]['use'];
 
 							// If the $targetParent use is 'prohibited' and the $targetParent priority is = the newRole parent or
 							// if the $targetParent priority is < the newRole parent then there is nothing to do because newRole wins
-							if ( $targetParent['priority'] ?? 0 < $newRolePriority ||
-								 ( $targetParent['priority'] ?? 0 == $newRolePriority && ( $targetParent['use'] ?? XBRL_Constants::$xlinkUseOptional ) != XBRL_Constants::$xlinkUseProhibited )
+							if ( $targetParent['priority'] < $newRolePriority ||
+								 ( $targetParent['priority'] == $newRolePriority && $targetParent['use'] != XBRL_Constants::$xlinkUseProhibited )
 							)
 							{
 								continue;
@@ -18296,8 +18083,6 @@ class XBRL {
 			$this->log()->warning( "Unable to create taxonomy from schema file '$schemaLocation'" );
 			return;
 		}
-		$this->indirectNamespaces[] = $taxonomy->getNamespace();
-		$taxonomy->AddUserNamespace( $this );
 
 		$this->importedFiles[] = $schemaLocation;
 		$namespace = $taxonomy->getNamespace();
@@ -18455,11 +18240,11 @@ class XBRL {
 			? $source
 			: pathinfo( $source, PATHINFO_DIRNAME );
 
-		$sourceIsUrl = filter_var( rawurlencode( $source ), FILTER_VALIDATE_URL );
-		$targetIsUrl = filter_var( rawurlencode( $target ), FILTER_VALIDATE_URL );
+		$sourceIsUrl = filter_var( $source, FILTER_VALIDATE_URL );
+		$targetIsUrl = filter_var( $target, FILTER_VALIDATE_URL );
 
 		// Absolute
-		if ( $target && ( filter_var( $target, FILTER_VALIDATE_URL ) || ( strtoupper( substr( PHP_OS, 0, 3 ) ) === 'WIN' && strlen( $target ) > 1 && ( $target[1] === ':' || substr( $target, 0, 2 ) === '\\\\' ) ) ) )
+		if ( $target && ( filter_var( $target, FILTER_VALIDATE_URL ) || ( strtoupper( substr( PHP_OS, 0, 3 ) ) === 'WIN' && ( $target[1] === ':' || substr( $target, 0, 2 ) === '\\\\' ) ) ) )
 			$path = $target;
 
 		// Relative to root
@@ -18472,7 +18257,7 @@ class XBRL {
 		else
 		{
 			if ( XBRL::endsWith( $source, ":" ) ) $source .= "/";
-			$path =  $source . ( substr( $source, -1 ) == '/' ? '' : '/' ) . $target;
+			$path = $source . "/" . $target;
 		}
 
 		// Process the components
@@ -18701,13 +18486,13 @@ class XBRL {
 		// There should be just one node at the root and it should have the same name in both left and right
 		if ( count( $left ) !== count( $right ) )
 		{
-			XBRL_Log::getInstance()->warning( "The two hierarchies have unbalanced roots" );
+			$this->log()->warning( "The two hierarchies have unbalanced roots" );
 			return false;
 		}
 
 		if ( count( $left ) !== 1 )
 		{
-			XBRL_Log::getInstance()->warning( "The hierarchies have more than one root node" );
+			$this->log()->warning( "The hierarchies have more than one root node" );
 			return false;
 		}
 
@@ -18905,7 +18690,6 @@ class XBRL {
 		$text = preg_match("/^([a-z]+)/", $preferredLabelBasename, $matches ) ? ucfirst( $matches[1] ) : '';
 		if( preg_match_all("/([0-9]+|[A-Z][a-z]*)/", $preferredLabelBasename, $matches ) )
 		{
-			/** @var string[][] $matches An intellisense warning is generatred without this */
 			if ( $text ) $text .= ' ';
 			$text .= implode( ' ', array_filter( array_map( function( $item ) { return lcfirst( $item ); }, $matches[1] ), function( $preferredLabelBasename ) { return $preferredLabelBasename != 'label'; } ) );
 		}
@@ -18925,7 +18709,6 @@ class XBRL {
 
 		if ( ! file_exists( $filename ) )
 		{
-			error_log('The getLRR function should only be called standalone when a new file needs to be generated.');
 			$lrr = array();
 
 			$linkTypes = [];
@@ -18970,8 +18753,7 @@ class XBRL {
 					'definition' => $definition,
 					'href' => "http://www.xbrl.org/2003/xbrl-role-2003-07-31.xsd#$label",
 					'label' => $label,
-					'namespace' => 'http://www.xbrl.org/2003/role',
-					'prefix' => 'role'
+					'namespace' => 'http://www.xbrl.org/2003/role'
 				);
 			}
 
@@ -18983,12 +18765,10 @@ class XBRL {
 					$href = trim( $lrrRole->authoritativeHref );
 					$uri = strstr( $href, '#', true );
 					$namespace = '';
-					$prefix = '';
 					if ( ! isset( $linkTypes[ $uri ] ) )
 					{
 						$taxonomy = \XBRL::load_taxonomy( $uri );
 						$namespace = $taxonomy->getNamespace();
-						$prefix = $taxonomy->getPrefix();
 						$roleTypes[ $uri ] = $taxonomy->getRoleTypes( $taxonomy->getTaxonomyXSD() );
 					}
 
@@ -19010,8 +18790,7 @@ class XBRL {
 						'definition' => $role['definition'],
 						'href' => $href,
 						'label' => $label,
-						'namespace' => $namespace,
-						'prefix' => $prefix
+						'namespace' => $namespace
 					);
 				}
 			}
@@ -19027,9 +18806,9 @@ class XBRL {
 	}
 
 	/**
-	 * Get a list of the item$itemTypes types for a specific taxonomy
+	 * Get a list of the item types for a specific taxonomy
 	 * @param string $category
-	 * @param mixed
+	 * @param unknown $itemTypes
 	 * @param string $clean
 	 */
 	public function getItemTypes( $category, &$itemTypes, $clean = true )
@@ -19343,15 +19122,12 @@ class XBRL {
 	 * @param XBRL_Global $context
 	 * @param XBRL_Log $log
 	 */
-	public static function processSchema( $xsd, $schema, $context, $log, &$loaded, $loadAllSchemas = false, $includedSchemas = false )
+	public static function processSchema( $xsd, $schema, $context, $log, &$loaded )
 	{
 		if ( ! $schema ) return;
 
-		$xsSchemaNamespace = XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_SCHEMA ];
-
 		// Process the linkbases
-		if ( $schema->children( $xsSchemaNamespace )->annotation && $schema->children( $xsSchemaNamespace )->annotation->appinfo )
-		foreach( $schema->children( $xsSchemaNamespace )->annotation->appinfo->children('link', true)->linkbaseRef as $x => /** @var SimpleXMLElement $element */ $element )
+		foreach( $schema->annotation->appinfo->children('link', true)->linkbaseRef as $x => /** @var SimpleXMLElement $element */ $element )
 		{
 			$location = (string)$element->attributes('xlink', true)->href;
 			$href = XBRL::resolve_path( $xsd, $location );
@@ -19360,171 +19136,20 @@ class XBRL {
 			$mapping = \XBRL::getXml( $href, $context );
 		}
 
-		$processTag = function( $tag ) use( &$schema, &$context, &$loaded, &$log, $includedSchemas, $loadAllSchemas, $xsd, $xsSchemaNamespace )
+		// Process the imports
+		foreach( $schema->import as $x => /** @var SimpleXMLElement $element */ $element )
 		{
-			// Process the includes and redefines
-			foreach( $schema->children( $xsSchemaNamespace )->$tag as $x => /** @var SimpleXMLElement $element */ $element )
-			{
-				$location = (string)$element->attributes()->schemaLocation;
-				$href = XBRL::resolve_path( $xsd, $location );
-				if ( array_search( $href, $loaded ) !== false ) continue;
-				if ( ! $loadAllSchemas && XBRL::startsWith( $href, 'http://www.xbrl.org' ) ) continue;
-				if ( ! $loadAllSchemas && isset( XBRL_Global::$taxonomiesToIgnore[ $href ] ) ) continue;
+			$location = (string)$element->attributes()->schemaLocation;
+			$href = XBRL::resolve_path( $xsd, $location );
+			if ( array_search( $href, $loaded ) !== false ) continue;
+			if ( XBRL::startsWith( $href, 'http://www.xbrl.org' ) ) continue;
+			if ( isset( XBRL_Global::$taxonomiesToIgnore[ $href ] ) ) continue;
 
-				$import = \XBRL::getXml( $href, $context );
-				$loaded[] = $href;
-				XBRL::processSchema( $href, $import, $context, $log, $loaded, $loadAllSchemas, $includedSchemas );
-			}
-		};
-
-		$tags = array_merge( $includedSchemas ? array('include','redefine') : array(), array('import') );
-		foreach( $tags as $tag )
-		{
-			$processTag( $tag );
+			$import = \XBRL::getXml( $href, $context );
+			$loaded[] = $href;
+			XBRL::processSchema( $href, $import, $context, $log, $loaded );
 		}
+
 	}
 }
-
-/**
- * Call the function
- */
-// initialize_xsd_to_class_map();
-// With the bootloader in place these are two classes that MUST be loaded
-require_once __DIR__ . '/XBRL-Constants.php';
-
-global $use_xbrl_functions;
-if ( $use_xbrl_functions )
-{
-	// If composer autoload is being used this class will be loaded automatically
-	if ( ! class_exists( "\lyquidity\XPath2\FunctionTable", true ) )
-	{
-		$xpathPath = isset( $_ENV['XPATH20_LIBRARY_PATH'] )
-			? $_ENV['XPATH20_LIBRARY_PATH']
-			: ( defined( 'XPATH20_LIBRARY_PATH' ) ? XPATH20_LIBRARY_PATH : __DIR__ . "/../XPath2/" );
-
-		require_once $xpathPath . '/bootstrap.php';
-	}
-
-	require_once __DIR__ . '/XBRL-Functions.php';
-	require_once __DIR__ . '/Formulas/Formulas.php';
-}
-else
-{
-	// If composer autoload is being used this class will be loaded automatically
-	if ( ! class_exists( "\lyquidity\xml\schema\SchemaTypes", true ) )
-	{
-		$xmlSchemaPath = isset( $_ENV['XML_LIBRARY_PATH'] )
-			? $_ENV['XML_LIBRARY_PATH']
-			: ( defined( 'XML_LIBRARY_PATH' ) ? XML_LIBRARY_PATH : __DIR__ . "/../xml/" );
-
-		require_once $xmlSchemaPath . '/bootstrap.php';
-	}
-}
-
-if ( ! function_exists("__") )
-{
-	/**
-	 * A polyfill for the getText __() function
-	 * @param string $message
-	 * @param string $domain
-	 * @return string
-	 */
-	function __( $message, $domain )
-	{
-		return "$message\n";
-	}
-}
-
-/**
- * Load XBRL class files
- * @param string $classname
- */
-function xbrl_autoload( $classname )
-{
-	// Special cases
-	if ( $classname == "QName" )
-	{
-		require_once __DIR__ . '/XBRL-QName.php';
-		return true;
-	}
-
-	if ( strpos( $classname, "XBRL_Inline" ) !== false )
-	{
-		require_once __DIR__ . '/XBRL-Inline.php';
-		return true;
-	}
-
-	if ( strpos( $classname, "IXBRL_Transforms" ) !== false )
-	{
-		require_once __DIR__ . '/IXBRL-Transforms.php';
-		return true;
-	}
-
-	if ( strpos( $classname, "lyquidity\XMLSecLibs" ) !== false )
-	{
-		$parts = explode( '\\', $classname );
-		unset( $parts[0] );
-		if ( file_exists( __DIR__ . '/' . implode( '/', $parts ) . '.php' ) )
-		{
-			require_once __DIR__ . '/' . implode( '/', $parts ) . '.php';
-			return true;
-		}
-	}
-
-	if ( substr( $classname, 0, 4 ) != "XBRL" )
-	{
-		return false;
-	}
-
-	if ( strpos( $classname, 'XBRL\\' ) === 0 )
-	{
-		$classname = substr( $classname, 5 );
-	}
-	$filename = __DIR__ . "/" . str_replace( "_", "-", $classname . ".php" );
-	if ( ! file_exists( $filename ) )
-	{
-		return false;
-	}
-
-	require_once $filename;
-}
-
-spl_autoload_register( 'xbrl_autoload' );
-
-/**
- * Called to begin initialization of the class
- * Each taxonomy specific decendent PHP file name will begin 'XBRL-' (case insensitive)
- * and this function will load each one automatically.  This means that when a taxonomy
- * is loaded and if it needs to use a taxonomy specific descendent class, it will be
- * available.
- *
- * @return void
- */
-function initialize_xsd_to_class_map()
-{
-	$xbrl_directory = __DIR__;
-
-	if ( $handle = opendir( $xbrl_directory ) )
-	{
-		try
-		{
-			while ( false !== ( $file = readdir( $handle ) ) )
-			{
-				if ( $file === "." || $file === ".." || $file === "xbrl.php" || strpos( strtolower( $file ), 'xbrl-' ) !== 0 ) continue;
-
-				$filename  = $xbrl_directory . DIRECTORY_SEPARATOR . $file;
-
-				if ( ! is_file( $filename ) ) continue;
-
-				require_once $filename;
-			}
-		}
-		catch(Exception $ex)
-		{}
-
-		closedir( $handle );
-	}
-}
-
-XBRL::constructor();
 
