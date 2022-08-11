@@ -360,8 +360,10 @@ class CentraleRischiController extends Controller
         } else {
             $lastDate = new DateTime(cr::select('date')->orderBy('date', 'desc')->first()->date);
 
-		/*
-            switch ($crAndamentaleData['period']) {
+		if(!isset($crAndamentaleData['newDates'])) {
+            $earlierDate = (new DateTime(cr::select('date')->orderBy('date', 'desc')->first()->date))->modify('-23 months');
+        } else {
+           /* switch ($crAndamentaleData['period']) {
                 case 1:
                     $earlierDate = (new DateTime(cr::select('date')->orderBy('date', 'desc')->first()->date))->modify('-11 months');
                     break;
@@ -373,9 +375,10 @@ class CentraleRischiController extends Controller
                     break;
                 case 0:
                     $earlierDate = new DateTime(cr::select('date')->orderBy('date', 'asc')->first()->date);
-            }
-*/
-	     $earlierDate = new DateTime(cr::select('date')->orderBy('date', 'desc')->get()->last()->date);
+            }*/
+            $earlierDate = new DateTime(cr::select('date')->orderBy('date', 'desc')->get()->last()->date);
+        }
+
          $latestDate = new DateTime(cr::select('date')->orderBy('date', 'desc')->first()->date);
 
             $banksScoring = array();
@@ -649,8 +652,8 @@ class CentraleRischiController extends Controller
                     ],
                     'Garanzie' => [
                         'InfoGaranti' => [
-                            'TotaleValore' => $informazioniGaranti['Tot. Valore Garanzia"'],
-                            'TotaleImporto' => $informazioniGaranti['Tot. importo garantito"'],
+                            'TotaleValore' => $informazioniGaranti['Tot. Valore Garanzia'],
+                            'TotaleImporto' => $informazioniGaranti['Tot. importo garantito'],
                         ],
                         'GaranzieRicevute' => [
                             'TotaleValore' => $garanzieRicevute['Garantito'],
