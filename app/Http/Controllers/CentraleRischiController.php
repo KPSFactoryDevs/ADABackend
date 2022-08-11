@@ -358,10 +358,10 @@ class CentraleRischiController extends Controller
             $msg = "Non è stato selezionato nessun periodo";
             return view('allerta.empty', compact(['msg']));
         } else {
-            $lastDate = new DateTime(cr::select('date')->orderBy('date', 'desc')->first()->date);
+            $lastDate = new DateTime(cr::select('date')->where('document_id', $crAndamentaleData['period'])->orderBy('date', 'desc')->first()->date);
 
 		if(!isset($crAndamentaleData['newDates'])) {
-            $earlierDate = (new DateTime(cr::select('date')->orderBy('date', 'desc')->first()->date))->modify('-23 months');
+            $earlierDate = (new DateTime(cr::select('date')->where('document_id', $crAndamentaleData['period'])->orderBy('date', 'desc')->first()->date))->modify('-23 months');
         } else {
            /* switch ($crAndamentaleData['period']) {
                 case 1:
@@ -379,7 +379,7 @@ class CentraleRischiController extends Controller
             $earlierDate = new DateTime(cr::select('date')->orderBy('date', 'desc')->get()->last()->date);
         }
 
-         $latestDate = new DateTime(cr::select('date')->orderBy('date', 'desc')->first()->date);
+         $latestDate = new DateTime(cr::select('date')->where('document_id', $crAndamentaleData['period'])->orderBy('date', 'desc')->first()->date);
 
             $banksScoring = array();
             $singleBankData = array();
@@ -404,7 +404,7 @@ class CentraleRischiController extends Controller
 
                 if ($counter < count($unrefinedPeriods)) {
                     $tempDate = new DateTime($data['date']);
-                    if (cr::where([['date', '>=', $tempDate->modify('+1 month')->format('Y-m-01')], ['date', '<=', $tempDate->format('Y-m-0t')]])->groupBy('date')->count() == 0) {
+                    if (cr::where([['date', '>=', $tempDate->modify('+1 month')->format('Y-m-01')], ['date', '<=', $tempDate->format('Y-m-0t')]])->where('document_id', $crAndamentaleData['period'])->groupBy('date')->count() == 0) {
                         $missingMonths[] = $mesiCheckList[(float)$tempDate->format('m')] . ' ' . $tempDate->format('Y');
                     }
                 }
@@ -428,7 +428,7 @@ class CentraleRischiController extends Controller
             $crHelper->setPeriod($periods);
             $periodsCorrect = $crHelper->buildPeriodArray();
 
-            $banksQuery = DB::table('crs');
+            $banksQuery = DB::table('crs')->where('document_id', $crAndamentaleData['period']);
 
             foreach ($periodsCorrect as $queryPeriodArray) {
                 $banksQuery->orWhere(function ($query) use ($queryPeriodArray, $categories) {
