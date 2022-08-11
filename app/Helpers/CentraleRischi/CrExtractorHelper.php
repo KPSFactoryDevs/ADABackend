@@ -471,6 +471,8 @@ AND t.divisa = t2.divisa');
                     if ($singleSconfino->sconfiniTotali >= 6) {
                         $this->_tensioni[$singleSconfino->categoria] = true;
                     }
+
+
                 } else if ($allMonthsCount > 24) {
                     if ($singleSconfino->sconfiniTotali >= 12) {
                         $this->_tensioni[$singleSconfino->categoria] = true;
@@ -594,6 +596,9 @@ AND t.divisa = t2.divisa');
         $this->numeroSconfiniTotali = 0;
         $countBanks = $this->getCountBanks($banks);
         $allMonthsCount = $this->getCountMonths();
+        $this->_tensioni["RISCHI A SCADENZA"] = false;
+        $this->_tensioni["RISCHI A REVOCA"] = false;
+        $this->_tensioni["RISCHI AUTOLIQUIDANTI"] = false;
 
         foreach ($cleanData['SconfiniTotali'] as $singleSconfino) {
             $this->numeroSconfiniTotali += $singleSconfino->sconfiniTotali;
