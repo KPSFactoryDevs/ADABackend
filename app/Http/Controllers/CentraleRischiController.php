@@ -588,10 +588,13 @@ class CentraleRischiController extends Controller
             $response = [
                 'Scoring' => [
                     'Panoramica' => [
-                        'PeriodoRiferimento' => "Gennaio 2000 - Dicembre 2022",
-                        'NumeroIntermediari' => 10,
-                        'NumeroPosizioniContestate' => 20,
-                        'FinalScore' => 7.9
+                        'PeriodoRiferimento' => [
+                            'Inizio' =>  ucFirst($inizioPeriodo),
+                            'Fine' => ucFirst($finePeriodo),
+                            ],
+                        'NumeroIntermediari' => $intermediari,
+                        'NumeroPosizioniContestate' => $numeroRapportiContestati,
+                        'FinalScore' => $scoreCR
                     ],
                     'AnomalieUtilizzi' => [
                         'TensioneAutoliquidanti' => $numeroSconfiniTotali['Tensioni']['RISCHI AUTOLIQUIDANTI'],
@@ -603,55 +606,55 @@ class CentraleRischiController extends Controller
                         'Sconfini' => $numeroSconfiniTotali['PresenzaSconfini'],
                     ],
                     'AnomalieQuasiPregiudizievoli' => [
-                        'SconfiniEntroNovantaGiorni' => true,
-                        'SconfiniEntroCentoOttantaGiorni' => true,
-                        'SconfiniOltreCentoOttantaGiorni' => true,
+                        'SconfiniEntroNovantaGiorni' => (!empty($numeroSconfiniTotali['SconfiniEntro90Giorni'])),
+                        'SconfiniEntroCentoOttantaGiorni' => (!empty($numeroSconfiniTotali['SconfiniOltre90Giorni'])),
+                        'SconfiniOltreCentoOttantaGiorni' => (!empty($numeroSconfiniTotali['SconfiniOltre180Giorni'])),
                     ],
                     'AnomaliePregiudizievoli' => [
-                        'GaranzieAttivateEsitoNegativo' => true,
-                        'Sofferenze' => true,
-                        'CreditiPassatiPerdita' => true,
+                        'GaranzieAttivateEsitoNegativo' => ($garanzieEsitoNegativo>0),
+                        'Sofferenze' => (!empty($sofferenze)),
+                        'CreditiPassatiPerdita' => (!empty($creditiPassatiPerdita)),
                     ],
                 ],
                 'ResocontoAnomalie' => [
-                    'ListaSconfiniEntroNovantaGiorni' => [],
-                    'ListaSconfiniEntroCentoOttantaGiorni' => [],
-                    'ListaSconfiniOltreCentoOttantaGiorni' => [],
-                    'ListaAnomalie' => [],
+                    'ListaSconfiniEntroNovantaGiorni' => $numeroSconfiniTotali['SconfiniEntro90Giorni'],
+                    'ListaSconfiniEntroCentoOttantaGiorni' => $numeroSconfiniTotali['SconfiniOltre90Giorni'],
+                    'ListaSconfiniOltreCentoOttantaGiorni' => $numeroSconfiniTotali['SconfiniOltre180Giorni'],
+                    'ListaAnomalie' => $anomalie,
                 ],
                 'AnalisiAffidamenti' => [
-                    'ListaAffidamenti' => []
+                    'ListaAffidamenti' => $totaleAffidamentiTable
                 ],
                 'AnalisiIndebitamento' => [],
                 'AnalisiPerBanca' => [
-                    'ListaScoringBanche' => []
+                    'ListaScoringBanche' => $banksScoring
                 ],
                 'RischiGaranzie' => [
                     'PosizioniDiRischio' => [
                         'Gestibili' => [
-                            'TotaleCreditiScaduti' => 200.00,
-                            'TotaleCreditiScadutiImpoagati' => 200.00,
-                            'PercentualeIncidenzaImpagati' => 70.8,
+                            'TotaleCreditiScaduti' => $rischiGaranzie['CreditiScaduti'],
+                            'TotaleCreditiScadutiImpoagati' => $rischiGaranzie['CreditiScadutiImpagati'],
+                            'PercentualeIncidenzaImpagati' => $incidenzaImpagati,
                         ],
                         'QuasiPregiudizievoli' => [
-                            'TotaleScadutiSconfinatiEntroNovantaGiorni' => 200.00,
-                            'TotaleScadutiSconfinatiEntroCentoOttantaGiorni' => 200.00,
-                            'TotaleScadutiSconfinatiOltreCentoOttantaGiorni' => 200.0,
+                            'TotaleScadutiSconfinatiEntroNovantaGiorni' => $rischiGaranzie['Entro90'],
+                            'TotaleScadutiSconfinatiEntroCentoOttantaGiorni' => $rischiGaranzie['Oltre90'],
+                            'TotaleScadutiSconfinatiOltreCentoOttantaGiorni' => $rischiGaranzie['Oltre180'],
                         ],
                         'Pregiudizievoli' => [
-                            'TotaleSofferenze' => 200.00,
-                            'TotaleCreditiPassatiPerdita' => 200.00,
-                            'TotaleCreditiContestati' => 200.0,
+                            'TotaleSofferenze' => $rischiGaranzie['Sofferenze'],
+                            'TotaleCreditiPassatiPerdita' => $rischiGaranzie['CreditiPassatiPerdita'],
+                            'TotaleCreditiContestati' => $rischiGaranzie['CreditiContestati'],
                         ],
                     ],
                     'Garanzie' => [
                         'InfoGaranti' => [
-                            'TotaleValore' => 200.00,
-                            'TotaleImporto' => 200.00,
+                            'TotaleValore' => $informazioniGaranti['Tot. Valore Garanzia"'],
+                            'TotaleImporto' => $informazioniGaranti['Tot. importo garantito"'],
                         ],
                         'GaranzieRicevute' => [
-                            'TotaleValore' => 200.00,
-                            'TotaleImporto' => 200.00,
+                            'TotaleValore' => $garanzieRicevute['Garantito'],
+                            'TotaleImporto' => $garanzieRicevute['Garanzia'],
                         ],
                     ]
                 ],
