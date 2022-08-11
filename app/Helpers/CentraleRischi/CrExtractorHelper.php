@@ -17,6 +17,7 @@ use phpDocumentor\Reflection\Types\This;
 class CrExtractorHelper
 {
     public $_period = false;
+    public $_documentId = false;
     public $_countMonths = false;
     public $_countBanks = false;
     public $_scaduti = false;
@@ -46,6 +47,16 @@ class CrExtractorHelper
     public function getPeriod()
     {
         return $this->_period;
+    }
+
+    public function setDocumentId($documentId)
+    {
+        $this->_documentId = $documentId;
+    }
+
+    public function getDocumentId()
+    {
+        return $this->_documentId;
     }
 
     public function addMonthsToCount()
@@ -145,8 +156,9 @@ class CrExtractorHelper
     public function getAllData($banks)
     {
         $queryPeriodArray = array();
-        $CentraleRischiModel = DB::table('crs');
+        $CentraleRischiModel = DB::table('crs')->where('document_id', $this->_documentId);
         $periods = $this->buildPeriodArray();
+
 
         foreach ($periods as $queryPeriodArray) {
             $CentraleRischiModel->orWhere(function ($query) use ($queryPeriodArray, $banks) {
@@ -186,7 +198,7 @@ class CrExtractorHelper
             'RISCHI A REVOCA',
         );
 
-        $CentraleRischiModel = DB::table('crs');
+        $CentraleRischiModel = DB::table('crs')->where('document_id', $this->_documentId);
 
         foreach ($periods as $queryPeriodArray) {
             $CentraleRischiModel->orWhere(function ($query) use ($queryPeriodArray, $categories, $banks) {
@@ -214,7 +226,7 @@ class CrExtractorHelper
             'RISCHI A REVOCA',
         );
 
-        $CentraleRischiModel = DB::table('crs');
+        $CentraleRischiModel = DB::table('crs')->where('document_id', $this->_documentId);
 
         foreach ($periods as $queryPeriodArray) {
             $CentraleRischiModel->orWhere(function ($query) use ($queryPeriodArray, $categories, $banks) {
@@ -500,7 +512,7 @@ AND t.divisa = t2.divisa');
             'RISCHI A REVOCA',
         );
 
-        $CentraleRischiModel = DB::table('crs');
+        $CentraleRischiModel = DB::table('crs')->where('document_id', $this->_documentId);
 
         foreach ($periods as $queryPeriodArray) {
             $CentraleRischiModel->orWhere(function ($query) use ($queryPeriodArray, $categories, $banks) {
@@ -834,7 +846,7 @@ AND t.divisa = t2.divisa');
             'RISCHI AUTOLIQUIDANTI - CREDITI SCADUTI',
         );
 
-        $CentraleRischiModel = DB::table('crs');
+        $CentraleRischiModel = DB::table('crs')->where('document_id', $this->_documentId);
 
         foreach ($periods as $queryPeriodArray) {
             $CentraleRischiModel->orWhere(function ($query) use ($queryPeriodArray, $categories, $banks) {
@@ -857,7 +869,7 @@ AND t.divisa = t2.divisa');
     {
         $periods = $this->buildPeriodArray();
 
-        $CentraleRischiModel = DB::table('crs');
+        $CentraleRischiModel = DB::table('crs')->where('document_id', $this->_documentId);
 
         foreach ($periods as $queryPeriodArray) {
             $CentraleRischiModel->orWhere(function ($query) use ($queryPeriodArray, $banks) {
@@ -881,7 +893,7 @@ AND t.divisa = t2.divisa');
     {
         $periods = $this->buildPeriodArray();
 
-        $CentraleRischiModel = DB::table('crs');
+        $CentraleRischiModel = DB::table('crs')->where('document_id', $this->_documentId);
 
         foreach ($periods as $queryPeriodArray) {
             $CentraleRischiModel->orWhere(function ($query) use ($queryPeriodArray, $banks) {
@@ -905,7 +917,7 @@ AND t.divisa = t2.divisa');
     {
         $periods = $this->buildPeriodArray();
 
-        $CentraleRischiModel = DB::table('crs');
+        $CentraleRischiModel = DB::table('crs')->where('document_id', $this->_documentId);
 
         foreach ($periods as $queryPeriodArray) {
             $CentraleRischiModel->orWhere(function ($query) use ($queryPeriodArray, $banks) {
@@ -938,7 +950,7 @@ AND t.divisa = t2.divisa');
             'RISCHI A REVOCA',
         );
 
-        $CentraleRischiModel = DB::table('crs');
+        $CentraleRischiModel = DB::table('crs')->where('document_id', $this->_documentId);
 
         foreach ($periods as $queryPeriodArray) {
             $CentraleRischiModel->orWhere(function ($query) use ($queryPeriodArray, $sections, $categories, $banks) {
@@ -998,7 +1010,7 @@ AND t.divisa = t2.divisa');
             'RISCHI A REVOCA',
         );
 
-        $CentraleRischiModel = DB::table('crs');
+        $CentraleRischiModel = DB::table('crs')->where('document_id', $this->_documentId);
 
         foreach ($periods as $queryPeriodArray) {
             $CentraleRischiModel->orWhere(function ($query) use ($queryPeriodArray, $categories, $sections, $banks) {
@@ -1055,7 +1067,7 @@ AND t.divisa = t2.divisa');
     {
         $allMonthsCount = $this->getCountMonths();
         $periods = $this->buildPeriodArray();
-        $CentraleRischiModel = DB::table('crs');
+        $CentraleRischiModel = DB::table('crs')->where('document_id', $this->_documentId);
         $categories = array(
             'RISCHI AUTOLIQUIDANTI - CREDITI SCADUTI',
         );
@@ -1078,7 +1090,7 @@ AND t.divisa = t2.divisa');
     {
         $allMonthsCount = $this->getCountMonths();
         $periods = $this->buildPeriodArray();
-        $CentraleRischiModel = DB::table('crs');
+        $CentraleRischiModel = DB::table('crs')->where('document_id', $this->_documentId);
         $categories = array(
             'RISCHI AUTOLIQUIDANTI - CREDITI SCADUTI',
         );
@@ -1106,7 +1118,7 @@ AND t.divisa = t2.divisa');
 
 		$allMonthsCount = $this->getCountMonths();
         $periods = $this->buildPeriodArray();
-        $CentraleRischiModel = DB::table('crs');
+        $CentraleRischiModel = DB::table('crs')->where('document_id', $this->_documentId);
 
 
 
@@ -1134,7 +1146,7 @@ AND t.divisa = t2.divisa');
 
         $allMonthsCount = $this->getCountMonths();
         $periods = $this->buildPeriodArray();
-        $CentraleRischiModel = DB::table('crs');
+        $CentraleRischiModel = DB::table('crs')->where('document_id', $this->_documentId);
 
 
 
@@ -1158,7 +1170,7 @@ AND t.divisa = t2.divisa');
 // OLTRE I 180
         $allMonthsCount = $this->getCountMonths();
         $periods = $this->buildPeriodArray();
-        $CentraleRischiModel = DB::table('crs');
+        $CentraleRischiModel = DB::table('crs')->where('document_id', $this->_documentId);
 
 
 
@@ -1184,7 +1196,7 @@ AND t.divisa = t2.divisa');
     {
         $allMonthsCount = $this->getCountMonths();
         $periods = $this->buildPeriodArray();
-        $CentraleRischiModel = DB::table('crs');
+        $CentraleRischiModel = DB::table('crs')->where('document_id', $this->_documentId);
 
         foreach ($periods as $queryPeriodArray) {
             $CentraleRischiModel->orWhere(function ($query) use ($queryPeriodArray, $banks) {
@@ -1397,7 +1409,7 @@ AND t.divisa = t2.divisa');
     {
         $allMonthsCount = $this->getCountMonths();
         $periods = $this->buildPeriodArray();
-        $CentraleRischiModel = DB::table('crs');
+        $CentraleRischiModel = DB::table('crs')->where('document_id', $this->_documentId);
 
         foreach ($periods as $queryPeriodArray) {
             $CentraleRischiModel->orWhere(function ($query) use ($queryPeriodArray, $banks) {
@@ -1496,7 +1508,7 @@ AND t.divisa = t2.divisa');
     public function getAnomalie($banks)
     {
         $periods = $this->buildPeriodArray();
-        $CentraleRischiModel = DB::table('crs');
+        $CentraleRischiModel = DB::table('crs')->where('document_id', $this->_documentId);
         $anomalieCategorizzate = array();
 
         foreach ($periods as $queryPeriodArray) {
@@ -1866,7 +1878,7 @@ AND t.divisa = t2.divisa');
 
     public function mancateSegnalazioniStatoRapporto($banks)
     {
-        $CentraleRischiModel = DB::table('crs');
+        $CentraleRischiModel = DB::table('crs')->where('document_id', $this->_documentId);
         $periods = $this->buildPeriodArray();
 
         foreach ($periods as $queryPeriodArray) {
@@ -1941,7 +1953,7 @@ AND t.divisa = t2.divisa');
 
 
         $queryPeriodArray = array();
-        $CentraleRischiModel = DB::table('crs');
+        $CentraleRischiModel = DB::table('crs')->where('document_id', $this->_documentId);
         $lastMonth = $trimestre[2]['mese'];
 
         foreach ($trimestre as $queryPeriodArray) {
@@ -2008,7 +2020,7 @@ AND t.divisa = t2.divisa');
         );
         $sconfiniPerMese = array();
 
-        $CentraleRischiModel = DB::table('crs');
+        $CentraleRischiModel = DB::table('crs')->where('document_id', $this->_documentId);
 
         foreach ($periods as $queryPeriodArray) {
             $CentraleRischiModel->orWhere(function ($query) use ($queryPeriodArray, $categories) {
@@ -2165,7 +2177,7 @@ AND t.divisa = t2.divisa');
 
         $periods = $singleTrimestre;
 
-        $CentraleRischiModel = DB::table('crs');
+        $CentraleRischiModel = DB::table('crs')->where('document_id', $this->_documentId);
 
         foreach ($periods as $queryPeriodArray) {
             $CentraleRischiModel->orWhere(function ($query) use ($queryPeriodArray) {
@@ -2192,7 +2204,7 @@ AND t.divisa = t2.divisa');
             'RISCHI A REVOCA',
         );
 
-        $CentraleRischiModel = DB::table('crs');
+        $CentraleRischiModel = DB::table('crs')->where('document_id', $this->_documentId);
 
         foreach ($periods as $queryPeriodArray) {
             $CentraleRischiModel->orWhere(function ($query) use ($queryPeriodArray, $categories) {
@@ -2643,7 +2655,7 @@ AND t.divisa = t2.divisa');
                 'RISCHI A REVOCA',
             );
 
-            $CentraleRischiModel = DB::table('crs');
+            $CentraleRischiModel = DB::table('crs')->where('document_id', $this->_documentId);
 
             $CentraleRischiModel->orWhere(function ($query) use ($periods, $categories) {
                 $query->where($periods);

@@ -426,6 +426,7 @@ class CentraleRischiController extends Controller
 
             $crHelper = new CrExtractorHelper;
             $crHelper->setPeriod($periods);
+            $crHelper->setDocumentId($crAndamentaleData['period']);
             $periodsCorrect = $crHelper->buildPeriodArray();
 
             $banksQuery = DB::table('crs')->where('document_id', $crAndamentaleData['period']);
