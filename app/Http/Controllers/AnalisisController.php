@@ -59,7 +59,7 @@ class AnalisisController extends Controller
 
 
             Analisi::create($data);
-			
+
 			return response()->json([
 				'error' => false,
 				'data' => "Analisi was successfully added"
@@ -263,7 +263,7 @@ class AnalisisController extends Controller
 
             $arrayConVoci['Adeguatezza_Patrimoniale'] = array_merge($arrayConVoci['Adeguatezza_Patrimoniale'], $arrayConVoci['Patrimonio_Netto']);
 
-			 
+
             // ### RITORNO_LIQUIDO_ATTIVO ###
             $DebitiEsigibiliEntroEsercizioSuccessivo = isset($bilancioJSON->DebitiEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->DebitiEsigibiliEntroEsercizioSuccessivo : 0;
             $TotaleDisponibilitaLiquide = (isset($bilancioJSON->TotaleDisponibilitaLiquide) ? $bilancioJSON->TotaleDisponibilitaLiquide : $val = (isset($bilancioJSONprev->TotaleDisponibilitaLiquide) ? $bilancioJSONprev->TotaleDisponibilitaLiquide : 0));
@@ -691,6 +691,7 @@ class AnalisisController extends Controller
 
             $arrayConVoci['Saldo_dei_Debiti_verso_il_Fisco'] = array('FondiRischiOneriTrattamentoQuiescenzaObblighiSimiliCorrente', 'DebitiDebitiTributariTotaleDebitiTributariCorrente', 'DifferenzaImposteReddito');
         } catch (Exception $e) {
+            dd($e);
             if ($e->getMessage() == 'Division by zero') {
                 $msg = 'È stato effettuata una divisione per zero, ricontrollare i dati inseriti';
                 return view('errors.divisionbyzero', compact(['msg']));
@@ -716,15 +717,15 @@ class AnalisisController extends Controller
 		if(isset($dataAnalisisBasic['Adeguatezza_Patrimoniale'])) {
         $dataAnalisisBasic['Adeguatezza_Patrimoniale'] = str_replace(',', '.', $dataAnalisisBasic['Adeguatezza_Patrimoniale']);
 		} else {$dataAnalisisBasic['Adeguatezza_Patrimoniale'] = 0;}
-		
+
 		if(isset($dataAnalisisBasic['Liquidità'])) {
         $dataAnalisisBasic['Liquidità'] = str_replace(',', '.', $dataAnalisisBasic['Liquidità']);
 		}	else {$dataAnalisisBasic['Liquidità'] = 0;}
-			
+
 		if(isset($dataAnalisisBasic['Indebitamento_Previdenziale_Tributario'])) {
         $dataAnalisisBasic['Indebitamento_Previdenziale_Tributario'] = str_replace(',', '.', $dataAnalisisBasic['Indebitamento_Previdenziale_Tributario']);
 		}	else {$dataAnalisisBasic['Indebitamento_Previdenziale_Tributario'] = 0;}
-		
+
 		if(isset($dataAnalisisBasic['Current_Ratio'])) {
         $dataAnalisis['Current_Ratio'] = str_replace(',', '.', $dataAnalisis['Current_Ratio']);
 }	else {$dataAnalisis['Current_Ratio'] = 0;}
