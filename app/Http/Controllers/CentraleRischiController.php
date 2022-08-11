@@ -64,9 +64,9 @@ class CentraleRischiController extends Controller
 
 
         if ($request->header('currentcompany') || $request->header('currentcompany') === 0) {
-            $documentsCr = Document::where('company_id', $request->header('currentcompany'))->get();
+            $documentsCr = Document::where('company_id', $request->header('currentcompany'))->orderBy('created_at', 'desc')->get();
         } else {
-            $documentsCr = Document::all();
+            $documentsCr = Document::orderBy('created_at', 'desc')->get();
         }
 
         //$documentsBilanci = Document::where('type', 'bilancio')->get();
