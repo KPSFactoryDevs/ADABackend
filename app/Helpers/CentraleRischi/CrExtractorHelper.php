@@ -983,8 +983,8 @@ AND t.divisa = t2.divisa');
                     dd($data);
                 }
 
-                $mediaAnalisiIndebitamento[$singleLine]['Accordato Operativo'] += $singleRow->accordato_operativo;
-                $mediaAnalisiIndebitamento[$singleLine]['Utilizzato'] += $singleRow->utilizzato;
+                $mediaAnalisiIndebitamento[$singleLine]['Accordato Operativo'] += (float)$singleRow->accordato_operativo;
+                $mediaAnalisiIndebitamento[$singleLine]['Utilizzato'] += (float)$singleRow->utilizzato;
             }
         }
 
