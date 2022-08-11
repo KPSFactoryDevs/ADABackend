@@ -119,7 +119,11 @@ class CentraleRischiController extends Controller
             if (!$process->isSuccessful()) {
                 throw new ProcessFailedException($process);
             }
+            $crFileToElaborate->status = $liveStatus;
+            $crFileToElaborate->save();
         } catch (ProcessFailedException $e) {
+            $crFileToElaborate->status = $liveStatus;
+            $crFileToElaborate->save();
             dd($e);
         }
 
@@ -710,8 +714,7 @@ class CentraleRischiController extends Controller
                 }
             }
 
-            $crFileToElaborate->status = $liveStatus;
-            $crFileToElaborate->save();
+
 
             return response()->json([
                 'error' => false,
