@@ -199,7 +199,8 @@ class CentraleRischiController extends Controller
     {
 
         $base64CentraleRischi = $request->base64;
-        $storedFile = Storage::disk('public')->putFile('', $base64CentraleRischi);
+
+        $storedFile = Storage::disk('public')->putFileAs('', $base64CentraleRischi, time().'_'.$base64CentraleRischi->getClientOriginalName());
         $storeFullPath = asset('centraleRischi') . '/' . $storedFile;
 
         $newDocumentData = [
