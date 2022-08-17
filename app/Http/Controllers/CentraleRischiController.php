@@ -202,9 +202,9 @@ class CentraleRischiController extends Controller
 
         $storedFile = Storage::disk('public')->putFile('', $base64CentraleRischi);
         $storeFullPath = asset('centraleRischi') . '/' . $storedFile;
-
+ 
         $newDocumentData = [
-            'filename' => $base64CentraleRischi, time().'_'.$base64CentraleRischi->getClientOriginalName(),
+            'filename' => time().'_'.$base64CentraleRischi->getClientOriginalName(),
             'path' => $storeFullPath,
             'type' => 'centrale rischi',
             'codice_documento' => rand(1, 999999999),
