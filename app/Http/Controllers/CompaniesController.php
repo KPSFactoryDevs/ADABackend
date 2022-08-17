@@ -31,7 +31,7 @@ class CompaniesController extends Controller
      * @return Illuminate\View\View
      */
     public function create()
-    {   
+    {
         return response()->json([
 			'error' => false,
 		]);
@@ -47,9 +47,9 @@ class CompaniesController extends Controller
     public function store(Request $request)
     {
         try {
-           
+
             $data = $this->getData($request);
-			
+
           	$company = Company::create($data);
 
             return response()->json([
@@ -122,7 +122,7 @@ dd($exception);
 
             return back()->withInput()
                 ->withErrors(['unexpected_error' => 'Unexpected error occurred while trying to process your request.']);
-        }        
+        }
     }
 
     /**
@@ -149,18 +149,18 @@ dd($exception);
         }
     }
 
-    
+
     /**
      * Get the request's data from the request.
      *
-     * @param Illuminate\Http\Request\Request $request 
+     * @param Illuminate\Http\Request\Request $request
      * @return array
      */
     protected function getData(Request $request)
     {
         $rules = [
                 'partita_iva' => 'nullable|string|min:1|max:255',
-				'ragione_sociale' => 'nullable|string|max:11',
+				'ragione_sociale' => 'nullable|string|max:100',
 				'indirizzo' => 'nullable|string|max:100',
 				'provincia' => 'nullable|string|max:20',
 				'citta' => 'nullable|string|max:100',
@@ -171,10 +171,10 @@ dd($exception);
 				'ultimo_bilancio' => 'nullable',
 				'fatturato' => 'nullable|string|max:150',
 				'settore' => 'nullable',
-				'telefono' => 'nullable|string|max:20',			
+				'telefono' => 'nullable|string|max:20',
         ];
 
-        
+
         $data = $request->validate($rules);
 
 
