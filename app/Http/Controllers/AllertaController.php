@@ -266,9 +266,9 @@ class AllertaController extends Controller
                 }
             }
         }
-	
+
         $scoreAllerta = /*round($generalScore['Index'], 1).'/'."10".' - '.*/$generalScore['Giudizio'];
- 
+
         $scoresClean = array(
             array("title" => "Scoring Bilancio", "iconClass" => "bx-copy-alt", "description" => $scoreBilancioAllerta),
             array("title" => "Scoring Centrale Rischi", "iconClass" => "bx-archive-in", "description" => $scoreCr),
@@ -468,9 +468,9 @@ class AllertaController extends Controller
         // ### ADEGUATEZZA_PATRIMONIALE ###
         $TotaleDebiti = (isset($bilancioJSON->TotaleDebiti) ? $bilancioJSON->TotaleDebiti : 0);
         $PassivoRateiRisconti = (isset($bilancioJSON->PassivoRateiRisconti) ? $bilancioJSON->PassivoRateiRisconti : 0);
- 
+
         $ADEGUATEZZA_PATRIMONIALE = number_format((float)($PN_NEGATIVO / ($TotaleDebiti + (float)$PassivoRateiRisconti)) * 100, 2, ',', '');
-		
+
         $dataAnalisis['ADEGUATEZZA_PATRIMONIALE'] = $ADEGUATEZZA_PATRIMONIALE . '%';
         $arrayConVoci['ADEGUATEZZA_PATRIMONIALE'] = array('TotaleDebiti', 'PassivoRateiRisconti');
 
@@ -1157,7 +1157,7 @@ Garantito'];
         return view('allerta.select', compact('bilancis', 'bilanciProvvisori'));
     }
 
-    public function allertaGeneral($id)
+    public function allertaGeneral($id, $idCr)
     {
         $ASISfinalScore = false;
         $generalScore = false;
@@ -1168,7 +1168,7 @@ Garantito'];
             return view('allerta.empty', compact(['msg']));
         } else {
 
-            $crs = cr::select('anno', 'mese', 'date')->distinct()->orderBy('date', 'asc')->get();
+            $crs = cr::select('anno', 'mese', 'date')->where('document_id', $idCr)->distinct()->orderBy('date', 'asc')->get();
 
             for ($i = (count($crs) - 12 >= 0) ? count($crs) - 12 : 0; $i < count($crs); $i++) {
                 $periods[$crs[$i]->anno][$crs[$i]->mese] = null;
@@ -1350,9 +1350,9 @@ Garantito'];
                         }
                     }
                 }
-				
-				
-				
+
+
+
 				if($punteggioCR >= 0 && $punteggioCR < 0.14){
 					$resultCentraleRischi = "Default";
 				}
@@ -1374,8 +1374,8 @@ Garantito'];
 				else if($punteggioCR >= 0.85 && $punteggioCR <= 1){
 					$resultCentraleRischi = "Solidità";
 				}
-				
-																  
+
+
 				if($bilancioData['Giudizi']['Score'] >= 0 && $bilancioData['Giudizi']['Score'] < 0.14){
 					$resultAnalisiBilancio = "Default";
 				}
@@ -1397,8 +1397,8 @@ Garantito'];
 				else if($bilancioData['Giudizi']['Score'] >= 0.85 && $bilancioData['Giudizi']['Score'] <= 1){
 					$resultAnalisiBilancio = "Solidità";
 				}
-				
-				
+
+
 				if($scoreASIS['3'] >= 0 && $scoreASIS['3'] < 0.14){
 					$resultMinacceRapportiCommerciali = "Default";
 				}
@@ -1420,8 +1420,8 @@ Garantito'];
 				else if($scoreASIS['3'] >= 0.85 && $scoreASIS['3'] <= 1){
 					$resultMinacceRapportiCommerciali = "Solidità";
 				}
-				
-				
+
+
 				 if($scoreASIS['4'] >= 0 && $scoreASIS['4'] < 0.14){
 					 $resultMinacceGestioneAziendale = "Default";
 				 }
@@ -1443,8 +1443,8 @@ Garantito'];
 				else if($scoreASIS['4'] >= 0.85 && $scoreASIS['4'] <= 1){
 					$resultMinacceGestioneAziendale = "Solidità";
 				}
-				
-				
+
+
 				 if($scoreASIS['5'] >= 0 && $scoreASIS['5'] < 0.14){
 					 $resultMinacceEventiPregiudizievoli = "Default";
 				 }
@@ -1466,8 +1466,8 @@ Garantito'];
 				else if($scoreASIS['5'] >= 0.85 && $scoreASIS['5'] <= 1){
 					$resultMinacceEventiPregiudizievoli = "Solidità";
 				}
-				
-				
+
+
 				if($scoreASIS['6'] >= 0 && $scoreASIS['6'] < 0.14){
 					$resultMinacceRischiCaratteristici = "Default";
 				}
@@ -1489,20 +1489,20 @@ Garantito'];
 				else if($scoreASIS['6'] >= 0.85 && $scoreASIS['6'] <= 1){
 					$resultMinacceRischiCaratteristici = "Solidità";
 				}
-				
+
 				if($ASISfinalScore) {
 					$ASISScore = $ASISfinalScore['Giudizio'];
 				}
-				
+
 				if($scoreFL) {
 					$scoreGiudizioFL = $scoreFL['Giudizio'];
 				}
-				
-				
+
+
 				$risultato = [
 					'giudizio' => [
 					'Area Esaminata' => [
-						'name' => 'Analisi Centrale Rischi', 
+						'name' => 'Analisi Centrale Rischi',
 						'risultato' => $resultCentraleRischi,
 					],
 					'Analisi bilancio' => [
@@ -1528,7 +1528,7 @@ Garantito'];
 					],
 				 ],
 				];
-				
+
 
                 return response()->json([
                     'error' => 'false',

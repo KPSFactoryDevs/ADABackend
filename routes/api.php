@@ -46,7 +46,7 @@ Route::group(['middleware' => ['cors', 'json.response']], function () {
 	Route::get('/getDocuments/{id}', 'App\Http\Controllers\CentraleRischiController@getDocumentsById');
     
     // SISTEMA DI ALLERTA
-    Route::get('/generalAllerta/{id}', 'App\Http\Controllers\AllertaController@allertaGeneral');
+    Route::get('/generalAllerta/{id}/{idCr}', 'App\Http\Controllers\AllertaController@allertaGeneral');
     // GET LAST SCORES BILANCIO - CR - ALLERTA
     Route::get('/getScores', 'App\Http\Controllers\AllertaController@getAllScores');
 
