@@ -30,16 +30,17 @@ class BilanciController extends Controller
     public function index(Request $request)
     {
         $bilancis = Bilanci::with('account');
-		
+
 			if($request->header('currentcompany') || $request->header('currentcompany') === 0) {
 				$bilancis = $bilancis->where('company_id', $request->header('currentcompany'));
 			}
 		$bilancis = $bilancis->paginate(25);
-			
-		 
+
+
         foreach ($bilancis as $singleBilancio) {
             $year = explode(' ', $singleBilancio->year);
             $year = $year[0];
+     
             $singleBilancio->company_name = json_decode($singleBilancio->json_data_anag)->DatiAnagraficiDenominazione;
             $singleBilancio->annoFormatted = date('Y', strtotime($year));
         }
@@ -60,8 +61,8 @@ class BilanciController extends Controller
         $accounts = Account::pluck('name', 'id')->all();
         return view('bilanci.create', compact('accounts'));
     }
-	
-	public function copiaBilancio(Request $request) 
+
+	public function copiaBilancio(Request $request)
 	{
 		if($request->id) {
 			$bilancioReplicated = Bilanci::find($request->id);
@@ -79,15 +80,15 @@ class BilanciController extends Controller
 				'error' => true,
 				'data' => "ID Bilancio non trovato"
 			], 404);
-		}	
+		}
 	}
-	
+
 	public function bilancioPredefinito(Request $request) {
 		if($request->id) {
 			$bilancio = Bilanci::find($request->id);
 			$bilancio->predefinito = 1;
 			$bilancio->update();
-			
+
 			return response()->json([
 				'error' => false,
 				'data' => 'Bilancio impostato come predefinito'
@@ -99,12 +100,12 @@ class BilanciController extends Controller
 			], 404);
 		}
 	}
-	
-	public function getLatestYears() 
+
+	public function getLatestYears()
 	{
 		$valoreDellaProduzioneUltimoAnno = Bilanci::pluck('json_data')->last();
 		$valoreDellaProduzioneAnnoPrev = Bilanci::pluck('json_data_prev')->last();
-		
+
 		$valoreUltimoAnno = json_decode($valoreDellaProduzioneUltimoAnno);
 		$valoreAnnoPrecedente = json_decode($valoreDellaProduzioneAnnoPrev);
 
@@ -113,13 +114,13 @@ class BilanciController extends Controller
 				'name' => '2020',
 				'data' => [$valoreAnnoPrecedente->TotaleValoreProduzione, 0],
 			],
-		
+
 			$lastYear[] = [
 				'name' => '2021',
 				'data' => [0, $valoreUltimoAnno->TotaleValoreProduzione],
 			]
 		];
-		
+
 		return response()->json([
 			'error' => false,
 			'date' => $latestYears
@@ -555,7 +556,7 @@ class BilanciController extends Controller
         $request->session()->put('gradi', $gradi);
         $request->session()->put('vociExt', $vociExt);
         $request->session()->put('account_id', $request->input('account_id'));
-     
+
 
         return response()->json([
 
@@ -571,7 +572,7 @@ class BilanciController extends Controller
                 'gradi' => $gradi,
                 'vociExt' => $vociExt,
                 'account_id' => $request->input('account_id')
-          
+
         ]);
     }
 
@@ -597,10 +598,10 @@ class BilanciController extends Controller
      * @return mixed
      */
     public function store(Request $request)
-    {	
+    {
 		if(isset($request->base64)) {
 		$importBilancio = $request->base64;
-		
+
         $fileName = time() . '.xbrl';
 
         Storage::disk('bilanci')->put($fileName, base64_decode($importBilancio));
@@ -614,13 +615,13 @@ class BilanciController extends Controller
         ];
 
         Document::create($dataBilancio);
-			
+
 			return response()->json([
 				'error' => false,
 				'data' => $dataBilancio,
 			]);
 		}
-		
+
         $jsonData = array();
         $jsonDataPrev = array();
         $jsonDataAnag = array();
@@ -740,15 +741,15 @@ $companyId = 0;
 			'company_id' => $companyId
         ]);
 
-		
+
         return response()->json([
 				'bilancioImported' => true,
          		'tipo_azienda' => $tipoAzienda,
             'forma_giuridica' => $formaGiuridica
-          
+
         ]);
 
-      
+
     }
 
 

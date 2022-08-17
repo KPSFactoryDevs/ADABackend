@@ -24,6 +24,7 @@ use Symfony\Component\Process\Process;
 use App\Helpers\CentraleRischi\CrExtractorHelper;
 use App\Helpers\CentraleRischi\newCrExtractor;
 use App\Models\Document;
+
 use DateTime;
 use Storage;
 use Exception;
@@ -72,8 +73,14 @@ class CentraleRischiController extends Controller
         //$documentsBilanci = Document::where('type', 'bilancio')->get();
 
         foreach ($documentsCr as $singleDocument) {
+            $textPeriodAvailable = "";
+            $periodAvailable = cr::select(['mese','anno'])->Where('document_id', $singleDocument->codice_documento)->get();
+            foreach($periodAvailable as $singlePeriod) {
+                $textPeriodAvailable .= substr(ucFirst($singlePeriod->mese),0,3)." ".$singlePeriod->anno." - ";
+            }
             $singleDocument['status'] = ucfirst(str_replace('_', ' ', $singleDocument['status']));
             $singleDocument['type'] = ucfirst($singleDocument['type']);
+            $singleDocument['availableMonths'] = $textPeriodAvailable;
         }
 
 
