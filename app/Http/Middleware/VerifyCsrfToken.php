@@ -26,5 +26,7 @@ class VerifyCsrfToken extends Middleware
 		'api/recapBilancio',
         'api/*',
 		'api/importCr',
+		'api/bilancio',
+		'api/deleteDocument',
     ];
 }
