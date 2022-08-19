@@ -13,6 +13,7 @@ class AllertaHelper
     private $crExtractorHelper;
     public $_period = false;
     public $_countMonths = false;
+    public $_documentId = false;
 
     public function getPunteggioCR($alerts)
     {
@@ -97,6 +98,15 @@ class AllertaHelper
         return $this->_countMonths;
     }
 
+    public function setDocumentId($documentId)
+    {
+        $this->_documentId = $documentId;
+    }
+
+    public function getDocumentId()
+    {
+        return $this->_documentId;
+    }
 
     public function setCrExtractor($CrHelper)
     {
