@@ -1199,7 +1199,7 @@ AND t.divisa = t2.divisa');
         $CentraleRischiModel = DB::table('crs')->where('document_id', $this->_documentId);
 
         foreach ($periods as $queryPeriodArray) {
-            $CentraleRischiModel->orWhere(function ($query) use ($queryPeriodArray, $banks) {
+            $CentraleRischiModel->Where(function ($query) use ($queryPeriodArray, $banks) {
                 $query->where($queryPeriodArray);
                 $query->whereIn('nome_banca', $banks);
                 $query->where('stato_rapporto', 'not like', '%non contestati%');
