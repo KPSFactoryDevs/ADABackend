@@ -1382,7 +1382,7 @@ Garantito'];
 					$resultCentraleRischi = "Solidità";
 				}
 
-
+                $resultAnalisiBilancio = "N/A";
 				if($bilancioData['Giudizi']['Score'] >= 0 && $bilancioData['Giudizi']['Score'] < 0.14){
 					$resultAnalisiBilancio = "Default";
 				}
