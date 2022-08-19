@@ -270,7 +270,7 @@ class CentraleRischiController extends Controller
 
 
 
-    public function destroy(idDocument)
+    public function destroy($idDocument)
     {
         if(!$idDocument) {
             return response()->json([
