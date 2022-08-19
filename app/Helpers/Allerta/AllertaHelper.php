@@ -814,7 +814,7 @@ class AllertaHelper
                 $query->where($queryPeriodArray);
                 $query->whereIn('categoria', $categories);
                 $query->where('utilizzato', '!=', "");
-            })->where('t1.document_id', $this->_documentId);
+            })->where('document_id', $this->_documentId);
         }
 
         $utilizzatoModel = $utilizzatoModel
