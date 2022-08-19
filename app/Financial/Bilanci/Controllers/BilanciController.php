@@ -40,7 +40,7 @@ class BilanciController extends Controller
         foreach ($bilancis as $singleBilancio) {
             $year = explode(' ', $singleBilancio->year);
             $year = $year[0];
-     
+
             $singleBilancio->company_name = json_decode($singleBilancio->json_data_anag)->DatiAnagraficiDenominazione;
             $singleBilancio->annoFormatted = date('Y', strtotime($year));
         }
@@ -803,22 +803,31 @@ $companyId = 0;
         return view('bilanci.show')->with(['jsonData' => $jsonData]);
     }
 
-    /**
-     * @param  DeleteUserRequest  $request
-     * @param  User  $user
-     *
-     * @return mixed
-     * @throws \App\Exceptions\GeneralException
-     */
-    public function destroy(Bilanci $bilancio)
-    {
-        $attributes = $bilancio->getAttributes();
-        $idDel = $attributes['id'];
-        $bilanciSing = Bilanci::find($idDel);
-        $bilanciSing->delete(); //delete the client
 
-        return redirect()->route('bilanci.index')->withFlashSuccess(__('The Bilancio was successfully deleted.'));
-    }
+    public function destroy($idBilancio)
+    {
+        if(!$idBilancio) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Specifica l\'Id del bilancio',
+            ]);
+        }
+        try {
+            $bilancio = Bilanci::findOrFail($idBilancio);
+            $bilancio->delete();
+
+            return response()->json([
+                'error' => false,
+                'message' => 'Bilancio eliminato correttamente',
+            ]);
+        } catch (Excepton $e) {
+            return response()->json([
+                'error' => false,
+                'type' => 'Eccezione',
+                'message' => $e,
+            ]);
+        }
+   }
 
     public function showCurrent(Request $request)
     {

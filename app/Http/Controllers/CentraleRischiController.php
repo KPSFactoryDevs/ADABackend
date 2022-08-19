@@ -202,7 +202,7 @@ class CentraleRischiController extends Controller
 
         $storedFile = Storage::disk('public')->putFile('', $base64CentraleRischi);
         $storeFullPath = asset('centraleRischi') . '/' . $storedFile;
- 
+
         $newDocumentData = [
             'filename' => time().'_'.$base64CentraleRischi->getClientOriginalName(),
             'path' => $storeFullPath,
@@ -269,21 +269,30 @@ class CentraleRischiController extends Controller
 
 
 
-    /**
-     * @param  DeleteUserRequest  $request
-     * @param  User  $user
-     *
-     * @return mixed
-     * @throws \App\Exceptions\GeneralException
-     */
-    public function destroy(Bilanci $bilancio)
-    {
-        $attributes = $bilancio->getAttributes();
-        $idDel = $attributes['id'];
-        $bilanciSing = Bilanci::find($idDel);
-        $bilanciSing->delete(); //delete the client
 
-        return redirect()->route('admin.bilanci.bilancio.index')->withFlashSuccess(__('The Bilancio was successfully deleted.'));
+    public function destroy(idDocument)
+    {
+        if(!$idDocument) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Specifica l\'Id del bilancio',
+            ]);
+        }
+        try {
+            $document = Bilanci::findOrFail($idDocument);
+            $document->delete();
+
+            return response()->json([
+                'error' => false,
+                'message' => 'Bilancio eliminato correttamente',
+            ]);
+        } catch (Excepton $e) {
+            return response()->json([
+                'error' => false,
+                'type' => 'Eccezione',
+                'message' => $e,
+            ]);
+        }
     }
 
 
