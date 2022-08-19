@@ -280,7 +280,7 @@ class CentraleRischiController extends Controller
         }
         try {
             $document = Document::findOrFail($idDocument);
-            $crRows = Crs::where('document_id', $document->codice_documento);
+            $crRows = cr::where('document_id', $document->codice_documento);
 
             $crRows->delete();
             $document->delete();
