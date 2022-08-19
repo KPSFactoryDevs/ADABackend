@@ -526,7 +526,7 @@ class AllertaHelper
                     ->where('t1.categoria', 'GARANZIE RICEVUTE')
                     ->where('t2.categoria', 'GARANZIE RICEVUTE')
                     ->where('t1.document_id', $this->_documentId)
-                    ->where('t2-document_id', $this->_documentId)
+                    ->where('t2.document_id', $this->_documentId)
                     ->whereRaw("t1.date between '" . $currentMonth->format('Y-m-01') . "' and '" . $currentMonth->format('Y-m-t') . "'")
                     ->whereRaw("t2.date between '" . $nextMonth->format('Y-m-01') . "' and '" . $nextMonth->format('Y-m-t') . "'")
                     ->get();
