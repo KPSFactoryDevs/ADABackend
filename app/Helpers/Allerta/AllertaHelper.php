@@ -819,7 +819,7 @@ class AllertaHelper
 
         $utilizzatoModel = $utilizzatoModel
             ->groupBy('date', 'anno', 'mese', 'utilizzato', 'divisa', 'localizzazione', 'nome_banca', 'categoria', 'accordato_operativo')
-            ->selectRaw('anno, mese, utilizzato ,divisa , localizzazione, nome_banca , categoria , date, accordato_operativo')
+            ->selectRaw('document_id, anno, mese, utilizzato ,divisa , localizzazione, nome_banca , categoria , date, accordato_operativo')
             ->orderBy('date')
             ->get();
 
