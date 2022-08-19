@@ -522,7 +522,7 @@ class AllertaHelper
 
                 $joins = DB::table('crs as t1')
                     ->join('crs as t2', 't1.nome_banca', '=', 't2.nome_banca')
-                    ->selectRaw('t1.nome_banca as banca, t1.garanzia as garantito1, t2.garanzia as garantito2, t1.date as date1, t2.date as date2, t1.categoria as cat1, t2.categoria as cat2, t1.localizzazione as loc1, t2. localizzazione as loc2, t1.garantito as nomeGarantito1, t2.garantito as nomeGarantito2, t1.stato_rapporto as statoRapporto1, t2.stato_rapporto as statoRapporto2, t1.tipo_garanzia as tipoGaranzia1, t2.tipo_garanzia as tipoGaranzia2, t1.codice_coint as coint1, t2.codice_coint as coint2')
+                    ->selectRaw('t1.nome_banca as banca,  t1.document_id as document1, t2.document_id as document2, t1.garanzia as garantito1, t2.garanzia as garantito2, t1.date as date1, t2.date as date2, t1.categoria as cat1, t2.categoria as cat2, t1.localizzazione as loc1, t2. localizzazione as loc2, t1.garantito as nomeGarantito1, t2.garantito as nomeGarantito2, t1.stato_rapporto as statoRapporto1, t2.stato_rapporto as statoRapporto2, t1.tipo_garanzia as tipoGaranzia1, t2.tipo_garanzia as tipoGaranzia2, t1.codice_coint as coint1, t2.codice_coint as coint2')
                     ->where('t1.categoria', 'GARANZIE RICEVUTE')
                     ->where('t2.categoria', 'GARANZIE RICEVUTE')
                     ->where('t1.document_id', $this->_documentId)
@@ -568,7 +568,7 @@ class AllertaHelper
 
                 $joins = DB::table('crs as t1')
                     ->join('crs as t2', 't1.nome_banca', '=', 't2.nome_banca')
-                    ->selectRaw('t1.nome_banca as banca, t1.importo_garantito as garantito1, t2.importo_garantito as garantito2, t1.date as date1, t2.date as date2, t1.localizzazione as loc1, t2.localizzazione as loc2, t1.divisa as divisa1, t2.divisa as divisa2, t1.categoria as cat1, t2.categoria as cat2')
+                    ->selectRaw('t1.nome_banca as banca,  t1.document_id as document1, t2.document_id as document2, t1.importo_garantito as garantito1, t2.importo_garantito as garantito2, t1.date as date1, t2.date as date2, t1.localizzazione as loc1, t2.localizzazione as loc2, t1.divisa as divisa1, t2.divisa as divisa2, t1.categoria as cat1, t2.categoria as cat2')
                     ->where('t1.stato_rapporto', 'Crediti impagati')
                     ->where('t2.stato_rapporto', 'Crediti impagati')
                     ->where('t1.sezione', 'Informativa')
@@ -652,7 +652,7 @@ class AllertaHelper
 
                     $joins = DB::table('crs as t1')
                         ->join('crs as t2', 't1.nome_banca', '=', 't2.nome_banca')
-                        ->selectRaw('t1.nome_banca as banca, t1.accordato_operativo as accordato1, t2.accordato_operativo as accordato2, t1.date as date1, t2.date as date2, t1.localizzazione as loc1, t2.localizzazione as loc2, t1.divisa as divisa1, t2.divisa as divisa2, t1.categoria as cat1, t2.categoria as cat2')
+                        ->selectRaw('t1.nome_banca as banca,  t1.document_id as document1, t2.document_id as document2, t1.accordato_operativo as accordato1, t2.accordato_operativo as accordato2, t1.date as date1, t2.date as date2, t1.localizzazione as loc1, t2.localizzazione as loc2, t1.divisa as divisa1, t2.divisa as divisa2, t1.categoria as cat1, t2.categoria as cat2')
                         ->where('t1.categoria', $singleCategoria)
                         ->where('t2.categoria', $singleCategoria)
                         ->where('t1.document_id', $this->_documentId)
@@ -766,7 +766,7 @@ class AllertaHelper
 
                     $joins = DB::table('crs as t1')
                         ->join('crs as t2', 't1.nome_banca', '=', 't2.nome_banca')
-                        ->selectRaw('t1.nome_banca as banca, t1.utilizzato as utilizzato1, t2.utilizzato as utilizzato2, t1.date as date1, t2.date as date2, t1.localizzazione as loc1, t2.localizzazione as loc2, t1.divisa as divisa1, t2.divisa as divisa2, t1.categoria as cat1, t2.categoria as cat2')
+                        ->selectRaw('t1.nome_banca as banca,  t1.document_id as document1, t2.document_id as document2, t1.utilizzato as utilizzato1, t2.utilizzato as utilizzato2, t1.date as date1, t2.date as date2, t1.localizzazione as loc1, t2.localizzazione as loc2, t1.divisa as divisa1, t2.divisa as divisa2, t1.categoria as cat1, t2.categoria as cat2')
                         ->where('t1.categoria', $singleCategoria)
                         ->where('t2.categoria', $singleCategoria)
                         ->where('t1.document_id', $this->_documentId)
