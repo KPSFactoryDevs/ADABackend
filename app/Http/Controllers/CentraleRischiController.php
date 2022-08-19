@@ -408,7 +408,7 @@ class CentraleRischiController extends Controller
 
             $unrefinedPeriods = json_decode(DB::table('crs')
                 ->select('anno', 'mese', 'date')
-               // ->where("date", '>', $earlierDate->modify('first day of this month')->format('Y-m-d'))->where("date", '<', $lastDate->modify('last day of this month')->format('Y-m-d'))
+                ->where("date", '>', $earlierDate->modify('first day of this month')->format('Y-m-d'))->where("date", '<', $lastDate->modify('last day of this month')->format('Y-m-d'))
 				->where('document_id', $crAndamentaleData['period'])
                 ->groupBy('date', 'anno', 'mese')
                 ->orderBy('date')

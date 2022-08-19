@@ -1170,6 +1170,7 @@ Garantito'];
 
             $crs = cr::select('anno', 'mese', 'date')->where('document_id', $idCr)->distinct()->orderBy('date', 'asc')->get();
 
+
             for ($i = (count($crs) - 12 >= 0) ? count($crs) - 12 : 0; $i < count($crs); $i++) {
                 $periods[$crs[$i]->anno][$crs[$i]->mese] = null;
             }
