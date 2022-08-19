@@ -36,7 +36,7 @@ Route::group(['middleware' => ['cors', 'json.response']], function () {
     Route::get('/getBilancio/{id}', 'App\Financial\Bilanci\Controllers\BilanciController@show');
     Route::get('/getAllBilanci', 'App\Financial\Bilanci\Controllers\BilanciController@index');
 	Route::get('/getLatestYears', 'App\Financial\Bilanci\Controllers\BilanciController@getLatestYears');
-    Route::delete('/bilancio/{idBilancio}', 'App\Financial\ContBilanci\rollers\BilanciController@destroy');
+    Route::delete('/bilancio/{idBilancio}', 'App\Financial\Bilanci\Controllers\BilanciController@destroy');
 
 
 
