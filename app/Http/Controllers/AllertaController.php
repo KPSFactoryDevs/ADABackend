@@ -82,7 +82,7 @@ class AllertaController extends Controller
 
         // Score centrale rischi
 
-        $crs = cr::select('anno', 'mese', 'date')->where('document_id', $this->_documentId)->distinct()->orderBy('date', 'asc')->get();
+        $crs = cr::select('anno', 'mese', 'date')->distinct()->orderBy('date', 'asc')->get();
 
         for ($i = (count($crs) - 12 >= 0) ? count($crs) - 12 : 0; $i < count($crs); $i++) {
             $periods[$crs[$i]->anno][$crs[$i]->mese] = null;
@@ -114,13 +114,13 @@ class AllertaController extends Controller
         $earliestYear = array_key_first($periods);
         $earliestMonth = array_key_first($periods[$earliestYear]);
 
-        $upperBoundDate = new DateTime((cr::select('date')->where('document_id', $this->_documentId)->where('anno', $earliestYear)->where('mese', $earliestMonth)->get()->first())->date);
+        $upperBoundDate = new DateTime((cr::select('date')->where('anno', $earliestYear)->where('mese', $earliestMonth)->get()->first())->date);
         $lowerBoundDate = new DateTime($upperBoundDate->format('Y-m-d'));
         $lowerBoundDate = $lowerBoundDate->modify('-11 months');
 
         $banks = array();
 
-        foreach (cr::select('nome_banca')->where('document_id', $this->_documentId)->where('date', '>=', $lowerBoundDate->format('Y-m-d'))->where('date', '<=', $upperBoundDate->format('Y-m-d'))->distinct()->get()->toArray() as $label => $nomeBanca) {
+        foreach (cr::select('nome_banca')->where('date', '>=', $lowerBoundDate->format('Y-m-d'))->where('date', '<=', $upperBoundDate->format('Y-m-d'))->distinct()->get()->toArray() as $label => $nomeBanca) {
             $banks[] = $nomeBanca["nome_banca"];
         }
 
@@ -1190,23 +1190,28 @@ Garantito'];
             $earliestYear = array_key_first($periods);
             $earliestMonth = array_key_first($periods[$earliestYear]);
 
-            $upperBoundDate = new DateTime((cr::select('date')->where('anno', $earliestYear)->where('mese', $earliestMonth)->where('document_id', $this->_documentId)->get()->first())->date);
+            $upperBoundDate = new DateTime((cr::select('date')->where('anno', $earliestYear)->where('mese', $earliestMonth)->where('document_id', $idCr)->get()->first())->date);
             $lowerBoundDate = new DateTime($upperBoundDate->format('Y-m-d'));
             $lowerBoundDate = $lowerBoundDate->modify('-11 months');
 
             $banks = array();
 
-            foreach (cr::select('nome_banca')->where('document_id', $this->_documentId)->where('date', '>=', $lowerBoundDate->format('Y-m-d'))->where('date', '<=', $upperBoundDate->format('Y-m-d'))->distinct()->get()->toArray() as $label => $nomeBanca) {
+            foreach (cr::select('nome_banca')->where('document_id', $idCr)->where('date', '>=', $lowerBoundDate->format('Y-m-d'))->where('date', '<=', $upperBoundDate->format('Y-m-d'))->distinct()->get()->toArray() as $label => $nomeBanca) {
                 $banks[] = $nomeBanca["nome_banca"];
             }
 
             $crHelper = new CrExtractorHelper;
             $crHelper->setPeriod($periods);
             $crHelper->setDocumentId($idCr);
+
+
             $cleanCR = $crHelper->getAllDataToArray($banks);
             $intermediari = $crHelper->getCountBanks($banks);
 
             $allertaHelper = new AllertaHelper;
+            $allertaHelper->setDocumentId($idCr);
+            $documentId = $allertaHelper->getDocumentId();
+
             $crExtractorHelper = new CrExtractorHelper;
 
             $allertaHelper->setCrExtractor($crExtractorHelper);

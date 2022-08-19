@@ -168,6 +168,7 @@ class AllertaHelper
         $lastDate = new DateTime((cr::select('date')
             ->where('anno', '=', $latestYear)
             ->where('mese', '=', $latestMonth)
+            ->where('document_id', $this->_documentId)
             ->first())->date);
 
         $triennio = new DateTime($lastDate->format('Y-m-d'));
@@ -524,6 +525,8 @@ class AllertaHelper
                     ->selectRaw('t1.nome_banca as banca, t1.garanzia as garantito1, t2.garanzia as garantito2, t1.date as date1, t2.date as date2, t1.categoria as cat1, t2.categoria as cat2, t1.localizzazione as loc1, t2. localizzazione as loc2, t1.garantito as nomeGarantito1, t2.garantito as nomeGarantito2, t1.stato_rapporto as statoRapporto1, t2.stato_rapporto as statoRapporto2, t1.tipo_garanzia as tipoGaranzia1, t2.tipo_garanzia as tipoGaranzia2, t1.codice_coint as coint1, t2.codice_coint as coint2')
                     ->where('t1.categoria', 'GARANZIE RICEVUTE')
                     ->where('t2.categoria', 'GARANZIE RICEVUTE')
+                    ->where('t1.document_id', $this->_documentId)
+                    ->where('t2-document_id', $this->_documentId)
                     ->whereRaw("t1.date between '" . $currentMonth->format('Y-m-01') . "' and '" . $currentMonth->format('Y-m-t') . "'")
                     ->whereRaw("t2.date between '" . $nextMonth->format('Y-m-01') . "' and '" . $nextMonth->format('Y-m-t') . "'")
                     ->get();
@@ -570,6 +573,8 @@ class AllertaHelper
                     ->where('t2.stato_rapporto', 'Crediti impagati')
                     ->where('t1.sezione', 'Informativa')
                     ->where('t2.sezione', 'Informativa')
+                    ->where('t1.document_id', $this->_documentId)
+                    ->where('t2.document_id', $this->_documentId)
                     ->whereIn('t1.categoria', array('RISCHI AUTOLIQUIDANTI - CREDITI SCADUTI'))
                     ->whereIn('t2.categoria', array('RISCHI AUTOLIQUIDANTI - CREDITI SCADUTI'))
                     ->whereRaw("t1.date between '" . $currentMonth->format('Y-m-01') . "' and '" . $currentMonth->format('Y-m-t') . "'")
@@ -650,6 +655,8 @@ class AllertaHelper
                         ->selectRaw('t1.nome_banca as banca, t1.accordato_operativo as accordato1, t2.accordato_operativo as accordato2, t1.date as date1, t2.date as date2, t1.localizzazione as loc1, t2.localizzazione as loc2, t1.divisa as divisa1, t2.divisa as divisa2, t1.categoria as cat1, t2.categoria as cat2')
                         ->where('t1.categoria', $singleCategoria)
                         ->where('t2.categoria', $singleCategoria)
+                        ->where('t1.document_id', $this->_documentId)
+                        ->where('t2.document_id', $this->_documentId)
                         ->whereRaw("t1.date between '" . $currentMonth->format('Y-m-01') . "' and '" . $currentMonth->format('Y-m-t') . "'")
                         ->whereRaw("t2.date between '" . $nextMonth->format('Y-m-01') . "' and '" . $nextMonth->format('Y-m-t') . "'")
                         ->get();
@@ -762,6 +769,8 @@ class AllertaHelper
                         ->selectRaw('t1.nome_banca as banca, t1.utilizzato as utilizzato1, t2.utilizzato as utilizzato2, t1.date as date1, t2.date as date2, t1.localizzazione as loc1, t2.localizzazione as loc2, t1.divisa as divisa1, t2.divisa as divisa2, t1.categoria as cat1, t2.categoria as cat2')
                         ->where('t1.categoria', $singleCategoria)
                         ->where('t2.categoria', $singleCategoria)
+                        ->where('t1.document_id', $this->_documentId)
+                        ->where('t2.document_id', $this->_documentId)
                         ->whereRaw("t1.date between '" . $currentMonth->format('Y-m-01') . "' and '" . $currentMonth->format('Y-m-t') . "'")
                         ->whereRaw("t2.date between '" . $nextMonth->format('Y-m-01') . "' and '" . $nextMonth->format('Y-m-t') . "'")
                         ->get();
@@ -805,7 +814,7 @@ class AllertaHelper
                 $query->where($queryPeriodArray);
                 $query->whereIn('categoria', $categories);
                 $query->where('utilizzato', '!=', "");
-            });
+            })->where('t1.document_id', $this->_documentId);
         }
 
         $utilizzatoModel = $utilizzatoModel
