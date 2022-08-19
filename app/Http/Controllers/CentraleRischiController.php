@@ -279,7 +279,10 @@ class CentraleRischiController extends Controller
             ]);
         }
         try {
-            $document = Bilanci::findOrFail($idDocument);
+            $document = Document::findOrFail($idDocument);
+            $crRows = Crs::where('document_id', $document->codice_documento);
+
+            $crRows->delete();
             $document->delete();
 
             return response()->json([
