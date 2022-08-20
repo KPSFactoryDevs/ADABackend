@@ -62,45 +62,20 @@ Route::group(['middleware' => ['cors', 'json.response']], function () {
 
 	// PDF MONKEY
 	Route::get('/reportBasicPDF/{id}', 'App\Http\Controllers\PDFController@reportBasicPdf');
-	Route::get('/crAndamentale/{years}', 'App\Http\Controllers\PDFController@reportCrAndamentale');
 	Route::get('/reportAllerta/{years}', 'App\Http\Controllers\PDFController@reportAllerta');
 
-	// Companies
-		Route::get('/company', 'App\Http\Controllers\CompaniesController@index');
-		Route::get('/createCompany', 'App\Http\Controllers\CompaniesController@create');
-		Route::get('/showCompany/{company}', 'App\Http\Controllers\CompaniesController@show');
-		Route::get('/editCompany/{company}', 'App\Http\Controllers\CompaniesController@edit');
-		Route::post('/company', 'App\Http\Controllers\CompaniesController@store');
-		Route::put('/company/{company}', 'App\Http\Controllers\CompaniesController@update');
-		Route::delete('/company/{company}', 'App\Http\Controllers\CompaniesController@destroy');
+// Companies
+    Route::get('/company', 'App\Http\Controllers\CompaniesController@index');
+    Route::get('/createCompany', 'App\Http\Controllers\CompaniesController@create');
+    Route::get('/showCompany/{company}', 'App\Http\Controllers\CompaniesController@show');
+    Route::get('/editCompany/{company}', 'App\Http\Controllers\CompaniesController@edit');
+    Route::post('/company', 'App\Http\Controllers\CompaniesController@store');
+    Route::put('/company/{company}', 'App\Http\Controllers\CompaniesController@update');
+    Route::delete('/company/{company}', 'App\Http\Controllers\CompaniesController@destroy');
 
-
-	// CALL JOBS
 
 
 
 
 });
 
-
-// Route::group(['middleware' => ['web']], function () {
-
-//     // ANALISI DEL BILANCIO
-//     Route::get('/analisiBilancioGeneral/{id}', 'App\Http\Controllers\AnalisisController@show');
-
-//     // BILANCI
-//     Route::post('/recapBilancio', 'App\Financial\Bilanci\Controllers\BilanciController@recap');
-//     Route::post('/importBilancio', 'App\Financial\Bilanci\Controllers\BilanciController@store');
-//     Route::get('/getBilancio/{id}', 'App\Financial\Bilanci\Controllers\BilanciController@show');
-//     Route::get('/getAllBilanci', 'App\Financial\Bilanci\Controllers\BilanciController@index');
-
-//     // CENTRALE RISCHI
-//     Route::get('/crAndamentale/{period}', 'App\Http\Controllers\CentraleRischiController@crAndamentale');
-//     Route::get('/crTrimestrale', 'App\Http\Controllers\CentraleRischiController@dettagliata');
-//     Route::get('/crRecap', 'App\Http\Controllers\CentraleRischiController@recap');
-//     Route::post('/importCr', 'App\Http\Controllers\CentraleRischiController@store');
-
-//     // SISTEMA DI ALLERTA
-//     Route::get('/generalAllerta/{id}', 'App\Http\Controllers\AllertaController@allertaGeneral');
-
-// });

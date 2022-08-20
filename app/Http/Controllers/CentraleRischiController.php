@@ -2,21 +2,13 @@
 
 namespace App\Http\Controllers;
 
-ini_set('max_input_vars', 5000);
-
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-
 use App\Jobs\ElaborateLatestCR;
 use App\Http\Requests;
 use App;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Redirect;
-use lyquidity\xml\QName;
-use lyquidity\XPath2\XPath2Exception;
-use PhpParser\Node\Stmt\Foreach_;
 use Symfony\Component\Process\Exception\ProcessFailedException;
-use XBRL\XBRL_Instance;
 use App\Models\Bilanci;
 use App\Models\Account;
 use App\Models\cr;
@@ -24,41 +16,13 @@ use Symfony\Component\Process\Process;
 use App\Helpers\CentraleRischi\CrExtractorHelper;
 use App\Helpers\CentraleRischi\newCrExtractor;
 use App\Models\Document;
-
 use DateTime;
 use Storage;
 use Exception;
 
 class CentraleRischiController extends Controller
 {
-
-    public function truncateCR()
-    {
-        cr::truncate();
-
-
-        return back();
-    }
-
-    /**
-     * @return \Illuminate\View\View
-     */
-    public function index()
-    {
-        $bilancis = Bilanci::paginate(25);
-
-        return view('bilanci.index', compact('bilancis'));
-    }
-
-    /**
-     * @return mixed
-     */
-    public function create()
-    {
-        $accounts = Account::pluck('name', 'id')->all();
-
-        return view('centralerischi.create', compact('accounts'));
-    }
+    
 
     public function getDocuments(Request $request)
     {
@@ -70,8 +34,7 @@ class CentraleRischiController extends Controller
             $documentsCr = Document::orderBy('created_at', 'desc')->get();
         }
 
-        //$documentsBilanci = Document::where('type', 'bilancio')->get();
-
+     
         foreach ($documentsCr as $singleDocument) {
             $textPeriodAvailable = "";
             $periodAvailable = cr::select(['mese','anno'])->Where('document_id', $singleDocument->codice_documento)->get();
@@ -87,14 +50,7 @@ class CentraleRischiController extends Controller
         return response()->json([
             $documentsCr,
         ]);
-
-        /*	$documentsBilanci = Document::where('type', 'bilancio')->get();
-
-            return response()->json([
-                'error' => false,
-                'cr' => $documentsCr,
-                'bilanci' => $documentsBilanci
-            ]);  */
+        
     }
 
     public function getDocumentsById($id)
@@ -115,8 +71,7 @@ class CentraleRischiController extends Controller
         $crFileToElaborate = Document::where('codice_documento', $documentId)->first();
         $filepath = $crFileToElaborate->path;
 
-
-        // $filepath = 'storage/path/to/file/test.pdf';
+        
         $process = new Process(['python3', base_path() . '/crExtractor.py', $filepath, $page]);
 
         $process->setTimeout(10000);
@@ -223,10 +178,7 @@ class CentraleRischiController extends Controller
                 'exception' => $e,
             ], 500);
         }
-
-
-        //$fileToRead = file_get_contents($storeFullPath);
-      //  $totalPages = preg_match_all("/\/Page\W/", $fileToRead, $dummy);
+        
 
         $processGetPages = new Process(['qpdf','--show-npages','/var/www/html/staging/public/centraleRischi/'.$storedFile]);
 
@@ -265,109 +217,10 @@ class CentraleRischiController extends Controller
         ], 200);
 
     }
-
-
-
-
-
-    public function destroy($idDocument)
-    {
-        if(!$idDocument) {
-            return response()->json([
-                'error' => true,
-                'message' => 'Specifica l\'Id del bilancio',
-            ]);
-        }
-        try {
-            $document = Document::findOrFail($idDocument);
-            $crRows = cr::where('document_id', $document->codice_documento);
-
-            $crRows->delete();
-            $document->delete();
-
-            return response()->json([
-                'error' => false,
-                'message' => 'Bilancio eliminato correttamente',
-            ]);
-        } catch (Excepton $e) {
-            return response()->json([
-                'error' => false,
-                'type' => 'Eccezione',
-                'message' => $e,
-            ]);
-        }
-    }
-
-
-    public function datatable()
-    {
-
-        $accounts = Account::All();
-        $crs = cr::select('id', 'anno', 'mese', 'date')->get();
-
-        $crData = array();
-
-        $mesiList = [0 => 'gennaio', 1 => 'febbraio', 2 => 'marzo', 3 => 'aprile', 4 => 'maggio', 5 => 'giugno', 6 => 'luglio', 7 => 'agosto', 8 => 'settembre', 9 => 'ottobre', 10 => 'novembre', 11 => 'dicembre'];
-        $formattedMonths = ['gennaio' => '01', 'febbraio' => '02', 'marzo' => '03', 'aprile' => '04', 'maggio' => '05', 'giugno' => '06', 'luglio' => '07', 'agosto' => '08', 'settembre' => '09', 'ottobre' => '10', 'novembre' => '11', 'dicembre' => '12'];
-
-        foreach ($crs as $tmpLabel => $toFixData) {
-            $tmpDate = new DateTime($toFixData->date);
-
-            if ($mesiList[((int)$tmpDate->format('m') - 1)] != $toFixData->mese) {
-                cr::where('id', $toFixData->id)->update(['date' => $tmpDate->format('Y') . '-' . $formattedMonths[$toFixData->mese] . '-' . $tmpDate->format('d')]);
-            }
-        }
-
-        $banks = cr::select('nome_banca')->distinct()->get()->toArray();
-
-        if (count($crs) > 0) {
-
-            $periods = array();
-
-            foreach ($crs as $data => $value) {
-                $periods[$value->anno][$value->mese] = null;
-                $periods[$value->anno][$value->mese] = array_search($value->mese, $mesiList);
-                asort($periods[$value->anno]);
-            }
-
-            ksort($periods);
-
-            $latestYear = array_key_last($periods);
-            $latestMonth = array_key_last($periods[$latestYear]);
-
-            $lastDate = new DateTime((cr::select('date')->where('anno', $latestYear)->where('mese', $latestMonth)->first())->date);
-
-            $earliestDate = new DateTime((cr::select('date')->orderBy('date', 'asc')->first())->date);
-
-            $lastYear = (new DateTime($lastDate->format('d-m-Y')))->modify('-11 months');
-
-            if (cr::select('date')->where('date', $lastYear)->count() == 0) {
-                $lastYear = new DateTime($earliestDate->format('d-m-Y'));
-            }
-
-            $lastTwoYears = (new DateTime($lastDate->format('d-m-Y')))->modify('-23 months');
-
-            if (cr::select('date')->where('date', $lastTwoYears)->count() == 0) {
-                $lastTwoYears = new DateTime($earliestDate->format('d-m-Y'));
-            }
-
-            $lastThreeYears = (new DateTime($lastDate->format('d-m-Y')))->modify('-35 months');
-
-            if (cr::select('date')->where('date', $lastThreeYears)->count() == 0) {
-                $lastThreeYears = new DateTime($earliestDate->format('d-m-Y'));
-            }
-
-            // dd($lastYear, $lastTwoYears, $lastThreeYears, $earliestDate, $lastDate);
-
-            return view('centralerischi.allcr', compact('banks', 'lastYear', 'lastTwoYears', 'lastThreeYears', 'earliestDate', 'lastDate', 'periods', 'accounts', 'crData'));
-        } else {
-            return view('centralerischi.allcr');
-        }
-    }
-
+    
+    
     public function crAndamentale(Request $request)
     {
-        $mesiCheckList = [0 => "fuoriMese", 1 => "gennaio", 2 => 'febbraio', 3 => 'marzo',   4 => 'aprile',   5 => 'maggio',   6 => 'giugno',   7 => 'luglio',   8 => "agosto",   9 => 'settembre',   10 => 'ottobre',   11 => 'novembre',   12 => 'dicembre'];
 
         $crAndamentaleData = $request->all();
         $crAndamentaleData['period'] = $request->period;
@@ -375,67 +228,9 @@ class CentraleRischiController extends Controller
 
 
         if (!isset($crAndamentaleData['period'])) {
-            $msg = "Non è stato selezionato nessun periodo";
+            $msg = "Non è stato selezionato nessun documento";
             return view('allerta.empty', compact(['msg']));
         } else {
-            $lastDate = new DateTime(cr::select('date')->where('document_id', $crAndamentaleData['period'])->orderBy('date', 'desc')->first()->date);
-
-		if(!isset($crAndamentaleData['newDates'])) {
-            $earlierDate = (new DateTime(cr::select('date')->where('document_id', $crAndamentaleData['period'])->orderBy('date', 'desc')->first()->date))->modify('-23 months');
-        } else {
-           /* switch ($crAndamentaleData['period']) {
-                case 1:
-                    $earlierDate = (new DateTime(cr::select('date')->orderBy('date', 'desc')->first()->date))->modify('-11 months');
-                    break;
-                case 2:
-                    $earlierDate = (new DateTime(cr::select('date')->orderBy('date', 'desc')->first()->date))->modify('-23 months');
-                    break;
-                case 3:
-                    $earlierDate = (new DateTime(cr::select('date')->orderBy('date', 'desc')->first()->date))->modify('-35 months');
-                    break;
-                case 0:
-                    $earlierDate = new DateTime(cr::select('date')->orderBy('date', 'asc')->first()->date);
-            }*/
-            $earlierDate = new DateTime(cr::select('date')->orderBy('date', 'desc')->get()->last()->date);
-        }
-
-         $latestDate = new DateTime(cr::select('date')->where('document_id', $crAndamentaleData['period'])->orderBy('date', 'desc')->first()->date);
-
-            $banksScoring = array();
-            $singleBankData = array();
-
-            $numeroRapportiContestati = 0;
-
-            $unrefinedPeriods = json_decode(DB::table('crs')
-                ->select('anno', 'mese', 'date')
-                ->where("date", '>', $earlierDate->modify('first day of this month')->format('Y-m-d'))->where("date", '<', $lastDate->modify('last day of this month')->format('Y-m-d'))
-				->where('document_id', $crAndamentaleData['period'])
-                ->groupBy('date', 'anno', 'mese')
-                ->orderBy('date')
-                ->get(), true);
-
-            $counter = 0;
-
-            $missingMonths = array();
-
-            foreach ($unrefinedPeriods as $label => $data) {
-                $periods[$data['anno']][$data['mese']] = 1;
-                $counter++;
-
-                if ($counter < count($unrefinedPeriods)) {
-                    $tempDate = new DateTime($data['date']);
-                    if (cr::where([['date', '>=', $tempDate->modify('+1 month')->format('Y-m-01')], ['date', '<=', $tempDate->format('Y-m-0t')]])->where('document_id', $crAndamentaleData['period'])->groupBy('date')->count() == 0) {
-                        $missingMonths[] = $mesiCheckList[(float)$tempDate->format('m')] . ' ' . $tempDate->format('Y');
-                    }
-                }
-            }
-
-            $latestYear = array_key_last($periods);
-            $latestMonth = array_key_last($periods[$latestYear]);
-            $earliestYear = array_key_first($periods);
-            $earliestMonth = array_key_first($periods[$earliestYear]);
-            $finePeriodo = $latestMonth . ' ' . $latestYear;
-            $inizioPeriodo = $earliestMonth . ' ' . $earliestYear;
 
             $categories = array(
                 'RISCHI A SCADENZA',
@@ -445,169 +240,73 @@ class CentraleRischiController extends Controller
             );
 
             $crHelper = new CrExtractorHelper;
-            $crHelper->setPeriod($periods);
-            $crHelper->setDocumentId($crAndamentaleData['period']);
-            $periodsCorrect = $crHelper->buildPeriodArray();
 
-            $banksQuery = DB::table('crs')->where('document_id', $crAndamentaleData['period']);
+                if(!isset($crAndamentaleData['newDates'])) {
+                    $lastDate = new DateTime(cr::select('date')->where('document_id', $crAndamentaleData['period'])->orderBy('date', 'desc')->first()->date);
+                    $earlierDate = ($lastDate)->modify('-23 months');
 
-            foreach ($periodsCorrect as $queryPeriodArray) {
-                $banksQuery->orWhere(function ($query) use ($queryPeriodArray, $categories) {
-                    $query->where($queryPeriodArray);
-                   // $query->whereIn('categoria', $categories);
-                });
-            }
-            if ($request->input('banks') !== null) {
-                $banks = $request->input('banks');
-            } else {
+                } else {
+                    $earlierDate = $crAndamentaleData['newDates']['data_inizio'];
+                    $lastDate = $crAndamentaleData['newDates']['data_fine'];
 
-                $banksData = $banksQuery
-                    ->get()
-                    ->groupBy('nome_banca')
-                    ->toArray();
-
-                foreach ($banksData as $singleBankName => $arrayData) {
-                    $banks[] = $singleBankName;
+                    $earlierDate = new DateTime($earlierDate);
+                    $lastDate = new DateTime($lastDate);
                 }
-            }
 
-            $cleanCR = $crHelper->getAllDataToArray($banks);
+
+
+            $unrefinedPeriods = json_decode(DB::table('crs')
+                ->select('anno', 'mese', 'date')
+                ->where("date", '>', $earlierDate->modify('first day of this month')->format('Y-m-d'))->where("date", '<', $lastDate->modify('last day of this month')->format('Y-m-d'))
+				->where('document_id', $crAndamentaleData['period'])
+                ->groupBy('date', 'anno', 'mese')
+                ->orderBy('date')
+                ->get(), true);
+
+
+
+            $periods = $crHelper->getCleanPeriods($unrefinedPeriods);
+            $crHelper->setPeriod($periods);
+            $periodsCorrect = $crHelper->buildPeriodArray();
+            $crHelper->setDocumentId($crAndamentaleData['period']);
+            $banks = $crHelper->getGeneratedbanks($request, $crAndamentaleData, $periodsCorrect, $categories);
+
+            $latestYear = array_key_last($periods);
+            $latestMonth = array_key_last($periods[$latestYear]);
+            $earliestYear = array_key_first($periods);
+            $earliestMonth = array_key_first($periods[$earliestYear]);
+            $finePeriodo = $latestMonth . ' ' . $latestYear;
+            $inizioPeriodo = $earliestMonth . ' ' . $earliestYear;
+
+            $missingMonths = $crHelper->missingMonths($unrefinedPeriods);
             $intermediari = $crHelper->getCountBanks($banks);
             $mediaAnalisiIndebitamento = $crHelper->getMediaIndebitamento($banks);
-
             $numeroSconfiniTotali = $crHelper->getTotaleSconfini($banks);
-
             $rischiGaranzie = $crHelper->getRischiGaranzie($banks);
-
-            $sofferenzeTotali = $crHelper->getSofferenze($banks);
-
             $totaleAffidamentiTable = $crHelper->getTotaleAffidamenti($categories, $latestYear, $latestMonth, $banks);
             $totaleAffidamentiGeneral = $crHelper->getTotaleAffidamentiGeneral($categories, $latestYear, $latestMonth, $banks);
-
             $totAffidamentiConPesiPerBanca = $crHelper->getPesiAffidamentiPerBanca($categories, $latestYear, $latestMonth, $banks);
             $scoreCR = $crHelper->getScoring($banks);
             $creditiContestati = $crHelper->getCreditiContestati($banks);
+            $numeroRapportiContestati = count($creditiContestati);
             $impagati = $crHelper->getAlertImpagati($banks);
             $garanzieEsitoNegativo = $crHelper->getGaranzieEsitoNegativo($banks);
             $sofferenze = $crHelper->getSofferenze($banks);
             $creditiPassatiPerdita = $crHelper->getCreditiPassatiPerdita($banks);
-
             $anomalie = $crHelper->getAnomalie($banks);
-
             $incidenzaImpagati = $crHelper->getPercentualeMediaImpagati($banks);
             $informazioniGaranti = $crHelper->getInformazioniGaranti($banks);
             $garanzieRicevute = $crHelper->getGaranzieRicevute($banks);
-
             $importiSconfini = $crHelper->getImportiSconfini($banks);
-
-            foreach ($creditiContestati as $singleLineArray) {
-                $numeroRapportiContestati += count($singleLineArray);
-            }
-
             $affidamentiPerMese = $crHelper->getTotaleAffidamentiPerMese($periods, $categories, $banks);
-
-
-
-
-            // dd($periods);
-
-            // Per singola banca
-            foreach ($banks as $label => $nameData) {
-                $newCrExtractor = new newCrExtractor;
-                $newCrExtractor->setPeriod($periods);
-                $singleBankData[$nameData]['totaleSconfini'] = $newCrExtractor->getTotaleSconfini(array(0 => $nameData));
-                $singleBankData[$nameData]['Impagati'] = $newCrExtractor->getImpagati(array(0 => $nameData));
-                $newCrExtractor->getAlertImpagati(array(0 => $nameData));
-                $singleBankData[$nameData]['Sofferenze'] = $newCrExtractor->getSofferenze(array(0 => $nameData));
-                $singleBankData[$nameData]['Crediti a perdita'] = $newCrExtractor->getCreditiPassatiPerdita(array(0 => $nameData));
-                $banksScoring[$nameData] = $newCrExtractor->getScoring(array(0 => $nameData));
-                if (!empty($singleBankData['totaleSconfini']['Tensioni'])) {
-                    foreach ($singleBankData[$nameData]['totaleSconfini']['Tensioni'] as $creditLine => $presence) {
-                        $presenzaTensione[$creditLine] = true;
-                    }
-                }
-                unset($newCrExtractor);
-            }
-
-
-            $monthsList = array_keys($affidamentiPerMese);
-
-
-
-            foreach ($totaleAffidamentiTable as $indice => $oggetto) {
-                if ($oggetto["categoria"] == "RISCHI A SCADENZA") {
-                    $totaleAffidamentiTable[$indice]["style"] = "background-color: rgb(236, 91, 91)";
-                } else if ($oggetto["categoria"] == "RISCHI A REVOCA") {
-                    $totaleAffidamentiTable[$indice]["style"] = "background-color: rgb(125, 236, 91)";
-                } else {
-                    $totaleAffidamentiTable[$indice]["style"] = "background-color: rgb(91, 171, 236)";
-                }
-            }
-
-            $percentualiAccordato = array();
-            $percentualiUtilizzato = array();
-
-            foreach ($totAffidamentiConPesiPerBanca as $label => $data) {
-                if (isset($data['PesoAccordatoOperativo'])) {
-                    $percentualiAccordato[] = array("label" => $data['nome_banca'], "y" => $data['PesoAccordatoOperativo']);
-                } else {
-                    $percentualiAccordato[] = array("label" => $data['nome_banca'], "y" => 0);
-                }
-                if (isset($data['PesoUtilizzato'])) {
-                    $percentualiUtilizzato[] = array("label" => $data['nome_banca'], "y" => $data['PesoUtilizzato']);
-                } else {
-                    $percentualiUtilizzato[] = array("label" => $data['nome_banca'], "y" => 0);
-                }
-            }
-
-            // dd($informazioniGaranti);
-
-            $earlierDate = $earlierDate->format('Y-m-d');
-
-            $accordatoPie = array(array('Banca', 'Accordato'));
-            $utilizzatoPie = array(array('Banca', 'Utilizzato'));
-
-            foreach ($totAffidamentiConPesiPerBanca as $labelAffidamenti => $affidamentiData) {
-                $accordatoPie[] = array($affidamentiData['nome_banca'], $affidamentiData['totAccordatoOperativo']);
-                $utilizzatoPie[] = array($affidamentiData['nome_banca'], $affidamentiData['totUtilizzato']);
-            }
-
-            // dd($numeroSconfiniTotali);
-
-            // dd($utilizzatoPie, $accordatoPie);
-
-            // dd($anomalie, $informazioniGaranti);
-
-            // dd($informazioniGaranti);
-
             $anomalieStatoRapporto = $crHelper->mancateSegnalazioniStatoRapporto($banks);
-
-            $testSconfini = $crHelper->testSconfini($banks);
-            // dd($testSconfini, $numeroSconfiniTotali);
             $sconfiniDivisi = $crHelper->divideAnomalie($numeroSconfiniTotali, $banks);
-
-			$informazioniGarantiAnomalie = [];
-
-					foreach($informazioniGaranti['Anomalie'] as $nomeBanca=>$multipleDates) {
-						foreach($multipleDates as $singleDate=>$multipleTypes) {
-							foreach($multipleTypes as $singleType=>$multipleAnomalie) {
-								$multipleAnomalie = array_unique($multipleAnomalie);
-								foreach($multipleAnomalie as $singleAnomalia=>$tmp) {
-									$informazioniGarantiAnomalie[] = [
-										'data' => $singleDate,
-										'nome_banca' => $nomeBanca,
-										'type' => $singleType,
-										'tmp' => $tmp
-									];
-								}
-							}
-						}
-					}
-
-	foreach($totAffidamentiConPesiPerBanca as $singleBank) {
-				$totaleAccordatoGeneral = $totAffidamentiConPesiPerBanca[0]['totAccordatoOperativo'] + $singleBank['totAccordatoOperativo'];
-				$totaleUtilizzatoGeneral = $totAffidamentiConPesiPerBanca[0]['totUtilizzato'] + $singleBank['totUtilizzato'];
-			}
+            $banksScoring = $crHelper->singleBankData($banks, $periods);
+            $informazioniGarantiAnomalie = $crHelper->informazioniSuiGaranti($informazioniGaranti);
+            $percentualiAccordato = $crHelper->percentualiAccordato($totAffidamentiConPesiPerBanca);
+            $percentualiUtilizzato = $crHelper->percentualiUtilizzato($totAffidamentiConPesiPerBanca);
+            $totaleUtilizzatoGeneral = $crHelper->totAffidamentiConPesiPerBanca($totAffidamentiConPesiPerBanca);
+            $monthsList = array_keys($affidamentiPerMese);
 
             $response = [
                 'Scoring' => [
@@ -690,9 +389,6 @@ class CentraleRischiController extends Controller
                 'anomalie' => $anomalie,
                 'missingMonths' => $missingMonths,
                 'sconfiniDivisi' => $sconfiniDivisi,
-                'utilizzatoPie' => $utilizzatoPie,
-                'accordatoPie' => $accordatoPie,
-                'earlierDate' => $earlierDate,
                 'garanzieRicevute' => $garanzieRicevute,
                 'informazioniGaranti' => $informazioniGaranti,
                 'monthsList' => $monthsList,
@@ -718,10 +414,10 @@ class CentraleRischiController extends Controller
                 'mediaAnalisiIndebitamento' => $mediaAnalisiIndebitamento,
                 'totaleAffidamentiTable' => $totaleAffidamentiTable,
                 'totAffidamentiConPesiPerBanca' => $totAffidamentiConPesiPerBanca,
-				'totaleAccordatoOperativoPerBancaGeneral' => $totaleAccordatoGeneral,
-				'totaleUtilizzatoPerBancaGeneral' => $totaleUtilizzatoGeneral,
-				'informazioniGarantiAnomalie' => $informazioniGarantiAnomalie,
+                'totaleAccordatoUtilizzatoPerBancaGeneral' => $totaleUtilizzatoGeneral,
+                'informazioniGarantiAnomalie' => $informazioniGarantiAnomalie,
                 'scoreCR' => $scoreCR,
+
                 'newFutureArray' => $response
             ]);
         }
@@ -797,15 +493,42 @@ class CentraleRischiController extends Controller
             'lastTwelveMonths' => $lastTwelveMonths,
             'trimestri' => $trimestri
         ];
-
-        $request->session()->put($data);
-
+        
         // dd($affidamenti);
         return response()->json([
             'error' => false,
             'data' => $data
         ]);
 
-        return view('centralerischi.trimestrale', compact(['styles', 'informazioniSuiGaranti', 'creditiScadutiBreveTermine', 'creditiRischi', 'analisiSconfini', 'affidamenti', 'verificaGaranzie', 'segnalazioniGravi', 'pesoDebitiBreveTermine', 'disponibilitaInutilizzata', 'presenzaCreditiScaduti', 'presenzaSconfini', 'affidamentiPerCategoria', 'lastTwelveMonths', 'trimestri']));
     }
+
+    public function destroy($idDocument)
+    {
+        if(!$idDocument) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Specifica l\'Id del bilancio',
+            ]);
+        }
+        try {
+            $document = Document::findOrFail($idDocument);
+            $crRows = cr::where('document_id', $document->codice_documento);
+
+            $crRows->delete();
+            $document->delete();
+
+            return response()->json([
+                'error' => false,
+                'message' => 'Bilancio eliminato correttamente',
+            ]);
+        } catch (Excepton $e) {
+            return response()->json([
+                'error' => false,
+                'type' => 'Eccezione',
+                'message' => $e,
+            ]);
+        }
+    }
+
+
 }

@@ -10,6 +10,7 @@
 * [Contributing](#contributing)
 * [Install](#install)
 * [Getting started](#getting-started)
+* [Inline XBRL](#inline-xbrl-transforms)
 * [Links](#links)
 * [Case Study](../../wiki/Case-Study)
 
@@ -32,6 +33,7 @@ Conformance suite tests
 ![XBRL Formulas conformance](https://www.xbrlquery.com/tests/status.php?test=conformance_formulas&x=y "XBRL Formulas conformance suite tests")
 ![XBRL Enumerations conformance](https://www.xbrlquery.com/tests/status.php?test=conformance_enumerations&x=y "XBRL Enumerations conformance suite tests")
 ![XBRL Generics conformance](https://www.xbrlquery.com/tests/status.php?test=conformance_generics&x=y "XBRL Generics conformance suite tests")
+![iXBRL conformance](https://www.xbrlquery.com/tests/status.php?test=conformance_ixbrl&x=y "iXBRL conformance suite tests")
 
 ![Build status last run date](https://www.xbrlquery.com/tests/status.php?test=date "The date of the last run")
 
@@ -40,7 +42,7 @@ This project does not support HHVM.
 
 ### Statistics
 
-This project comprises 80629 lines in 250 files
+This project comprises 102535 lines in 251 files
 
 ## About the project
 
@@ -67,6 +69,7 @@ the processor just processes and assumes you know the schemas and instance docum
 * XBRL Formulas.
 * XBRL Taxonomy Packages (including support for the various legacy SEC packages).
 * XBRL Extensible Enumerations 1.0 and 2.0 PWD.
+* In-line XBRL 1.1 and tranformations to TRR 4
 
 XBRL Formulas includes support for:
 
@@ -75,6 +78,13 @@ XBRL Formulas includes support for:
 [Variable Scope](http://www.xbrl.org/Specification/variables-scope/CR-2011-11-30/variables-scope-CR-2011-11-30.html) draft specifications.
 * The full set of [functions registry](https://specifications.xbrl.org/registries/functions-registry-1.0/) (XFI) are also supported 
 including both recommended and draft functions. 
+
+Notable exception:
+
+Only instance documents using the XML format (XHTML) can be read as the processor does not support any of the [OIM](https://specifications.xbrl.org/work-product-index-open-information-model-open-information-model.html) mappings.
+
+These exceptions exist because there has been no reason to add support.  At the moment where iXBRL is being used, submitters are also providing data in XML 
+formatted instance documents.
 
 ### Taxonomy package support
 
@@ -187,10 +197,43 @@ can perform additional code checks.  But there are downsides as well.  The abili
 
 **PHP versions and development tools**
 
-To work with the code you will need to use PHP 7.0 or later.  PHP is the latest and greatest and we currently develop using PHP 7.2.6.  In our experience 
-version 7.0 is *much* faster and it is likely we have used features of the language that are only available in PHP 7.+.
+To work with the code you will need to use PHP 7.0 or later.  PHP 8.0 is the latest and greatest and while it is supported, we currently develop using 
+PHP 7.4.13. PHP 8.0.  PHP 7.0 and later are *much* faster than earlier version and it is likely we have used features of the language that are only 
+available in PHP 7.+.
 
-We have not made use of functions that require PHP extensions not in the standard distribution.  
+We have not made use of functions that require PHP extensions not in the standard distribution.
+
+### PHP version relative performance
+
+Every night our test suites are run which includes around 50,000 unit tests covering the XPath 2.0 conformance suite, the XBRL 2.1, Formulas and Dimensions 
+conformance suites plus example compilation and report rendering.  There a 12 discrete tests (each is a separate invocation of PHP) that in total take 
+roughly 3-4 minutes to complete.  Because they are intensive and exhaustive they provide some indication of which versions of PHP are best for this type 
+of application.  
+
+The table below shows run times of the same tests on the same hardware with the same load.  The times are minutes:seconds. x(f) means that opcache is
+enabled and that file caching is enabled so the benefit of the opcache persists across invocations.  When opcache is enabled with file cache, the option
+to check timestamps is enabled.  Note that opcode file file caching is not the same as web site file caching.
+
+|Version|OpCache|JIT|Test 1|Test 2|
+|--|--|--|--|--|
+|7.2.6 |    | |3:56|3:37|
+|7.2.6 |x   | |3:50|3:41|
+|7.2.6 |x(f)| |3:37|3:31|
+|7.4.13|    | |3:15|3:19|
+|7.4.13|x   | |3:15|2:55|
+|7.4.13|x(f)| |3:02|2:59|
+|8.0   |    | |3:02|3:10|
+|8.0   |x   | |3:01|3:11|
+|8.0   |x(f)| |3:12|2:52|
+|8.0   |x(f)|x|**2:25**|**2:38**|
+|8.0   |x   |x|2:43|2:55|
+
+We have a winner!  It's clear that the best performance is using version 8.0 with JIT (JIT requires the opcache is enabled) and opcode file caching.
+
+The best version 7.2.6 time is 3:31.  The best 7.4.13 time is 2.55, a 21% improvement.  The best version 8.0 time is 2:25 a 35% improvement over version 
+7.2.6 and 18% better than 7.4.13.
+
+### Memory
 
 The default memory limit defined in php.ini is suitable for sites generating regular web pages.  However taxonomies can be large and 
 the source makes liberal use of memory to boost performance. We recommend that when you execute examples that you ensure the memory 
@@ -286,6 +329,41 @@ include __DIR__ . "/vendor/lyquidity/xbrl/examples/examples.php";
 
 Read the getting started section in the [Wiki](../../wiki) where you will find more examples showing how the source can be used to query taxonomies 
 instance documents and present their contents.
+
+## Inline XBRL transforms
+
+The in-line XBRL specification describes how to embed XBRL instance data in an xHTML document.  This project provides a validating iXBRL processor 
+that can tvalidate and transform an iXBRL docment into an XBRL instance document.  With an XBRL instance document it can be processes like any other.
+
+Assuming you've been able to successfully run the code in [Getting started](#getting-started) then the following line will transform an input iXBRL document:
+
+```php
+$documents = XBRL_Inline::createInstanceDocument( $name, $documentSet, $cacheLocation, $validate );
+```
+
+|variable|comment|
+|--|--|
+|$name|Your name for the document(s) to include as headers in the generated instance document(s).  It is not necessarily the name of the document.|
+|$documentSet|An array of the path and file name of the iXBRL documents in the document set. Very often there is just one item in the array.|
+|$cacheLocation|A path to a folder to be used to cache downloaded Xml files, such as XBRL taxonomies.|
+|$validate|True if the input document(s) in the document set to be transformed should also be validated|
+
+If the documents are validated successfully, the createInstanceDocument() function will return an array of of DOMDocument instances, one for each 
+document in the input document set. The array will be indexed by the relevant targets. For more about targets, review the iXBRL specification.
+
+The returned documents then be saved.  The example below assumes there is a suitable output folder in $outputFolder and that $name used above is a useful filename. 
+$target is the name defined in the iXBRL document to distinguish the output instance documents if more than one is to be produced.
+
+```php
+foreach( $documents as $target => $document )
+{
+    $document->formatOutput = true;
+    $xml = $document->saveXML();
+    file_put_contents( "$outputFolder/$name-$target.xbrl", $xml );
+}
+
+```
+
 
 ## Links
 

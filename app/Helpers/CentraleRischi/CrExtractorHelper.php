@@ -2876,4 +2876,147 @@ AND t.divisa = t2.divisa');
         }
         return array('Dettaglio' => $arrayInfoGaranti, 'Mensile' => $datiGarantiMensili);
     }
+
+
+
+
+    public function informazioniSuiGaranti($informazioniGaranti) {
+        $informazioniGarantiAnomalie = [];
+        foreach($informazioniGaranti['Anomalie'] as $nomeBanca=>$multipleDates) {
+            foreach($multipleDates as $singleDate=>$multipleTypes) {
+                foreach($multipleTypes as $singleType=>$multipleAnomalie) {
+                    $multipleAnomalie = array_unique($multipleAnomalie);
+                    foreach($multipleAnomalie as $singleAnomalia=>$tmp) {
+                        $informazioniGarantiAnomalie[] = [
+                            'data' => $singleDate,
+                            'nome_banca' => $nomeBanca,
+                            'type' => $singleType,
+                            'tmp' => $tmp
+                        ];
+                    }
+                }
+            }
+        }
+
+        return $informazioniGarantiAnomalie;
+    }
+
+    public function singleBankData($banks, $periods) {
+        $banksScoring = [];
+        foreach ($banks as $label => $nameData) {
+            $newCrExtractor = new newCrExtractor;
+            $newCrExtractor->setPeriod($periods);
+            $singleBankData[$nameData]['totaleSconfini'] = $newCrExtractor->getTotaleSconfini(array(0 => $nameData));
+            $singleBankData[$nameData]['Impagati'] = $newCrExtractor->getImpagati(array(0 => $nameData));
+            $newCrExtractor->getAlertImpagati(array(0 => $nameData));
+            $singleBankData[$nameData]['Sofferenze'] = $newCrExtractor->getSofferenze(array(0 => $nameData));
+            $singleBankData[$nameData]['Crediti a perdita'] = $newCrExtractor->getCreditiPassatiPerdita(array(0 => $nameData));
+            $banksScoring[$nameData] = $newCrExtractor->getScoring(array(0 => $nameData));
+            if (!empty($singleBankData['totaleSconfini']['Tensioni'])) {
+                foreach ($singleBankData[$nameData]['totaleSconfini']['Tensioni'] as $creditLine => $presence) {
+                    $presenzaTensione[$creditLine] = true;
+                }
+            }
+            unset($newCrExtractor);
+        }
+
+        return $banksScoring;
+
+    }
+
+    public function percentualiUtilizzato($totAffidamentiConPesiPerBanca) {
+        $percentualiUtilizzato = [];
+        foreach ($totAffidamentiConPesiPerBanca as $label => $data) {
+            if (isset($data['PesoUtilizzato'])) {
+                $percentualiUtilizzato[] = array("label" => $data['nome_banca'], "y" => $data['PesoUtilizzato']);
+            } else {
+                $percentualiUtilizzato[] = array("label" => $data['nome_banca'], "y" => 0);
+            }
+        }
+
+        return $percentualiUtilizzato;
+    }
+
+    public function percentualiAccordato($totAffidamentiConPesiPerBanca) {
+        $percentualiAccordato = [];
+        foreach ($totAffidamentiConPesiPerBanca as $label => $data) {
+            if (isset($data['PesoAccordatoOperativo'])) {
+                $percentualiAccordato[] = array("label" => $data['nome_banca'], "y" => $data['PesoAccordatoOperativo']);
+            } else {
+                $percentualiAccordato[] = array("label" => $data['nome_banca'], "y" => 0);
+            }
+        }
+
+        return $percentualiAccordato;
+    }
+
+    public function missingMonths($unrefinedPeriods) {
+        $missingMonths = []
+        $periods = []
+            $counter = 0;
+   $mesiCheckList = [0 => "fuoriMese", 1 => "gennaio", 2 => 'febbraio', 3 => 'marzo',   4 => 'aprile',   5 => 'maggio',   6 => 'giugno',   7 => 'luglio',   8 => "agosto",   9 => 'settembre',   10 => 'ottobre',   11 => 'novembre',   12 => 'dicembre'];
+
+        foreach ($unrefinedPeriods as $label => $data) {
+            $periods[$data['anno']][$data['mese']] = 1;
+            $counter++;
+
+            if ($counter < count($unrefinedPeriods)) {
+                $tempDate = new DateTime($data['date']);
+                if (cr::where([['date', '>=', $tempDate->modify('+1 month')->format('Y-m-01')], ['date', '<=', $tempDate->format('Y-m-0t')]])->where('document_id', $crAndamentaleData['period'])->groupBy('date')->count() == 0) {
+                    $missingMonths[] = $mesiCheckList[(float)$tempDate->format('m')] . ' ' . $tempDate->format('Y');
+                }
+            }
+        }
+
+        return $missingMonths;
+}
+
+    public function getCleanPeriods($unrefinedPeriods) {
+
+        $periods = [];
+
+        foreach ($unrefinedPeriods as $label => $data) {
+            $periods[$data['anno']][$data['mese']] = 1;
+        }
+
+        return $periods;
+    }
+
+    public function totAffidamentiConPesiPerBanca($totAffidamentiConPesiPerBanca) {
+        $totaleAccordatoGeneral = 0:
+        $totaleUtilizzatoGeneral = 0:
+        foreach($totAffidamentiConPesiPerBanca as $singleBank) {
+            $totaleAccordatoGeneral = $totAffidamentiConPesiPerBanca[0]['totAccordatoOperativo'] + $singleBank['totAccordatoOperativo'];
+            $totaleUtilizzatoGeneral = $totAffidamentiConPesiPerBanca[0]['totUtilizzato'] + $singleBank['totUtilizzato'];
+        }
+
+        return array("totaleAccordatoGeneral" => $totaleAccordatoGeneral, "totaleUtilizzatoGeneral" => $totaleUtilizzatoGeneral);
+    }
+
+    public function getGeneratedbanks($request, $crAndamentaleData, $periodsCorrect, $categories) {
+        $banksQuery = DB::table('crs')->where('document_id', $crAndamentaleData['period']);
+        $banks[];
+        foreach ($periodsCorrect as $queryPeriodArray) {
+            $banksQuery->orWhere(function ($query) use ($queryPeriodArray, $categories) {
+                $query->where($queryPeriodArray);
+            });
+        }
+
+
+        if ($request->input('banks') !== null) {
+            $banks = $request->input('banks');
+        } else {
+
+            $banksData = $banksQuery
+                ->get()
+                ->groupBy('nome_banca')
+                ->toArray();
+
+            foreach ($banksData as $singleBankName => $arrayData) {
+                $banks[] = $singleBankName;
+            }
+        }
+
+        return $banks;
+    }
 }

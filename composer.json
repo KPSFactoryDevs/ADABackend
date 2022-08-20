@@ -1,18 +1,18 @@
 {
-    "name": "rappasoft/laravel-boilerplate",
+    "name": "kpsfactory/kpsfintech",
     "type": "project",
-    "description": "The Laravel Boilerplate Project.",
+    "description": "A Fintech Project by KPS.",
     "keywords": [
         "framework",
         "laravel",
-        "boilerplate"
+        "KPS",
+        "kpsfactory",
+        "fintech"
     ],
     "license": "MIT",
     "require": {
-        "php": "^7.3|^8.0",
+        "php": "^7.4",
         "arcanedev/log-viewer": "8.x",
-        "asantibanez/livewire-select": "^2.0",
-        "barryvdh/laravel-dompdf": "^0.9.0",
         "fideloper/proxy": "^4.4",
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
@@ -27,20 +27,15 @@
         "laravel/socialite": "^5.0",
         "laravel/tinker": "^2.5",
         "laravel/ui": "^3.0",
-        "laraveldaily/laravel-charts": "^0.1.25",
-        "livewire/livewire": "^2.0",
         "lyquidity/utilities": "dev-master",
         "lyquidity/xbrl": "dev-master",
         "lyquidity/xml": "dev-master",
         "lyquidity/xpath2": "dev-master",
         "psr/log": "^1.0",
-        "rappasoft/laravel-livewire-tables": "^0.3.3",
-        "rappasoft/lockout": "^3.0",
         "spatie/laravel-activitylog": "^3.14",
         "spatie/laravel-permission": "^3.11",
         "symfony/process": "^5.2",
-        "symfony/symfony": "5.4.x",
-        "tabuna/breadcrumbs": "^2.2"
+        "symfony/symfony": "5.4.x"
     },
     "repositories":
     [
@@ -50,16 +45,10 @@
         }
     ],
     "require-dev": {
-        "barryvdh/laravel-debugbar": "^3.2",
-        "barryvdh/laravel-ide-helper": "^2.6",
-        "codedungeon/phpunit-result-printer": "^0.29",
-        "crestapps/laravel-code-generator": "^2.4",
         "facade/ignition": "^2.5",
         "fakerphp/faker": "^1.9.1",
         "friendsofphp/php-cs-fixer": "^2.16",
-        "ibex/crud-generator": "^1.3",
         "laravel/sail": "^0.0.5",
-        "mockery/mockery": "^1.4.2",
         "nunomaduro/collision": "^5.0",
         "phpunit/phpunit": "^9.3.3"
     },
@@ -103,10 +92,6 @@
         ],
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi"
-        ],
-        "post-update-cmd": [
-            "@php artisan ide-helper:generate",
-            "@php artisan ide-helper:meta"
         ],
         "clear-all": [
             "@php artisan clear-compiled",

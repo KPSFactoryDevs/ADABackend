@@ -273,7 +273,7 @@ class FunctionTable
 				try
 				{
 					/**
-					 * @var \QNameValue $qname
+					 * @var QNameValue $qname
 					 */
 					$qname = CoreFuncs::CastArg( $context, $args[0], SequenceType::WithTypeCodeAndCardinality( XmlTypeCode::QName, XmlTypeCardinality::One ) );
 					// error_log( "XPath 2.0 error (qname: {$qname->Prefix}:{$qname->LocalName})" );
@@ -440,6 +440,7 @@ class FunctionTable
 							SequenceTypes::$StringX,
 						) );
 					}
+					/** @var string */
 					$qName = CoreFuncs::CastString( $context, $args[0] );
 				}
 				catch ( XPath2Exception $ex )
@@ -553,8 +554,6 @@ class FunctionTable
 				throw XPath2Exception::withErrorCodeAndParams( "FORG0001", Resources::FORG0001, array(
 					$value, "boolean",
 				) );
-
-				return ExtFuncs::CreateDateTime( $date, $time );
 			}
 		);
 
@@ -1460,7 +1459,7 @@ class FunctionTable
 			function( $context, $provider, $args ) {
 
 				$startingLoc = CoreFuncs::Number( $context, $args[1] );
-				if ( is_nan( $startingLoc->getTypedValue()) )
+				if ( is_nan( /** @var number */ ( $startingLoc->getTypedValue() ) ) )
 				{
 					throw XPath2Exception::withErrorCodeAndParams( "XPTY0004", Resources::XPTY0004, array(
 						SequenceType::GetXmlTypeCodeFromObject( $startingLoc ),
@@ -1487,7 +1486,9 @@ class FunctionTable
 			function( $context, $provider, $args ) {
 
 				$startingLoc = CoreFuncs::Number( $context, $args[1] );
-				if ( is_nan( $startingLoc->GetTypeCode() ) )
+				/** @var float */
+				$number = $startingLoc->GetTypeCode();
+				if ( is_nan( $number ) )
 				{
 					throw XPath2Exception::withErrorCodeAndParams( "XPTY0004", Resources::XPTY0004, array(
 							SequenceType::GetXmlTypeCodeFromObject( $startingLoc ),
@@ -1681,6 +1682,102 @@ class FunctionTable
 			}
 		);
 
+		$this->AddWithArity( XmlReservedNs::xQueryMath, "pi", 0, XPath2ResultType::Number,
+			function( $context, $provider, $args ) {
+				return MathsFuncs::pi();
+			}
+		);
+
+		$this->AddWithArity( XmlReservedNs::xQueryMath, "pow", 2, XPath2ResultType::Number,
+			function( $context, $provider, $args ) {
+				return MathsFuncs::pow( CoreFuncs::Atomize( $args[0] ), CoreFuncs::Atomize( $args[1] ) );
+			}
+		);
+
+		$this->AddWithArity( XmlReservedNs::xQueryMath, "exp", 1, XPath2ResultType::Number,
+			function( $context, $provider, $args ) {
+				return MathsFuncs::exp( CoreFuncs::Atomize( $args[0] ) );
+			}
+		);
+
+		$this->AddWithArity( XmlReservedNs::xQueryMath, "exp10", 1, XPath2ResultType::Number,
+			function( $context, $provider, $args ) {
+				return MathsFuncs::exp10( CoreFuncs::Atomize( $args[0] ) );
+			}
+		);
+
+		$this->AddWithArity( XmlReservedNs::xQueryMath, "log", 1, XPath2ResultType::Number,
+			function( $context, $provider, $args ) {
+				return MathsFuncs::log( CoreFuncs::Atomize( $args[0] ) );
+			}
+		);
+
+		$this->AddWithArity( XmlReservedNs::xQueryMath, "log10", 1, XPath2ResultType::Number,
+			function( $context, $provider, $args ) {
+				return MathsFuncs::log10( CoreFuncs::Atomize( $args[0] ) );
+			}
+		);
+
+		$this->AddWithArity( XmlReservedNs::xQueryMath, "sqrt", 1, XPath2ResultType::Number,
+			function( $context, $provider, $args ) {
+				return MathsFuncs::pow( CoreFuncs::Atomize( $args[0] ), -2 );
+			}
+		);
+
+		$this->AddWithArity( XmlReservedNs::xQueryMath, "sin", 1, XPath2ResultType::Number,
+			function( $context, $provider, $args ) {
+				return MathsFuncs::sin( CoreFuncs::Atomize( $args[0] ) );
+			}
+		);
+
+		$this->AddWithArity( XmlReservedNs::xQueryMath, "cos", 1, XPath2ResultType::Number,
+			function( $context, $provider, $args ) {
+				return MathsFuncs::cos( CoreFuncs::Atomize( $args[0] ) );
+			}
+		);
+
+		$this->AddWithArity( XmlReservedNs::xQueryMath, "tan", 1, XPath2ResultType::Number,
+			function( $context, $provider, $args ) {
+				return MathsFuncs::tan( CoreFuncs::Atomize( $args[0] ) );
+			}
+		);
+
+		$this->AddWithArity( XmlReservedNs::xQueryMath, "asin", 1, XPath2ResultType::Number,
+			function( $context, $provider, $args ) {
+				return MathsFuncs::asin( CoreFuncs::Atomize( $args[0] ) );
+			}
+		);
+
+		$this->AddWithArity( XmlReservedNs::xQueryMath, "acos", 1, XPath2ResultType::Number,
+			function( $context, $provider, $args ) {
+				return MathsFuncs::acos( CoreFuncs::Atomize( $args[0] ) );
+			}
+		);
+
+		$this->AddWithArity( XmlReservedNs::xQueryMath, "atan", 1, XPath2ResultType::Number,
+			function( $context, $provider, $args ) {
+				return MathsFuncs::atan( CoreFuncs::Atomize( $args[0] ) );
+			}
+		);
+
+		$this->AddWithArity( XmlReservedNs::xQueryMath, "atan2", 2, XPath2ResultType::Number,
+			function( $context, $provider, $args ) {
+				return MathsFuncs::atan2( CoreFuncs::Atomize( $args[0] ), CoreFuncs::Atomize( $args[0] ) );
+			}
+		);
+
+		$this->AddWithArity( XmlReservedNs::xQueryMath, "deg2rad", 1, XPath2ResultType::Number,
+			function( $context, $provider, $args ) {
+				return MathsFuncs::deg2rad( CoreFuncs::Atomize( $args[0] ) );
+			}
+		);
+
+		$this->AddWithArity( XmlReservedNs::xQueryMath, "rad2deg", 1, XPath2ResultType::Number,
+			function( $context, $provider, $args ) {
+				return MathsFuncs::rad2deg( CoreFuncs::Atomize( $args[0] ) );
+			}
+		);
+
 	}
 
 	/**
@@ -1719,7 +1816,7 @@ class FunctionTable
 	 * @param string $ns
 	 * @param string $name
 	 * @param XPath2ResultType $resultType
-	 * @param XPathFunctionDelegate $action
+	 * @param \Closure $action
 	 * @return void
 	 */
 	public function Add( $ns, $name, $resultType, $action )
@@ -1733,7 +1830,7 @@ class FunctionTable
 	 * @param string $name
 	 * @param int $arity
 	 * @param XPath2ResultType $resultType
-	 * @param XPathFunctionDelegate $action
+	 * @param \Closure $action
 	 * @return void
 	 */
 	public function AddWithArity( $ns, $name, $arity, $resultType, $action )
