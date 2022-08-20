@@ -2983,8 +2983,8 @@ AND t.divisa = t2.divisa');
     }
 
     public function totAffidamentiConPesiPerBanca($totAffidamentiConPesiPerBanca) {
-        $totaleAccordatoGeneral = 0:
-        $totaleUtilizzatoGeneral = 0:
+        $totaleAccordatoGeneral = 0;
+        $totaleUtilizzatoGeneral = 0;
         foreach($totAffidamentiConPesiPerBanca as $singleBank) {
             $totaleAccordatoGeneral = $totAffidamentiConPesiPerBanca[0]['totAccordatoOperativo'] + $singleBank['totAccordatoOperativo'];
             $totaleUtilizzatoGeneral = $totAffidamentiConPesiPerBanca[0]['totUtilizzato'] + $singleBank['totUtilizzato'];
@@ -2995,7 +2995,7 @@ AND t.divisa = t2.divisa');
 
     public function getGeneratedbanks($request, $crAndamentaleData, $periodsCorrect, $categories) {
         $banksQuery = DB::table('crs')->where('document_id', $crAndamentaleData['period']);
-        $banks[];
+        $banks = [];
         foreach ($periodsCorrect as $queryPeriodArray) {
             $banksQuery->orWhere(function ($query) use ($queryPeriodArray, $categories) {
                 $query->where($queryPeriodArray);
