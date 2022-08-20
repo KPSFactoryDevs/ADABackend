@@ -2951,8 +2951,8 @@ AND t.divisa = t2.divisa');
     }
 
     public function missingMonths($unrefinedPeriods) {
-        $missingMonths = []
-        $periods = []
+        $missingMonths = [];
+        $periods = [];
             $counter = 0;
    $mesiCheckList = [0 => "fuoriMese", 1 => "gennaio", 2 => 'febbraio', 3 => 'marzo',   4 => 'aprile',   5 => 'maggio',   6 => 'giugno',   7 => 'luglio',   8 => "agosto",   9 => 'settembre',   10 => 'ottobre',   11 => 'novembre',   12 => 'dicembre'];
 
