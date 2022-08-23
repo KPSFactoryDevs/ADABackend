@@ -27,21 +27,27 @@
         "laravel/socialite": "^5.0",
         "laravel/tinker": "^2.5",
         "laravel/ui": "^3.0",
-        "lyquidity/utilities": "dev-master",
-        "lyquidity/xbrl": "dev-master",
-        "lyquidity/xml": "dev-master",
-        "lyquidity/xpath2": "dev-master",
         "psr/log": "^1.0",
         "spatie/laravel-activitylog": "^3.14",
         "spatie/laravel-permission": "^3.11",
         "symfony/process": "^5.2",
-        "symfony/symfony": "5.4.x"
+        "symfony/symfony": "5.4.x",
+        "kpsfactory/xbrl": "master",
+        "kpsfactory/utilities": "master"
     },
     "repositories":
     [
         {
             "type": "composer",
             "url": "https:\/\/repo.packagist.org"
+        },
+        {
+            "type": "vcs",
+            "url": "git@bitbucket.org:kpsfactory-admin/liquidity-xbrl.git"
+        },
+        {
+            "type": "vcs",
+            "url": "git@bitbucket.org:kpsfactory-admin/liquidity-utilities.git"
         }
     ],
     "require-dev": {
@@ -115,3 +121,4 @@
         "format": "vendor/bin/php-cs-fixer fix --allow-risky=yes"
     }
 }
+

@@ -141,11 +141,12 @@ class BilanciController extends Controller
         $jsonData = array();
 
         $file = $request->base64;
-        $instance = null;
+        $instance = false;
 
 
-        $result = XBRL_Instance::FromInstanceDocumentWithExtensionTaxonomy($file->getPathName(),  __DIR__ . '/../../../../taxonomies/2018-11-04/itcc-ci-2018-11-04.xsd', 'XBRL', $instance);
-        //        dd($result);
+
+        $result = XBRL_Instance::FromInstanceDocumentWithExtensionTaxonomy($file->getPathName(),  base_path() . "/taxonomies/2018-11-04/itcc-ci-2018-11-04.xsd", 'XBRL', $instance);
+
         $contexts = ($result->getContexts()->getContexts());
         //        dd($contexts);
         $years = array();
