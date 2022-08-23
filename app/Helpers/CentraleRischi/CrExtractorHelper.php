@@ -250,7 +250,8 @@ class CrExtractorHelper
 
         // Sconfini entro i 90 giorni
 
-        $CentraleRischiModel = DB::table('crs as t');
+        $CentraleRischiModel = DB::table('crs')->where('document_id', $this->_documentId);
+
         foreach ($periods as $queryPeriodArray) {
             $CentraleRischiModel->orWhere(function ($query) use ($queryPeriodArray, $categories, $banks) {
                 $query->where($queryPeriodArray)
@@ -305,7 +306,8 @@ AND t.divisa = t2.divisa')
 
 
         // Sconfini oltre i 90 giorni ed entro i 180 giorni
-        $CentraleRischiModel = DB::table('crs as t');
+        $CentraleRischiModel = DB::table('crs')->where('document_id', $this->_documentId);
+
         foreach ($periods as $queryPeriodArray) {
             $CentraleRischiModel->orWhere(function ($query) use ($queryPeriodArray, $categories, $banks) {
                 $query->where($queryPeriodArray)
@@ -370,7 +372,8 @@ AND t.divisa = t2.divisa');
         }
 
         // Sconfini oltre i 180 giorni
-        $CentraleRischiModel = DB::table('crs as t');
+        $CentraleRischiModel = DB::table('crs')->where('document_id', $this->_documentId);
+
         foreach ($periods as $queryPeriodArray) {
             $CentraleRischiModel->orWhere(function ($query) use ($queryPeriodArray, $categories, $banks) {
                 $query->where($queryPeriodArray)
