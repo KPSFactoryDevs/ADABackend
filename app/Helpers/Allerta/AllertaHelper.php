@@ -562,6 +562,9 @@ class AllertaHelper
 
                 $sum = $this->crExtractorHelper->getPesiAffidamentiPerBanca($categories, $singleYear, $singleMonth, $banks);
 
+                foreach($banks as $singleBank) {
+                    $utilizzatoPerBanca[$singleBank] = 0;
+                }
                 foreach ($sum as $index => $tmpData) {
                     $utilizzatoPerBanca[$tmpData['nome_banca']] = isset($utilizzatoPerBanca[$tmpData['nome_banca']]) ? ($utilizzatoPerBanca[$tmpData['nome_banca']]) + $tmpData['totUtilizzato'] : $tmpData['totUtilizzato'];
                 }
