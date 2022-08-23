@@ -22,7 +22,7 @@ use Exception;
 
 class CentraleRischiController extends Controller
 {
-    
+
 
     public function getDocuments(Request $request)
     {
@@ -34,12 +34,15 @@ class CentraleRischiController extends Controller
             $documentsCr = Document::orderBy('created_at', 'desc')->get();
         }
 
-     
+
         foreach ($documentsCr as $singleDocument) {
             $textPeriodAvailable = "";
-            $periodAvailable = cr::select(['mese','anno'])->Where('document_id', $singleDocument->codice_documento)->get();
+            $periodAvailable = cr::select(['mese','anno'])
+                ->Where('document_id', $singleDocument->codice_documento)
+                ->groupBy('anno','mese')
+                ->get();
             foreach($periodAvailable as $singlePeriod) {
-                $textPeriodAvailable .= substr(ucFirst($singlePeriod->mese),0,3)." ".$singlePeriod->anno." - ";
+                $textPeriodAvailable .= substr(ucFirst($singlePeriod->mese),0,3)." ".$singlePeriod->anno. ', ';
             }
             $singleDocument['status'] = ucfirst(str_replace('_', ' ', $singleDocument['status']));
             $singleDocument['type'] = ucfirst($singleDocument['type']);
@@ -50,7 +53,7 @@ class CentraleRischiController extends Controller
         return response()->json([
             $documentsCr,
         ]);
-        
+
     }
 
     public function getDocumentsById($id)
@@ -71,7 +74,7 @@ class CentraleRischiController extends Controller
         $crFileToElaborate = Document::where('codice_documento', $documentId)->first();
         $filepath = $crFileToElaborate->path;
 
-        
+
         $process = new Process(['python3', base_path() . '/crExtractor.py', $filepath, $page]);
 
         $process->setTimeout(10000);
@@ -178,7 +181,7 @@ class CentraleRischiController extends Controller
                 'exception' => $e,
             ], 500);
         }
-        
+
 
         $processGetPages = new Process(['qpdf','--show-npages','/var/www/html/staging/public/centraleRischi/'.$storedFile]);
 
@@ -217,8 +220,8 @@ class CentraleRischiController extends Controller
         ], 200);
 
     }
-    
-    
+
+
     public function crAndamentale(Request $request)
     {
 
@@ -493,7 +496,7 @@ class CentraleRischiController extends Controller
             'lastTwelveMonths' => $lastTwelveMonths,
             'trimestri' => $trimestri
         ];
-        
+
         // dd($affidamenti);
         return response()->json([
             'error' => false,
