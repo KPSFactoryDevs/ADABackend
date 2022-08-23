@@ -304,7 +304,7 @@ class CentraleRischiController extends Controller
             $affidamentiPerMese = $crHelper->getTotaleAffidamentiPerMese($periods, $categories, $banks);
             $anomalieStatoRapporto = $crHelper->mancateSegnalazioniStatoRapporto($banks);
             $sconfiniDivisi = $crHelper->divideAnomalie($numeroSconfiniTotali, $banks);
-            $banksScoring = $crHelper->singleBankData($banks, $periods);
+         //   $banksScoring = $crHelper->singleBankData($banks, $periods);
             $informazioniGarantiAnomalie = $crHelper->informazioniSuiGaranti($informazioniGaranti);
             $percentualiAccordato = $crHelper->percentualiAccordato($totAffidamentiConPesiPerBanca);
             $percentualiUtilizzato = $crHelper->percentualiUtilizzato($totAffidamentiConPesiPerBanca);
@@ -353,7 +353,7 @@ class CentraleRischiController extends Controller
                 ],
                 'AnalisiIndebitamento' => [],
                 'AnalisiPerBanca' => [
-                    'ListaScoringBanche' => $banksScoring
+              //      'ListaScoringBanche' => $banksScoring
                 ],
                 'RischiGaranzie' => [
                     'PosizioniDiRischio' => [
@@ -396,7 +396,7 @@ class CentraleRischiController extends Controller
                 'informazioniGaranti' => $informazioniGaranti,
                 'monthsList' => $monthsList,
                 'affidamentiPerMese' => $affidamentiPerMese,
-                'banksScoring' => $banksScoring,
+          //      'banksScoring' => $banksScoring,
                 'totaleAffidamentiGeneral' => $totaleAffidamentiGeneral,
                 'incidenzaImpagati' => $incidenzaImpagati,
                 'rischiGaranzie' => $rischiGaranzie,

@@ -14,7 +14,7 @@ use Illuminate\Support\Str;
 use PhpCsFixer\Fixer\Whitespace\ArrayIndentationFixer;
 use phpDocumentor\Reflection\Types\This;
 
-class CrExtractorHelper
+class CrExtractorHelperOld
 {
     public $_period = false;
     public $_countMonths = false;
