@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App;
 use lyquidity\xml\QName;
-use lyquidity\XPath2\XPath2Exception;†©©
+use lyquidity\XPath2\XPath2Exception;
 use XBRL\XBRL_Instance;
 use App\Models\Bilanci;
 use App\Models\Account;
