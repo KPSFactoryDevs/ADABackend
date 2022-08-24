@@ -655,7 +655,7 @@ AND t.divisa = t2.divisa');
 
         $cleanData['SconfiniTotali'] = $this->numeroSconfiniTotali;
 
-		dd($cleanData);
+	//dd($cleanData);
         return $cleanData;
     }
 
