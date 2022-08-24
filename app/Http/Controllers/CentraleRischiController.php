@@ -281,6 +281,7 @@ class CentraleRischiController extends Controller
             $finePeriodo = $latestMonth . ' ' . $latestYear;
             $inizioPeriodo = $earliestMonth . ' ' . $earliestYear;
 
+            /*
             $missingMonths = $crHelper->missingMonths($unrefinedPeriods);
             $intermediari = $crHelper->getCountBanks($banks);
             $mediaAnalisiIndebitamento = $crHelper->getMediaIndebitamento($banks);
@@ -290,6 +291,7 @@ class CentraleRischiController extends Controller
             $totaleAffidamentiGeneral = $crHelper->getTotaleAffidamentiGeneral($categories, $latestYear, $latestMonth, $banks);
             $totAffidamentiConPesiPerBanca = $crHelper->getPesiAffidamentiPerBanca($categories, $latestYear, $latestMonth, $banks);
             $scoreCR = $crHelper->getScoring($banks);
+            */
             $creditiContestati = $crHelper->getCreditiContestati($banks);
             $numeroRapportiContestati = count($creditiContestati);
             $impagati = $crHelper->getAlertImpagati($banks);
@@ -311,6 +313,7 @@ class CentraleRischiController extends Controller
             $totaleUtilizzatoGeneral = $crHelper->totAffidamentiConPesiPerBanca($totAffidamentiConPesiPerBanca);
             $monthsList = array_keys($affidamentiPerMese);
 
+            /*
             $response = [
                 'Scoring' => [
                     'Panoramica' => [
@@ -386,9 +389,10 @@ class CentraleRischiController extends Controller
                 ],
 
             ];
+            */
             return response()->json([
                 'error' => false,
-                'anomalieStatoRapporto' => $anomalieStatoRapporto,
+           /*     'anomalieStatoRapporto' => $anomalieStatoRapporto,
                 'anomalie' => $anomalie,
                 'missingMonths' => $missingMonths,
                 'sconfiniDivisi' => $sconfiniDivisi,
@@ -421,7 +425,7 @@ class CentraleRischiController extends Controller
                 'informazioniGarantiAnomalie' => $informazioniGarantiAnomalie,
                 'scoreCR' => $scoreCR,
 
-                'newFutureArray' => $response
+                'newFutureArray' => $response*/
             ]);
         }
     }
