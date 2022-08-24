@@ -280,7 +280,7 @@ class CentraleRischiController extends Controller
             $finePeriodo = $latestMonth . ' ' . $latestYear;
             $inizioPeriodo = $earliestMonth . ' ' . $earliestYear;
 
-            $missingMonths = $crHelper->missingMonths($unrefinedPeriods);
+            $missingMonths = $crHelper->missingMonths($unrefinedPeriods, $crAndamentaleData);
             $intermediari = $crHelper->getCountBanks($banks);
             $mediaAnalisiIndebitamento = $crHelper->getMediaIndebitamento($banks);
             $numeroSconfiniTotali = $crHelper->getTotaleSconfini($banks);
