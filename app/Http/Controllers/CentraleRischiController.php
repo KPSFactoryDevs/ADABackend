@@ -288,13 +288,14 @@ class CentraleRischiController extends Controller
             $totaleAffidamentiTable = $crHelper->getTotaleAffidamenti($categories, $latestYear, $latestMonth, $banks);
             $totaleAffidamentiGeneral = $crHelper->getTotaleAffidamentiGeneral($categories, $latestYear, $latestMonth, $banks);
             $totAffidamentiConPesiPerBanca = $crHelper->getPesiAffidamentiPerBanca($categories, $latestYear, $latestMonth, $banks);
-        //    $scoreCR = $crHelper->getScoring($banks);
+            $sofferenze = $crHelper->getSofferenze($banks);
+            $creditiPassatiPerdita = $crHelper->getCreditiPassatiPerdita($banks);
+            $scoreCR = $crHelper->getScoring($banks, $intermediari, $numeroSconfiniTotali, $sofferenze, $creditiPassatiPerdita);
             $creditiContestati = $crHelper->getCreditiContestati($banks);
             $numeroRapportiContestati = count($creditiContestati);
             $impagati = $crHelper->getAlertImpagati($banks);
             $garanzieEsitoNegativo = $crHelper->getGaranzieEsitoNegativo($banks);
-            $sofferenze = $crHelper->getSofferenze($banks);
-            $creditiPassatiPerdita = $crHelper->getCreditiPassatiPerdita($banks);
+
             $anomalie = $crHelper->getAnomalie($banks);
             $incidenzaImpagati = $crHelper->getPercentualeMediaImpagati($banks);
             $informazioniGaranti = $crHelper->getInformazioniGaranti($banks);
@@ -319,7 +320,7 @@ class CentraleRischiController extends Controller
                             ],
                         'NumeroIntermediari' => $intermediari,
                         'NumeroPosizioniContestate' => $numeroRapportiContestati,
-                //        'FinalScore' => $scoreCR
+                        'FinalScore' => $scoreCR
                     ],
                     'AnomalieUtilizzi' => [
                         'TensioneAutoliquidanti' => $numeroSconfiniTotali['Tensioni']['RISCHI AUTOLIQUIDANTI'],

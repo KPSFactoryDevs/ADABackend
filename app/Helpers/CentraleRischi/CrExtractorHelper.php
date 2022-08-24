@@ -699,12 +699,12 @@ AND t.divisa = t2.divisa');
 
         return $this->_alertImpagati;
     }
-    public function getScoring($banks)
+    public function getScoring($banks, $countBanks, $sconfini, $sofferenze, $creditiPerdita)
     {
         $allMonthsCount = $this->getCountMonths();
-        $countBanks = $this->getCountBanks($banks);
-        $sconfiniOld = $this->getTotaleSconfiniOld($banks);
-		$sconfini = $this->getTotaleSconfini($banks);
+      //  $countBanks = $this->getCountBanks($banks);
+       // $sconfiniOld = $this->getTotaleSconfiniOld($banks);
+		//$sconfini = $this->getTotaleSconfini($banks);
 
         $numeroSconfiniOltre90 = count($sconfini['SconfiniOltre90Giorni']);
         $numeroSconfiniOltre180 = count($sconfini['SconfiniOltre180Giorni']);
@@ -787,7 +787,7 @@ AND t.divisa = t2.divisa');
         }
 
         // Presenza Sofferenze
-        $sofferenze = count($this->getSofferenze($banks));
+        $sofferenze = count($sofferenze);
 
         if ($allMonthsCount <= 12) {
             if ($sofferenze < 1) {
@@ -806,7 +806,7 @@ AND t.divisa = t2.divisa');
 
 
         // Presenza Crediti passati a perdite
-        $creditiPerdita = count($this->getCreditiPassatiPerdita($banks));
+        $creditiPerdita = count($creditiPerdita);
         if ($allMonthsCount <= 12) {
             if ($creditiPerdita < 1) {
                 $this->_finalScore += 0.135;
