@@ -266,7 +266,6 @@ class CentraleRischiController extends Controller
                 ->orderBy('date')
                 ->get(), true);
 
-dd($unrefinedPeriods);
 
             $periods = $crHelper->getCleanPeriods($unrefinedPeriods);
             $crHelper->setPeriod($periods);
