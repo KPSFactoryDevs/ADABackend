@@ -281,22 +281,15 @@ class CentraleRischiController extends Controller
             $finePeriodo = $latestMonth . ' ' . $latestYear;
             $inizioPeriodo = $earliestMonth . ' ' . $earliestYear;
 
-            /*
             $missingMonths = $crHelper->missingMonths($unrefinedPeriods);
             $intermediari = $crHelper->getCountBanks($banks);
             $mediaAnalisiIndebitamento = $crHelper->getMediaIndebitamento($banks);
             $numeroSconfiniTotali = $crHelper->getTotaleSconfini($banks);
             $rischiGaranzie = $crHelper->getRischiGaranzie($banks);
-             */
-
-
-            //
             $totaleAffidamentiTable = $crHelper->getTotaleAffidamenti($categories, $latestYear, $latestMonth, $banks);
             $totaleAffidamentiGeneral = $crHelper->getTotaleAffidamentiGeneral($categories, $latestYear, $latestMonth, $banks);
             $totAffidamentiConPesiPerBanca = $crHelper->getPesiAffidamentiPerBanca($categories, $latestYear, $latestMonth, $banks);
-          //  $scoreCR = $crHelper->getScoring($banks);
-
-            /*
+        //    $scoreCR = $crHelper->getScoring($banks);
             $creditiContestati = $crHelper->getCreditiContestati($banks);
             $numeroRapportiContestati = count($creditiContestati);
             $impagati = $crHelper->getAlertImpagati($banks);
@@ -310,15 +303,14 @@ class CentraleRischiController extends Controller
             $importiSconfini = $crHelper->getImportiSconfini($banks);
             $affidamentiPerMese = $crHelper->getTotaleAffidamentiPerMese($periods, $categories, $banks);
             $anomalieStatoRapporto = $crHelper->mancateSegnalazioniStatoRapporto($banks);
-        //    $sconfiniDivisi = $crHelper->divideAnomalie($numeroSconfiniTotali, $banks);
+            $sconfiniDivisi = $crHelper->divideAnomalie($numeroSconfiniTotali, $banks);
          //   $banksScoring = $crHelper->singleBankData($banks, $periods);
             $informazioniGarantiAnomalie = $crHelper->informazioniSuiGaranti($informazioniGaranti);
-     //       $percentualiAccordato = $crHelper->percentualiAccordato($totAffidamentiConPesiPerBanca);
-     //       $percentualiUtilizzato = $crHelper->percentualiUtilizzato($totAffidamentiConPesiPerBanca);
-      //      $totaleUtilizzatoGeneral = $crHelper->totAffidamentiConPesiPerBanca($totAffidamentiConPesiPerBanca);
+            $percentualiAccordato = $crHelper->percentualiAccordato($totAffidamentiConPesiPerBanca);
+            $percentualiUtilizzato = $crHelper->percentualiUtilizzato($totAffidamentiConPesiPerBanca);
+            $totaleUtilizzatoGeneral = $crHelper->totAffidamentiConPesiPerBanca($totAffidamentiConPesiPerBanca);
             $monthsList = array_keys($affidamentiPerMese);
 
-            /*
             $response = [
                 'Scoring' => [
                     'Panoramica' => [
@@ -328,7 +320,7 @@ class CentraleRischiController extends Controller
                             ],
                         'NumeroIntermediari' => $intermediari,
                         'NumeroPosizioniContestate' => $numeroRapportiContestati,
-                        'FinalScore' => $scoreCR
+                //        'FinalScore' => $scoreCR
                     ],
                     'AnomalieUtilizzi' => [
                         'TensioneAutoliquidanti' => $numeroSconfiniTotali['Tensioni']['RISCHI AUTOLIQUIDANTI'],
@@ -394,10 +386,9 @@ class CentraleRischiController extends Controller
                 ],
 
             ];
-            */
             return response()->json([
                 'error' => false,
-           /*     'anomalieStatoRapporto' => $anomalieStatoRapporto,
+                'anomalieStatoRapporto' => $anomalieStatoRapporto,
                 'anomalie' => $anomalie,
                 'missingMonths' => $missingMonths,
                 'sconfiniDivisi' => $sconfiniDivisi,
@@ -428,9 +419,9 @@ class CentraleRischiController extends Controller
                 'totAffidamentiConPesiPerBanca' => $totAffidamentiConPesiPerBanca,
                 'totaleAccordatoUtilizzatoPerBancaGeneral' => $totaleUtilizzatoGeneral,
                 'informazioniGarantiAnomalie' => $informazioniGarantiAnomalie,
-                'scoreCR' => $scoreCR,
+               // 'scoreCR' => $scoreCR,
 
-                'newFutureArray' => $response*/
+                'newFutureArray' => $response
             ]);
         }
     }
