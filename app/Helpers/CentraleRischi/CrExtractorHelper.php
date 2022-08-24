@@ -33,7 +33,7 @@ class CrExtractorHelper
     public $_creditiPerdita = false;
     public $_sofferenze = false;
     public $_garanzieEsitoNegativo = false;
-
+    public $numeroSconfiniTotali = 0;
     private $_currentRow = false;
     private $_previousRow = false;
     public $_alertImpagati = false;
@@ -611,6 +611,7 @@ AND t.divisa = t2.divisa');
         }
 
         $this->numeroSconfiniTotali = 0;
+
         $countBanks = $this->getCountBanks($banks);
         $allMonthsCount = $this->getCountMonths();
         $this->_tensioni["RISCHI A SCADENZA"] = false;
