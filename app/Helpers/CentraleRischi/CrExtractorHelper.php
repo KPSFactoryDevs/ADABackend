@@ -1938,7 +1938,7 @@ AND t.divisa = t2.divisa');
                         'Banca' => $singleErrataSegnalazione->nome_banca,
                         'Categoria' => $singleErrataSegnalazione->categoria,
                         'Tipo attività' => $singleErrataSegnalazione->tipo_attivita,
-                        'Importo Sconfinamento' => $singleSconfiniOltre180->accordato_operativo - $singleSconfiniOltre180->utilizzato,
+                        'Importo Sconfinamento' => (float)$singleSconfiniOltre180->accordato_operativo - (float)$singleSconfiniOltre180->utilizzato,
                         'Utilizzo Posizione Sconfinata' => $singleSconfiniOltre180->utilizzato,
                         'Probabile errata segnalazione' => 'Mancata evidenza dello sconfino nei mesi precedenti. Possibile errata segnalazione'
                     );
