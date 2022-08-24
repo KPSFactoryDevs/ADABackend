@@ -150,6 +150,7 @@ class CrExtractorHelper
             }
         }
 
+        dd($periodsContainer);
         return $periodsContainer;
     }
 
