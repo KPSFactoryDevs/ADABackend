@@ -1221,7 +1221,11 @@ Garantito'];
 
             $triennioPeriod = $allertaHelper->getTriennioPeriod($periods, $banks);
             $crExtractorHelper->setPeriod($lastYearPeriod);
-            $scoreCR = $crExtractorHelper->getScoring($banks);
+            $sofferenze = $crHelper->getSofferenze($banks);
+            $sconfini = $crHelper->getTotaleSconfini($banks);
+            $countBanks = $crHelper->getCountBanks($banks);
+            $creditiPassatiPerdita = $crHelper->getCreditiPassatiPerdita($banks);
+            $scoreCR = $crExtractorHelper->getScoring($banks, $countBanks, $sconfini, $sofferenze, $creditiPassatiPerdita);
             $alerts = array();
 
             $alerts['1'] = $allertaHelper->getAnalisiCRUno($banks);
