@@ -287,11 +287,16 @@ class CentraleRischiController extends Controller
             $mediaAnalisiIndebitamento = $crHelper->getMediaIndebitamento($banks);
             $numeroSconfiniTotali = $crHelper->getTotaleSconfini($banks);
             $rischiGaranzie = $crHelper->getRischiGaranzie($banks);
+             */
+
+
+            //
             $totaleAffidamentiTable = $crHelper->getTotaleAffidamenti($categories, $latestYear, $latestMonth, $banks);
             $totaleAffidamentiGeneral = $crHelper->getTotaleAffidamentiGeneral($categories, $latestYear, $latestMonth, $banks);
             $totAffidamentiConPesiPerBanca = $crHelper->getPesiAffidamentiPerBanca($categories, $latestYear, $latestMonth, $banks);
             $scoreCR = $crHelper->getScoring($banks);
-            */
+
+            /*
             $creditiContestati = $crHelper->getCreditiContestati($banks);
             $numeroRapportiContestati = count($creditiContestati);
             $impagati = $crHelper->getAlertImpagati($banks);
