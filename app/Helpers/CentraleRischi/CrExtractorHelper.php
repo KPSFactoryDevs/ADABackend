@@ -581,8 +581,7 @@ AND t.divisa = t2.divisa');
         // Sconfini oltre i 180 giorni
         $CentraleRischiModel = DB::table('crs as t');
         foreach ($periods as $queryPeriodArray) {
-            dd($queryPeriodArray);
-            $CentraleRischiModel->orWhere(function ($query) use ($queryPeriodArray, $categories, $banks) {
+            $CentraleRischiModel->Where(function ($query) use ($queryPeriodArray, $categories, $banks) {
 
                          $query->where($queryPeriodArray)
                     ->whereIn('nome_banca', $banks)
