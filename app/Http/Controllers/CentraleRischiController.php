@@ -291,10 +291,10 @@ class CentraleRischiController extends Controller
 
 
             //
-         //   $totaleAffidamentiTable = $crHelper->getTotaleAffidamenti($categories, $latestYear, $latestMonth, $banks);
-         //   $totaleAffidamentiGeneral = $crHelper->getTotaleAffidamentiGeneral($categories, $latestYear, $latestMonth, $banks);
+            $totaleAffidamentiTable = $crHelper->getTotaleAffidamenti($categories, $latestYear, $latestMonth, $banks);
+            $totaleAffidamentiGeneral = $crHelper->getTotaleAffidamentiGeneral($categories, $latestYear, $latestMonth, $banks);
             $totAffidamentiConPesiPerBanca = $crHelper->getPesiAffidamentiPerBanca($categories, $latestYear, $latestMonth, $banks);
-            $scoreCR = $crHelper->getScoring($banks);
+          //  $scoreCR = $crHelper->getScoring($banks);
 
             /*
             $creditiContestati = $crHelper->getCreditiContestati($banks);
