@@ -514,7 +514,7 @@ AND t.divisa = t2.divisa');
 
         $CentraleRischiModel = DB::table('crs')->where('document_id', $this->_documentId);
 
-        dd($periods);
+
         foreach ($periods as $queryPeriodArray) {
             $CentraleRischiModel->orWhere(function ($query) use ($queryPeriodArray, $categories, $banks) {
                 $query->where($queryPeriodArray);
@@ -652,7 +652,7 @@ AND t.divisa = t2.divisa');
 
         $cleanData['SconfiniTotali'] = $this->numeroSconfiniTotali;
 
-		//dd($cleanData);
+		dd($cleanData);
         return $cleanData;
     }
 
