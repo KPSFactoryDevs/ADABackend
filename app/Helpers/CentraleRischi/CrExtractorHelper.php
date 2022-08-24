@@ -250,8 +250,7 @@ class CrExtractorHelper
 
         // Sconfini entro i 90 giorni
 
-        $CentraleRischiModel = DB::table('crs')->where('document_id', $this->_documentId);
-
+        $CentraleRischiModel = DB::table('crs as t');
         foreach ($periods as $queryPeriodArray) {
             $CentraleRischiModel->orWhere(function ($query) use ($queryPeriodArray, $categories, $banks) {
                 $query->where($queryPeriodArray)
@@ -306,8 +305,7 @@ AND t.divisa = t2.divisa')
 
 
         // Sconfini oltre i 90 giorni ed entro i 180 giorni
-        $CentraleRischiModel = DB::table('crs')->where('document_id', $this->_documentId);
-
+        $CentraleRischiModel = DB::table('crs as t');
         foreach ($periods as $queryPeriodArray) {
             $CentraleRischiModel->orWhere(function ($query) use ($queryPeriodArray, $categories, $banks) {
                 $query->where($queryPeriodArray)
@@ -372,8 +370,7 @@ AND t.divisa = t2.divisa');
         }
 
         // Sconfini oltre i 180 giorni
-        $CentraleRischiModel = DB::table('crs')->where('document_id', $this->_documentId);
-
+        $CentraleRischiModel = DB::table('crs as t');
         foreach ($periods as $queryPeriodArray) {
             $CentraleRischiModel->orWhere(function ($query) use ($queryPeriodArray, $categories, $banks) {
                 $query->where($queryPeriodArray)
@@ -521,7 +518,6 @@ AND t.divisa = t2.divisa');
             $CentraleRischiModel->orWhere(function ($query) use ($queryPeriodArray, $categories, $banks) {
                 $query->where($queryPeriodArray);
                 $query->whereIn('nome_banca', $banks);
-                $query->where('document_id', $this->_documentId);
                 $query->whereRaw('CAST(accordato_operativo as SIGNED) < CAST(utilizzato as SIGNED)');
                 $query->whereIn('categoria', $categories);
             });
@@ -540,12 +536,11 @@ AND t.divisa = t2.divisa');
 
         // Sconfini entro i 90 giorni
 
-        $CentraleRischiModel = DB::table('crs as t');
+        $CentraleRischiModel = DB::table('crs as t')->where('t.document_id', $this->_documentId);
         foreach ($periods as $queryPeriodArray) {
             $CentraleRischiModel->orWhere(function ($query) use ($queryPeriodArray, $categories, $banks) {
                 $query->where($queryPeriodArray)
                     ->whereIn('nome_banca', $banks)
-                     ->where('document_id', $this->_documentId)
                     ->whereIn('categoria', $categories)
                     ->whereRaw('CAST(t.accordato_operativo as SIGNED) < CAST(t.utilizzato as SIGNED)')
 
@@ -563,13 +558,12 @@ AND t.divisa = t2.divisa');
 
 
         // Sconfini oltre i 90 giorni ed entro i 180 giorni
-        $CentraleRischiModel = DB::table('crs as t');
+        $CentraleRischiModel = DB::table('crs as t')->where('t.document_id', $this->_documentId);
         foreach ($periods as $queryPeriodArray) {
             $CentraleRischiModel->orWhere(function ($query) use ($queryPeriodArray, $categories, $banks) {
                         $query->where($queryPeriodArray)
                     ->whereIn('nome_banca', $banks)
                     ->whereIn('categoria', $categories)
-                            ->where('document_id', $this->_documentId)
                     ->whereRaw('CAST(t.accordato_operativo as SIGNED) < CAST(t.utilizzato as SIGNED)')
 				 	->where('stato_rapporto', 'like', "Rapp non contestati".  '%');
                     });
@@ -584,14 +578,13 @@ AND t.divisa = t2.divisa');
         }
 
         // Sconfini oltre i 180 giorni
-        $CentraleRischiModel = DB::table('crs as t');
+        $CentraleRischiModel = DB::table('crs as t')->where('t.document_id', $this->_documentId);
         foreach ($periods as $queryPeriodArray) {
             $CentraleRischiModel->orWhere(function ($query) use ($queryPeriodArray, $categories, $banks) {
 
                          $query->where($queryPeriodArray)
                     ->whereIn('nome_banca', $banks)
                     ->whereIn('categoria', $categories)
-                             ->where('document_id', $this->_documentId)
                     ->whereRaw('CAST(t.accordato_operativo as SIGNED) < CAST(t.utilizzato as SIGNED)')
                   	->Where('stato_rapporto', 'like', "Rapporti non contestati-crediti"."%");
                     });
@@ -1925,7 +1918,7 @@ AND t.divisa = t2.divisa');
                         'Banca' => $singleErrataSegnalazione->nome_banca,
                         'Categoria' => $singleErrataSegnalazione->categoria,
                         'Tipo attività' => $singleErrataSegnalazione->tipo_attivita,
-                        'Importo Sconfinamento' => $singleSconfiniEntro180->accordato_operativo - $singleSconfiniEntro180->utilizzato,
+                        'Importo Sconfinamento' => (float)$singleSconfiniEntro180->accordato_operativo - (float)$singleSconfiniEntro180->utilizzato,
                         'Utilizzo Posizione Sconfinata' => $singleSconfiniEntro180->utilizzato,
                         'Probabile errata segnalazione' => 'Mancata evidenza dello sconfino nei mesi precedenti. Possibile errata segnalazione'
                     );
