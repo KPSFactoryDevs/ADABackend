@@ -248,7 +248,6 @@ class CentraleRischiController extends Controller
                     $lastDate = new DateTime(cr::select('date')->where('document_id', $crAndamentaleData['period'])->orderBy('date', 'desc')->first()->date);
                     $earlierDate = new DateTime(cr::select('date')->where('document_id', $crAndamentaleData['period'])->orderBy('date', 'desc')->first()->date);
                     $earlierDate = $earlierDate->modify('-23 months');
-                    dd($lastDate, $earlierDate);
                 } else {
                     $earlierDate = $crAndamentaleData['newDates']['data_inizio'];
                     $lastDate = $crAndamentaleData['newDates']['data_fine'];
