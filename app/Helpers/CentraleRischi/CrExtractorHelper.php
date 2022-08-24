@@ -583,7 +583,7 @@ AND t.divisa = t2.divisa');
         foreach ($periods as $queryPeriodArray) {
             $CentraleRischiModel->orWhere(function ($query) use ($queryPeriodArray, $categories, $banks) {
                 $query->where('t.document_id', $this->_documentId)
-                         $query->where($queryPeriodArray)
+                         ->where($queryPeriodArray)
                     ->whereIn('nome_banca', $banks)
                     ->whereIn('categoria', $categories)
                     ->whereRaw('CAST(t.accordato_operativo as SIGNED) < CAST(t.utilizzato as SIGNED)')
