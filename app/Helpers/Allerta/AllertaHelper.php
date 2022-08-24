@@ -379,7 +379,11 @@ class AllertaHelper
 
     public function getAnalisiCRUno($banks)
     {
-        $scoringCR = $this->crExtractorHelper->getScoring($banks);
+        $sofferenze = $this->crExtractorHelper->getSofferenze($banks);
+        $sconfini = $this->crExtractorHelper->getTotaleSconfini($banks);
+        $countBanks = $this->crExtractorHelper->getCountBanks($banks);
+        $creditiPassatiPerdita = $this->crExtractorHelper->getCreditiPassatiPerdita($banks);
+        $scoringCR = $this->crExtractorHelper->getScoring($banks, $countBanks, $sconfini, $sofferenze, $creditiPassatiPerdita);
 
         if ($scoringCR <= 0.5) {
             return true;
