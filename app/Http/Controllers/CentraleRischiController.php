@@ -256,7 +256,7 @@ class CentraleRischiController extends Controller
                     $lastDate = new DateTime($lastDate);
                 }
 
-
+dd($earlierDate, $lastDate);
 
             $unrefinedPeriods = json_decode(DB::table('crs')
                 ->select('anno', 'mese', 'date')
