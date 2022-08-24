@@ -156,13 +156,14 @@ class CrExtractorHelper
     public function getAllData($banks)
     {
         $queryPeriodArray = array();
-        $CentraleRischiModel = DB::table('crs')->where('document_id', $this->_documentId);
+        $CentraleRischiModel = DB::table('crs');
         $periods = $this->buildPeriodArray();
 
 
         foreach ($periods as $queryPeriodArray) {
             $CentraleRischiModel->orWhere(function ($query) use ($queryPeriodArray, $banks) {
                 $query->where($queryPeriodArray);
+                $query->where('document_id', $this->_documentId);
                 $query->whereIn('nome_banca', $banks);
             });
         }
