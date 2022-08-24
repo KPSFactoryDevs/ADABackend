@@ -305,12 +305,12 @@ class CentraleRischiController extends Controller
             $importiSconfini = $crHelper->getImportiSconfini($banks);
             $affidamentiPerMese = $crHelper->getTotaleAffidamentiPerMese($periods, $categories, $banks);
             $anomalieStatoRapporto = $crHelper->mancateSegnalazioniStatoRapporto($banks);
-            $sconfiniDivisi = $crHelper->divideAnomalie($numeroSconfiniTotali, $banks);
+        //    $sconfiniDivisi = $crHelper->divideAnomalie($numeroSconfiniTotali, $banks);
          //   $banksScoring = $crHelper->singleBankData($banks, $periods);
             $informazioniGarantiAnomalie = $crHelper->informazioniSuiGaranti($informazioniGaranti);
-            $percentualiAccordato = $crHelper->percentualiAccordato($totAffidamentiConPesiPerBanca);
-            $percentualiUtilizzato = $crHelper->percentualiUtilizzato($totAffidamentiConPesiPerBanca);
-            $totaleUtilizzatoGeneral = $crHelper->totAffidamentiConPesiPerBanca($totAffidamentiConPesiPerBanca);
+     //       $percentualiAccordato = $crHelper->percentualiAccordato($totAffidamentiConPesiPerBanca);
+     //       $percentualiUtilizzato = $crHelper->percentualiUtilizzato($totAffidamentiConPesiPerBanca);
+      //      $totaleUtilizzatoGeneral = $crHelper->totAffidamentiConPesiPerBanca($totAffidamentiConPesiPerBanca);
             $monthsList = array_keys($affidamentiPerMese);
 
             /*
