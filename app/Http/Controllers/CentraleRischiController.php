@@ -220,11 +220,13 @@ class CentraleRischiController extends Controller
     }
 
 
-    public function crAndamentale(Request $request)
+    public function crAndamentale($period, $data_inizio = false, $data_fine = false, $inputBanks = null)
     {
 
-        $crAndamentaleData = $request->all();
-        $crAndamentaleData['period'] = $request->period;
+
+        $crAndamentaleData['period'] = $period;
+        $crAndamentaleData['data_inizio'] = $data_inizio;
+        $crAndamentaleData['data_fine'] = $data_fine;
         unset($crAndamentaleData['_token']);
 
 
@@ -252,6 +254,7 @@ class CentraleRischiController extends Controller
 
                 $earlierDate = new DateTime('@' . $earlierDate);
                 $lastDate = new DateTime('@' . $lastDate);
+
             }
 
 
@@ -265,11 +268,13 @@ class CentraleRischiController extends Controller
                 ->get(), true);
 
 
+
             $periods = $crHelper->getCleanPeriods($unrefinedPeriods);
+
             $crHelper->setPeriod($periods);
             $periodsCorrect = $crHelper->buildPeriodArray();
             $crHelper->setDocumentId($crAndamentaleData['period']);
-            $banks = $crHelper->getGeneratedbanks($request, $crAndamentaleData, $periodsCorrect, $categories);
+            $banks = $crHelper->getGeneratedbanks($inputBanks, $crAndamentaleData, $periodsCorrect, $categories);
 
             $latestYear = array_key_last($periods);
             $latestMonth = array_key_last($periods[$latestYear]);

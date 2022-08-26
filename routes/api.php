@@ -42,7 +42,7 @@ Route::group(['middleware' => ['cors', 'json.response']], function () {
 
 
     // CENTRALE RISCHI
-    Route::get('/crAndamentale/{period}/{data_inizio}/{data_fine}', 'App\Http\Controllers\CentraleRischiController@crAndamentale');
+    Route::get('/crAndamentale/{period}/{data_inizio?}/{data_fine?}/{inputBanks?}', 'App\Http\Controllers\CentraleRischiController@crAndamentale');
     Route::get('/crTrimestrale', 'App\Http\Controllers\CentraleRischiController@dettagliata');
     Route::post('/crRecap', 'App\Http\Controllers\CentraleRischiController@recap');
     Route::post('/importCr', 'App\Http\Controllers\CentraleRischiController@store');

@@ -2995,7 +2995,7 @@ AND t.divisa = t2.divisa');
         return array("totaleAccordatoGeneral" => $totaleAccordatoGeneral, "totaleUtilizzatoGeneral" => $totaleUtilizzatoGeneral);
     }
 
-    public function getGeneratedbanks($request, $crAndamentaleData, $periodsCorrect, $categories) {
+    public function getGeneratedbanks($inputBanks, $crAndamentaleData, $periodsCorrect, $categories) {
         $banksQuery = DB::table('crs')->where('document_id', $crAndamentaleData['period']);
         $banks = [];
         foreach ($periodsCorrect as $queryPeriodArray) {
@@ -3005,8 +3005,8 @@ AND t.divisa = t2.divisa');
         }
 
 
-        if ($request->input('banks') !== null) {
-            $banks = $request->input('banks');
+        if ($inputBanks !== null) {
+            $banks = $inputBanks;
         } else {
 
             $banksData = $banksQuery
