@@ -566,7 +566,7 @@ class AllertaHelper
 
                 $sum = $this->crExtractorHelper->getPesiAffidamentiPerBanca($categories, $singleYear, $singleMonth, $banks);
 
-                foreach($banks as $singleBank) {
+                foreach ($banks as $singleBank) {
                     $utilizzatoPerBanca[$singleBank] = 0;
                 }
                 foreach ($sum as $index => $tmpData) {
@@ -946,18 +946,18 @@ class AllertaHelper
         }
 
         foreach ($accordatoRevocaAnno as $singleBank => $revocaData) {
-          if(isset($accordatoRevocaTriennio[$singleBank])) {
-            if (($accordatoRevocaTriennio[$singleBank] - $revocaData) > (($accordatoRevocaTriennio[$singleBank]) / 25) * 100) {
-                return true;
+            if (isset($accordatoRevocaTriennio[$singleBank])) {
+                if (($accordatoRevocaTriennio[$singleBank] - $revocaData) > (($accordatoRevocaTriennio[$singleBank]) / 25) * 100) {
+                    return true;
+                }
             }
-          }
         }
         foreach ($accordatoRevocaUltimoMese as $singleBank => $revocaData) {
-          if(isset($accordatoRevocaTrimestre[$singleBank])) {
-            if (($accordatoRevocaTrimestre[$singleBank] - $revocaData) > (($accordatoRevocaTrimestre[$singleBank]) / 25) * 100) {
-                return true;
+            if (isset($accordatoRevocaTrimestre[$singleBank])) {
+                if (($accordatoRevocaTrimestre[$singleBank] - $revocaData) > (($accordatoRevocaTrimestre[$singleBank]) / 25) * 100) {
+                    return true;
+                }
             }
-          }
         }
         return false;
     }
@@ -993,18 +993,18 @@ class AllertaHelper
         }
 
         foreach ($accordatoRevocaAnno as $singleBank => $revocaData) {
-          if(isset($accordatoRevocaTriennio[$singleBank])) {
-            if (($accordatoRevocaTriennio[$singleBank] - $revocaData) > (($accordatoRevocaTriennio[$singleBank]) / 25) * 100) {
-                return true;
+            if (isset($accordatoRevocaTriennio[$singleBank])) {
+                if (($accordatoRevocaTriennio[$singleBank] - $revocaData) > (($accordatoRevocaTriennio[$singleBank]) / 25) * 100) {
+                    return true;
+                }
             }
-          }
         }
         foreach ($accordatoRevocaUltimoMese as $singleBank => $revocaData) {
-          if(isset($accordatoRevocaTrimestre[$singleBank])) {
-            if (($accordatoRevocaTrimestre[$singleBank] - $revocaData) > (($accordatoRevocaTrimestre[$singleBank]) / 25) * 100) {
-                return true;
+            if (isset($accordatoRevocaTrimestre[$singleBank])) {
+                if (($accordatoRevocaTrimestre[$singleBank] - $revocaData) > (($accordatoRevocaTrimestre[$singleBank]) / 25) * 100) {
+                    return true;
+                }
             }
-          }
         }
         return false;
     }
@@ -1020,5 +1020,19 @@ class AllertaHelper
     public function getAnalisiCRSedici($banks)
     {
         return (count($this->crExtractorHelper->getSofferenze($banks)) > 0 || count($this->crExtractorHelper->getCreditiPassatiPerdita($banks)) > 0);
+    }
+
+    public function getQuestionarioAsis($bilancioId, $documentId)
+    {
+        $getQuestionarioAsis = DB::table('questionario')->where('document_id', $documentId)->where('bilancio_id', $bilancioId)->get();
+
+        return $getQuestionarioAsis;
+    }
+
+    public function getQuestionarioToBe($bilancioId, $documentId) 
+    {
+        $getQuestionarioToBe = DB::table('forwardlooking')->where('document_id', $documentId)->where('bilancio_id', $bilancioId)->get();
+
+        return $getQuestionarioToBe;
     }
 }
