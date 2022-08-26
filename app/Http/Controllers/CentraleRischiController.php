@@ -246,14 +246,17 @@ class CentraleRischiController extends Controller
 
             if ($crAndamentaleData['data_inizio'] == "false" || $crAndamentaleData['data_fine'] == "false") {
                 $lastDate = new DateTime(cr::select('date')->where('document_id', $crAndamentaleData['period'])->orderBy('date', 'desc')->first()->date);
+                $lastDate = $lastDate->modify('last day of this month')->format('Y-m-d');
                 $earlierDate = new DateTime(cr::select('date')->where('document_id', $crAndamentaleData['period'])->orderBy('date', 'desc')->first()->date);
-                $earlierDate = $earlierDate->modify('-11 months');
+                $earlierDate = $earlierDate->modify('-11 months')->modify('first day of this month');
             } else {
                 $earlierDate = $crAndamentaleData['data_inizio'];
                 $lastDate = $crAndamentaleData['data_fine'];
 
                 $earlierDate = new DateTime('@' . $earlierDate);
+                $earlierDate = $earlierDate->format('Y-m-d');
                 $lastDate = new DateTime('@' . $lastDate);
+                $lastDate = $lastDate->format('Y-m-d');
 
 
             }
@@ -262,7 +265,7 @@ class CentraleRischiController extends Controller
 
             $unrefinedPeriods = json_decode(DB::table('crs')
                 ->select('anno', 'mese', 'date')
-                ->where("date", '>', $earlierDate->modify('first day of this month')->format('Y-m-d'))->where("date", '<', $lastDate->modify('last day of this month')->format('Y-m-d'))
+                ->where("date", '>', $earlierDate)->format('Y-m-d'))->where("date", '<', $lastDate)
                 ->where('document_id', $crAndamentaleData['period'])
                 ->groupBy('date', 'anno', 'mese')
                 ->orderBy('date')
