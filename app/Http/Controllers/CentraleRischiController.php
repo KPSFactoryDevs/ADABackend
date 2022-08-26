@@ -254,9 +254,9 @@ class CentraleRischiController extends Controller
                 $lastDate = $crAndamentaleData['data_fine'];
 
                 $earlierDate = new DateTime('@' . $earlierDate);
-                $earlierDate = $earlierDate->format('Y-m-d');
+                $earlierDate = $earlierDate->modify('first day of this month')->format('Y-m-d');
                 $lastDate = new DateTime('@' . $lastDate);
-                $lastDate = $lastDate->format('Y-m-d');
+                $lastDate = $lastDate->modify('last day of this month')->format('Y-m-d');
 
 
             }
