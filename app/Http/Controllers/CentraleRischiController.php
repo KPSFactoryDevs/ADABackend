@@ -268,7 +268,13 @@ class CentraleRischiController extends Controller
                 ->orderBy('date')
                 ->get(), true);
 
-            dd($earlierDate, $lastDate, $unrefinedPeriods);
+
+            if(empty($unrefinedPeriods)) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'No data available in this period range'
+                ]);
+            }
 
             $periods = $crHelper->getCleanPeriods($unrefinedPeriods);
 
