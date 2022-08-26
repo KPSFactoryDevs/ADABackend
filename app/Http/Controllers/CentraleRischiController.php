@@ -244,7 +244,7 @@ class CentraleRischiController extends Controller
 
             $crHelper = new CrExtractorHelper;
 
-            if (!$crAndamentaleData['data_inizio'] && $crAndamentaleData['data_inizio'] != false) {
+            if ($crAndamentaleData['data_inizio'] == false || $crAndamentaleData['data_fine'] == false) {
                 $lastDate = new DateTime(cr::select('date')->where('document_id', $crAndamentaleData['period'])->orderBy('date', 'desc')->first()->date);
                 $earlierDate = new DateTime(cr::select('date')->where('document_id', $crAndamentaleData['period'])->orderBy('date', 'desc')->first()->date);
                 $earlierDate = $earlierDate->modify('-11 months');
