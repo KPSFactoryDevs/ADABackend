@@ -255,6 +255,7 @@ class CentraleRischiController extends Controller
                 $earlierDate = new DateTime('@' . $earlierDate);
                 $lastDate = new DateTime('@' . $lastDate);
 
+
             }
 
 
@@ -267,7 +268,7 @@ class CentraleRischiController extends Controller
                 ->orderBy('date')
                 ->get(), true);
 
-
+            dd($earlierDate, $lastDate, $unrefinedPeriods);
 
             $periods = $crHelper->getCleanPeriods($unrefinedPeriods);
 
