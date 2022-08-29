@@ -48,7 +48,7 @@ class BilanciController extends Controller
     public function recap(Request $request)
     {
         $tipo_azienda = $request->input('tipo_azienda');
-        $formaGiuridica = $request->input('forma_giuridica');
+      //  $formaGiuridica = $request->input('forma_giuridica');
 
         global $use_xbrl_functions;
         $use_xbrl_functions = true;
@@ -59,9 +59,7 @@ class BilanciController extends Controller
         $instance = null;
 
         $result = XBRL_Instance::FromInstanceDocumentWithExtensionTaxonomy($file->getPathName(),  __DIR__ . '/../../../../taxonomies/2018-11-04/itcc-ci-2018-11-04.xsd', 'XBRL', $instance);
-        //        dd($result);
         $contexts = ($result->getContexts()->getContexts());
-        //        dd($contexts);
         $years = array();
 
         foreach ($contexts as $cont) {
@@ -69,20 +67,15 @@ class BilanciController extends Controller
             $years[] = $cont['period']['endDate'];
         }
 
-
-
         usort($years, function ($a, $b) {
             return strtotime($a) - strtotime($b);
         });
 
         $years = array_values(array_unique($years));
-        //        dd($years);
 
         ksort($contexts);
-        //        dd($contexts );
 
         foreach ($contexts as $data => $value) {
-            //            dd($data, $value);
             if ($value['period']['type'] == 'duration') {
                 if ($value['period']['startDate'] == $years[0] && $value['period']['endDate'] == $years[1]) {
                     $prevCntxt_d = $data;
@@ -98,19 +91,14 @@ class BilanciController extends Controller
             }
         }
 
-        //        dd($currentCntxt_i,  $prevCntxt_i, $currentCntxt_d, $prevCntxt_d);
-
-        //        dd($currentCntxt, $prevCntxt);
         $date = array();
 
         foreach ($contexts as $data => $val) {
             $date[] = $val['period']['startDate'];
             $date[] = $val['period']['endDate'];
-            //            dd($date);
         }
         $ordDate = array_reverse(array_unique($date, SORT_STRING));
         sort($ordDate);
-        //        dd($ordDate);
 
         $jsonData['prevYear'] = $years[0] . ' ' . $years[1];
         $jsonData['currentYear'] = $years[2] . ' ' . $years[3];
@@ -118,20 +106,8 @@ class BilanciController extends Controller
         $elements = $result->getElements();
         $elements = $elements->getElements();
 
-        //        dd($elements['CreditiVersoAltriTotaleCreditiVersoAltri']);
-
-        //        foreach ($elements as $key=>$element){
-        //            if (str_contains($key,'Comment')){
-        //                dump($element);
-        //            }
-        //        }
-        //        die();
-
         foreach ($elements as $key => $elemento) {
-
-            $chiave = array_keys($elemento);
-
-            //            dd($key, $elemento, $chiave);
+           // $chiave = array_keys($elemento);
 
             if (count($elemento) == 2) {
                 $first = array_shift($elemento);
@@ -233,8 +209,6 @@ class BilanciController extends Controller
             }
         }
 
-        //        dd($jsonData);
-
         $voci = DB::table('vocis')->get();
         $gradi = array();
 
@@ -286,15 +260,12 @@ class BilanciController extends Controller
         }
         unset($gradi[0], $gradi[1], $gradi[2]);
 
-        //        dd($gradi);
-
         $vociExt = array();
 
         foreach ($voci as $voce) {
             $vociExt[$voce->name] = $voce->extended_name;
         }
 
-        //        dd($jsonData);
         return view('bilanci.recap')->with(['jsonData' => $jsonData, 'tipo_azienda' => $tipo_azienda, 'gradi' => $gradi, 'vociExt' => $vociExt, 'account_id' => $request->input('account_id')]);
     }
 
@@ -305,7 +276,6 @@ class BilanciController extends Controller
      */
     public function store(Request $request)
     {
-        //        dd($jsonData);
         dd($request->all());
         $jsonData = array();
         $jsonDataPrev = array();
@@ -409,8 +379,6 @@ class BilanciController extends Controller
         }
         unset($gradi[0], $gradi[1], $gradi[2]);
 
-        //        dd($gradi);
-
         $vociExt = array();
 
         foreach ($voci as $voce) {
@@ -501,7 +469,6 @@ class BilanciController extends Controller
 
     public function storeProvvisorio(Request $request)
     {
-
         $jsonData = array();
         $jsonDataPrev = array();
         $jsonDataAnag = array();
@@ -560,8 +527,7 @@ class BilanciController extends Controller
                 }
             }
             if (!empty($alerts)) {
-
-                return
+                return 
                     view('bilanci.provvisorio')
                     ->with([
                         'fields' => $request->all(),
@@ -595,10 +561,6 @@ class BilanciController extends Controller
         $accountId = $request->input('account_id');
         $period = $request->input('period_start') . ' ' . $request->input('period_end');
 
-        // dd($period);
-
-        // dd($jsonData);
-
         $bilancio = Bilanci::create([
             'json_data' => $jsonDB,
             'account_id' => $accountId,
@@ -609,7 +571,6 @@ class BilanciController extends Controller
             'forma_giuridica' => $formaGiuridica,
             'tipo_azienda' => $tipoAzienda
         ]);
-
 
         return redirect()->route('admin.bilanci.bilancio.datatable');
     }
@@ -672,7 +633,6 @@ class BilanciController extends Controller
 
     public function showCurrent(Request $request)
     {
-
         $bilancioId = $request->input('bilancioId');
         $bilancio = Bilanci::where('id', $bilancioId)->get();
         $jsonData = $bilancio->jsonData;
@@ -727,8 +687,6 @@ class BilanciController extends Controller
             }
         }
         unset($gradi[0], $gradi[1], $gradi[2]);
-
-        //        dd($gradi);
 
         $vociExt = array();
 
