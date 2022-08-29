@@ -1261,16 +1261,7 @@ Garantito'];
             $alerts['16'] = $allertaHelper->getAnalisiCRSedici($banks);
             $punteggioCR = $allertaHelper->getPunteggioCR($alerts);
 
-            // dump('Lista dei parametri di allerta con relativo indicatore (Si/No)');
 
-            // foreach ($alerts as $label => $value) {
-            //     if ($value) {
-            //         dump('Parametro di allerta n. ' . $label . ' : Si');
-            //     } else {
-            //         dump('Parametro di allerta n. ' . $label . ' : No');
-            //     }
-            // }
-            // dd('');
 
             $arrayQuestionario = array();
 
@@ -1479,6 +1470,7 @@ Garantito'];
 				}
 
 
+
 				if($scoreASIS['6'] >= 0 && $scoreASIS['6'] < 0.14){
 					$resultMinacceRischiCaratteristici = "Default";
 				}
@@ -1503,7 +1495,9 @@ Garantito'];
 
 				if($ASISfinalScore) {
 					$ASISScore = $ASISfinalScore['Giudizio'];
-				}
+				} else {
+                    $ASISScore = 'N/A';
+                }
 
 				if($scoreFL) {
 					$scoreGiudizioFL = $scoreFL['Giudizio'];

@@ -293,14 +293,14 @@ class CentraleRischiController extends Controller
             $finePeriodo = $latestMonth . ' ' . $latestYear;
             $inizioPeriodo = $earliestMonth . ' ' . $earliestYear;
 
-            $missingMonths = $crHelper->missingMonths($unrefinedPeriods, $crAndamentaleData);
+            //  $missingMonths = $crHelper->missingMonths($unrefinedPeriods, $crAndamentaleData);
             $intermediari = $crHelper->getCountBanks($banks);
-            $mediaAnalisiIndebitamento = $crHelper->getMediaIndebitamento($banks);
+            // $mediaAnalisiIndebitamento = $crHelper->getMediaIndebitamento($banks);
             $numeroSconfiniTotali = $crHelper->getTotaleSconfini($banks);
             $rischiGaranzie = $crHelper->getRischiGaranzie($banks);
             $totaleAffidamentiTable = $crHelper->getTotaleAffidamenti($categories, $latestYear, $latestMonth, $banks);
-            $totaleAffidamentiGeneral = $crHelper->getTotaleAffidamentiGeneral($categories, $latestYear, $latestMonth, $banks);
-            $totAffidamentiConPesiPerBanca = $crHelper->getPesiAffidamentiPerBanca($categories, $latestYear, $latestMonth, $banks);
+            //  $totaleAffidamentiGeneral = $crHelper->getTotaleAffidamentiGeneral($categories, $latestYear, $latestMonth, $banks);
+            //  $totAffidamentiConPesiPerBanca = $crHelper->getPesiAffidamentiPerBanca($categories, $latestYear, $latestMonth, $banks);
             $sofferenze = $crHelper->getSofferenze($banks);
             $creditiPassatiPerdita = $crHelper->getCreditiPassatiPerdita($banks);
             $scoreCR = $crHelper->getScoring($banks, $intermediari, $numeroSconfiniTotali, $sofferenze, $creditiPassatiPerdita);
@@ -313,16 +313,16 @@ class CentraleRischiController extends Controller
             $incidenzaImpagati = $crHelper->getPercentualeMediaImpagati($banks);
             $informazioniGaranti = $crHelper->getInformazioniGaranti($banks);
             $garanzieRicevute = $crHelper->getGaranzieRicevute($banks);
-            $importiSconfini = $crHelper->getImportiSconfini($banks);
-            $affidamentiPerMese = $crHelper->getTotaleAffidamentiPerMese($periods, $categories, $banks);
-            $anomalieStatoRapporto = $crHelper->mancateSegnalazioniStatoRapporto($banks);
-            $sconfiniDivisi = $crHelper->divideAnomalie($numeroSconfiniTotali, $banks);
-            //   $banksScoring = $crHelper->singleBankData($banks, $periods);
-            $informazioniGarantiAnomalie = $crHelper->informazioniSuiGaranti($informazioniGaranti);
-            $percentualiAccordato = $crHelper->percentualiAccordato($totAffidamentiConPesiPerBanca);
-            $percentualiUtilizzato = $crHelper->percentualiUtilizzato($totAffidamentiConPesiPerBanca);
-            $totaleUtilizzatoGeneral = $crHelper->totAffidamentiConPesiPerBanca($totAffidamentiConPesiPerBanca);
-            $monthsList = array_keys($affidamentiPerMese);
+            // $importiSconfini = $crHelper->getImportiSconfini($banks);
+            // $affidamentiPerMese = $crHelper->getTotaleAffidamentiPerMese($periods, $categories, $banks);
+            // $anomalieStatoRapporto = $crHelper->mancateSegnalazioniStatoRapporto($banks);
+            // $sconfiniDivisi = $crHelper->divideAnomalie($numeroSconfiniTotali, $banks);
+            // $banksScoring = $crHelper->singleBankData($banks, $periods);
+            // $informazioniGarantiAnomalie = $crHelper->informazioniSuiGaranti($informazioniGaranti);
+            // $percentualiAccordato = $crHelper->percentualiAccordato($totAffidamentiConPesiPerBanca);
+            // $percentualiUtilizzato = $crHelper->percentualiUtilizzato($totAffidamentiConPesiPerBanca);
+            // $totaleUtilizzatoGeneral = $crHelper->totAffidamentiConPesiPerBanca($totAffidamentiConPesiPerBanca);
+            // $monthsList = array_keys($affidamentiPerMese);
 
             $response = [
                 'Scoring' => [
@@ -401,7 +401,7 @@ class CentraleRischiController extends Controller
             ];
             return response()->json([
                 'error' => false,
-                'anomalieStatoRapporto' => $anomalieStatoRapporto,
+              /*  'anomalieStatoRapporto' => $anomalieStatoRapporto,
                 'anomalie' => $anomalie,
                 'missingMonths' => $missingMonths,
                 'sconfiniDivisi' => $sconfiniDivisi,
@@ -431,7 +431,7 @@ class CentraleRischiController extends Controller
                 'totaleAffidamentiTable' => $totaleAffidamentiTable,
                 'totAffidamentiConPesiPerBanca' => $totAffidamentiConPesiPerBanca,
                 'totaleAccordatoUtilizzatoPerBancaGeneral' => $totaleUtilizzatoGeneral,
-                'informazioniGarantiAnomalie' => $informazioniGarantiAnomalie,
+                'informazioniGarantiAnomalie' => $informazioniGarantiAnomalie,*/
                 // 'scoreCR' => $scoreCR,
 
                 'newFutureArray' => $response
