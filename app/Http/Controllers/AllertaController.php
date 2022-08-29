@@ -20,48 +20,57 @@ class AllertaController extends Controller
 
     public function questionarioSistemaAllerta(Request $request)
     {
-        $risposte = $request->all();
 
-        $arrayRisposte = array();
+        $documentId = $request->document_id;
+        $bilancioId = $request->bilancio_id;
+        $arrayQuestionario = $request->questionario;
+        $arrayQuestionarioDetails = $request->questionarioDetails;
 
-        foreach ($risposte as $index => $value) {
-            if (str_contains($index, '_desc')) {
-                $exploded = explode('_', $index);
-                if ($risposte[$exploded[0] . '_' . $exploded[1]] == "Si") {
-                    $arrayRisposte[$exploded[1]]['Esito'] = 'Si';
-                    $arrayRisposte[$exploded[1]]['Motivazione'] = $value;
-                } else {
-                    $arrayRisposte[$exploded[1]]['Esito'] = 'No';
-                    $arrayRisposte[$exploded[1]]['Motivazione'] = $value == null ? '' : $value;
-                }
-            }
+        foreach ($arrayQuestionario as $domanda => $risposta) {
+          $dataQuestionario = DB::table('questionario')->insert([
+                'result' => $risposta['response'],
+                'parameter' => $domanda,
+                'details' => $risposta['details'],
+                'date' => date("Y/m/d"),
+                'document_id' => $documentId,
+                'bilancio_id' =>  $bilancioId
+            ]);
+
         }
 
-        DB::table('questionario')->truncate();
-
-        foreach ($arrayRisposte as $data => $values) {
-            DB::table('questionario')->insert(['result' => $values['Esito'], 'parameter' => $data, 'details' => $values['Motivazione'], 'date' => date("Y/m/d")]);
-        }
-
-        return back();
+        return response()->json([
+            'error' => false,
+            'data' => 'Dati inviati correttamente'
+        ], 200);
+        //  return back();
     }
 
 
     public function forwardLooking(Request $request)
     {
-        $risposte = $request->all();
+        $documentId = $request->document_id;
+        $bilancioId = $request->bilancio_id;
+        $arrayForwarLooking = $request->forwardLooking;
 
-        unset($risposte['_token']);
+        unset($arrayForwarLooking['_token']);
 
-        DB::table('forwardLooking')->truncate();
+        //   DB::table('forwardLooking')->truncate();
 
-        foreach ($risposte as $index => $singleAnswer) {
+        foreach ($arrayForwarLooking as $index => $singleAnswer) {
             DB::table('forwardLooking')->insert([
-                ['question' => $index, 'answer' => $singleAnswer, 'date' => date("Y/m/d")]
+                'question' => $index,
+                'answer' => $singleAnswer,
+                'date' => date("Y/m/d"),
+                'document_id' => $documentId,
+                'bilancio_id' => $bilancioId
             ]);
         }
 
-        return back();
+        return response()->json([
+            'error' => false,
+            'data' => 'Dati inviati correttamente',
+        ], 200);
+        // return back();
     }
 
     public function index()
@@ -88,17 +97,17 @@ class AllertaController extends Controller
             $periods[$crs[$i]->anno][$crs[$i]->mese] = null;
         }
 
-		if(!isset($periods)) {
-			    $scoresClean = array(
-            array("title" => "Scoring Bilancio", "iconClass" => "bx-copy-alt", "description" => "N/A"),
-            array("title" => "Scoring Centrale Rischi", "iconClass" => "bx-archive-in", "description" => "N/A"),
-            array("title" => "Giudizio Sistema Allerta", "iconClass" => "bx-purchase-tag-alt", "description" => "N/A"),
-        );
+        if (!isset($periods)) {
+            $scoresClean = array(
+                array("title" => "Scoring Bilancio", "iconClass" => "bx-copy-alt", "description" => "N/A"),
+                array("title" => "Scoring Centrale Rischi", "iconClass" => "bx-archive-in", "description" => "N/A"),
+                array("title" => "Giudizio Sistema Allerta", "iconClass" => "bx-purchase-tag-alt", "description" => "N/A"),
+            );
 
-        return response()->json(
-            $scoresClean
-        );
-		}
+            return response()->json(
+                $scoresClean
+            );
+        }
 
         $latestYear = array_key_last($periods);
         $latestMonth = array_key_last($periods[$latestYear]);
@@ -267,7 +276,7 @@ class AllertaController extends Controller
             }
         }
 
-        $scoreAllerta = /*round($generalScore['Index'], 1).'/'."10".' - '.*/$generalScore['Giudizio'];
+        $scoreAllerta = /*round($generalScore['Index'], 1).'/'."10".' - '.*/ $generalScore['Giudizio'];
 
         $scoresClean = array(
             array("title" => "Scoring Bilancio", "iconClass" => "bx-copy-alt", "description" => $scoreBilancioAllerta),
@@ -457,7 +466,7 @@ class AllertaController extends Controller
         // ### OF_RICAVI ###
         $ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari = (isset($bilancioJSON->ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari) ? $bilancioJSON->ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari : 0);
         $ValoreProduzioneRicaviVenditePrestazioni = (isset($bilancioJSON->ValoreProduzioneRicaviVenditePrestazioni) ? $bilancioJSON->ValoreProduzioneRicaviVenditePrestazioni : 0);
-        if($ValoreProduzioneRicaviVenditePrestazioni != 0) {
+        if ($ValoreProduzioneRicaviVenditePrestazioni != 0) {
             $OF_RICAVI = number_format((float)($ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari / $ValoreProduzioneRicaviVenditePrestazioni) * 100, 2, '.', '');
         } else {
             $OF_RICAVI = "NON CALCOLABILE";
@@ -1355,29 +1364,24 @@ Garantito'];
 
 
 
-				if($punteggioCR >= 0 && $punteggioCR < 0.14){
-					$resultCentraleRischi = "Default";
-				}
-				else if($punteggioCR >= 0.14 && $punteggioCR < 0.28){
-					$resultCentraleRischi = "Situazione Grave";
-				}
-				else if($punteggioCR >= 0.28 && $punteggioCR < 0.42){
-					$resultCentraleRischi = "Alert";
-				}
-				else if($punteggioCR >= 0.42 && $punteggioCR < 0.56){
-					$resultCentraleRischi = "Rischio alert";
-				}
-				else if($punteggioCR >= 0.56 && $punteggioCR < 0.70){
-					$resultCentraleRischi = "Fragilità elevata";
-				}
-				else if($punteggioCR >= 0.70 && $punteggioCR < 0.85){
-					$resultCentraleRischi = "Fragilità";
-				}
-				else if($punteggioCR >= 0.85 && $punteggioCR <= 1){
-					$resultCentraleRischi = "Solidità";
-				}
+                if ($punteggioCR >= 0 && $punteggioCR < 0.14) {
+                    $resultCentraleRischi = "Default";
+                } else if ($punteggioCR >= 0.14 && $punteggioCR < 0.28) {
+                    $resultCentraleRischi = "Situazione Grave";
+                } else if ($punteggioCR >= 0.28 && $punteggioCR < 0.42) {
+                    $resultCentraleRischi = "Alert";
+                } else if ($punteggioCR >= 0.42 && $punteggioCR < 0.56) {
+                    $resultCentraleRischi = "Rischio alert";
+                } else if ($punteggioCR >= 0.56 && $punteggioCR < 0.70) {
+                    $resultCentraleRischi = "Fragilità elevata";
+                } else if ($punteggioCR >= 0.70 && $punteggioCR < 0.85) {
+                    $resultCentraleRischi = "Fragilità";
+                } else if ($punteggioCR >= 0.85 && $punteggioCR <= 1) {
+                    $resultCentraleRischi = "Solidità";
+                }
 
                 $resultAnalisiBilancio = "N/A";
+
 				if($bilancioData['Giudizi']['Score'] >= 0 && $bilancioData['Giudizi']['Score'] < 0.14){
 					$resultAnalisiBilancio = "Default";
 				}
@@ -1535,6 +1539,39 @@ Garantito'];
 				];
 
 
+                $risultato = [
+                    'giudizio' => [
+                        'Area Esaminata' => [
+                            'name' => 'Analisi Centrale Rischi',
+                            'risultato' => $resultCentraleRischi,
+                        ],
+                        'Analisi bilancio' => [
+                            'risultato' => $resultAnalisiBilancio,
+                        ],
+                        'Minacce rapporti commerciali' => [
+                            'risultato' => $resultMinacceRapportiCommerciali,
+                        ],
+                        'Minacce gestione aziendale' => [
+                            'risultato' => $resultMinacceGestioneAziendale,
+                        ],
+                        'Minacce da eventi pregiudizievoli' => [
+                            'risultato' => $resultMinacceEventiPregiudizievoli,
+                        ],
+                        'Minacce erariali e rischi caratteristici' => [
+                            'risultato' => $resultMinacceRischiCaratteristici,
+                        ],
+                        'Profilo rischio AS IS' => [
+                            'risultato' => $ASISScore
+                        ],
+                        'Questionario TO BE' => [
+                            'risultato' => $scoreGiudizioFL
+                        ],
+                    ],
+                ];
+
+                $getAsisById = $allertaHelper->getQuestionarioAsis($id, $idCr);
+                $getToBeById = $allertaHelper->getQuestionarioToBe($id, $idCr);
+
                 return response()->json([
                     'error' => 'false',
                     'ASISfinalScore' => $ASISfinalScore,
@@ -1542,11 +1579,11 @@ Garantito'];
                     'bilancioData' => $bilancioData, // Giudizi score bilancio
                     'punteggioCR' => $punteggioCR, // Score allerta
                     'alerts' => $alerts,
-                    'arrayQuestionario' => $arrayQuestionario,
-                    'arrayForwardLooking' => $arrayForwardLooking,
+                    'arrayQuestionario' => $getAsisById,  // questionario per document id e bilancio id
+                    'arrayForwardLooking' => $getToBeById,
                     'scoreFL' => $scoreFL,
                     'scoreASIS' => $scoreASIS,
-					'giudizioFinaleSistemaAllerta' => $risultato,
+                    'giudizioFinaleSistemaAllerta' => $risultato,
                     'id' => $id,
 
                 ], 200);
@@ -1559,7 +1596,7 @@ Garantito'];
             }
         }
     }
-    public function valutazioneFL($arrayForwardLooking)
+    public function valutazioneFL($arrayForwardLooking)  //api
     {
         $scoreFL = 0;
         $peso = 0.08333;
