@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use App\Models\Bilanci;
 use App\Models\cr;
 use App\Helpers\CentraleRischi\CrExtractorHelper;
@@ -16,9 +17,10 @@ use Illuminate\Support\Facades\Http;
 use GuzzleHttp\Client;
 use Response;
 use App\Helpers\printpdf;
+use HTTP_Request2;
 
 class PDFController extends Controller
-{
+{   
     /**
      * Display a listing of the resource.
      *
@@ -161,15 +163,8 @@ class PDFController extends Controller
         $DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo : 0);
         $PassivoRateiRisconti = (isset($bilancioJSON->PassivoRateiRisconti) ? $bilancioJSON->PassivoRateiRisconti : 0);
 
-
         $TotaleDebitiEntroDodiciMesi = $DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo + $DebitiAccontiEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo;
 
-        //        dd($TotaleDebitiEntroDodiciMesi);
-
-        //        dd($PassivoRateiRisconti,$DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo,$DebitiAccontiEsigibiliEntroEsercizioSuccessivo,$DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo,$DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo);
-
-
-        // dd($arrayConVoci);
         // ### LIQUIDITA ###
         $CostiProduzioneAccantonamentiRischi = (isset($bilancioJSON->CostiProduzioneAccantonamentiRischi) ? $bilancioJSON->CostiProduzioneAccantonamentiRischi : 0);
         $ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari = $bilancioJSON->ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari;
@@ -198,8 +193,6 @@ class PDFController extends Controller
         }
 
         $arrayConVoci['INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO'] = array('DebitiDebitiTributariTotaleDebitiTributari', 'DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale', 'TotaleAttivo');
-
-        //        dd($INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO);
 
         // INDICI ADVANCED
 
@@ -462,7 +455,6 @@ class PDFController extends Controller
             $PFN_EBITDA = number_format((float)(($debitiFinanziariCurr - $TotaleDisponibilitaLiquide - $ImmobilizzazioniFinanziarieCreditiTotaleCrediti) / $MOLcurr), 2, '.', ',');
             $dataAnalisis['PFN_EBITDA'] = (float)$PFN_EBITDA * 100;
         }
-        // dd($PFN_EBITDA, $OF_RICAVI);
 
         $arrayConVoci['PFN_EBITDA'] = array('DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo', 'DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo', 'DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo', 'DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo', 'DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo', 'DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo', 'DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo', 'TotaleDisponibilitaLiquide', 'ImmobilizzazioniFinanziarieCreditiTotaleCrediti', 'TotaleValoreProduzione', 'CostiProduzioneMateriePrimeSussidiarieConsumoMerci', 'CostiProduzioneGodimentoBeniTerzi', 'CostiProduzioneServizi', 'CostiProduzionePersonaleTotaleCostiPersonale', 'CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci', 'CostiProduzioneOneriDiversiGestione');
 
@@ -662,11 +654,6 @@ class PDFController extends Controller
 
         $affidamentiPerMese = $crHelper->getTotaleAffidamentiPerMese($periods, $categories, $banks);
 
-
-
-
-        // dd($periods);
-
         // Per singola banca
         foreach ($banks as $label => $nameData) {
             $newCrExtractor = new newCrExtractor;
@@ -728,23 +715,9 @@ class PDFController extends Controller
             $utilizzatoPie[] = array($affidamentiData['nome_banca'], $affidamentiData['totUtilizzato']);
         }
 
-        // dd($numeroSconfiniTotali);
-
-        // dd($utilizzatoPie, $accordatoPie);
-
-        // dd($anomalie, $informazioniGaranti);
-
-        // dd($informazioniGaranti);
         $testSconfini = $crHelper->testSconfini($banks);
-        // dd($testSconfini, $numeroSconfiniTotali);
 
         $sconfiniDivisi = $crHelper->divideAnomalie($numeroSconfiniTotali, $banks);
-
-        // dd($informazioniGaranti);
-        // dd($scoreCR);
-
-        // return view('pdf.sinteticaPDF', compact('earlierDate', 'garanzieRicevute', 'anomalie', 'informazioniGaranti', 'monthsList', 'affidamentiPerMese', 'banksScoring', 'totaleAffidamentiGeneral', 'incidenzaImpagati', 'rischiGaranzie', 'percentualiUtilizzato', 'percentualiAccordato', 'latestMonth', 'latestYear', 'importiSconfini', 'creditiPassatiPerdita', 'sofferenze', 'garanzieEsitoNegativo', 'impagati', 'numeroRapportiContestati', 'intermediari', 'inizioPeriodo', 'finePeriodo', 'intermediari', 'numeroSconfiniTotali', 'mediaAnalisiIndebitamento', 'totaleAffidamentiTable', 'totAffidamentiConPesiPerBanca', 'scoreCR'));
-        // dd($sconfiniDivisi);
 
         $pdf = PDF::loadView('pdf.sinteticaPDF', compact('sconfiniDivisi', 'earlierDate', 'garanzieRicevute', 'anomalie', 'informazioniGaranti', 'monthsList', 'affidamentiPerMese', 'banksScoring', 'totaleAffidamentiGeneral', 'incidenzaImpagati', 'rischiGaranzie', 'percentualiUtilizzato', 'percentualiAccordato', 'latestMonth', 'latestYear', 'importiSconfini', 'creditiPassatiPerdita', 'sofferenze', 'garanzieEsitoNegativo', 'impagati', 'numeroRapportiContestati', 'intermediari', 'inizioPeriodo', 'finePeriodo', 'intermediari', 'numeroSconfiniTotali', 'mediaAnalisiIndebitamento', 'totaleAffidamentiTable', 'totAffidamentiConPesiPerBanca', 'scoreCR'));
 
@@ -842,17 +815,6 @@ class PDFController extends Controller
             $alerts['16'] = $allertaHelper->getAnalisiCRSedici($banks);
             $punteggioCR = $allertaHelper->getPunteggioCR($alerts);
 
-            // dump('Lista dei parametri di allerta con relativo indicatore (Si/No)');
-
-            // foreach ($alerts as $label => $value) {
-            //     if ($value) {
-            //         dump('Parametro di allerta n. ' . $label . ' : Si');
-            //     } else {
-            //         dump('Parametro di allerta n. ' . $label . ' : No');
-            //     }
-            // }
-            // dd('');
-
             $arrayQuestionario = array();
 
             $questionario = DB::table('questionario')->get();
@@ -860,8 +822,6 @@ class PDFController extends Controller
                 $arrayQuestionario[$data->parameter]['Result'] = $data->result;
                 $arrayQuestionario[$data->parameter]['Details'] = $data->details == null ? '' : $data->details;
             }
-
-            // dd($questionario);
 
             $arrayForwardLooking = array();
 
@@ -988,17 +948,12 @@ class PDFController extends Controller
         $pesi = $this->getPesiASIS();
         $scoreASIS = array('3' => 0, '4' => 0, '5' => 0, '6' => 0);
 
-        // dd($arrayQuestionario);
-
-        // dd($arrayQuestionario);
-
         foreach ($arrayQuestionario as $label => $result) {
 
             $explodedLabel = explode('-', $label)[0];
 
             $scoreASIS[$explodedLabel] += $pesi[$label]['peso'] * $pesi[$label]['score'][$result['Result']];
         }
-
 
         return $scoreASIS;
     }
@@ -1041,7 +996,6 @@ class PDFController extends Controller
     }
     public function analisiBilancio($id)
     {
-
         $bilancio = Bilanci::findOrFail($id);
 
         $tipoAzienda = $bilancio->tipo_azienda;
@@ -1106,7 +1060,6 @@ class PDFController extends Controller
 
             $bilancioJSON = (object)$bilancioJSON;
 
-            // dd($periodStart, $periodEnd, $daysToYear, $bilancioJSON);
         }
 
         $TotaleAttivo = (isset($bilancioJSON->TotaleAttivo) ? $bilancioJSON->TotaleAttivo : 0);
@@ -1173,12 +1126,6 @@ class PDFController extends Controller
 
         $TotaleDebitiEntroDodiciMesi = $DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo + $DebitiAccontiEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo;
 
-        //        dd($TotaleDebitiEntroDodiciMesi);
-
-        //        dd($PassivoRateiRisconti,$DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo,$DebitiAccontiEsigibiliEntroEsercizioSuccessivo,$DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo,$DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo);
-
-
-        // dd($arrayConVoci);
         // ### LIQUIDITA ###
         $CostiProduzioneAccantonamentiRischi = (isset($bilancioJSON->CostiProduzioneAccantonamentiRischi) ? $bilancioJSON->CostiProduzioneAccantonamentiRischi : 0);
         $ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari = $bilancioJSON->ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari;
@@ -1207,8 +1154,6 @@ class PDFController extends Controller
         }
 
         $arrayConVoci['INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO'] = array('DebitiDebitiTributariTotaleDebitiTributari', 'DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale', 'TotaleAttivo');
-
-        //        dd($INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO);
 
         // INDICI ADVANCED
 
@@ -1262,7 +1207,6 @@ class PDFController extends Controller
         }
 
         $arrayConVoci['Andamento_del_MOL'] = array('TotaleValoreProduzione', 'CostiProduzioneMateriePrimeSussidiarieConsumoMerci', 'CostiProduzioneGodimentoBeniTerzi', 'CostiProduzioneServizi', 'CostiProduzionePersonaleTotaleCostiPersonale', 'CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci', 'CostiProduzioneOneriDiversiGestione');
-
         // ### ROI
 
         $DifferenzaValoreCostiProduzione = (isset($bilancioJSON->DifferenzaValoreCostiProduzione) ? $bilancioJSON->DifferenzaValoreCostiProduzione : 0);
@@ -1275,7 +1219,6 @@ class PDFController extends Controller
         }
 
         $arrayConVoci['ROI'] = array('DifferenzaValoreCostiProduzione', 'TotaleAttivo');
-
         // ### ROS
 
         if ($ValoreProduzioneRicaviVenditePrestazioni == 0) {
@@ -1356,7 +1299,6 @@ class PDFController extends Controller
         $DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo = (isset($bilancioJSON->DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo) ? $bilancioJSON->DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo : $val = (isset($bilancioJSONprev->DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo) ? $bilancioJSONprev->DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo : 0));
         $DebitiEsigibiliOltreEsercizioSuccessivo = isset($bilancioJSON->DebitiEsigibiliOltreEsercizioSuccessivo) ? $bilancioJSON->DebitiEsigibiliOltreEsercizioSuccessivo : 0;
 
-
         $QuarantaTre = $DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo + $DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo + $DebitiAccontiEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoFornitoriEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiRappresentatiTitoliCreditoEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoImpreseControllateEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoImpreseCollegateEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoControllantiEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliOltreEsercizioSuccessivo + $DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo; //(isset($bilancioJSON->DebitiOltreEsercizioSuccessivo) ? $bilancioJSON->DebitiOltreEsercizioSuccessivo : 0);
 
         if ($TotaleImmobilizzazioni == 0) {
@@ -1429,7 +1371,7 @@ class PDFController extends Controller
         if ($DebitiEsigibiliEntroEsercizioSuccessivo > 0 || $PassivoRateiRisconti > 0) {
 
             $AcidTest = number_format((float)(($TotaleCrediti + $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + $TotaleDisponibilitaLiquide + $AttivoRateiRisconti) / ($DebitiEsigibiliEntroEsercizioSuccessivo + $PassivoRateiRisconti)), 2, ',', '.');
-            //            $dataAnalisis['AcidTest'] = $AcidTest.'%';
+            // $dataAnalisis['AcidTest'] = $AcidTest.'%';
         }
         if ($QuarantaNove > 0 || $PassivoRateiRisconti > 0) {
             $ACID_TEST_Semplificato = number_format((float)((($TotaleDisponibilitaLiquide + $TrentaCinque + $TotaleRimanenze + $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + $AttivoRateiRisconti - $TotaleRimanenze) / ($QuarantaNove + $PassivoRateiRisconti))), 2, ',', '.');
@@ -1465,7 +1407,6 @@ class PDFController extends Controller
         }
 
         $arrayConVoci['Livello_investimenti_aziendali'] = array('TotalePatrimonioNetto', 'TotaleAttivo');
-
 
         // PFN / EBITDA
         $ImmobilizzazioniFinanziarieCreditiTotaleCrediti = (isset($bilancioJSON->ImmobilizzazioniFinanziarieCreditiTotaleCrediti) ? $bilancioJSON->ImmobilizzazioniFinanziarieCreditiTotaleCrediti : 0);
@@ -1532,7 +1473,6 @@ class PDFController extends Controller
             $CF_ATTIVO = number_format((float)(($UtilePerditaEsercizio + $CostiProduzioneAccantonamentiRischi + $CostiProduzioneAltriAccantonamenti + $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni - $CreditiImposteAnticipateTotaleImposteAnticipate) / $TotaleAttivo) * 100, 2, ',', '.');
             $dataAnalisis['CF_Attivo'] = $CF_ATTIVO . '%';
         }
-
 
         $arrayConVoci['CF_Attivo'] = array('UtilePerditaEsercizio', 'CostiProduzioneAccantonamentiRischi', 'CostiProduzioneAltriAccantonamenti', 'CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni', 'CreditiImposteAnticipateTotaleImposteAnticipate', 'TotaleAttivo');
 
@@ -1635,9 +1575,7 @@ class PDFController extends Controller
 	
  public function reportBasicPdf($idBilancio)
 	{
-	 	
-		 $bilancio = Bilanci::findOrFail($idBilancio);
-
+        $bilancio = Bilanci::findOrFail($idBilancio);
 
         $tipoAzienda = $bilancio->tipo_azienda;
 
@@ -1651,9 +1589,10 @@ class PDFController extends Controller
         // $idBilancio = $id;
 
         if (DB::table('basic')->where('bilancio_id', '=', $idBilancio)->count() == 0) {
+            dd(DB::table('basic')->where('bilancio_id', '=', $idBilancio)->get());
             $msg = "Non è stata salvata alcuna analisi per questo bilancio";
             return view('allerta.empty', compact(['msg']));
-        }
+        }   
 
         $voci = DB::table('vocis')->get();
         $gradi = array();
@@ -1706,8 +1645,6 @@ class PDFController extends Controller
         }
         unset($gradi[0], $gradi[1], $gradi[2]);
 
-        //        dd($gradi);
-
         $vociExt = array();
 
         $dataAnalisiBasic = array();
@@ -1716,9 +1653,7 @@ class PDFController extends Controller
             $vociExt[$voce->name] = $voce->extended_name;
         }
 
-        //       $analisi = Analisi::with('bilanci')->with('account')->with('analisisType')->findOrFail($id);
-
-
+        // $analisi = Analisi::with('bilanci')->with('account')->with('analisisType')->findOrFail($id);
 
         $bilancioJSON = json_decode($bilancio['json_data']);
         $bilancioJSONprev = json_decode($bilancio['json_data_prev']);
@@ -1771,8 +1706,6 @@ class PDFController extends Controller
             }
 
             $bilancioJSON = (object)$bilancioJSON;
-
-            // dd($periodStart, $periodEnd, $daysToYear, $bilancioJSON);
         }
 
         $bilancioJSONanag = json_decode($bilancio['json_data_anag']); // DatiAnagraficiDenominazione DatiAnagraficiFormaGiuridica
@@ -1830,8 +1763,6 @@ class PDFController extends Controller
         $CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo : 0);
         $CreditiImposteAnticipateTotaleImposteAnticipate = (isset($bilancioJSON->CreditiImposteAnticipateTotaleImposteAnticipate) ? $bilancioJSON->CreditiImposteAnticipateTotaleImposteAnticipate : 0);
 
-        // dd($bilancioJSON->CreditiImposteAnticipateTotaleImposteAnticipate);
-
         $TotaleCreditiEntroDodiciMesi = $CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo + $CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo + $CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo + $CreditiImposteAnticipateTotaleImposteAnticipate + $CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo;
 
         $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo : 0);
@@ -1850,13 +1781,7 @@ class PDFController extends Controller
         $DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo : 0);
         $PassivoRateiRisconti = (isset($bilancioJSON->PassivoRateiRisconti) ? $bilancioJSON->PassivoRateiRisconti : 0);
 
-
         $TotaleDebitiEntroDodiciMesi = $DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo + $DebitiAccontiEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo;
-
-        //        dd($TotaleDebitiEntroDodiciMesi);
-
-        //        dd($PassivoRateiRisconti,$DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo,$DebitiAccontiEsigibiliEntroEsercizioSuccessivo,$DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo,$DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo);
-
 
         // ### LIQUIDITA ###
         $CostiProduzioneAccantonamentiRischi = (isset($bilancioJSON->CostiProduzioneAccantonamentiRischi) ? $bilancioJSON->CostiProduzioneAccantonamentiRischi : 0);
@@ -1886,9 +1811,6 @@ class PDFController extends Controller
         }
 
         $arrayConVoci['Indebitamento_Previdenziale_Tributario'] = array('DebitiDebitiTributariTotaleDebitiTributari', 'DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale', 'TotaleAttivo');
-
-        //        dd($INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO);
-
         // INDICI ADVANCED
 
         //### Andamento del fatturato
@@ -1919,7 +1841,6 @@ class PDFController extends Controller
         $CostiProduzionePersonaleTotaleCostiPersonalePrecedente = (isset($bilancioJSONprev->CostiProduzionePersonaleTotaleCostiPersonale) ? $bilancioJSONprev->CostiProduzionePersonaleTotaleCostiPersonale : 0);
         $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerciPrecedente = (isset($bilancioJSONprev->CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci) ? $bilancioJSONprev->CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci : 0);
         $CostiProduzioneOneriDiversiGestionePrecedente = (isset($bilancioJSONprev->CostiProduzioneOneriDiversiGestione) ? $bilancioJSONprev->CostiProduzioneOneriDiversiGestione : 0);
-
 
         $MOLcurr = $TotaleValoreProduzione - $CostiProduzioneMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneGodimentoBeniTerzi - $CostiProduzioneServizi - $CostiProduzionePersonaleTotaleCostiPersonale - $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneOneriDiversiGestione;
         $MOLprev = $TotaleValoreProduzionePrecedente - $CostiProduzioneMateriePrimeSussidiarieConsumoMerciPrecedente - $CostiProduzioneGodimentoBeniTerziPrecedente - $CostiProduzioneServiziPrecedente - $CostiProduzionePersonaleTotaleCostiPersonalePrecedente - $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerciPrecedente - $CostiProduzioneOneriDiversiGestionePrecedente;
@@ -2055,7 +1976,6 @@ class PDFController extends Controller
         $dataAnalisis['Current_Ratio'] = $RITORNO_LIQUIDO_ATTIVO . '%';
         $arrayConVoci['Current_Ratio'] = array('TotaleDisponibilitaLiquide', 'AttivoRateiRisconti', 'TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni', 'TotaleRimanenze', 'TotaleCreditiEntroDodiciMesi', 'TotaleDebitiEntroDodiciMesi', 'PassivoRateiRisconti');
 
-
         //### Attivita a breve / Passività a Breve
 
         // TRENTACINQUE
@@ -2100,8 +2020,7 @@ class PDFController extends Controller
 
         // ACID TEST
         if ($DebitiEsigibiliEntroEsercizioSuccessivo > 0 || $PassivoRateiRisconti > 0) {
-
-            $AcidTest = number_format((float)(($TotaleCrediti + $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + $TotaleDisponibilitaLiquide + $AttivoRateiRisconti) / ($DebitiEsigibiliEntroEsercizioSuccessivo + $PassivoRateiRisconti)), 2, ',', '.');
+            $AcidTest = number_format((float)(($TotaleCrediti + $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + $TotaleDisponibilitaLiquide + $AttivoRateiRisconti) / ((float)$DebitiEsigibiliEntroEsercizioSuccessivo + $PassivoRateiRisconti)), 2, ',', '.');
             //            $dataAnalisis['AcidTest'] = $AcidTest.'%';
         }
         if ($QuarantaNove > 0 || $PassivoRateiRisconti > 0) {
@@ -2138,7 +2057,6 @@ class PDFController extends Controller
         }
 
         $arrayConVoci['Livello_investimenti_aziendali'] = array('TotalePatrimonioNetto', 'TotaleAttivo');
-
 
         // PFN / EBITDA
         $ImmobilizzazioniFinanziarieCreditiTotaleCrediti = (isset($bilancioJSON->ImmobilizzazioniFinanziarieCreditiTotaleCrediti) ? $bilancioJSON->ImmobilizzazioniFinanziarieCreditiTotaleCrediti : 0);
@@ -2290,8 +2208,6 @@ class PDFController extends Controller
             $soglieBasic['Ritorno Liquido Attivo'] = false;
         }
 
-        // dd(floatval($dataAnalisis['Current_Ratio']), floatval($dataAnalisisBasic['OF_Fatturato']), floatval($dataAnalisisBasic['Adeguatezza_Patrimoniale']), floatval($dataAnalisisBasic['Liquidità']), floatval($dataAnalisisBasic['Indebitamento_Previdenziale_Tributario']));
-
         $valutazioneAllertaBasic = true;
 
         foreach ($soglieBasic as $label => $alert) {
@@ -2384,8 +2300,8 @@ class PDFController extends Controller
 	 		if(isset($sistemaBasic->fornitori2)) {
 				$fornitori2 = $sistemaBasic->fornitori2;
 			}
-	 
-			$response = Http::get('https://wuskronkge.kpsfactory.com/api/analisiBilancioGeneral/'.$idBilancio);
+          
+         $response = Http::get('http://kpsfintech.com/api/analisiBilancioGeneral/'.$idBilancio);
 
 		$pdfBilancioData = [
 			'currentDate' => date('d/m/y'),
@@ -2397,10 +2313,7 @@ class PDFController extends Controller
 			'riscossione' => $riscossione,
 			'alertRiscossione' => $sistemaBasic->alertRiscossione,
 			'rischioAzienda' => $rischioAzienda,
-			'patrimonioNetto' => [
-					$dataAnalisisBasic['Patrimonio_Netto'],
-					$patrimonioNettoSiNo
-			],
+			'patrimonioNetto' => $patrimonioNettoSiNo,
 			'soglie' => [
 				"soglieBool" => $soglieBasic,
 				"basicData" => $response['basicData'],
@@ -2463,9 +2376,7 @@ class PDFController extends Controller
 	 	return $printPDF->getDocumentData($documentId); 
 	}  
 
-
-
-	 public function reportCrAndamentale($years, Request $request)
+    public function reportCrAndamentale($years, Request $request)
 	{
 		$mesiCheckList = [0 => "fuoriMese", 1 => "gennaio", 2 => 'febbraio', 3 => 'marzo',   4 => 'aprile',   5 => 'maggio',   6 => 'giugno',   7 => 'luglio',   8 => "agosto",   9 => 'settembre',   10 => 'ottobre',   11 => 'novembre',   12 => 'dicembre'];
 
@@ -2561,7 +2472,6 @@ class PDFController extends Controller
                     $banks[] = $singleBankName;
                 }
             }
-
             $cleanCR = $crHelper->getAllDataToArray($banks);
             $intermediari = $crHelper->getCountBanks($banks);
             $mediaAnalisiIndebitamento = $crHelper->getMediaIndebitamento($banks);
@@ -2615,10 +2525,7 @@ class PDFController extends Controller
                 unset($newCrExtractor);
             }
 
-
             $monthsList = array_keys($affidamentiPerMese);
-
-
 
             foreach ($totaleAffidamentiTable as $indice => $oggetto) {
                 if ($oggetto["categoria"] == "RISCHI A SCADENZA") {
@@ -2713,7 +2620,7 @@ class PDFController extends Controller
 
 	 public function reportAllerta($idBilancio)
 	{
-		
+	
 		 $id = $idBilancio;
         $ASISfinalScore = false;
         $generalScore = false;
@@ -2753,64 +2660,11 @@ class PDFController extends Controller
             foreach (cr::select('nome_banca')->where('date', '>=', $lowerBoundDate->format('Y-m-d'))->where('date', '<=', $upperBoundDate->format('Y-m-d'))->distinct()->get()->toArray() as $label => $nomeBanca) {
                 $banks[] = $nomeBanca["nome_banca"];
             }
+        }
 
-            $crHelper = new CrExtractorHelper;
-            $crHelper->setPeriod($periods);
-            $cleanCR = $crHelper->getAllDataToArray($banks);
-            $intermediari = $crHelper->getCountBanks($banks);
-
-            $allertaHelper = new AllertaHelper;
-            $crExtractorHelper = new CrExtractorHelper;
-
-            $allertaHelper->setCrExtractor($crExtractorHelper);
-
-            $trimestrePeriod = $allertaHelper->getTrimestrePeriod($periods);
-            $lastYearPeriod = $periods;
-
-            $triennioPeriod = $allertaHelper->getTriennioPeriod($periods, $banks);
-            $crExtractorHelper->setPeriod($lastYearPeriod);
-            $scoreCR = $crExtractorHelper->getScoring($banks);
-            $alerts = array();
-
-            $alerts['1'] = $allertaHelper->getAnalisiCRUno($banks);
-
-            $alerts['2'] = $allertaHelper->getAnalisiCRDue($banks);
-
-            $alerts['3'] = $allertaHelper->getAnalisiCRTre($banks);
-
-            $alerts['4'] = $allertaHelper->getAnalisiCRQuattro($triennioPeriod, $trimestrePeriod, $latestYear, $latestMonth, $categories);
-
-            $alerts['5'] = $allertaHelper->getAnalisiCRCinque($periods);
-
-            $alerts['6'] = $allertaHelper->getAnalisiCRSei($lastYearPeriod, $categories, $banks);
-
-            $alerts['7'] = $allertaHelper->getAnalisiCRSette($lastYearPeriod);
-
-            $alerts['8'] = $allertaHelper->getAnalisiCROtto($lastYearPeriod, $latestYear, $latestMonth, $trimestrePeriod, $triennioPeriod);
-
-            $alerts['9'] = $allertaHelper->getAnalisiCRNove($lastYearPeriod, $latestYear, $latestMonth);
-
-            $alerts['10'] = $allertaHelper->getAnalisiCRDieci($triennioPeriod, $latestYear, $latestMonth);
-
-            $alerts['11'] = $allertaHelper->getAnalisiCRUndici($triennioPeriod, $trimestrePeriod, $lastYearPeriod, $latestYear, $latestMonth, array('RISCHI A REVOCA'));
-
-            $alerts['12'] = $allertaHelper->getAnalisiCRDodici($triennioPeriod, $trimestrePeriod, $lastYearPeriod, $latestYear, $latestMonth, array('RISCHI AUTOLIQUIDANTI', 'RISCHI AUTOLIQUIDANTI - CREDITI SCADUTI'), $banks);
-
-            $alerts['13'] = $allertaHelper->getAnalisiCRTredici($triennioPeriod, $trimestrePeriod, $lastYearPeriod, $latestYear, $latestMonth, $categories, $banks);
-
-            $alerts['14'] = $allertaHelper->getAnalisiCRQuattordici($banks);
-            $alerts['15'] = $allertaHelper->getAnalisiCRQuindici($banks);
-            $alerts['16'] = $allertaHelper->getAnalisiCRSedici($banks);
-            $punteggioCR = $allertaHelper->getPunteggioCR($alerts);
-
-            $arrayQuestionario = array();
-
-            $questionario = DB::table('questionario')->get();
-            foreach ($questionario as $item => $data) {
-                $arrayQuestionario[$data->parameter]['Result'] = $data->result;
-                $arrayQuestionario[$data->parameter]['Details'] = $data->details == null ? '' : $data->details;
-            }
-
+        $data->result;
+        $arrayQuestionario[$data->parameter]['Details'] = $data->details == null ? '' : $data->details;
+            
             // dd($questionario);
 
             $arrayForwardLooking = array();
@@ -2845,7 +2699,6 @@ class PDFController extends Controller
                 $scoreFL = array('Giudizio' => '', 'Valore' => '0');
             }
 
-
             if (Bilanci::count() != 0) {
 
                 $bilancioData = $this->basic($id);
@@ -2878,7 +2731,6 @@ class PDFController extends Controller
                     } else {
                         $generalScore = $ASISfinalScore;
                     }
-
 
                     if ($scoreFL['Giudizio'] == 'Miglioramento') {
                         if ($generalScore["Index"] != 6) {
@@ -3031,8 +2883,6 @@ class PDFController extends Controller
 				if($ASISfinalScore) {
 					$ProfiloRischioASIS = $ASISfinalScore['Giudizio'];
 				}
-					   
-
 			
 				$giudiziFinali = [
 					'AnalisiBilancio' => $analisiBilancioGiudizio,
