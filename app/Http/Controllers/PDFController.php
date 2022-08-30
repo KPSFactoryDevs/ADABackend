@@ -34,10 +34,8 @@ class PDFController extends Controller
         $jsonData['currentYear'] = $attributes['current_year'];
         $jsonData['prevYear'] = $attributes['prev_year'];
         $tipoAzienda = $attributes['tipo_azienda'];
-        // $idBilancio = $id;
 
         if (DB::table('basic')->where('bilancio_id', '=', $idBilancio)->count() == 0) {
-            $msg = "Non è stata salvata alcuna analisi per questo bilancio";
             return response()->json([
 				'error' => false,
 				'Message' => 'Non è stata salvata alcuna analisi per questo bilancio'
