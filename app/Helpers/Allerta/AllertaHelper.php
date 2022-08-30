@@ -137,19 +137,19 @@ class AllertaHelper
     public function getTotaleAffidamentiPerFirma($categories, $latestYear, $latestMonth)
     {
         return cr::groupBy('nome_banca')
-        ->groupBy('categoria')
-        ->selectRaw("nome_banca, categoria, SUM(accordato_operativo) as totAccordatoOperativo, SUM(utilizzato) as totUtilizzato")
-        ->where('document_id', $this->_documentId)
-        ->where('anno', $latestYear)->where('sezione', 'Firma')
-        ->where('mese', $latestMonth)
-        ->whereIn('categoria', $categories)
-        ->get()
-        ->toArray();
+            ->groupBy('categoria')
+            ->selectRaw("nome_banca, categoria, SUM(accordato_operativo) as totAccordatoOperativo, SUM(utilizzato) as totUtilizzato")
+            ->where('document_id', $this->_documentId)
+            ->where('anno', $latestYear)->where('sezione', 'Firma')
+            ->where('mese', $latestMonth)
+            ->whereIn('categoria', $categories)
+            ->get()
+            ->toArray();
     }
 
     public function getLastTwoMonths()
     {
-       // $cont = 0;
+        // $cont = 0;
         $trimestrePeriod = $this->getTrimestrePeriod($this->crExtractorHelper->getPeriod());
 
         $lastYear = array_key_last($trimestrePeriod);
@@ -168,7 +168,7 @@ class AllertaHelper
     {
         $crHelper = new CrExtractorHelper;
         $crHelper->setPeriod($periods);
-       // $cleanCR = $crHelper->getAllDataToArray($banks);
+        // $cleanCR = $crHelper->getAllDataToArray($banks);
 
         $latestYear = array_key_last($periods);
         $latestMonth = array_key_last($periods[$latestYear]);
@@ -203,8 +203,8 @@ class AllertaHelper
         $crHelper = new CrExtractorHelper;
         $crHelper->setPeriod($periods);
 
-       // $latestYear = array_key_last($periods);
-      //  $latestMonth = array_key_last($periods[$latestYear]);
+        // $latestYear = array_key_last($periods);
+        //  $latestMonth = array_key_last($periods[$latestYear]);
 
         $trimestrePeriod = array();
 
@@ -304,7 +304,7 @@ class AllertaHelper
 
     public function getMediaAccordatoOperativo($period, $categories)
     {
-       // $mediaAccordatoOp = array();
+        // $mediaAccordatoOp = array();
 
         $periodStart = new DateTime((cr::select('date')
             ->where('document_id', $this->_documentId)
@@ -362,7 +362,7 @@ class AllertaHelper
 
     public function getAccordatoOperativo($period, $categories)
     {
-       // $mediaAccordatoOp = array();
+        // $mediaAccordatoOp = array();
 
         $periodStart = new DateTime((cr::select('date')
             ->where('document_id', $this->_documentId)
@@ -478,7 +478,7 @@ class AllertaHelper
     {
         $periods = $this->crExtractorHelper->getPeriod();
 
-       // $arrayGaranzie = array();
+        // $arrayGaranzie = array();
 
         $firstYear = array_key_first($periods);
         $firstYearMonth = array_key_first($periods[$firstYear]);
@@ -695,7 +695,7 @@ class AllertaHelper
 
     public function getAnalisiCROtto($lastYearPeriod, $latestYear, $latestMonth, $trimestrePeriod, $triennioPeriod)
     {
-       // $periods = $this->crExtractorHelper->getPeriod();
+        // $periods = $this->crExtractorHelper->getPeriod();
 
         $categories = array(
             'RISCHI A SCADENZA'
@@ -1070,7 +1070,7 @@ class AllertaHelper
         } else if ($bilancioData['Giudizi']['Score'] >= 0.85 && $bilancioData['Giudizi']['Score'] <= 1) {
             $resultAnalisiBilancio = "Solidità";
         }
- 
+
         if ($scoreASIS['1'] >= 0 && $scoreASIS['1'] < 0.14) {
             $resultMinacceRapportiCommerciali = "Default";
         } else if ($scoreASIS['1'] >= 0.14 && $scoreASIS['1'] < 0.28) {
@@ -1172,46 +1172,47 @@ class AllertaHelper
 
     public function getGeneralScore($bilancioData, $scoreCR, $scoreASIS, $scoreFL)
     {
-            $ASISfinalScore = array("Score" => ($bilancioData['Giudizi']['Score'] * 0.25) + ($scoreCR * 0.25) + ($scoreASIS['1'] * 0.1) + ($scoreASIS['2'] * 0.1) + ($scoreASIS['3'] * 0.15) + ($scoreASIS['4'] * 0.15));
 
-            $rangeGiudizi = array(
-                0 => array("Min" => 0, "Max" => 0.14, "Giudizio" => "Default"),
-                1 => array("Min" => 0.14, "Max" => 0.28, "Giudizio" => "Situazione Grave"),
-                2 => array("Min" => 0.28, "Max" => 0.42, "Giudizio" => "Alert"),
-                3 => array("Min" => 0.42, "Max" => 0.56, "Giudizio" => "Rischio alert"),
-                4 => array("Min" => 0.56, "Max" => 0.70, "Giudizio" => "Fragilità elevata"),
-                5 => array("Min" => 0.70, "Max" => 0.85, "Giudizio" => "Fragilità"),
-                6 => array("Min" => 0.85, "Max" => 1, "Giudizio" => "Solidità")
-            );
+        $ASISfinalScore = array("Score" => ($bilancioData['Giudizi']['Score'] * 0.25) + ($scoreCR * 0.25) + ($scoreASIS['1'] * 0.1) + ($scoreASIS['2'] * 0.1) + ($scoreASIS['3'] * 0.15) + ($scoreASIS['4'] * 0.15));
 
-            foreach ($rangeGiudizi as $index => $ranges) {
-                if ($ASISfinalScore["Score"] >= $ranges["Min"] && $ASISfinalScore["Score"] < $ranges["Max"]) {
-                    $ASISfinalScore["Giudizio"] = $ranges['Giudizio'];
-                    $ASISfinalScore["Index"] = $index;
-                }
+        $rangeGiudizi = array(
+            0 => array("Min" => 0, "Max" => 0.14, "Giudizio" => "Default"),
+            1 => array("Min" => 0.14, "Max" => 0.28, "Giudizio" => "Situazione Grave"),
+            2 => array("Min" => 0.28, "Max" => 0.42, "Giudizio" => "Alert"),
+            3 => array("Min" => 0.42, "Max" => 0.56, "Giudizio" => "Rischio alert"),
+            4 => array("Min" => 0.56, "Max" => 0.70, "Giudizio" => "Fragilità elevata"),
+            5 => array("Min" => 0.70, "Max" => 0.85, "Giudizio" => "Fragilità"),
+            6 => array("Min" => 0.85, "Max" => 1, "Giudizio" => "Solidità")
+        );
+
+        foreach ($rangeGiudizi as $index => $ranges) {
+            if ($ASISfinalScore["Score"] >= $ranges["Min"] && $ASISfinalScore["Score"] < $ranges["Max"]) {
+                $ASISfinalScore["Giudizio"] = $ranges['Giudizio'];
+                $ASISfinalScore["Index"] = $index;
             }
+        }
 
-            $generalScore = array();
+        $generalScore = array();
 
-            if ($scoreASIS['4'] < 0.75) {
+        if ($scoreASIS['4'] < 0.75) {
+            $generalScore["Giudizio"] = $rangeGiudizi[$ASISfinalScore["Index"] - 1]['Giudizio'];
+            $generalScore["Index"] = $ASISfinalScore["Index"] - 1;
+        } else {
+            $generalScore = $ASISfinalScore;
+        }
+
+
+        if ($scoreFL['Giudizio'] == 'Miglioramento') {
+            if ($generalScore["Index"] != 6) {
+                $generalScore["Giudizio"] = $rangeGiudizi[$ASISfinalScore["Index"] + 1]['Giudizio'];
+                $generalScore["Index"] = $generalScore["Index"] + 1;
+            }
+        } else if ($scoreFL['Giudizio'] == 'Peggioramento') {
+            if ($generalScore["Index"] != 0) {
                 $generalScore["Giudizio"] = $rangeGiudizi[$ASISfinalScore["Index"] - 1]['Giudizio'];
-                $generalScore["Index"] = $ASISfinalScore["Index"] - 1;
-            } else {
-                $generalScore = $ASISfinalScore;
+                $generalScore["Index"] = $generalScore["Index"] - 1;
             }
-
-
-            if ($scoreFL['Giudizio'] == 'Miglioramento') {
-                if ($generalScore["Index"] != 6) {
-                    $generalScore["Giudizio"] = $rangeGiudizi[$ASISfinalScore["Index"] + 1]['Giudizio'];
-                    $generalScore["Index"] = $generalScore["Index"] + 1;
-                }
-            } else if ($scoreFL['Giudizio'] == 'Peggioramento') {
-                if ($generalScore["Index"] != 0) {
-                    $generalScore["Giudizio"] = $rangeGiudizi[$ASISfinalScore["Index"] - 1]['Giudizio'];
-                    $generalScore["Index"] = $generalScore["Index"] - 1;
-                }
-            }
+        }
 
         return $generalScore;
     }
@@ -1256,5 +1257,29 @@ class AllertaHelper
         ];
 
         return $data;
+    }
+
+
+    public function getArrayQuestionarioAsIs($id, $idCr) 
+    {
+        $arrayQuestionario = array();
+        $questionario = DB::table('questionario')->where('document_id', $idCr)->where('bilancio_id', $id)->get();
+        foreach ($questionario as $item => $data) {
+            $arrayQuestionario[$data->parameter]['Result'] = $data->result;
+            $arrayQuestionario[$data->parameter]['Details'] = $data->details == null ? '' : $data->details;
+        }
+
+        return $arrayQuestionario;
+    }
+
+    public function getArrayQuestionarioToBe($id, $idCr) 
+    {
+        $arrayForwardLooking = array();
+        $forwardLooking = DB::table('forwardLooking')->get();
+        foreach ($forwardLooking as $item => $data) {
+            $arrayForwardLooking[$data->question] = $data->answer;
+        }
+
+        return $arrayForwardLooking;
     }
 }
