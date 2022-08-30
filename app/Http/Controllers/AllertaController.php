@@ -165,7 +165,7 @@ class AllertaController extends Controller
 
 
         $bilancioData = $bilancioHelper->getAnalisiBilancio($id);
-        $getScoreHelper = $allertaHelper->getScores($punteggioCR, $bilancioData, $scoreASIS, $ASISfinalScore, $scoreFL);
+        $getScoreHelper = $allertaHelper->getScores($punteggioCR, $bilancioData['AnalisiAdvanced'], $scoreASIS, $ASISfinalScore, $scoreFL);
 
 
 
