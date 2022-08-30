@@ -26,14 +26,11 @@ class CentraleRischiController extends Controller
 
     public function getDocuments(Request $request)
     {
-
-
         if ($request->header('currentcompany') || $request->header('currentcompany') === 0) {
             $documentsCr = Document::where('company_id', $request->header('currentcompany'))->orderBy('created_at', 'desc')->get();
         } else {
             $documentsCr = Document::orderBy('created_at', 'desc')->get();
         }
-
 
         foreach ($documentsCr as $singleDocument) {
             $textPeriodAvailable = "";
@@ -48,7 +45,6 @@ class CentraleRischiController extends Controller
             $singleDocument['type'] = ucfirst($singleDocument['type']);
             $singleDocument['availableMonths'] = $textPeriodAvailable;
         }
-
 
         return response()->json([
             $documentsCr,
@@ -94,7 +90,6 @@ class CentraleRischiController extends Controller
         if (!$process->isSuccessful()) {
             throw new ProcessFailedException($process);
         } else {
-
             $jsonData = $process->getOutput();
             $jsonArray = json_decode($jsonData);
             $CentraleRischiAggregateData = new App\Helpers\CentraleRischi\CentraleRischiAggregateData();
@@ -141,7 +136,6 @@ class CentraleRischiController extends Controller
                 }
             }
 
-
             return response()->json([
                 'error' => false,
                 'data' => 'File Centrale Rischi' . $crFileToElaborate->status
@@ -154,7 +148,6 @@ class CentraleRischiController extends Controller
      */
     public function store(Request $request)
     {
-
         $base64CentraleRischi = $request->base64;
 
         $storedFile = Storage::disk('public')->putFile('', $base64CentraleRischi);
@@ -180,7 +173,6 @@ class CentraleRischiController extends Controller
                 'exception' => $e,
             ], 500);
         }
-
 
         $processGetPages = new Process(['qpdf', '--show-npages', '/var/www/html/staging/public/centraleRischi/' . $storedFile]);
 
@@ -222,13 +214,10 @@ class CentraleRischiController extends Controller
 
     public function crAndamentale($period, $data_inizio = false, $data_fine = false, $inputBanks = null)
     {
-
-
         $crAndamentaleData['period'] = $period;
         $crAndamentaleData['data_inizio'] = $data_inizio;
         $crAndamentaleData['data_fine'] = $data_fine;
         unset($crAndamentaleData['_token']);
-
 
         if (!isset($crAndamentaleData['period'])) {
             $msg = "Non è stato selezionato nessun documento";
@@ -257,11 +246,7 @@ class CentraleRischiController extends Controller
                 $earlierDate = $earlierDate->modify('first day of this month')->format('Y-m-d');
                 $lastDate = new DateTime('@' . $lastDate);
                 $lastDate = $lastDate->modify('last day of this month')->format('Y-m-d');
-
-
             }
-
-
 
             $unrefinedPeriods = json_decode(DB::table('crs')
                 ->select('anno', 'mese', 'date')
@@ -270,7 +255,6 @@ class CentraleRischiController extends Controller
                 ->groupBy('date', 'anno', 'mese')
                 ->orderBy('date')
                 ->get(), true);
-
 
             if(empty($unrefinedPeriods)) {
                 return response()->json([
@@ -293,14 +277,14 @@ class CentraleRischiController extends Controller
             $finePeriodo = $latestMonth . ' ' . $latestYear;
             $inizioPeriodo = $earliestMonth . ' ' . $earliestYear;
 
-            $missingMonths = $crHelper->missingMonths($unrefinedPeriods, $crAndamentaleData);
+            //  $missingMonths = $crHelper->missingMonths($unrefinedPeriods, $crAndamentaleData);
             $intermediari = $crHelper->getCountBanks($banks);
-            $mediaAnalisiIndebitamento = $crHelper->getMediaIndebitamento($banks);
+            // $mediaAnalisiIndebitamento = $crHelper->getMediaIndebitamento($banks);
             $numeroSconfiniTotali = $crHelper->getTotaleSconfini($banks);
             $rischiGaranzie = $crHelper->getRischiGaranzie($banks);
             $totaleAffidamentiTable = $crHelper->getTotaleAffidamenti($categories, $latestYear, $latestMonth, $banks);
-            $totaleAffidamentiGeneral = $crHelper->getTotaleAffidamentiGeneral($categories, $latestYear, $latestMonth, $banks);
-            $totAffidamentiConPesiPerBanca = $crHelper->getPesiAffidamentiPerBanca($categories, $latestYear, $latestMonth, $banks);
+            //  $totaleAffidamentiGeneral = $crHelper->getTotaleAffidamentiGeneral($categories, $latestYear, $latestMonth, $banks);
+            //  $totAffidamentiConPesiPerBanca = $crHelper->getPesiAffidamentiPerBanca($categories, $latestYear, $latestMonth, $banks);
             $sofferenze = $crHelper->getSofferenze($banks);
             $creditiPassatiPerdita = $crHelper->getCreditiPassatiPerdita($banks);
             $scoreCR = $crHelper->getScoring($banks, $intermediari, $numeroSconfiniTotali, $sofferenze, $creditiPassatiPerdita);
@@ -313,16 +297,16 @@ class CentraleRischiController extends Controller
             $incidenzaImpagati = $crHelper->getPercentualeMediaImpagati($banks);
             $informazioniGaranti = $crHelper->getInformazioniGaranti($banks);
             $garanzieRicevute = $crHelper->getGaranzieRicevute($banks);
-            $importiSconfini = $crHelper->getImportiSconfini($banks);
-            $affidamentiPerMese = $crHelper->getTotaleAffidamentiPerMese($periods, $categories, $banks);
-            $anomalieStatoRapporto = $crHelper->mancateSegnalazioniStatoRapporto($banks);
-            $sconfiniDivisi = $crHelper->divideAnomalie($numeroSconfiniTotali, $banks);
-            //   $banksScoring = $crHelper->singleBankData($banks, $periods);
-            $informazioniGarantiAnomalie = $crHelper->informazioniSuiGaranti($informazioniGaranti);
-            $percentualiAccordato = $crHelper->percentualiAccordato($totAffidamentiConPesiPerBanca);
-            $percentualiUtilizzato = $crHelper->percentualiUtilizzato($totAffidamentiConPesiPerBanca);
-            $totaleUtilizzatoGeneral = $crHelper->totAffidamentiConPesiPerBanca($totAffidamentiConPesiPerBanca);
-            $monthsList = array_keys($affidamentiPerMese);
+            // $importiSconfini = $crHelper->getImportiSconfini($banks);
+            // $affidamentiPerMese = $crHelper->getTotaleAffidamentiPerMese($periods, $categories, $banks);
+            // $anomalieStatoRapporto = $crHelper->mancateSegnalazioniStatoRapporto($banks);
+            // $sconfiniDivisi = $crHelper->divideAnomalie($numeroSconfiniTotali, $banks);
+            // $banksScoring = $crHelper->singleBankData($banks, $periods);
+            // $informazioniGarantiAnomalie = $crHelper->informazioniSuiGaranti($informazioniGaranti);
+            // $percentualiAccordato = $crHelper->percentualiAccordato($totAffidamentiConPesiPerBanca);
+            // $percentualiUtilizzato = $crHelper->percentualiUtilizzato($totAffidamentiConPesiPerBanca);
+            // $totaleUtilizzatoGeneral = $crHelper->totAffidamentiConPesiPerBanca($totAffidamentiConPesiPerBanca);
+            // $monthsList = array_keys($affidamentiPerMese);
 
             $response = [
                 'Scoring' => [
@@ -401,7 +385,7 @@ class CentraleRischiController extends Controller
             ];
             return response()->json([
                 'error' => false,
-                'anomalieStatoRapporto' => $anomalieStatoRapporto,
+              /*  'anomalieStatoRapporto' => $anomalieStatoRapporto,
                 'anomalie' => $anomalie,
                 'missingMonths' => $missingMonths,
                 'sconfiniDivisi' => $sconfiniDivisi,
@@ -409,7 +393,7 @@ class CentraleRischiController extends Controller
                 'informazioniGaranti' => $informazioniGaranti,
                 'monthsList' => $monthsList,
                 'affidamentiPerMese' => $affidamentiPerMese,
-                //      'banksScoring' => $banksScoring,
+                'banksScoring' => $banksScoring,
                 'totaleAffidamentiGeneral' => $totaleAffidamentiGeneral,
                 'incidenzaImpagati' => $incidenzaImpagati,
                 'rischiGaranzie' => $rischiGaranzie,
@@ -432,7 +416,7 @@ class CentraleRischiController extends Controller
                 'totAffidamentiConPesiPerBanca' => $totAffidamentiConPesiPerBanca,
                 'totaleAccordatoUtilizzatoPerBancaGeneral' => $totaleUtilizzatoGeneral,
                 'informazioniGarantiAnomalie' => $informazioniGarantiAnomalie,
-                // 'scoreCR' => $scoreCR,
+                'scoreCR' => $scoreCR,*/
 
                 'newFutureArray' => $response
             ]);
@@ -456,7 +440,7 @@ class CentraleRischiController extends Controller
         }
 
         $crHelper = new CrExtractorHelper;
-        $trimestriData = array(1 => array(), 2 => array(), 3 => array(), 4 => array());
+       // $trimestriData = array(1 => array(), 2 => array(), 3 => array(), 4 => array());
         // dd($trimestri);
         foreach ($trimestri as $trimestre => $singlePeriod) {
             //Pagina 1 - Composizione delle linee di credito, Composizione delle linee di credito per banca e modalità utilizzo linee di credito
@@ -510,7 +494,6 @@ class CentraleRischiController extends Controller
             'trimestri' => $trimestri
         ];
 
-        // dd($affidamenti);
         return response()->json([
             'error' => false,
             'data' => $data

@@ -174,11 +174,7 @@ dd($exception);
 				'telefono' => 'nullable|string|max:20',
         ];
 
-
         $data = $request->validate($rules);
-
-
-
 
         return $data;
     }

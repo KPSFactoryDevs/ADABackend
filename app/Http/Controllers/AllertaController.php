@@ -24,10 +24,9 @@ class AllertaController extends Controller
         $documentId = $request->document_id;
         $bilancioId = $request->bilancio_id;
         $arrayQuestionario = $request->questionario;
-        $arrayQuestionarioDetails = $request->questionarioDetails;
 
         foreach ($arrayQuestionario as $domanda => $risposta) {
-          $dataQuestionario = DB::table('questionario')->insert([
+            DB::table('questionario')->insert([
                 'result' => $risposta['response'],
                 'parameter' => $domanda,
                 'details' => $risposta['details'],
@@ -35,14 +34,12 @@ class AllertaController extends Controller
                 'document_id' => $documentId,
                 'bilancio_id' =>  $bilancioId
             ]);
-
         }
 
         return response()->json([
             'error' => false,
             'data' => 'Dati inviati correttamente'
         ], 200);
-        //  return back();
     }
 
 
@@ -53,8 +50,6 @@ class AllertaController extends Controller
         $arrayForwarLooking = $request->forwardLooking;
 
         unset($arrayForwarLooking['_token']);
-
-        //   DB::table('forwardLooking')->truncate();
 
         foreach ($arrayForwarLooking as $index => $singleAnswer) {
             DB::table('forwardLooking')->insert([
@@ -70,7 +65,6 @@ class AllertaController extends Controller
             'error' => false,
             'data' => 'Dati inviati correttamente',
         ], 200);
-        // return back();
     }
 
     public function index()
@@ -181,10 +175,7 @@ class AllertaController extends Controller
 
         $scoreCr = round($punteggioCR * 10, 1) . '/' . "10";
 
-
-
         // SCORE SISTEMA ALLERTA
-
 
         $arrayQuestionario = array();
 
@@ -193,8 +184,6 @@ class AllertaController extends Controller
             $arrayQuestionario[$data->parameter]['Result'] = $data->result;
             $arrayQuestionario[$data->parameter]['Details'] = $data->details == null ? '' : $data->details;
         }
-
-        // dd($questionario);
 
         $arrayForwardLooking = array();
 
@@ -228,9 +217,7 @@ class AllertaController extends Controller
             $scoreFL = array('Giudizio' => '', 'Valore' => '0');
         }
 
-
         if (Bilanci::count() != 0) {
-
 
             if (DB::table('questionario')->count() != 0) {
                 $ASISfinalScore = array("Score" => ($bilancioData['Giudizi']['Score'] * 0.25) + ($scoreCR * 0.25) + ($scoreASIS['3'] * 0.1) + ($scoreASIS['4'] * 0.1) + ($scoreASIS['5'] * 0.15) + ($scoreASIS['6'] * 0.15));
@@ -260,7 +247,6 @@ class AllertaController extends Controller
                 } else {
                     $generalScore = $ASISfinalScore;
                 }
-
 
                 if ($scoreFL['Giudizio'] == 'Miglioramento') {
                     if ($generalScore["Index"] != 6) {
@@ -319,13 +305,13 @@ class AllertaController extends Controller
             foreach ($bilanci as $data => $value) {
                 try {
                     $analisi = Analisi::where(['account_id' => $accountId, 'bilanci_id' => $value])->get();
+                    
                     if (count($analisi) == 0) {
                         Analisi::create(['account_id' => $accountId, 'bilanci_id' => $value]);
                     }
+
                     $id = $analisi[0]->id;
-
                     $supporto = $this->analisiBilancio($id);
-
 
                     $anni = (Bilanci::where('id', $value)->get(['current_year']))[0]->current_year;
                     $date = explode(' ', $anni);
@@ -398,7 +384,7 @@ class AllertaController extends Controller
         $bilancioJSON = json_decode($bilancio['json_data']);
         $bilancioJSONprev = json_decode($bilancio['json_data_prev']);
         $dataAnalisis = array();
-        $righeUtilizzate = array();
+       // $righeUtilizzate = array();
         $imposteRedditoEsercizioImposteAnticipate = isset($bilancioJSON->ImposteRedditoEsercizioCorrentiDifferiteAnticipateImposteDifferiteAnticipate) ? $bilancioJSON->ImposteRedditoEsercizioCorrentiDifferiteAnticipateImposteDifferiteAnticipate : 0;
 
         if ($bilancio->provvisorio == 1) {
@@ -522,10 +508,9 @@ class AllertaController extends Controller
 
         $TotaleDebitiEntroDodiciMesi = (float)$DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo + (float)$DebitiAccontiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo + (float)$DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo;
 
-        //        dd($TotaleDebitiEntroDodiciMesi);
+        // dd($TotaleDebitiEntroDodiciMesi);
 
-        //        dd($PassivoRateiRisconti,$DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo,$DebitiAccontiEsigibiliEntroEsercizioSuccessivo,$DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo,$DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo);
-
+        // dd($PassivoRateiRisconti,$DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo,$DebitiAccontiEsigibiliEntroEsercizioSuccessivo,$DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo,$DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo);
 
         // dd($arrayConVoci);
         // ### LIQUIDITA ###
@@ -557,7 +542,7 @@ class AllertaController extends Controller
 
         $arrayConVoci['INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO'] = array('DebitiDebitiTributariTotaleDebitiTributari', 'DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale', 'TotaleAttivo');
 
-        //        dd($INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO);
+        // dd($INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO);
 
         // INDICI ADVANCED
 
@@ -590,7 +575,6 @@ class AllertaController extends Controller
         $CostiProduzionePersonaleTotaleCostiPersonalePrecedente = (isset($bilancioJSONprev->CostiProduzionePersonaleTotaleCostiPersonale) ? $bilancioJSONprev->CostiProduzionePersonaleTotaleCostiPersonale : 0);
         $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerciPrecedente = (isset($bilancioJSONprev->CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci) ? $bilancioJSONprev->CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci : 0);
         $CostiProduzioneOneriDiversiGestionePrecedente = (isset($bilancioJSONprev->CostiProduzioneOneriDiversiGestione) ? $bilancioJSONprev->CostiProduzioneOneriDiversiGestione : 0);
-
 
         $MOLcurr = $TotaleValoreProduzione - (float)$CostiProduzioneMateriePrimeSussidiarieConsumoMerci - (float)$CostiProduzioneGodimentoBeniTerzi - (float)$CostiProduzioneServizi - (float)$CostiProduzionePersonaleTotaleCostiPersonale - (float)$CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci - (float)$CostiProduzioneOneriDiversiGestione;
         $MOLprev = $TotaleValoreProduzionePrecedente - (float)$CostiProduzioneMateriePrimeSussidiarieConsumoMerciPrecedente - (float)$CostiProduzioneGodimentoBeniTerziPrecedente - (float)$CostiProduzioneServiziPrecedente - (float)$CostiProduzionePersonaleTotaleCostiPersonalePrecedente - (float)$CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerciPrecedente - (float)$CostiProduzioneOneriDiversiGestionePrecedente;
@@ -696,18 +680,18 @@ class AllertaController extends Controller
         $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliOltreEsercizioSuccessivo = (isset($bilancioJSON->DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliOltreEsercizioSuccessivo) ? $bilancioJSON->DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliOltreEsercizioSuccessivo : 0);
         $DebitiAltriDebitiEsigibiliOltreEsercizioSuccessivo = (isset($bilancioJSON->DebitiAltriDebitiEsigibiliOltreEsercizioSuccessivo) ? $bilancioJSON->DebitiAltriDebitiEsigibiliOltreEsercizioSuccessivo : $val = (isset($bilancioJSONprev->DebitiAltriDebitiEsigibiliOltreEsercizioSuccessivo) ? $bilancioJSONprev->DebitiAltriDebitiEsigibiliOltreEsercizioSuccessivo : 0));
         $DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo = (isset($bilancioJSON->DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo) ? $bilancioJSON->DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo : $val = (isset($bilancioJSONprev->DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo) ? $bilancioJSONprev->DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo : 0));
-        $DebitiEsigibiliOltreEsercizioSuccessivo = isset($bilancioJSON->DebitiEsigibiliOltreEsercizioSuccessivo) ? $bilancioJSON->DebitiEsigibiliOltreEsercizioSuccessivo : 0;
+      // $DebitiEsigibiliOltreEsercizioSuccessivo = isset($bilancioJSON->DebitiEsigibiliOltreEsercizioSuccessivo) ? $bilancioJSON->DebitiEsigibiliOltreEsercizioSuccessivo : 0;
 
 
-        $QuarantaTre = $DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo + (float)$DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo + (float)$DebitiAccontiEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiVersoFornitoriEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiRappresentatiTitoliCreditoEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiVersoImpreseControllateEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiVersoImpreseCollegateEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiVersoControllantiEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliOltreEsercizioSuccessivo + (float)$DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo; //(isset($bilancioJSON->DebitiOltreEsercizioSuccessivo) ? $bilancioJSON->DebitiOltreEsercizioSuccessivo : 0);
+       // $QuarantaTre = $DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo + (float)$DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo + (float)$DebitiAccontiEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiVersoFornitoriEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiRappresentatiTitoliCreditoEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiVersoImpreseControllateEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiVersoImpreseCollegateEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiVersoControllantiEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliOltreEsercizioSuccessivo + (float)$DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo; //(isset($bilancioJSON->DebitiOltreEsercizioSuccessivo) ? $bilancioJSON->DebitiOltreEsercizioSuccessivo : 0);
 
         if ($TotaleImmobilizzazioni == 0) {
             $Margine_Struttura_Secondario_Semplificato = number_format((float)(($TotalePatrimonioNetto + $TrattamentoFineRapportoLavoroSubordinato + (float)$DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo + (float)$DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo + (float)$DebitiAccontiEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiVersoFornitoriEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiRappresentatiTitoliCreditoEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiVersoImpreseControllateEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiVersoImpreseCollegateEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiVersoControllantiEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo + (float)$DebitiAltriDebitiEsigibiliOltreEsercizioSuccessivo) / 1) * 100, 2, ',', '');
-            $Margine_Struttura_Secondario_Ordinario = number_format((float)(($TotalePatrimonioNetto + $TrattamentoFineRapportoLavoroSubordinato + $QuarantaTre) / 1) * 100, 2, ',', '');
+           // $Margine_Struttura_Secondario_Ordinario = number_format((float)(($TotalePatrimonioNetto + $TrattamentoFineRapportoLavoroSubordinato + $QuarantaTre) / 1) * 100, 2, ',', '');
             $dataAnalisis['Margine_Struttura_Secondario'] = $Margine_Struttura_Secondario_Semplificato;
         } else {
             $Margine_Struttura_Secondario_Semplificato = number_format((float)(($TotalePatrimonioNetto + $TrattamentoFineRapportoLavoroSubordinato + (float)$DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo + (float)$DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo + (float)$DebitiAccontiEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiVersoFornitoriEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiRappresentatiTitoliCreditoEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiVersoImpreseControllateEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiVersoImpreseCollegateEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiVersoControllantiEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliOltreEsercizioSuccessivo + (float)$DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo + (float)$DebitiAltriDebitiEsigibiliOltreEsercizioSuccessivo) / $TotaleImmobilizzazioni) * 100, 2, ',', '');
-            $Margine_Struttura_Secondario_Ordinario = number_format((float)(($TotalePatrimonioNetto + $TrattamentoFineRapportoLavoroSubordinato + $QuarantaTre) / $TotaleImmobilizzazioni) * 100, 2, ',', '');
+           // $Margine_Struttura_Secondario_Ordinario = number_format((float)(($TotalePatrimonioNetto + $TrattamentoFineRapportoLavoroSubordinato + $QuarantaTre) / $TotaleImmobilizzazioni) * 100, 2, ',', '');
             $dataAnalisis['Margine_Struttura_Secondario'] = $Margine_Struttura_Secondario_Semplificato;
         }
 
@@ -731,11 +715,11 @@ class AllertaController extends Controller
         $CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo : 0);
         $CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo : 0);
         $CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo : 0);
-        $CreditiVersoControllantiEsigibiliOltreEsercizioSuccessivo = (isset($bilancioJSON->CreditiVersoControllantiEsigibiliOltreEsercizioSuccessivo) ? $bilancioJSON->CreditiVersoControllantiEsigibiliOltreEsercizioSuccessivo : 0);
+       // $CreditiVersoControllantiEsigibiliOltreEsercizioSuccessivo = (isset($bilancioJSON->CreditiVersoControllantiEsigibiliOltreEsercizioSuccessivo) ? $bilancioJSON->CreditiVersoControllantiEsigibiliOltreEsercizioSuccessivo : 0);
         $CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo : $val = (isset($bilancioJSONprev->CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSONprev->CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo : 0));
         $CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo : $val = (isset($bilancioJSONprev->CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSONprev->CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo : 0));
         $TrentaCinque = $CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + (float)$CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + (float)$CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo + (float)$CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo + (float)$CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo;
-        $CreditiCreditiTributariTotaleCreditiTributari = (isset($bilancioJSON->CreditiCreditiTributariTotaleCreditiTributari) ? $bilancioJSON->CreditiCreditiTributariTotaleCreditiTributari : $val = (isset($bilancioJSONprev->CreditiCreditiTributariTotaleCreditiTributari) ? $bilancioJSONprev->CreditiCreditiTributariTotaleCreditiTributari : 0));
+       // $CreditiCreditiTributariTotaleCreditiTributari = (isset($bilancioJSON->CreditiCreditiTributariTotaleCreditiTributari) ? $bilancioJSON->CreditiCreditiTributariTotaleCreditiTributari : $val = (isset($bilancioJSONprev->CreditiCreditiTributariTotaleCreditiTributari) ? $bilancioJSONprev->CreditiCreditiTributariTotaleCreditiTributari : 0));
 
         // QUARANTANOVE
         $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo : 0);
@@ -754,10 +738,10 @@ class AllertaController extends Controller
         $QuarantaNove = $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo + (float)$DebitiAccontiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo + (float)$DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo;
         $CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo : 0);
 
-        if ($QuarantaNove > 0 || $PassivoRateiRisconti > 0) {
+       /* if ($QuarantaNove > 0 || $PassivoRateiRisconti > 0) {
             $Attivita_a_breve_Passivita_a_Breve_Semplificato = number_format((float)((((float)$TotaleDisponibilitaLiquide + (float)$TrentaCinque + (float)$TotaleRimanenze + (float)$TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + (float)$AttivoRateiRisconti) / ((float)$QuarantaNove + (float)$PassivoRateiRisconti))), 2, ',', '');
             //$dataAnalisis['Attivita_a_breve_Passività_a_Breve_Semplificato'] = $Attivita_a_breve_Passivita_a_Breve_Semplificato.'%';
-        }
+        }  */
         $Attivita_a_breve_Passivita_a_Breve_Ordinario_divisore = (float)$DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo + (float)$DebitiAccontiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo + (float)$DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo + (float)$PassivoRateiRisconti;
 
         if ($Attivita_a_breve_Passivita_a_Breve_Ordinario_divisore > 0) {
@@ -767,17 +751,17 @@ class AllertaController extends Controller
 
         $arrayConVoci['Attivita_a_breve_Passività_a_Breve_Ordinario'] = array();
 
-        //   dd($DebitiEsigibiliEntroEsercizioSuccessivo);
         // ACID TEST
-        if ($DebitiEsigibiliEntroEsercizioSuccessivo > 0 || $PassivoRateiRisconti > 0) {
+      /* if ($DebitiEsigibiliEntroEsercizioSuccessivo > 0 || $PassivoRateiRisconti > 0) {
+                $AcidTest = number_format((float)(((float)$TotaleCrediti + (float)$TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + (float)$TotaleDisponibilitaLiquide + (float)$AttivoRateiRisconti) / ((float)$DebitiEsigibiliEntroEsercizioSuccessivo + (float)$PassivoRateiRisconti)), 2, ',', '');
+             // $dataAnalisis['AcidTest'] = $AcidTest.'%';
+        } */
 
-            $AcidTest = number_format((float)(((float)$TotaleCrediti + (float)$TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + (float)$TotaleDisponibilitaLiquide + (float)$AttivoRateiRisconti) / ((float)$DebitiEsigibiliEntroEsercizioSuccessivo + (float)$PassivoRateiRisconti)), 2, ',', '');
-            //            $dataAnalisis['AcidTest'] = $AcidTest.'%';
-        }
-        if ($QuarantaNove > 0 || $PassivoRateiRisconti > 0) {
+       /* if ($QuarantaNove > 0 || $PassivoRateiRisconti > 0) {
             $ACID_TEST_Semplificato = number_format((float)((((float)$TotaleDisponibilitaLiquide + (float)$TrentaCinque + (float)$TotaleRimanenze + (float)$TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + (float)$AttivoRateiRisconti - (float)$TotaleRimanenze) / ((float)$QuarantaNove + (float)$PassivoRateiRisconti))), 2, ',', '');
             // $dataAnalisis['ACID_TEST_Semplificato'] = $ACID_TEST_Semplificato.'%';
-        }
+        } */
+
         $ACID_TEST_Ordinario_divisore = (float)$DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo + (float)$DebitiAccontiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo + (float)$DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo + (float)$PassivoRateiRisconti;
 
         if ($ACID_TEST_Ordinario_divisore > 0) {
@@ -893,7 +877,7 @@ class AllertaController extends Controller
 
         $arrayConVoci['Indice_di_Indebitamento'] = array('DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo', 'DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo', 'DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo', 'DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo', 'DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo', 'DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo', 'DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo', 'TotaleDisponibilitaLiquide', 'ImmobilizzazioniFinanziarieCreditiTotaleCrediti', 'TotalePatrimonioNetto');
 
-        $indiciBilancio = array();
+       // $indiciBilancio = array();
 
         //SALDO DEBITI VS FISCO
 
@@ -936,11 +920,11 @@ class AllertaController extends Controller
 
         $test = DB::table('centralerischi')->where('anno', $anno)->where('mese', $mese)->get();
         $cleanCR[$anno][$mese] = json_decode($test[0]->jsonData, true);
-        $tensioniAnnuali = array();
-        $sofferenze = array();
+       // $tensioniAnnuali = array();
+       // $sofferenze = array();
         $soldini = array();
-        $sconfini = array();
-        $yearlyDivision = array();
+       // $sconfini = array();
+       // $yearlyDivision = array();
         $sconfiniPerAnniBanche = array();
         $tensioniLineCtredito = array();
         foreach ($cleanCR as $singleYearKey => $months) {
@@ -954,11 +938,9 @@ class AllertaController extends Controller
                                 $Categoria = $credit['Categoria'];
                                 $Accordato = $credit['Accordato'];
                                 $Utilizzato = $credit['Utilizzato'];
-                                $AccordatoOperativo = $credit['Accordato
-Operativo'];
-                                $SaldoMedio = $credit['Saldo Medio'];
-                                $ImportoGarantito = $credit['Importo
-Garantito'];
+                                $AccordatoOperativo = $credit['AccordatoOperativo'];
+                               // $SaldoMedio = $credit['Saldo Medio'];
+                               // $ImportoGarantito = $credit['ImportoGarantito'];
                                 $TipoGaranzia = preg_replace("/\n/", " ", $TipoGaranzia);
 
                                 if (str_contains($TipoGaranzia, 'Assenza') && str_contains($TipoGaranzia, 'garanzie') && str_contains($TipoGaranzia, 'e/o')) {
@@ -1009,30 +991,24 @@ Garantito'];
                                         $sconfiniPerAnniBanche[$singleYearKey][$bankKey][$Categoria][$currentRow]['TotaleSconfini'] = 1;
                                         $sconfiniPerAnniBanche[$singleYearKey][$bankKey][$Categoria][$currentRow]['TensioneLineaCredito'] = false;
                                     } else {
-
-                                        //                                      //SE NON è SETTATA LA SETTO A 1, SE è SETTATA LA INCREMENTO DI 1
+                                        //SE NON è SETTATA LA SETTO A 1, SE è SETTATA LA INCREMENTO DI 1
 
                                         if ($sconfiniPerAnniBanche[$singleYearKey][$bankKey][$Categoria][$currentRow]['TotaleSconfini'] < 3) {
-
                                             //SE NON SIAMO IN SITUAZIONE DI TENSIONE
 
                                             $sconfiniPerAnniBanche[$singleYearKey][$bankKey][$Categoria][$currentRow]['TensioneLineaCredito'] = false;
                                         } else {
-
                                             //SE SIAMO IN TENSIONE, DICIAMO PER QUALE ANNO E LINEA DI CREDITO
 
-                                            if (!array_key_exists($singleYearKey, $tensioniLineCtredito)) {
-
+                                           if (!array_key_exists($singleYearKey, $tensioniLineCtredito)) {
                                                 $tensioniLineCtredito[$singleYearKey] = array();
                                             }
 
                                             $tensioniLineCtredito[$singleYearKey][$Categoria][$currentRow] = true;
-
-
                                             $sconfiniPerAnniBanche[$singleYearKey][$bankKey][$Categoria][$currentRow]['TensioneLineaCredito'] = true;
                                         }
-
                                         $sconfiniPerAnniBanche[$singleYearKey][$bankKey][$Categoria][$currentRow]['TotaleSconfini'] = ($sconfiniPerAnniBanche[$singleYearKey][$bankKey][$Categoria][$currentRow]['TotaleSconfini'] + 1);
+                                        
                                         if ($sconfiniPerAnniBanche[$singleYearKey][$bankKey][$Categoria][$currentRow]['TotaleSconfini'] >= 3) {
                                             $sconfiniPerAnniBanche[$singleYearKey][$bankKey][$Categoria][$currentRow]['TensioneLineaCredito'] = true;
                                         }
@@ -1040,26 +1016,21 @@ Garantito'];
                                 } else {
 
                                     if (!array_key_exists('TotaleSconfini', $sconfiniPerAnniBanche[$singleYearKey][$bankKey][$Categoria][$currentRow])) {
-
                                         $sconfiniPerAnniBanche[$singleYearKey][$bankKey][$Categoria][$currentRow]['TotaleSconfini'] = 0;
                                         $sconfiniPerAnniBanche[$singleYearKey][$bankKey][$Categoria][$currentRow]['TensioneLineaCredito'] = false;
                                     }
 
                                     if (!($sconfiniPerAnniBanche[$singleYearKey][$bankKey][$Categoria][$currentRow]['TotaleSconfini'] >= 3)) {
-
                                         //SE NON SIAMO IN SITUAZIONE DI TENSIONE
 
                                         $sconfiniPerAnniBanche[$singleYearKey][$bankKey][$Categoria][$currentRow]['TensioneLineaCredito'] = false;
                                     } else {
 
                                         if (!array_key_exists($singleYearKey, $tensioniLineCtredito)) {
-
                                             $tensioniLineCtredito[$singleYearKey] = array();
                                         }
 
                                         $tensioniLineCtredito[$singleYearKey][$Categoria][$currentRow] = true;
-
-
                                         $sconfiniPerAnniBanche[$singleYearKey][$bankKey][$Categoria][$currentRow]['TensioneLineaCredito'] = true;
                                     }
                                 }
@@ -1081,7 +1052,7 @@ Garantito'];
                         }
                         if ($singleCreditRowTypeKey == 'Informativa') {
                             foreach ($singleCreditValue as $credit) {
-                                //                                dd($credit);
+                                // dd($credit);
                             }
                         }
                     }
@@ -1106,7 +1077,7 @@ Garantito'];
 
         $sconfinoAnnuale = false;
         $arraySconfiniAnnuali = array();
-        $conteggioSconfini = 0;
+       // $conteggioSconfini = 0;
 
         foreach ($sconfiniPerAnniBanche as $anno => $arrayBanche) {
             foreach ($arrayBanche as $nomeBanca => $arrayRischi) {
@@ -1171,37 +1142,29 @@ Garantito'];
         $ASISfinalScore = false;
         $generalScore = false;
 
-        if (cr::All()->count() == 0) {
+        if (cr::where('document_id', $idCr)->get()->count() == 0) {
 
             $msg = "Non è stata caricata nessuna Centrale Rischi";
-            return view('allerta.empty', compact(['msg']));
+
+            return response()->json([
+                'error' => true,
+                'data' => $msg
+            ], 204);
         } else {
 
-            $crs = cr::select('anno', 'mese', 'date')->where('document_id', $idCr)->distinct()->orderBy('date', 'asc')->get();
+            $helperAllerta = new AllertaHelper;
+            $getDate = $helperAllerta->getDate($idCr);
 
-
-            for ($i = (count($crs) - 12 >= 0) ? count($crs) - 12 : 0; $i < count($crs); $i++) {
-                $periods[$crs[$i]->anno][$crs[$i]->mese] = null;
-            }
-
-
-            $latestYear = array_key_last($periods);
-            $latestMonth = array_key_last($periods[$latestYear]);
-
-            $crData = array();
-
-            $categories = array(
-                'RISCHI A SCADENZA',
-                'RISCHI AUTOLIQUIDANTI',
-                'RISCHI A REVOCA',
-            );
-
-            $earliestYear = array_key_first($periods);
-            $earliestMonth = array_key_first($periods[$earliestYear]);
-
-            $upperBoundDate = new DateTime((cr::select('date')->where('anno', $earliestYear)->where('mese', $earliestMonth)->where('document_id', $idCr)->get()->first())->date);
-            $lowerBoundDate = new DateTime($upperBoundDate->format('Y-m-d'));
-            $lowerBoundDate = $lowerBoundDate->modify('-11 months');
+           // $crs = $getDate['crs'];
+            $periods = $getDate['periods'];
+            $latestYear = $getDate['latestYear'];
+            $latestMonth = $getDate['latestMonth'];
+           // $crData = $getDate['crData'];
+            $categories = $getDate['categories'];
+           // $earliestYear = $getDate['earliestYear'];
+           // $earliestMonth = $getDate['earliestMonth'];
+            $upperBoundDate = $getDate['upperBoundDate'];
+            $lowerBoundDate = $getDate['lowerBoundDate'];
 
             $banks = array();
 
@@ -1214,12 +1177,12 @@ Garantito'];
             $crHelper->setDocumentId($idCr);
 
 
-            $cleanCR = $crHelper->getAllDataToArray($banks);
-            $intermediari = $crHelper->getCountBanks($banks);
+           // $cleanCR = $crHelper->getAllDataToArray($banks);
+           // $intermediari = $crHelper->getCountBanks($banks);
 
             $allertaHelper = new AllertaHelper;
             $allertaHelper->setDocumentId($idCr);
-            $documentId = $allertaHelper->getDocumentId();
+           // $documentId = $allertaHelper->getDocumentId();
 
             $crExtractorHelper = new CrExtractorHelper;
 
@@ -1270,17 +1233,6 @@ Garantito'];
             $alerts['16'] = $allertaHelper->getAnalisiCRSedici($banks);
             $punteggioCR = $allertaHelper->getPunteggioCR($alerts);
 
-            // dump('Lista dei parametri di allerta con relativo indicatore (Si/No)');
-
-            // foreach ($alerts as $label => $value) {
-            //     if ($value) {
-            //         dump('Parametro di allerta n. ' . $label . ' : Si');
-            //     } else {
-            //         dump('Parametro di allerta n. ' . $label . ' : No');
-            //     }
-            // }
-            // dd('');
-
             $arrayQuestionario = array();
 
             $questionario = DB::table('questionario')->get();
@@ -1288,8 +1240,6 @@ Garantito'];
                 $arrayQuestionario[$data->parameter]['Result'] = $data->result;
                 $arrayQuestionario[$data->parameter]['Details'] = $data->details == null ? '' : $data->details;
             }
-
-            // dd($questionario);
 
             $arrayForwardLooking = array();
 
@@ -1323,164 +1273,50 @@ Garantito'];
                 $scoreFL = array('Giudizio' => '', 'Valore' => '0');
             }
 
-
             if (Bilanci::count() != 0) {
 
                 $bilancioData = $this->analisiBilancio($id);
+                $generalScore = $allertaHelper->getGeneralScore($bilancioData, $scoreCR, $scoreASIS, $scoreFL);
 
-                if (DB::table('questionario')->count() != 0) {
-                    $ASISfinalScore = array("Score" => ($bilancioData['Giudizi']['Score'] * 0.25) + ($scoreCR * 0.25) + ($scoreASIS['3'] * 0.1) + ($scoreASIS['4'] * 0.1) + ($scoreASIS['5'] * 0.15) + ($scoreASIS['6'] * 0.15));
+                $getScoreHelper = $allertaHelper->getScores($punteggioCR, $bilancioData, $scoreASIS, $ASISfinalScore, $scoreFL);
+                $resultCentraleRischi = $getScoreHelper['resultCentraleRischi'];
+                $resultAnalisiBilancio = $getScoreHelper['resultAnalisiBilancio'];
+                $resultMinacceRapportiCommerciali = $getScoreHelper['resultMinacceRapportiCommerciali'];
+                $resultMinacceGestioneAziendale = $getScoreHelper['resultMinacceGestioneAziendale'];
+                $resultMinacceEventiPregiudizievoli = $getScoreHelper['resultMinacceEventiPregiudizievoli'];
+                $resultMinacceRischiCaratteristici = $getScoreHelper['resultMinacceRischiCaratteristici'];
+                $ASISScore = $getScoreHelper['ASISScore'];
+                $scoreGiudizioFL = $getScoreHelper['scoreGiudizioFL'];
 
-                    $rangeGiudizi = array(
-                        0 => array("Min" => 0, "Max" => 0.14, "Giudizio" => "Default"),
-                        1 => array("Min" => 0.14, "Max" => 0.28, "Giudizio" => "Situazione Grave"),
-                        2 => array("Min" => 0.28, "Max" => 0.42, "Giudizio" => "Alert"),
-                        3 => array("Min" => 0.42, "Max" => 0.56, "Giudizio" => "Rischio alert"),
-                        4 => array("Min" => 0.56, "Max" => 0.70, "Giudizio" => "Fragilità elevata"),
-                        5 => array("Min" => 0.70, "Max" => 0.85, "Giudizio" => "Fragilità"),
-                        6 => array("Min" => 0.85, "Max" => 1, "Giudizio" => "Solidità")
-                    );
-
-                    foreach ($rangeGiudizi as $index => $ranges) {
-                        if ($ASISfinalScore["Score"] >= $ranges["Min"] && $ASISfinalScore["Score"] < $ranges["Max"]) {
-                            $ASISfinalScore["Giudizio"] = $ranges['Giudizio'];
-                            $ASISfinalScore["Index"] = $index;
-                        }
-                    }
-
-                    $generalScore = array();
-
-                    if ($scoreASIS['6'] < 0.75) {
-                        $generalScore["Giudizio"] = $rangeGiudizi[$ASISfinalScore["Index"] - 1]['Giudizio'];
-                        $generalScore["Index"] = $ASISfinalScore["Index"] - 1;
-                    } else {
-                        $generalScore = $ASISfinalScore;
-                    }
-
-
-                    if ($scoreFL['Giudizio'] == 'Miglioramento') {
-                        if ($generalScore["Index"] != 6) {
-                            $generalScore["Giudizio"] = $rangeGiudizi[$ASISfinalScore["Index"] + 1]['Giudizio'];
-                            $generalScore["Index"] = $generalScore["Index"] + 1;
-                        }
-                    } else if ($scoreFL['Giudizio'] == 'Peggioramento') {
-                        if ($generalScore["Index"] != 0) {
-                            $generalScore["Giudizio"] = $rangeGiudizi[$ASISfinalScore["Index"] - 1]['Giudizio'];
-                            $generalScore["Index"] = $generalScore["Index"] - 1;
-                        }
-                    }
-                }
-
-
-
-                if ($punteggioCR >= 0 && $punteggioCR < 0.14) {
-                    $resultCentraleRischi = "Default";
-                } else if ($punteggioCR >= 0.14 && $punteggioCR < 0.28) {
-                    $resultCentraleRischi = "Situazione Grave";
-                } else if ($punteggioCR >= 0.28 && $punteggioCR < 0.42) {
-                    $resultCentraleRischi = "Alert";
-                } else if ($punteggioCR >= 0.42 && $punteggioCR < 0.56) {
-                    $resultCentraleRischi = "Rischio alert";
-                } else if ($punteggioCR >= 0.56 && $punteggioCR < 0.70) {
-                    $resultCentraleRischi = "Fragilità elevata";
-                } else if ($punteggioCR >= 0.70 && $punteggioCR < 0.85) {
-                    $resultCentraleRischi = "Fragilità";
-                } else if ($punteggioCR >= 0.85 && $punteggioCR <= 1) {
-                    $resultCentraleRischi = "Solidità";
-                }
-
-                $resultAnalisiBilancio = "N/A";
-                if ($bilancioData['Giudizi']['Score'] >= 0 && $bilancioData['Giudizi']['Score'] < 0.14) {
-                    $resultAnalisiBilancio = "Default";
-                } else if ($bilancioData['Giudizi']['Score'] >= 0.14 && $bilancioData['Giudizi']['Score'] < 0.28) {
-                    $resultAnalisiBilancio = "Situazione Grave";
-                } else if ($bilancioData['Giudizi']['Score'] >= 0.28 && $bilancioData['Giudizi']['Score'] < 0.42) {
-                    $resultAnalisiBilancio = "Alert";
-                } else if ($bilancioData['Giudizi']['Score'] >= 0.42 && $bilancioData['Giudizi']['Score'] < 0.56) {
-                    echo "Rischio alert";
-                } else if ($bilancioData['Giudizi']['Score'] >= 0.56 && $bilancioData['Giudizi']['Score'] < 0.70) {
-                    $resultAnalisiBilancio = "Fragilità elevata";
-                } else if ($bilancioData['Giudizi']['Score'] >= 0.70 && $bilancioData['Giudizi']['Score'] < 0.85) {
-                    $resultAnalisiBilancio = "Fragilità";
-                } else if ($bilancioData['Giudizi']['Score'] >= 0.85 && $bilancioData['Giudizi']['Score'] <= 1) {
-                    $resultAnalisiBilancio = "Solidità";
-                }
-
-
-                if ($scoreASIS['3'] >= 0 && $scoreASIS['3'] < 0.14) {
-                    $resultMinacceRapportiCommerciali = "Default";
-                } else if ($scoreASIS['3'] >= 0.14 && $scoreASIS['3'] < 0.28) {
-                    $resultMinacceRapportiCommerciali = "Situazione Grave";
-                } else if ($scoreASIS['3'] >= 0.28 && $scoreASIS['3'] < 0.42) {
-                    $resultMinacceRapportiCommerciali = "Alert";
-                } else if ($scoreASIS['3'] >= 0.42 && $scoreASIS['3'] < 0.56) {
-                    $resultMinacceRapportiCommerciali = "Rischio alert";
-                } else if ($scoreASIS['3'] >= 0.56 && $scoreASIS['3'] < 0.70) {
-                    $resultMinacceRapportiCommerciali = "Fragilità elevata";
-                } else if ($scoreASIS['3'] >= 0.70 && $scoreASIS['3'] < 0.85) {
-                    $resultMinacceRapportiCommerciali = "Fragilità";
-                } else if ($scoreASIS['3'] >= 0.85 && $scoreASIS['3'] <= 1) {
-                    $resultMinacceRapportiCommerciali = "Solidità";
-                }
-
-
-                if ($scoreASIS['4'] >= 0 && $scoreASIS['4'] < 0.14) {
-                    $resultMinacceGestioneAziendale = "Default";
-                } else if ($scoreASIS['4'] >= 0.14 && $scoreASIS['4'] < 0.28) {
-                    $resultMinacceGestioneAziendale = "Situazione Grave";
-                } else if ($scoreASIS['4'] >= 0.28 && $scoreASIS['4'] < 0.42) {
-                    $resultMinacceGestioneAziendale = "Alert";
-                } else if ($scoreASIS['4'] >= 0.42 && $scoreASIS['4'] < 0.56) {
-                    $resultMinacceGestioneAziendale = "Rischio alert";
-                } else if ($scoreASIS['4'] >= 0.56 && $scoreASIS['4'] < 0.70) {
-                    $resultMinacceGestioneAziendale = "Fragilità elevata";
-                } else if ($scoreASIS['4'] >= 0.70 && $scoreASIS['4'] < 0.85) {
-                    $resultMinacceGestioneAziendale = "Fragilità";
-                } else if ($scoreASIS['4'] >= 0.85 && $scoreASIS['4'] <= 1) {
-                    $resultMinacceGestioneAziendale = "Solidità";
-                }
-
-
-                if ($scoreASIS['5'] >= 0 && $scoreASIS['5'] < 0.14) {
-                    $resultMinacceEventiPregiudizievoli = "Default";
-                } else if ($scoreASIS['5'] >= 0.14 && $scoreASIS['5'] < 0.28) {
-                    $resultMinacceEventiPregiudizievoli = "Situazione Grave";
-                } else if ($scoreASIS['5'] >= 0.28 && $scoreASIS['5'] < 0.42) {
-                    $resultMinacceEventiPregiudizievoli = "Alert";
-                } else if ($scoreASIS['5'] >= 0.42 && $scoreASIS['5'] < 0.56) {
-                    $resultMinacceEventiPregiudizievoli = "Rischio alert";
-                } else if ($scoreASIS['5'] >= 0.56 && $scoreASIS['5'] < 0.70) {
-                    $resultMinacceEventiPregiudizievoli = "Fragilità elevata";
-                } else if ($scoreASIS['5'] >= 0.70 && $scoreASIS['5'] < 0.85) {
-                    $resultMinacceEventiPregiudizievoli = "Fragilità";
-                } else if ($scoreASIS['5'] >= 0.85 && $scoreASIS['5'] <= 1) {
-                    $resultMinacceEventiPregiudizievoli = "Solidità";
-                }
-
-
-                if ($scoreASIS['6'] >= 0 && $scoreASIS['6'] < 0.14) {
-                    $resultMinacceRischiCaratteristici = "Default";
-                } else if ($scoreASIS['6'] >= 0.14 && $scoreASIS['6'] < 0.28) {
-                    $resultMinacceRischiCaratteristici = "Situazione Grave";
-                } else if ($scoreASIS['6'] >= 0.28 && $scoreASIS['6'] < 0.42) {
-                    $resultMinacceRischiCaratteristici = "Alert";
-                } else if ($scoreASIS['6'] >= 0.42 && $scoreASIS['6'] < 0.56) {
-                    $resultMinacceRischiCaratteristici = "Rischio alert";
-                } else if ($scoreASIS['6'] >= 0.56 && $scoreASIS['6'] < 0.70) {
-                    $resultMinacceRischiCaratteristici = "Fragilità elevata";
-                } else if ($scoreASIS['6'] >= 0.70 && $scoreASIS['6'] < 0.85) {
-                    $resultMinacceRischiCaratteristici = "Fragilità";
-                } else if ($scoreASIS['6'] >= 0.85 && $scoreASIS['6'] <= 1) {
-                    $resultMinacceRischiCaratteristici = "Solidità";
-                }
-
-                if ($ASISfinalScore) {
-                    $ASISScore = $ASISfinalScore['Giudizio'];
-                }
-
-                if ($scoreFL) {
-                    $scoreGiudizioFL = $scoreFL['Giudizio'];
-                }
+                $risultato = [
+                    'giudizio' => [
+                        'Area Esaminata' => [
+                            'name' => 'Analisi Centrale Rischi',
+                            'risultato' => $resultCentraleRischi,
+                        ],
+                        'Analisi bilancio' => [
+                            'risultato' => $resultAnalisiBilancio,
+                        ],
+                        'Minacce rapporti commerciali' => [
+                            'risultato' => $resultMinacceRapportiCommerciali,
+                        ],
+                        'Minacce gestione aziendale' => [
+                            'risultato' => $resultMinacceGestioneAziendale,
+                        ],
+                        'Minacce da eventi pregiudizievoli' => [
+                            'risultato' => $resultMinacceEventiPregiudizievoli,
+                        ],
+                        'Minacce erariali e rischi caratteristici' => [
+                            'risultato' => $resultMinacceRischiCaratteristici,
+                        ],
+                        'Profilo rischio AS IS' => [
+                            'risultato' => $ASISScore
+                        ],
+                        'Questionario TO BE' => [
+                            'risultato' => $scoreGiudizioFL
+                        ],
+                    ],
+                ];
 
 
                 $risultato = [
@@ -1517,26 +1353,25 @@ Garantito'];
                 $getToBeById = $allertaHelper->getQuestionarioToBe($id, $idCr);
 
                 return response()->json([
-                    'error' => 'false',
+                    'error' => false,
                     'ASISfinalScore' => $ASISfinalScore,
                     'generalScore' => $generalScore,
                     'bilancioData' => $bilancioData, // Giudizi score bilancio
                     'punteggioCR' => $punteggioCR, // Score allerta
                     'alerts' => $alerts,
-                    'arrayQuestionario' => $getAsisById,  // questionario per document id e bilancio id 
+                    'arrayQuestionario' => $getAsisById,  // questionario per document id e bilancio id
                     'arrayForwardLooking' => $getToBeById,
                     'scoreFL' => $scoreFL,
                     'scoreASIS' => $scoreASIS,
                     'giudizioFinaleSistemaAllerta' => $risultato,
                     'id' => $id,
-
                 ], 200);
-
-                return view('allerta.general', compact(['id', 'ASISfinalScore', 'generalScore', 'bilancioData', 'punteggioCR', 'alerts', 'arrayQuestionario', 'arrayForwardLooking', 'scoreFL', 'scoreASIS']));
             } else {
-                dd('test');
                 $msg = "Non è stata caricata nessun Bilancio";
-                return view('allerta.empty', compact(['msg']));
+                return response()->json([
+                    'error' => true,
+                    'data' => $msg,
+                ], 204);
             }
         }
     }
@@ -1574,19 +1409,13 @@ Garantito'];
     public function valutazioneQuestionarioQualitativo($arrayQuestionario)
     {
         $pesi = $this->getPesiASIS();
-        $scoreASIS = array('3' => 0, '4' => 0, '5' => 0, '6' => 0);
-
-        // dd($arrayQuestionario);
-
-        // dd($arrayQuestionario);
+        $scoreASIS = [];
 
         foreach ($arrayQuestionario as $label => $result) {
-
             $explodedLabel = explode('-', $label)[0];
-
-            $scoreASIS[$explodedLabel] += $pesi[$label]['peso'] * $pesi[$label]['score'][$result['Result']];
+            $value = $pesi[$label]['peso'] * $pesi[$label]['score'][$result['Result']];
+            $scoreASIS[$explodedLabel] = $value;
         }
-
 
         return $scoreASIS;
     }
@@ -1594,37 +1423,37 @@ Garantito'];
     public function getPesiASIS()
     {
         return array(
-            "3-1" => array("peso" => 0.09, "score" => array("Si" => -0.5, "No" => 1)),
-            "3-2" => array("peso" => 0.15, "score" => array("Si" => -0.5, "No" => 1)),
-            "3-3" => array("peso" => 0.15, "score" => array("Si" => -0.5, "No" => 1)),
-            "3-4" => array("peso" => 0.15, "score" => array("Si" => -0.5, "No" => 1)),
-            "3-5" => array("peso" => 0.15, "score" => array("Si" => -0.5, "No" => 1)),
-            "3-6" => array("peso" => 0.11, "score" => array("Si" => -0.5, "No" => 1)),
-            "3-7" => array("peso" => 0.11, "score" => array("Si" => -0.5, "No" => 1)),
-            "3-8" => array("peso" => 0.09, "score" => array("Si" => -0.5, "No" => 1)),
+            "1-1" => array("peso" => 0.09, "score" => array("Si" => -0.5, "No" => 1)),
+            "1-2" => array("peso" => 0.15, "score" => array("Si" => -0.5, "No" => 1)),
+            "1-3" => array("peso" => 0.15, "score" => array("Si" => -0.5, "No" => 1)),
+            "1-4" => array("peso" => 0.15, "score" => array("Si" => -0.5, "No" => 1)),
+            "1-5" => array("peso" => 0.15, "score" => array("Si" => -0.5, "No" => 1)),
+            "1-6" => array("peso" => 0.11, "score" => array("Si" => -0.5, "No" => 1)),
+            "1-7" => array("peso" => 0.11, "score" => array("Si" => -0.5, "No" => 1)),
+            "1-8" => array("peso" => 0.09, "score" => array("Si" => -0.5, "No" => 1)),
 
-            "4-1" => array("peso" => 0.11, "score" => array("Si" => -0.7, "No" => 1)),
-            "4-2" => array("peso" => 0.1, "score" => array("Si" => -0.5, "No" => 1)),
-            "4-3" => array("peso" => 0.1, "score" => array("Si" => -0.5, "No" => 1)),
-            "4-4" => array("peso" => 0.11, "score" => array("Si" => -1, "No" => 1)),
-            "4-5" => array("peso" => 0.1, "score" => array("Si" => -0.5, "No" => 1)),
-            "4-6" => array("peso" => 0.11, "score" => array("Si" => -0.7, "No" => 1)),
-            "4-7" => array("peso" => 0.1, "score" => array("Si" => -0.5, "No" => 1)),
-            "4-8" => array("peso" => 0.0, "score" => array("Si" => -0.5, "No" => 1)),
-            "4-9" => array("peso" => 0.1, "score" => array("Si" => -0.5, "No" => 1)),
-            "4-10" => array("peso" => 0.1, "score" => array("Si" => -0.5, "No" => 1)),
+            "2-1" => array("peso" => 0.11, "score" => array("Si" => -0.7, "No" => 1)),
+            "2-2" => array("peso" => 0.1, "score" => array("Si" => -0.5, "No" => 1)),
+            "2-3" => array("peso" => 0.1, "score" => array("Si" => -0.5, "No" => 1)),
+            "2-4" => array("peso" => 0.11, "score" => array("Si" => -1, "No" => 1)),
+            "2-5" => array("peso" => 0.1, "score" => array("Si" => -0.5, "No" => 1)),
+            "2-6" => array("peso" => 0.11, "score" => array("Si" => -0.7, "No" => 1)),
+            "2-7" => array("peso" => 0.1, "score" => array("Si" => -0.5, "No" => 1)),
+            "2-8" => array("peso" => 0.0, "score" => array("Si" => -0.5, "No" => 1)),
+            "2-9" => array("peso" => 0.1, "score" => array("Si" => -0.5, "No" => 1)),
+            "2-10" => array("peso" => 0.1, "score" => array("Si" => -0.5, "No" => 1)),
 
-            "5-1" => array("peso" => 0.3, "score" => array("Si" => -0.7, "No" => 1)),
-            "5-2" => array("peso" => 0.3, "score" => array("Si" => -0.5, "No" => 1)),
-            "5-3" => array("peso" => 0.2, "score" => array("Si" => -0.5, "No" => 1)),
-            "5-4" => array("peso" => 0.2, "score" => array("Si" => -0.5, "No" => 1)),
+            "3-1" => array("peso" => 0.3, "score" => array("Si" => -0.7, "No" => 1)),
+            "3-2" => array("peso" => 0.3, "score" => array("Si" => -0.5, "No" => 1)),
+            "3-3" => array("peso" => 0.2, "score" => array("Si" => -0.5, "No" => 1)),
+            "3-4" => array("peso" => 0.2, "score" => array("Si" => -0.5, "No" => 1)),
 
-            "6-1" => array("peso" => 0.166, "score" => array("Si" => -0.5, "No" => 1)),
-            "6-2" => array("peso" => 0.166, "score" => array("Si" => -0.5, "No" => 1)),
-            "6-3" => array("peso" => 0.156, "score" => array("Si" => -0.5, "No" => 1)),
-            "6-4" => array("peso" => 0.166, "score" => array("Si" => -0.5, "No" => 1)),
-            "6-5" => array("peso" => 0.18, "score" => array("Si" => -1, "No" => 1)),
-            "6-6" => array("peso" => 0.166, "score" => array("Si" => -0.5, "No" => 1))
+            "4-1" => array("peso" => 0.166, "score" => array("Si" => -0.5, "No" => 1)),
+            "4-2" => array("peso" => 0.166, "score" => array("Si" => -0.5, "No" => 1)),
+            "4-3" => array("peso" => 0.156, "score" => array("Si" => -0.5, "No" => 1)),
+            "4-4" => array("peso" => 0.166, "score" => array("Si" => -0.5, "No" => 1)),
+            "4-5" => array("peso" => 0.18, "score" => array("Si" => -1, "No" => 1)),
+            "4-6" => array("peso" => 0.166, "score" => array("Si" => -0.5, "No" => 1))
         );
     }
 }
