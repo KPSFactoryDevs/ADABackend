@@ -233,7 +233,7 @@ class CentraleRischiController extends Controller
 
             $crHelper = new CrExtractorHelper;
 
-            if ($crAndamentaleData['data_inizio'] == "false" || $crAndamentaleData['data_fine'] == "false") {
+            if (!$crAndamentaleData['data_inizio'] || !$crAndamentaleData['data_fine']) {
                 $lastDate = new DateTime(cr::select('date')->where('document_id', $crAndamentaleData['period'])->orderBy('date', 'desc')->first()->date);
                 $lastDate = $lastDate->modify('last day of this month')->format('Y-m-d');
                 $earlierDate = new DateTime(cr::select('date')->where('document_id', $crAndamentaleData['period'])->orderBy('date', 'desc')->first()->date);
@@ -256,7 +256,7 @@ class CentraleRischiController extends Controller
                 ->orderBy('date')
                 ->get(), true);
 
-            if(empty($unrefinedPeriods)) {
+            if (empty($unrefinedPeriods)) {
                 return response()->json([
                     'error' => true,
                     'message' => 'No data available in this period range'
@@ -385,7 +385,7 @@ class CentraleRischiController extends Controller
             ];
             return response()->json([
                 'error' => false,
-              /*  'anomalieStatoRapporto' => $anomalieStatoRapporto,
+                /*  'anomalieStatoRapporto' => $anomalieStatoRapporto,
                 'anomalie' => $anomalie,
                 'missingMonths' => $missingMonths,
                 'sconfiniDivisi' => $sconfiniDivisi,
@@ -440,7 +440,7 @@ class CentraleRischiController extends Controller
         }
 
         $crHelper = new CrExtractorHelper;
-       // $trimestriData = array(1 => array(), 2 => array(), 3 => array(), 4 => array());
+        // $trimestriData = array(1 => array(), 2 => array(), 3 => array(), 4 => array());
         // dd($trimestri);
         foreach ($trimestri as $trimestre => $singlePeriod) {
             //Pagina 1 - Composizione delle linee di credito, Composizione delle linee di credito per banca e modalità utilizzo linee di credito

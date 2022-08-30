@@ -172,7 +172,8 @@ class AllertaController extends Controller
         $arrayScoring = [
             'error' => false,
             'pageData' => [
-                'alerts' => $alerts,
+                'scoreCR' => $scoreCR,
+                'crAlerts' => $alerts,
                 'arrayQuestionarioAsIs' => $getAsIsDataFromDB,  // questionario per document id e bilancio id
                 'arrayForwardLookingToBe' => $getToBeDataFromDB,
                 'bilancioData' => $bilancioData
@@ -191,8 +192,9 @@ class AllertaController extends Controller
 
 
 
-        return response()->json([
-            $arrayScoring
-        ], 200);
+        return response()->json(
+            $arrayScoring,
+            200
+        );
     }
 }
