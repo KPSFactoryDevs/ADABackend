@@ -149,8 +149,7 @@ class AllertaHelper
 
     public function getLastTwoMonths()
     {
-
-        $cont = 0;
+       // $cont = 0;
         $trimestrePeriod = $this->getTrimestrePeriod($this->crExtractorHelper->getPeriod());
 
         $lastYear = array_key_last($trimestrePeriod);
@@ -169,15 +168,15 @@ class AllertaHelper
     {
         $crHelper = new CrExtractorHelper;
         $crHelper->setPeriod($periods);
-        $cleanCR = $crHelper->getAllDataToArray($banks);
+       // $cleanCR = $crHelper->getAllDataToArray($banks);
 
         $latestYear = array_key_last($periods);
         $latestMonth = array_key_last($periods[$latestYear]);
-        $lastDate = new DateTime((cr::select('date')
+        $lastDate = new DateTime(cr::select('date')
             ->where('anno', '=', $latestYear)
             ->where('mese', '=', $latestMonth)
             ->where('document_id', $this->_documentId)
-            ->first())->date);
+            ->first()->date);
 
         $triennio = new DateTime($lastDate->format('Y-m-d'));
         $triennio = $triennio->modify('-35 months');
@@ -204,8 +203,8 @@ class AllertaHelper
         $crHelper = new CrExtractorHelper;
         $crHelper->setPeriod($periods);
 
-        $latestYear = array_key_last($periods);
-        $latestMonth = array_key_last($periods[$latestYear]);
+       // $latestYear = array_key_last($periods);
+      //  $latestMonth = array_key_last($periods[$latestYear]);
 
         $trimestrePeriod = array();
 
@@ -221,14 +220,11 @@ class AllertaHelper
             }
         }
 
-        // dd($trimestrePeriod);
-
         return $trimestrePeriod;
     }
 
     public function getLastYearPeriod($lastYear, $lastMonth)
     {
-
         $lastDate = (cr::select('date')
             ->where('anno', '=', $lastYear)
             ->where('mese', '=', $lastMonth)
@@ -308,7 +304,7 @@ class AllertaHelper
 
     public function getMediaAccordatoOperativo($period, $categories)
     {
-        $mediaAccordatoOp = array();
+       // $mediaAccordatoOp = array();
 
         $periodStart = new DateTime((cr::select('date')
             ->where('document_id', $this->_documentId)
@@ -366,7 +362,7 @@ class AllertaHelper
 
     public function getAccordatoOperativo($period, $categories)
     {
-        $mediaAccordatoOp = array();
+       // $mediaAccordatoOp = array();
 
         $periodStart = new DateTime((cr::select('date')
             ->where('document_id', $this->_documentId)
@@ -415,8 +411,6 @@ class AllertaHelper
     public function getAnalisiCRDue($banks)
     {
         $sconfini = $this->crExtractorHelper->getTotaleSconfini($banks);
-
-        // dd($sconfini, $banks);
 
         return ($sconfini['SconfiniTotali'] > 2 || $this->getSconfiniSignificativi($banks));
     }
@@ -484,7 +478,7 @@ class AllertaHelper
     {
         $periods = $this->crExtractorHelper->getPeriod();
 
-        $arrayGaranzie = array();
+       // $arrayGaranzie = array();
 
         $firstYear = array_key_first($periods);
         $firstYearMonth = array_key_first($periods[$firstYear]);
@@ -529,8 +523,6 @@ class AllertaHelper
                 }
             }
         }
-
-
 
         return false;
     }
@@ -578,7 +570,6 @@ class AllertaHelper
         $impagatiPerBanca = array();
         $utilizzatoPerBanca = array();
 
-
         foreach ($lastYearPeriod as $singleYear => $multipleMonths) {
             foreach ($multipleMonths as $singleMonth => $platanoPicchiatore) {
                 $currentMonth = new DateTime((cr::select('date')->where('anno', $singleYear)->where('document_id', $this->_documentId)->where('mese', $singleMonth)->first())->date);
@@ -609,12 +600,10 @@ class AllertaHelper
                     ->whereRaw("t2.date between '" . $nextMonth->format('Y-m-01') . "' and '" . $nextMonth->format('Y-m-t') . "'")
                     ->get();
 
-
                 foreach ($joins as $label => $singleJoin) {
                     $impagatiPerBanca[$singleJoin->banca] = isset($impagatiPerBanca[$singleJoin->banca]) ? ($impagatiPerBanca[$singleJoin->banca]) + ((float)$singleJoin->garantito1) : (float)$singleJoin->garantito1;
 
                     if ($singleJoin->divisa1 == $singleJoin->divisa2 && $singleJoin->loc1 == $singleJoin->loc2) {
-
 
                         if ((float)$singleJoin->garantito2 > (float)$singleJoin->garantito1) {
                             $aumentiImpagati[$singleJoin->banca] = isset($aumentiImpagati[$singleJoin->banca]) ? ($aumentiImpagati[$singleJoin->banca]) + 1 : 1;
@@ -661,7 +650,6 @@ class AllertaHelper
                 }
             }
         }
-
         foreach ($accordatoMedioMensile as $bank => $totValue) {
             $accordatoMedioMensile[$bank] = $totValue / $allMonthsCount;
         }
@@ -675,9 +663,6 @@ class AllertaHelper
                     $nextMonth = (new DateTime($currentMonth->format('Y-m-d')));
                     $nextMonth = $nextMonth->modify('+1 month');
 
-
-                    // dd($sum);
-
                     $joins = DB::table('crs as t1')
                         ->join('crs as t2', 't1.nome_banca', '=', 't2.nome_banca')
                         ->selectRaw('t1.nome_banca as banca,  t1.document_id as document1, t2.document_id as document2, t1.accordato_operativo as accordato1, t2.accordato_operativo as accordato2, t1.date as date1, t2.date as date2, t1.localizzazione as loc1, t2.localizzazione as loc2, t1.divisa as divisa1, t2.divisa as divisa2, t1.categoria as cat1, t2.categoria as cat2')
@@ -688,7 +673,6 @@ class AllertaHelper
                         ->whereRaw("t1.date between '" . $currentMonth->format('Y-m-01') . "' and '" . $currentMonth->format('Y-m-t') . "'")
                         ->whereRaw("t2.date between '" . $nextMonth->format('Y-m-01') . "' and '" . $nextMonth->format('Y-m-t') . "'")
                         ->get();
-
 
                     foreach ($joins as $label => $singleJoin) {
                         if ($singleJoin->divisa1 == $singleJoin->divisa2 && $singleJoin->loc1 == $singleJoin->loc2) {
@@ -706,14 +690,12 @@ class AllertaHelper
                 }
             }
         }
-
         return false;
     }
 
     public function getAnalisiCROtto($lastYearPeriod, $latestYear, $latestMonth, $trimestrePeriod, $triennioPeriod)
     {
-
-        $periods = $this->crExtractorHelper->getPeriod();
+       // $periods = $this->crExtractorHelper->getPeriod();
 
         $categories = array(
             'RISCHI A SCADENZA'
@@ -743,9 +725,6 @@ class AllertaHelper
             ->where('sezione', 'Cassa')
             ->get()->first()->somma / $this->getMonthsCountFromPeriod($trimestrePeriod);
 
-        // dd($accordatoScadenzaTrimestre);
-
-
         $accordatoScadenzaUltimoMese = cr::selectRaw("SUM(accordato_operativo) as somma")
             ->where('anno', $latestYear)
             ->where('mese', $latestMonth)
@@ -754,8 +733,6 @@ class AllertaHelper
             ->where('tipo_attivita', '<>', 'Leasing')
             ->where('sezione', 'Cassa')
             ->get()->first()->somma;
-
-        // dd($latestYear, $latestMonth);
 
         $accordatoScadenzaUltimoAnno = cr::selectRaw("SUM(accordato_operativo) as somma")
             ->where('date', '>=', $lastYearDate->format('Y-m-01'))
@@ -908,7 +885,6 @@ class AllertaHelper
             }
         }
 
-
         foreach ($rapportoAffidamenti as $bankName => $rapporto) {
             $rapportoAffidamenti[$bankName] = $rapporto / $this->crExtractorHelper->getCountMonths();
             if ($rapportoAffidamenti[$bankName] > 0.98) {
@@ -959,7 +935,6 @@ class AllertaHelper
                 }
             }
         }
-
         foreach (array($latestYear => array($latestMonth => null)) as $singleYear => $multipleMonths) {
             foreach ($multipleMonths as $singleMonth => $patata) {
 
@@ -970,7 +945,6 @@ class AllertaHelper
                 }
             }
         }
-
         foreach ($accordatoRevocaAnno as $singleBank => $revocaData) {
             if (isset($accordatoRevocaTriennio[$singleBank])) {
                 if (($accordatoRevocaTriennio[$singleBank] - $revocaData) > (($accordatoRevocaTriennio[$singleBank]) / 25) * 100) {
@@ -1006,7 +980,6 @@ class AllertaHelper
                 }
             }
         }
-
         foreach (array($latestYear => array($latestMonth => null)) as $singleYear => $multipleMonths) {
             foreach ($multipleMonths as $singleMonth => $patata) {
 
@@ -1017,7 +990,6 @@ class AllertaHelper
                 }
             }
         }
-
         foreach ($accordatoRevocaAnno as $singleBank => $revocaData) {
             if (isset($accordatoRevocaTriennio[$singleBank])) {
                 if (($accordatoRevocaTriennio[$singleBank] - $revocaData) > (($accordatoRevocaTriennio[$singleBank]) / 25) * 100) {
@@ -1223,16 +1195,7 @@ class AllertaHelper
 
             $generalScore = array();
 
-            if ($scoreASIS['4'] < 0.75) {
-                $generalScore["Giudizio"] = $rangeGiudizi[$ASISfinalScore["Index"] - 1]['Giudizio'];
-                $generalScore["Index"] = $ASISfinalScore["Index"] - 1;
-            } else {
-                $generalScore = $ASISfinalScore;
-            }
-
-
             if ($scoreFL['Giudizio'] == 'Miglioramento') {
-                dd($generalScore['Index']);
                 if ($generalScore["Index"] != 6) {
                     $generalScore["Giudizio"] = $rangeGiudizi[$ASISfinalScore["Index"] + 1]['Giudizio'];
                     $generalScore["Index"] = $generalScore["Index"] + 1;
