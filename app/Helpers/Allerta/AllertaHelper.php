@@ -1172,8 +1172,6 @@ class AllertaHelper
 
     public function getGeneralScore($bilancioData, $scoreCR, $scoreASIS, $scoreFL)
     {
-        if (DB::table('questionario')->count() != 0) {
-
             $ASISfinalScore = array("Score" => ($bilancioData['Giudizi']['Score'] * 0.25) + ($scoreCR * 0.25) + ($scoreASIS['1'] * 0.1) + ($scoreASIS['2'] * 0.1) + ($scoreASIS['3'] * 0.15) + ($scoreASIS['4'] * 0.15));
 
             $rangeGiudizi = array(
@@ -1195,6 +1193,14 @@ class AllertaHelper
 
             $generalScore = array();
 
+            if ($scoreASIS['4'] < 0.75) {
+                $generalScore["Giudizio"] = $rangeGiudizi[$ASISfinalScore["Index"] - 1]['Giudizio'];
+                $generalScore["Index"] = $ASISfinalScore["Index"] - 1;
+            } else {
+                $generalScore = $ASISfinalScore;
+            }
+
+
             if ($scoreFL['Giudizio'] == 'Miglioramento') {
                 if ($generalScore["Index"] != 6) {
                     $generalScore["Giudizio"] = $rangeGiudizi[$ASISfinalScore["Index"] + 1]['Giudizio'];
@@ -1206,7 +1212,6 @@ class AllertaHelper
                     $generalScore["Index"] = $generalScore["Index"] - 1;
                 }
             }
-        }
 
         return $generalScore;
     }
