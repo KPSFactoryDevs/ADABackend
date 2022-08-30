@@ -24,7 +24,7 @@ Route::group(['middleware' => ['cors', 'json.response']], function () {
     Route::post('/logout', 'App\Http\Controllers\Auth\ApiAuthController@logout')->name('logout.api');
 
     // ANALISI DEL BILANCIO
-    Route::get('/analisiBilancioGeneral/{id}', 'App\Http\Controllers\AnalisisController@getAnalisiBilancioAdvanced');
+    Route::get('/analisiBilancioGeneral/{id}', 'App\Http\Controllers\AnalisisController@getAnalisiBilancioFull');
 
 
     // BILANCI

@@ -753,11 +753,11 @@ class BilanciHelper
 
         $arrayConVoci['Saldo_dei_Debiti_verso_il_Fisco'] = array('FondiRischiOneriTrattamentoQuiescenzaObblighiSimiliCorrente', 'DebitiDebitiTributariTotaleDebitiTributariCorrente', 'DifferenzaImposteReddito');
 
-        $bilanciHelper = new BilanciHelper;
+
 
         $explodedDate = new DateTime((explode(' ', $bilancio->year))[0]);
 
-        $valutazioneBilancio = $bilanciHelper->valutazioneIndici($dataAnalisis, $tipoAzienda, $explodedDate->format('Y'));
+        $valutazioneBilancio = $this->valutazioneIndici($dataAnalisis, $tipoAzienda, $explodedDate->format('Y'));
 
         $dataAnalisis["PFN_EBITDA"] = $dataAnalisis["PFN_EBITDA"] / 100;
         $dataAnalisis["Copertura_Lorda_OF"] = $dataAnalisis["Copertura_Lorda_OF"] / 100;
@@ -766,6 +766,103 @@ class BilanciHelper
         $dataAnalisis["Margine_Struttura_Primario"] = (float)str_replace('.', '', $dataAnalisis["Margine_Struttura_Primario"]) / 100;
         $dataAnalisis["Margine_Struttura_Secondario"] = (float)str_replace('.', '', $dataAnalisis["Margine_Struttura_Secondario"]) / 100;
 
-        return array('Indici' => $dataAnalisis, 'Giudizi' => $valutazioneBilancio);
+        $response = array(
+            'AnalisiBasic' => $this->getBasicAnalisi($tipoAzienda, $dataAnalisis, $dataAnalisis, $idBilancio),
+            'AnalisiAdvanced' => [
+                'Indici' => $dataAnalisis,
+                'Giudizi' => $valutazioneBilancio
+            ]
+        );
+
+        return $response;
+    }
+
+
+    public function getBasicAnalisi($tipoAzienda, $dataAnalisisBasic, $dataAnalisis, $idBilancio)
+    {
+        $basicData = array();
+
+
+        $dataAnalisisBasic['OF_Fatturato'] = str_replace(',', '.', $dataAnalisisBasic['OF_Fatturato']);
+        if (isset($dataAnalisisBasic['Adeguatezza_Patrimoniale'])) {
+            $dataAnalisisBasic['Adeguatezza_Patrimoniale'] = str_replace(',', '.', $dataAnalisisBasic['Adeguatezza_Patrimoniale']);
+        } else {
+            $dataAnalisisBasic['Adeguatezza_Patrimoniale'] = 0;
+        }
+
+        if (isset($dataAnalisisBasic['Liquidità'])) {
+            $dataAnalisisBasic['Liquidità'] = str_replace(',', '.', $dataAnalisisBasic['Liquidità']);
+        } else {
+            $dataAnalisisBasic['Liquidità'] = 0;
+        }
+
+        if (isset($dataAnalisisBasic['Indebitamento_Previdenziale_Tributario'])) {
+            $dataAnalisisBasic['Indebitamento_Previdenziale_Tributario'] = str_replace(',', '.', $dataAnalisisBasic['Indebitamento_Previdenziale_Tributario']);
+        } else {
+            $dataAnalisisBasic['Indebitamento_Previdenziale_Tributario'] = 0;
+        }
+
+        if (isset($dataAnalisisBasic['Current_Ratio'])) {
+            $dataAnalisis['Current_Ratio'] = str_replace(',', '.', $dataAnalisis['Current_Ratio']);
+        } else {
+            $dataAnalisis['Current_Ratio'] = 0;
+        }
+
+
+        if (DB::table('rangesBasic')->where('tipo_azienda', '=', $tipoAzienda)->where('indice', '=', 'Sostenibilità Oneri Finanziari')->where('soglia', '>', floatval($dataAnalisisBasic['OF_Fatturato']))->count()) {
+            $soglieBasic['Sostenibilità Oneri Finanziari'] = true;
+            $basicData['Sostenibilità Oneri Finanziari'] = floatval($dataAnalisisBasic['OF_Fatturato']);
+        } else {
+            $soglieBasic['Sostenibilità Oneri Finanziari'] = false;
+            $basicData['Sostenibilità Oneri Finanziari'] = floatval($dataAnalisisBasic['OF_Fatturato']);
+        }
+        if (DB::table('rangesBasic')->where('tipo_azienda', '=', $tipoAzienda)->where('indice', '=', 'Adeguatezza Patrimoniale')->where('soglia', '<', floatval($dataAnalisisBasic['Adeguatezza_Patrimoniale']))->count()) {
+            $soglieBasic['Adeguatezza Patrimoniale'] = true;
+            $basicData['Adeguatezza Patrimoniale'] = floatval($dataAnalisisBasic['Adeguatezza_Patrimoniale']);
+        } else {
+            $soglieBasic['Adeguatezza Patrimoniale'] = false;
+            $basicData['Adeguatezza Patrimoniale'] = floatval($dataAnalisisBasic['Adeguatezza_Patrimoniale']);
+        }
+
+        if (DB::table('rangesBasic')->where('tipo_azienda', '=', $tipoAzienda)->where('indice', '=', 'Liquidità')->where('soglia', '<', floatval($dataAnalisisBasic['Liquidità']))->count()) {
+            $soglieBasic['Liquidità'] = true;
+            $basicData['Liquidità'] = floatval($dataAnalisisBasic['Liquidità']);
+        } else {
+            $soglieBasic['Liquidità'] = false;
+            $basicData['Liquidità'] = floatval($dataAnalisisBasic['Liquidità']);
+        }
+        if (DB::table('rangesBasic')->where('tipo_azienda', '=', $tipoAzienda)->where('indice', '=', 'Indebitamento Previdenziale Tributario')->where('soglia', '>', floatval($dataAnalisisBasic['Indebitamento_Previdenziale_Tributario']))->count()) {
+            $soglieBasic['Indebitamento Previdenziale Tributario'] = true;
+            $basicData['Indebitamento Previdenziale Tributario'] = floatval($dataAnalisisBasic['Indebitamento_Previdenziale_Tributario']);
+        } else {
+            $soglieBasic['Indebitamento Previdenziale Tributario'] = false;
+            $basicData['Indebitamento Previdenziale Tributario'] = floatval($dataAnalisisBasic['Indebitamento_Previdenziale_Tributario']);
+        }
+        if (DB::table('rangesBasic')->where('tipo_azienda', '=', $tipoAzienda)->where('indice', '=', 'Ritorno Liquido Attivo')->where('soglia', '<', floatval($dataAnalisis['Current_Ratio']))->count()) {
+            $soglieBasic['Ritorno Liquido Attivo'] = true;
+            $basicData['Ritorno Liquido Attivo'] = floatval($dataAnalisis['Current_Ratio']);
+        } else {
+            $soglieBasic['Ritorno Liquido Attivo'] = false;
+            $basicData['Ritorno Liquido Attivo'] = floatval($dataAnalisis['Current_Ratio']);
+        }
+
+
+        // dd(floatval($dataAnalisis['Current_Ratio']), floatval($dataAnalisisBasic['OF_Fatturato']), floatval($dataAnalisisBasic['Adeguatezza_Patrimoniale']), floatval($dataAnalisisBasic['Liquidità']), floatval($dataAnalisisBasic['Indebitamento_Previdenziale_Tributario']));
+
+        $valutazioneAllertaBasic = true;
+
+        foreach ($soglieBasic as $label => $alert) {
+            if ($alert) {
+                $valutazioneAllertaBasic = false;
+            }
+        }
+
+        $sistemaBasic = DB::table('basic')->where('bilancio_id', '=', $idBilancio)->get()->toArray();
+
+        return array(
+            'Soglie' => $soglieBasic,
+            'Valori' => $basicData,
+            'InputData' => $sistemaBasic,
+        );
     }
 }
