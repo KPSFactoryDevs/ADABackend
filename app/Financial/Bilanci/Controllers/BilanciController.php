@@ -31,11 +31,11 @@ class BilanciController extends Controller
     {
         $bilancis = Bilanci::with('account');
 
-			if($request->header('currentcompany') || $request->header('currentcompany') === 0) {
-				$bilancis = $bilancis->where('company_id', $request->header('currentcompany'));
-			}
-		$bilancis = $bilancis->paginate(25);
+        if ($request->header('currentcompany') || $request->header('currentcompany') === 0) {
+            $bilancis = $bilancis->where('company_id', $request->header('currentcompany'));
+        }
 
+        $bilancis = $bilancis->paginate(25);
 
         foreach ($bilancis as $singleBilancio) {
             $year = explode(' ', $singleBilancio->year);
@@ -44,88 +44,44 @@ class BilanciController extends Controller
             $singleBilancio->company_name = json_decode($singleBilancio->json_data_anag)->DatiAnagraficiDenominazione;
             $singleBilancio->annoFormatted = date('Y', strtotime($year));
         }
+
         return response()->json([
             'error' => false,
             'data' => $bilancis
         ]);
-        return view('bilanci.index', compact('bilancis'));
     }
-
 
     /**
      * @return mixed
      */
     public function create()
     {
-
         $accounts = Account::pluck('name', 'id')->all();
         return view('bilanci.create', compact('accounts'));
     }
 
-	public function copiaBilancio(Request $request)
-	{
-		if($request->id) {
-			$bilancioReplicated = Bilanci::find($request->id);
-			$newBilancioCopy = $bilancioReplicated->replicate();
-			$newBilancioCopy->created_at = Carbon::now();
-			$newBilancioCopy->save();
+    public function copiaBilancio(Request $request)
+    {
+        if ($request->id) {
+            $bilancioReplicated = Bilanci::find($request->id);
+            $newBilancioCopy = $bilancioReplicated->replicate();
+            $newBilancioCopy->created_at = Carbon::now();
+            $newBilancioCopy->save();
+
+            return response()->json([
+                'error' => false,
+                'data' => "Il Bilancio è stato copiato correttamente"
+            ]);
+        } else {
+            return response()->json([
+                'error' => true,
+                'data' => "ID Bilancio non trovato"
+            ], 404);
+        }
+    }
 
 
-			return response()->json([
-				'error' => false,
-				'data' => "Il Bilancio è stato copiato correttamente"
-			]);
-		} else {
-			return response()->json([
-				'error' => true,
-				'data' => "ID Bilancio non trovato"
-			], 404);
-		}
-	}
 
-	public function bilancioPredefinito(Request $request) {
-		if($request->id) {
-			$bilancio = Bilanci::find($request->id);
-			$bilancio->predefinito = 1;
-			$bilancio->update();
-
-			return response()->json([
-				'error' => false,
-				'data' => 'Bilancio impostato come predefinito'
-			]);
-		} else {
-			return response()->json([
-				'error' => true,
-				'data' => 'ID Bilancio non trovato'
-			], 404);
-		}
-	}
-
-	public function getLatestYears()
-	{
-		$valoreDellaProduzioneUltimoAnno = Bilanci::pluck('json_data')->last();
-		$valoreDellaProduzioneAnnoPrev = Bilanci::pluck('json_data_prev')->last();
-
-		$valoreUltimoAnno = json_decode($valoreDellaProduzioneUltimoAnno);
-		$valoreAnnoPrecedente = json_decode($valoreDellaProduzioneAnnoPrev);
-
-		$latestYears = [
-			$yearPrev[] = [
-				'name' => '2020',
-				'data' => [$valoreAnnoPrecedente->TotaleValoreProduzione, 0],
-			],
-
-			$lastYear[] = [
-				'name' => '2021',
-				'data' => [0, $valoreUltimoAnno->TotaleValoreProduzione],
-			]
-		];
-
-		return response()->json([
-			'error' => false,
-			'date' => $latestYears
-		]);
-	}
 
     /**
      * @return mixed
@@ -143,12 +99,9 @@ class BilanciController extends Controller
         $file = $request->base64;
         $instance = false;
 
-
-
         $result = XBRL_Instance::FromInstanceDocumentWithExtensionTaxonomy($file->getPathName(),  base_path() . "/taxonomies/2018-11-04/itcc-ci-2018-11-04.xsd", 'XBRL', $instance);
 
         $contexts = ($result->getContexts()->getContexts());
-        //        dd($contexts);
         $years = array();
 
         foreach ($contexts as $cont) {
@@ -156,20 +109,15 @@ class BilanciController extends Controller
             $years[] = $cont['period']['endDate'];
         }
 
-
-
         usort($years, function ($a, $b) {
             return strtotime($a) - strtotime($b);
         });
 
         $years = array_values(array_unique($years));
-        //        dd($years);
 
         ksort($contexts);
-        //        dd($contexts );
 
         foreach ($contexts as $data => $value) {
-            //            dd($data, $value);
             if ($value['period']['type'] == 'duration') {
                 if ($value['period']['startDate'] == $years[0] && $value['period']['endDate'] == $years[1]) {
                     $prevCntxt_d = $data;
@@ -185,19 +133,14 @@ class BilanciController extends Controller
             }
         }
 
-        //        dd($currentCntxt_i,  $prevCntxt_i, $currentCntxt_d, $prevCntxt_d);
-
-        //        dd($currentCntxt, $prevCntxt);
         $date = array();
 
         foreach ($contexts as $data => $val) {
             $date[] = $val['period']['startDate'];
             $date[] = $val['period']['endDate'];
-            //            dd($date);
         }
         $ordDate = array_reverse(array_unique($date, SORT_STRING));
         sort($ordDate);
-        //        dd($ordDate);
 
         $jsonData['prevYear'] = $years[0] . ' ' . $years[1];
         $jsonData['currentYear'] = $years[2] . ' ' . $years[3];
@@ -205,24 +148,15 @@ class BilanciController extends Controller
         $elements = $result->getElements();
         $elements = $elements->getElements();
 
-        //        foreach ($elements as $key=>$element){
-        //            if (str_contains($key,'Comment')){
-        //                dump($element);
-        //            }
-        //        }
-        //        die();
-
         foreach ($elements as $key => $elemento) {
 
             $chiave = array_keys($elemento);
 
-            //            dd($key, $elemento, $chiave);
-
             if (count($elemento) == 2) {
                 $first = array_shift($elemento);
 
-                $valuePrev = 0;
-                $valueCurr = 0;
+                // $valuePrev = 0;
+                // $valueCurr = 0;
 
                 if (!isset($first['tuple_elements'])) {
                     if ($first['contextRef'] == $currentCntxt_d || $first['contextRef'] == $currentCntxt_i) {
@@ -416,8 +350,6 @@ class BilanciController extends Controller
                 }
             }
         }
-        //dd($contexts);
-        //        dd($jsonData);
 
         $voci = DB::table('vocis')->get();
         $gradi = array();
@@ -470,17 +402,11 @@ class BilanciController extends Controller
         }
         unset($gradi[0], $gradi[1], $gradi[2]);
 
-        //        dd($gradi);
-
         $vociExt = array();
 
         foreach ($voci as $voce) {
             $vociExt[$voce->name] = $voce->extended_name;
         }
-
-
-
-        // dd($jsonData);
 
         $currentYear = $jsonData['currentYear'];
         $prevYear = $jsonData['prevYear'];
@@ -500,8 +426,6 @@ class BilanciController extends Controller
             }
         }
 
-        // dd($support3);
-
         foreach ($vociExt as $name => $extName) {
             foreach (array('current', 'prev') as $index => $period) {
                 if (isset($support3[$extName][$period])) {
@@ -519,16 +443,9 @@ class BilanciController extends Controller
             }
         }
 
-        // dd($support3);
-
-        // dd($gradi, $vociExt);
-
         $indiciImportanti = Voci::select('name', 'extended_name', 'voce_padre')->where('required', 1)->orderBy('name')->get()->toArray();
 
         $vociBilancioMancanti = array();
-
-        // dd($support3, $indiciImportanti);
-
 
         foreach ($indiciImportanti as $index => $values) {
             if (!in_array($values['extended_name'], array_keys($support3))) {
@@ -558,30 +475,25 @@ class BilanciController extends Controller
         $request->session()->put('vociExt', $vociExt);
         $request->session()->put('account_id', $request->input('account_id'));
 
-
         return response()->json([
-
-				'vociBilancioMancanti' => $vociBilancioMancanti,
-                'extNames' => $extNames,
-                'mascheraOrdinata' => $this->mascheraOrdinata(),
-                'formaGiuridica' => $formaGiuridica,
-                'currentYear' => $currentYear,
-                'prevYear' => $prevYear,
-                'support3' => $support3,
-                'jsonData' => $jsonData,
-                'tipo_azienda' => $tipo_azienda,
-                'gradi' => $gradi,
-                'vociExt' => $vociExt,
-                'account_id' => $request->input('account_id')
-
+            'vociBilancioMancanti' => $vociBilancioMancanti,
+            'extNames' => $extNames,
+            'mascheraOrdinata' => $this->mascheraOrdinata(),
+            'formaGiuridica' => $formaGiuridica,
+            'currentYear' => $currentYear,
+            'prevYear' => $prevYear,
+            'support3' => $support3,
+            'jsonData' => $jsonData,
+            'tipo_azienda' => $tipo_azienda,
+            'gradi' => $gradi,
+            'vociExt' => $vociExt,
+            'account_id' => $request->input('account_id')
         ]);
     }
-
 
     public function getSonsFromFather($father, $extNames)
     {
         $singleBranch = array();
-        // dd($extNames);
         $sons = Voci::where('voce_padre', $father)->where('required', 1)->get();
         if (count($sons) == 0) {
             return $singleBranch;
@@ -594,34 +506,33 @@ class BilanciController extends Controller
         return $singleBranch;
     }
 
-
     /**
      * @return mixed
      */
     public function store(Request $request)
     {
-		if(isset($request->base64)) {
-		$importBilancio = $request->base64;
+        if (isset($request->base64)) {
+            $importBilancio = $request->base64;
 
-        $fileName = time() . '.xbrl';
+            $fileName = time() . '.xbrl';
 
-        Storage::disk('bilanci')->put($fileName, base64_decode($importBilancio));
+            Storage::disk('bilanci')->put($fileName, base64_decode($importBilancio));
 
-       //$importBilancio->move(asset('bilanci/'), $fileName, base64_decode($importBilancio));
+            //$importBilancio->move(asset('bilanci/'), $fileName, base64_decode($importBilancio));
 
-        $dataBilancio = [
-            'filename' => $fileName,
-            'path' => asset('bilanci') . '/' . $fileName,
-            'type' => 'bilancio'
-        ];
+            $dataBilancio = [
+                'filename' => $fileName,
+                'path' => asset('bilanci') . '/' . $fileName,
+                'type' => 'bilancio'
+            ];
 
-        Document::create($dataBilancio);
+            Document::create($dataBilancio);
 
-			return response()->json([
-				'error' => false,
-				'data' => $dataBilancio,
-			]);
-		}
+            return response()->json([
+                'error' => false,
+                'data' => $dataBilancio,
+            ]);
+        }
 
         $jsonData = array();
         $jsonDataPrev = array();
@@ -672,28 +583,7 @@ class BilanciController extends Controller
                     }
                 }
             }
-            /*if (count($alerts) != 0) {
-                return
-                    view('bilanci.recap')
-                    ->with([
-                        'extNames' => session('extNames'),
-                        'mascheraOrdinata' => session('mascheraOrdinata'),
-                        'formaGiuridica' => session('formaGiuridica'),
-                        'vociBilancioMancanti' => session('vociBilancioMancanti'),
-                        'currentYear' => session('currentYear'),
-                        'prevYear' => session('prevYear'),
-                        'support3' => session('support3'),
-                        'jsonData' => session('jsonData'),
-                        'tipo_azienda' => session('tipo_azienda'),
-                        'gradi' => session('gradi'),
-                        'vociExt' => session('vociExt'),
-                        'account_id' => session('account_id'),
-                        'alerts' => $alerts
-                    ]);
-            }*/
         }
-
-
 
         foreach ($request->input() as $singlereq => $singleValue) {
             $singleValue = str_replace('.', '', $singleValue);
@@ -724,10 +614,10 @@ class BilanciController extends Controller
         $currentYear = $request->input('currYear');
         $prevYear = $request->input('prevYear');
 
-$companyId = 0;
- if($request->header('currentcompany') || $request->header('currentcompany') === 0) {
-				$companyId = $request->header('currentcompany');
-}
+        $companyId = 0;
+        if ($request->header('currentcompany') || $request->header('currentcompany') === 0) {
+            $companyId = $request->header('currentcompany');
+        }
 
         $bilancio = Bilanci::create([
             'json_data' => $jsonDB,
@@ -739,20 +629,16 @@ $companyId = 0;
             'year' => $currentYear,
             'tipo_azienda' => $tipoAzienda,
             'forma_giuridica' => $formaGiuridica,
-			'company_id' => $companyId
+            'company_id' => $companyId
         ]);
 
-
         return response()->json([
-				'bilancioImported' => true,
-         		'tipo_azienda' => $tipoAzienda,
+            'bilancioImported' => true,
+            'tipo_azienda' => $tipoAzienda,
             'forma_giuridica' => $formaGiuridica
 
         ]);
-
-
     }
-
 
     /**
      * @param  User  $user
@@ -761,7 +647,6 @@ $companyId = 0;
      */
     public function show($id)
     {
-
         $bilanciHelper = new BilanciHelper();
         $gradi = $bilanciHelper->getVociTree();
 
@@ -775,18 +660,17 @@ $companyId = 0;
         $jsonData['prevYear'] = $attributes['prev_year'];
         $jsonData['alberatura'] = $gradi;
 
-
-        $voci = voci::select('name', 'extended_name')->where('required', 1)->get()->pluck('extended_name','name')->toArray();
+        $voci = voci::select('name', 'extended_name')->where('required', 1)->get()->pluck('extended_name', 'name')->toArray();
         $vociWithValuesCurrent = array();
         $vociWithValuesPrevious = array();
-        foreach($voci as $singleKey => $singleValye) {
-            if(isset($jsonData['current'][$singleValye])) {
+        foreach ($voci as $singleKey => $singleValye) {
+            if (isset($jsonData['current'][$singleValye])) {
                 $vociWithValuesCurrent[$singleKey] = $jsonData['current'][$singleValye];
             } else {
                 $vociWithValuesCurrent[$singleKey] = 0;
             }
 
-            if(isset($jsonData['prev'][$singleValye])) {
+            if (isset($jsonData['prev'][$singleValye])) {
                 $vociWithValuesPrevious[$singleKey] = $jsonData['prev'][$singleValye];
             } else {
                 $vociWithValuesPrevious[$singleKey] = 0;
@@ -795,19 +679,16 @@ $companyId = 0;
         $jsonData['vociDiBilancioConValoriCurrent']  = $vociWithValuesCurrent;
         $jsonData['vociDiBilancioConValoriPrevious']  = $vociWithValuesPrevious;
 
-
         return response()->json([
             'error' => false,
             'jsonData' => $jsonData,
         ]);
-
-        return view('bilanci.show')->with(['jsonData' => $jsonData]);
     }
 
 
     public function destroy($idBilancio)
     {
-        if(!$idBilancio) {
+        if (!$idBilancio) {
             return response()->json([
                 'error' => true,
                 'message' => 'Specifica l\'Id del bilancio',
@@ -828,85 +709,8 @@ $companyId = 0;
                 'message' => $e,
             ]);
         }
-   }
-
-    public function showCurrent(Request $request)
-    {
-        $bilancioId = $request->route('bilancio');
-        $bilancio = Bilanci::where('id', $bilancioId)->get()->first();
-        $attributes = $bilancio->getAttributes();
-        $jsonData['current'] = json_decode($attributes['json_data'], true);
-        $jsonData['prev'] = json_decode($attributes['json_data_prev'], true);
-        $jsonData['anagrafic'] = json_decode($attributes['json_data_anag'], true);
-        $jsonData['currentYear'] = $attributes['current_year'];
-        $jsonData['prevYear'] = $attributes['prev_year'];
-        $tipoAzienda = $attributes['tipo_azienda'];
-        $formaGiuridica = $attributes['forma_giuridica'];
-
-        $voci = DB::table('vocis')->get();
-        $gradi = array();
-
-        foreach ($voci as $voce) {
-            if ($voce->voce_padre == null || $voce->voce_padre == "") {
-                $h1[$voce->name] = $voce->extended_name;
-                $gradi[] = array();
-            } else {
-                foreach ($voci as $voci1) {
-                    if ($voce->voce_padre == $voci1->name) {
-                        if ($voci1->voce_padre == null || $voci1->voce_padre == "") {
-                            $gradi[$voci1->name][$voce->name] = array();
-                        } else {
-                            foreach ($voci as $voci2) {
-                                if ($voci1->voce_padre == $voci2->name) {
-                                    if ($voci2->voce_padre == null || $voci2->voce_padre == "") {
-                                        $gradi[$voci2->name][$voci1->name][$voce->name] = array();
-                                    } else {
-                                        foreach ($voci as $voci3) {
-                                            if ($voci2->voce_padre == $voci3->name) {
-                                                if ($voci3->voce_padre == null || $voci3->voce_padre == "") {
-                                                    $gradi[$voci3->name][$voci2->name][$voci1->name][$voce->name] = array();
-                                                } else {
-                                                    foreach ($voci as $voci4) {
-                                                        if ($voci3->voce_padre == $voci4->name) {
-                                                            if ($voci4->voce_padre == null || $voci4->voce_padre == "") {
-                                                                $gradi[$voci4->name][$voci3->name][$voci2->name][$voci1->name][$voce->name] = array();
-                                                            } else {
-                                                                foreach ($voci as $voci5) {
-                                                                    if ($voci4->voce_padre == $voci5->name) {
-                                                                        if ($voci5->voce_padre == null || $voci5->voce_padre == "") {
-                                                                            $gradi[$voci5->name][$voci4->name][$voci3->name][$voci2->name][$voci1->name][$voce->name] = array();
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        unset($gradi[0], $gradi[1], $gradi[2]);
-
-        //        dd($gradi);
-
-        $vociExt = array();
-
-        foreach ($voci as $voce) {
-            $vociExt[$voce->name] = $voce->extended_name;
-        }
-        if ($bilancio->provvisorio == 1) {
-            return view('bilanci.showProvvisorio')->with(['formaGiuridica' => $formaGiuridica, 'jsonData' => $jsonData, 'tipo_azienda' => $tipoAzienda, 'account_id' => 0, 'gradi' => $gradi, 'vociExt' => $vociExt, 'required' => $required]);
-        }
-
-        return view('bilanci.recapImported')->with(['formaGiuridica' => $formaGiuridica, 'jsonData' => $jsonData, 'tipo_azienda' => $tipoAzienda, 'account_id' => 0, 'gradi' => $gradi, 'vociExt' => $vociExt]);
     }
+
 
     public function mascheraOrdinata()
     {
