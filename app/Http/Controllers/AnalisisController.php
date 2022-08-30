@@ -13,10 +13,7 @@ class AnalisisController extends Controller
 {
 
 
-
-
-
-    public function getAnalisiBilancioAdvanced($idBilancio)
+    public function getAnalisiBilancioFull($idBilancio)
     {
         $bilancioHelper = new BilanciHelper;
         $analisiResult = $bilancioHelper->getAnalisiBilancio($idBilancio);
