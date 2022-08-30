@@ -1260,7 +1260,7 @@ class AllertaHelper
     }
 
 
-    public function getArrayQuestionarioAsIs($id, $idCr) 
+    public function getArrayQuestionarioAsIs($id, $idCr)
     {
         $arrayQuestionario = array();
         $questionario = DB::table('questionario')->where('document_id', $idCr)->where('bilancio_id', $id)->get();
@@ -1272,7 +1272,7 @@ class AllertaHelper
         return $arrayQuestionario;
     }
 
-    public function getArrayQuestionarioToBe($id, $idCr) 
+    public function getArrayQuestionarioToBe($id, $idCr)
     {
         $arrayForwardLooking = array();
         $forwardLooking = DB::table('forwardlooking')->get();
@@ -1281,5 +1281,88 @@ class AllertaHelper
         }
 
         return $arrayForwardLooking;
+    }
+
+    public function valutazioneFL($arrayForwardLooking)  //api
+    {
+        $scoreFL = 0;
+        $peso = 0.08333;
+        $giudizio = '';
+
+        foreach ($arrayForwardLooking as $label => $value) {
+            switch ($value) {
+                case 1:
+                    $scoreFL += (0 * $peso);
+                    break;
+                case 2:
+                    $scoreFL += (1 * $peso);
+                    break;
+                case 3:
+                    $scoreFL += (-1 * $peso);
+                    break;
+            }
+        }
+
+        if ($scoreFL >= -1 && $scoreFL <= -0.17) {
+            $giudizio = 'Peggioramento';
+        } else if ($scoreFL >= -0.016 && $scoreFL <= 0.32) {
+            $giudizio = 'Stabilità';
+        } else if ($scoreFL >= 0.33 && $scoreFL <= 1) {
+            $giudizio = 'Miglioramento';
+        }
+
+        return array("Valore" => $scoreFL, "Giudizio" => $giudizio);
+    }
+
+
+    public function valutazioneQuestionarioQualitativo($arrayQuestionario)
+    {
+        $pesi = $this->getPesiASIS();
+        $scoreASIS = [];
+
+        foreach ($arrayQuestionario as $label => $result) {
+            $explodedLabel = explode('-', $label)[0];
+            $value = $pesi[$label]['peso'] * $pesi[$label]['score'][$result['Result']];
+            $scoreASIS[$explodedLabel] = $value;
+        }
+
+        return $scoreASIS;
+    }
+
+    public function getPesiASIS()
+    {
+        return array(
+            "1-1" => array("peso" => 0.09, "score" => array("Si" => -0.5, "No" => 1)),
+            "1-2" => array("peso" => 0.15, "score" => array("Si" => -0.5, "No" => 1)),
+            "1-3" => array("peso" => 0.15, "score" => array("Si" => -0.5, "No" => 1)),
+            "1-4" => array("peso" => 0.15, "score" => array("Si" => -0.5, "No" => 1)),
+            "1-5" => array("peso" => 0.15, "score" => array("Si" => -0.5, "No" => 1)),
+            "1-6" => array("peso" => 0.11, "score" => array("Si" => -0.5, "No" => 1)),
+            "1-7" => array("peso" => 0.11, "score" => array("Si" => -0.5, "No" => 1)),
+            "1-8" => array("peso" => 0.09, "score" => array("Si" => -0.5, "No" => 1)),
+
+            "2-1" => array("peso" => 0.11, "score" => array("Si" => -0.7, "No" => 1)),
+            "2-2" => array("peso" => 0.1, "score" => array("Si" => -0.5, "No" => 1)),
+            "2-3" => array("peso" => 0.1, "score" => array("Si" => -0.5, "No" => 1)),
+            "2-4" => array("peso" => 0.11, "score" => array("Si" => -1, "No" => 1)),
+            "2-5" => array("peso" => 0.1, "score" => array("Si" => -0.5, "No" => 1)),
+            "2-6" => array("peso" => 0.11, "score" => array("Si" => -0.7, "No" => 1)),
+            "2-7" => array("peso" => 0.1, "score" => array("Si" => -0.5, "No" => 1)),
+            "2-8" => array("peso" => 0.0, "score" => array("Si" => -0.5, "No" => 1)),
+            "2-9" => array("peso" => 0.1, "score" => array("Si" => -0.5, "No" => 1)),
+            "2-10" => array("peso" => 0.1, "score" => array("Si" => -0.5, "No" => 1)),
+
+            "3-1" => array("peso" => 0.3, "score" => array("Si" => -0.7, "No" => 1)),
+            "3-2" => array("peso" => 0.3, "score" => array("Si" => -0.5, "No" => 1)),
+            "3-3" => array("peso" => 0.2, "score" => array("Si" => -0.5, "No" => 1)),
+            "3-4" => array("peso" => 0.2, "score" => array("Si" => -0.5, "No" => 1)),
+
+            "4-1" => array("peso" => 0.166, "score" => array("Si" => -0.5, "No" => 1)),
+            "4-2" => array("peso" => 0.166, "score" => array("Si" => -0.5, "No" => 1)),
+            "4-3" => array("peso" => 0.156, "score" => array("Si" => -0.5, "No" => 1)),
+            "4-4" => array("peso" => 0.166, "score" => array("Si" => -0.5, "No" => 1)),
+            "4-5" => array("peso" => 0.18, "score" => array("Si" => -1, "No" => 1)),
+            "4-6" => array("peso" => 0.166, "score" => array("Si" => -0.5, "No" => 1))
+        );
     }
 }

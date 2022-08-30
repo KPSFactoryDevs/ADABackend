@@ -24,8 +24,7 @@ Route::group(['middleware' => ['cors', 'json.response']], function () {
     Route::post('/logout', 'App\Http\Controllers\Auth\ApiAuthController@logout')->name('logout.api');
 
     // ANALISI DEL BILANCIO
-    Route::get('/analisiBilancioGeneral/{id}', 'App\Http\Controllers\AnalisisController@show');
-    Route::post('/analisiBilancioGeneral', 'App\Http\Controllers\AnalisisController@store');
+    Route::get('/analisiBilancioGeneral/{id}', 'App\Http\Controllers\AnalisisController@getAnalisiBilancioAdvanced');
 
 
     // BILANCI
@@ -57,15 +56,13 @@ Route::group(['middleware' => ['cors', 'json.response']], function () {
     Route::post('/questionarioAsis', 'App\Http\Controllers\AllertaController@questionarioSistemaAllerta');
     Route::post('/forwardlooking', 'App\Http\Controllers\AllertaController@forwardLooking');
 
-    // GET LAST SCORES BILANCIO - CR - ALLERTA
-    Route::get('/getScores', 'App\Http\Controllers\AllertaController@getAllScores');
 
     // Utente
     Route::post('/createUser', 'App\Http\Controllers\Frontend\User\AccountController@store');
 
     // PDF MONKEY
     Route::get('/reportBasicPDF/{id}', 'App\Http\Controllers\PDFController@reportBasicPdf');
-    Route::get('/reportAllerta/{years}', 'App\Http\Controllers\PDFController@reportAllerta');
+    Route::get('/reportAllerta/{years}/{idCr}', 'App\Http\Controllers\PDFController@reportAllerta');
 
     // Companies
     Route::get('/company', 'App\Http\Controllers\CompaniesController@index');
