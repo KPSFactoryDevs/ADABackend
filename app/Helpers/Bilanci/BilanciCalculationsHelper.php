@@ -8,11 +8,18 @@ class BilanciCalculationsHelper
 {
 
     public $_bilancioJSON = [];
+    public $_bilancioJSONPrev = [];
 
     public function setBilancioData($bilancioJSON)
     {
         $this->_bilancioJSON = $bilancioJSON;
         $this->sanitizeData();
+    }
+
+    public function setBilancioDataPrev($bilancioJSONPrev)
+    {
+        $this->_bilancioJSONPrev = $bilancioJSONPrev;
+        $this->sanitizeDataPrev();
     }
 
 
@@ -27,10 +34,30 @@ class BilanciCalculationsHelper
         $this->_bilancioJSON = $cleanData;
     }
 
+    public function sanitizeDataPrev()
+    {
+        $cleanData = new stdClass;
+
+        foreach ($this->_bilancioJSONPrev as $singleKey => $singleValue) {
+            $cleanData->$singleKey = (float)$singleValue;
+        }
+
+        $this->_bilancioJSONPrev = $cleanData;
+    }
+
     public function getDataFromBilancio($dataExtendedName)
     {
-
         $data = $this->_bilancioJSON->$dataExtendedName;
+        if (!$data) {
+            $data = 0;
+        }
+
+        return (float)$data;
+    }
+
+    public function getDataFromBilancioPrev($dataExtendedName)
+    {
+        $data = $this->_bilancioJSONPrev->$dataExtendedName;
         if (!$data) {
             $data = 0;
         }
@@ -78,7 +105,7 @@ class BilanciCalculationsHelper
         $TotaleDebiti = $this->getTotaleDebiti();
         $PassivoRateiRisconti = $this->getDataFromBilancio('PassivoRateiRisconti');
 
-        $ADEGUATEZZA_PATRIMONIALE = number_format((float)($PN_NEGATIVO / ($TotaleDebiti + (float)$PassivoRateiRisconti)) * 100, 2, ',', '');
+        $ADEGUATEZZA_PATRIMONIALE = number_format(($PN_NEGATIVO / ($TotaleDebiti + $PassivoRateiRisconti)) * 100, 2, ',', '');
 
         return $ADEGUATEZZA_PATRIMONIALE . '%';
     }
@@ -147,13 +174,116 @@ class BilanciCalculationsHelper
         $ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari = $this->getDataFromBilancio('ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari');
         $ValoreProduzioneRicaviVenditePrestazioni = $this->getDataFromBilancio('ValoreProduzioneRicaviVenditePrestazioni');
         $TotaleAttivo = $this->getDataFromBilancio('TotaleAttivo');
+        $UtilePerditaEsercizio = $this->getDataFromBilancio('UtilePerditaEsercizio');
+        $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni = $this->getDataFromBilancio('CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni');
+        $CostiProduzioneAltriAccantonamenti = $this->getDataFromBilancio('CostiProduzioneAltriAccantonamenti');
+        
 
         if ($TotaleAttivo == 0) {
             $LIQUIDITA = 0;
             $dataAnalisis['LIQUIDITA'] = $LIQUIDITA . '%';
         } else {
-            $LIQUIDITA = number_format((($UtilePerditaEsercizio + $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni + $CostiProduzioneAccantonamentiRischi + $CostiProduzioneAltriAccantonamenti) / $TotaleAttivo) * 100, 2, ',', '');
+            $LIQUIDITA = number_format((($UtilePerditaEsercizio + $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni + (float)$CostiProduzioneAccantonamentiRischi + (float)$CostiProduzioneAltriAccantonamenti) / (float)$TotaleAttivo) * 100, 2, ',', '');
             $dataAnalisis['LIQUIDITA'] = $LIQUIDITA . '%';
         }
+
+        $data = [
+            'CostiProduzioneAccantonamentiRischi' => $CostiProduzioneAccantonamentiRischi,
+            'ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari' => $ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari,
+            'ValoreProduzioneRicaviVenditePrestazioni' => $ValoreProduzioneRicaviVenditePrestazioni,
+            'LIQUIDITA' => $LIQUIDITA . '%',
+        ];
+
+        return $data;
+    }
+
+    public function getIndebitamentoPrevidenzialeTributario() 
+    {
+        $DebitiDebitiTributariTotaleDebitiTributariCorrente = $this->getDataFromBilancio('DebitiDebitiTributariTotaleDebitiTributari');
+        $DebitiDebitiTributariTotaleDebitiTributari = $this->getDataFromBilancio('DebitiDebitiTributariTotaleDebitiTributari');
+        $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale = $this->getDataFromBilancio('DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale');
+        $ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari = $this->getDataFromBilancio('ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari');
+        $ValoreProduzioneRicaviVenditePrestazioni = $this->getDataFromBilancio('ValoreProduzioneRicaviVenditePrestazioni');
+        $TotaleAttivo = $this->getDataFromBilancio('TotaleAttivo');
+
+        if ($TotaleAttivo == 0) {
+            $INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO = number_format((($DebitiDebitiTributariTotaleDebitiTributari + $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale) / 1) * 100, 2, ',', '');
+            $dataAnalisis['INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO'] = $INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO . '%';
+        } else {
+            $INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO = number_format((($DebitiDebitiTributariTotaleDebitiTributari + $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale) / $TotaleAttivo) * 100, 2, ',', '');
+            $dataAnalisis['INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO'] = $INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO . '%';
+        }
+
+        $data = [
+            'DebitiDebitiTributariTotaleDebitiTributariCorrente' => $DebitiDebitiTributariTotaleDebitiTributariCorrente,
+            'DebitiDebitiTributariTotaleDebitiTributari' => $DebitiDebitiTributariTotaleDebitiTributari,
+            'DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale' => $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale,
+            'ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari' => $ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari,
+            'ValoreProduzioneRicaviVenditePrestazioni' => $ValoreProduzioneRicaviVenditePrestazioni,
+            'INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO' => $INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO . '%'
+        ];
+
+        return $data;
+    }
+
+    public function getAndamentoDelFatturato() 
+    {
+        $ValoreProduzioneRicaviVenditePrestazioniCurr = $this->getDataFromBilancio('ValoreProduzioneRicaviVenditePrestazioni');
+        $ValoreProduzioneRicaviVenditePrestazioniPrev = $this->getDataFromBilancioPrev('ValoreProduzioneRicaviVenditePrestazioni');
+        if ($ValoreProduzioneRicaviVenditePrestazioniPrev == 0) {
+            $AndamentoDelFatturato = number_format((float)(- (1 - (($ValoreProduzioneRicaviVenditePrestazioniCurr) / (1)))) * 100, 2, ',', '');
+            $dataAnalisis['Andamento_del_fatturato'] = $AndamentoDelFatturato . '%';
+        } else {
+            $AndamentoDelFatturato = number_format((float)(- (1 - (($ValoreProduzioneRicaviVenditePrestazioniCurr) / ($ValoreProduzioneRicaviVenditePrestazioniPrev)))) * 100, 2, ',', '');
+            $dataAnalisis['Andamento_del_fatturato'] = $AndamentoDelFatturato . '%';
+        }
+
+        return $AndamentoDelFatturato . '%';        
+    }
+
+    public function getAndamentoDelMol() 
+    {
+        // Curr
+        $TotaleValoreProduzione = $this->getDataFromBilancio('TotaleValoreProduzione');
+        $CostiProduzioneMateriePrimeSussidiarieConsumoMerci = $this->getDataFromBilancio('CostiProduzioneMateriePrimeSussidiarieConsumoMerci');
+        $CostiProduzioneGodimentoBeniTerzi = $this->getDataFromBilancio('CostiProduzioneGodimentoBeniTerzi');
+        $CostiProduzioneServizi = $this->getDataFromBilancio('CostiProduzioneServizi');
+        $CostiProduzionePersonaleTotaleCostiPersonale = $this->getDataFromBilancio('CostiProduzionePersonaleTotaleCostiPersonale');
+        $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci = $this->getDataFromBilancio('CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci');
+        $CostiProduzioneOneriDiversiGestione = $this->getDataFromBilancio('CostiProduzioneOneriDiversiGestione');
+
+        // Prev
+        $TotaleValoreProduzionePrecedente = $this->getDataFromBilancioPrev('TotaleValoreProduzione');
+        $CostiProduzioneMateriePrimeSussidiarieConsumoMerciPrecedente = $this->getDataFromBilancioPrev('CostiProduzioneMateriePrimeSussidiarieConsumoMerci');
+        $CostiProduzioneGodimentoBeniTerziPrecedente = $this->getDataFromBilancioPrev('CostiProduzioneGodimentoBeniTerzi');
+        $CostiProduzioneServiziPrecedente = $this->getDataFromBilancioPrev('CostiProduzioneServizi');
+        $CostiProduzionePersonaleTotaleCostiPersonalePrecedente = $this->getDataFromBilancioPrev('CostiProduzionePersonaleTotaleCostiPersonale');
+        $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerciPrecedente = $this->getDataFromBilancioPrev('CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci');
+        $CostiProduzioneOneriDiversiGestionePrecedente = $this->getDataFromBilancioPrev('CostiProduzioneOneriDiversiGestione');
+
+        $MOLcurr = $TotaleValoreProduzione - $CostiProduzioneMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneGodimentoBeniTerzi - $CostiProduzioneServizi - $CostiProduzionePersonaleTotaleCostiPersonale - $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneOneriDiversiGestione;
+        $MOLprev = $TotaleValoreProduzionePrecedente - $CostiProduzioneMateriePrimeSussidiarieConsumoMerciPrecedente - $CostiProduzioneGodimentoBeniTerziPrecedente - $CostiProduzioneServiziPrecedente - $CostiProduzionePersonaleTotaleCostiPersonalePrecedente - $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerciPrecedente - $CostiProduzioneOneriDiversiGestionePrecedente;
+
+        if ($MOLprev == 0) {
+            $AndamentoMOL = number_format(- (1 - ($MOLcurr / 1)) * 100, 2, ',', '');
+            $dataAnalisis['Andamento_del_MOL'] = $AndamentoMOL . '%';
+        } else {
+            $AndamentoMOL = number_format(- (1 - ($MOLcurr / $MOLprev)) * 100, 2, ',', '');
+            $dataAnalisis['Andamento_del_MOL'] = $AndamentoMOL . '%';
+        }
+
+        $data = [
+            'TotaleValoreProduzione' => $TotaleValoreProduzione,
+            'CostiProduzioneMateriePrimeSussidiarieConsumoMerci' => $CostiProduzioneMateriePrimeSussidiarieConsumoMerci,
+            'CostiProduzioneGodimentoBeniTerzi' => $CostiProduzioneGodimentoBeniTerzi,
+            'CostiProduzioneServizi' => $CostiProduzioneServizi,
+            'CostiProduzionePersonaleTotaleCostiPersonale' => $CostiProduzionePersonaleTotaleCostiPersonale,
+            'CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci' => $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci,
+            'CostiProduzioneOneriDiversiGestione' => $CostiProduzioneOneriDiversiGestione,
+            'MOLcurr' => $MOLcurr,
+            'AndamentoMOL' => $AndamentoMOL . '%',
+        ];
+
+        return $data;
     }
 }
