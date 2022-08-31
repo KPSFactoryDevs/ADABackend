@@ -461,4 +461,5 @@ class BilanciCalculationsHelper
 
         return $RITORNO_LIQUIDO_ATTIVO . '%';
     }
+
 }

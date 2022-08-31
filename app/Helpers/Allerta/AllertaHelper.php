@@ -1262,7 +1262,120 @@ class AllertaHelper
 
     public function getArrayQuestionarioAsIs($id, $idCr)
     {
-        $arrayQuestionario = array();
+        $arrayQuestionario = [
+            "1-1" => [
+                "Result" => "No",
+                "Details" => ""
+            ],
+            "1-2" => [
+                "Result" => "No",
+                "Details" => ""
+            ],
+            "1-3" => [
+                "Result" => "No",
+                "Details" => ""
+            ],
+            "1-4" => [
+                "Result" => "No",
+                "Details" => ""
+            ],
+            "1-5" => [
+                "Result" => "No",
+                "Details" => ""
+            ],
+            "1-6" => [
+                "Result" => "No",
+                "Details" => ""
+            ],
+            "1-7" => [
+                "Result" => "No",
+                "Details" => ""
+            ],
+            "1-8" => [
+                "Result" => "No",
+                "Details" => ""
+            ],
+            "2-1" => [
+                "Result" => "No",
+                "Details" => ""
+            ],
+            "2-2" => [
+                "Result" => "No",
+                "Details" => ""
+            ],
+            "2-3" => [
+                "Result" => "No",
+                "Details" => ""
+            ],
+            "2-4" => [
+                "Result" => "No",
+                "Details" => ""
+            ],
+            "2-5" => [
+                "Result" => "No",
+                "Details" => ""
+            ],
+            "2-6" => [
+                "Result" => "No",
+                "Details" => ""
+            ],
+            "2-7" => [
+                "Result" => "No",
+                "Details" => ""
+            ],
+            "2-8" => [
+                "Result" => "No",
+                "Details" => ""
+            ],
+            "2-9" => [
+                "Result" => "No",
+                "Details" => ""
+            ],
+            "2-10" => [
+                "Result" => "No",
+                "Details" => ""
+            ],
+            "3-1" => [
+                "Result" => "No",
+                "Details" => ""
+            ],
+            "3-2" => [
+                "Result" => "No",
+                "Details" => ""
+            ],
+            "3-3" => [
+                "Result" => "No",
+                "Details" => ""
+            ],
+            "3-4" => [
+                "Result" => "No",
+                "Details" => ""
+            ],
+            "4-1" => [
+                "Result" => "No",
+                "Details" => ""
+            ],
+            "4-2" => [
+                "Result" => "No",
+                "Details" => ""
+            ],
+            "4-3" => [
+                "Result" => "No",
+                "Details" => ""
+            ],
+            "4-4" => [
+                "Result" => "No",
+                "Details" => ""
+            ],
+            "4-5" => [
+                "Result" => "No",
+                "Details" => ""
+            ],
+            "4-6" => [
+                "Result" => "No",
+                "Details" => ""
+            ]
+        ];
 
         $questionario = DB::table('questionario')->where('document_id', $idCr)->where('bilancio_id', $id)->get();
        
