@@ -133,36 +133,9 @@ class BilanciCalculationsHelper
         return (float)$DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo + (float)$DebitiAccontiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo + (float)$DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo;
     }
 
-
-    public function getRitornoLiquidoAttivo()
-    {
-        $DebitiEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiEsigibiliEntroEsercizioSuccessivo');
-        $TotaleDisponibilitaLiquide = $this->getDataFromBilancio('TotaleDisponibilitaLiquide');
-        $AttivoRateiRisconti = $this->getDataFromBilancio('AttivoRateiRisconti');
-        $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni = $this->getDataFromBilancio('TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni');
-        $TotaleRimanenze = $this->getDataFromBilancio('TotaleRimanenze');
-        $TotaleCrediti = $this->getDataFromBilancio('TotaleCrediti');
-
-        $PassivoRateiRisconti = $this->getDataFromBilancio('PassivoRateiRisconti');
-
-        $data = [
-            'DebitiEsigibiliEntroEsercizioSuccessivo' => $DebitiEsigibiliEntroEsercizioSuccessivo,
-            'TotaleDisponibilitaLiquide' => $TotaleDisponibilitaLiquide,
-            'AttivoRateiRisconti' => $AttivoRateiRisconti,
-            'TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni' => $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni,
-            'TotaleRimanenze' => $TotaleRimanenze,
-            'TotaleCrediti' => $TotaleCrediti,
-            'PassivoRateiRisconti' => $PassivoRateiRisconti,
-        ];
-
-        return $data;
-    }
-
     public function getLiquidita()
     {
         $CostiProduzioneAccantonamentiRischi = $this->getDataFromBilancio('CostiProduzioneAccantonamentiRischi');
-        $ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari = $this->getDataFromBilancio('ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari');
-        $ValoreProduzioneRicaviVenditePrestazioni = $this->getDataFromBilancio('ValoreProduzioneRicaviVenditePrestazioni');
         $TotaleAttivo = $this->getDataFromBilancio('TotaleAttivo');
         $UtilePerditaEsercizio = $this->getDataFromBilancio('UtilePerditaEsercizio');
         $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni = $this->getDataFromBilancio('CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni');
@@ -177,23 +150,13 @@ class BilanciCalculationsHelper
             $dataAnalisis['LIQUIDITA'] = $LIQUIDITA . '%';
         }
 
-        $data = [
-            'CostiProduzioneAccantonamentiRischi' => $CostiProduzioneAccantonamentiRischi,
-            'ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari' => $ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari,
-            'ValoreProduzioneRicaviVenditePrestazioni' => $ValoreProduzioneRicaviVenditePrestazioni,
-            'LIQUIDITA' => $LIQUIDITA . '%',
-        ];
-
-        return $data;
+        return $LIQUIDITA . '%';
     }
 
     public function getIndebitamentoPrevidenzialeTributario()
     {
-        $DebitiDebitiTributariTotaleDebitiTributariCorrente = $this->getDataFromBilancio('DebitiDebitiTributariTotaleDebitiTributari');
         $DebitiDebitiTributariTotaleDebitiTributari = $this->getDataFromBilancio('DebitiDebitiTributariTotaleDebitiTributari');
         $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale = $this->getDataFromBilancio('DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale');
-        $ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari = $this->getDataFromBilancio('ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari');
-        $ValoreProduzioneRicaviVenditePrestazioni = $this->getDataFromBilancio('ValoreProduzioneRicaviVenditePrestazioni');
         $TotaleAttivo = $this->getDataFromBilancio('TotaleAttivo');
 
         if ($TotaleAttivo == 0) {
@@ -204,16 +167,7 @@ class BilanciCalculationsHelper
             $dataAnalisis['INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO'] = $INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO . '%';
         }
 
-        $data = [
-            'DebitiDebitiTributariTotaleDebitiTributariCorrente' => $DebitiDebitiTributariTotaleDebitiTributariCorrente,
-            'DebitiDebitiTributariTotaleDebitiTributari' => $DebitiDebitiTributariTotaleDebitiTributari,
-            'DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale' => $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale,
-            'ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari' => $ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari,
-            'ValoreProduzioneRicaviVenditePrestazioni' => $ValoreProduzioneRicaviVenditePrestazioni,
-            'INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO' => $INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO . '%'
-        ];
-
-        return $data;
+        return $INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO . '%';
     }
 
     public function getAndamentoDelFatturato()
@@ -460,6 +414,72 @@ class BilanciCalculationsHelper
         $RITORNO_LIQUIDO_ATTIVO = number_format((float)$formula * 100, 2, ',', '');
 
         return $RITORNO_LIQUIDO_ATTIVO . '%';
+    }
+
+    public function getAttivitaPassivitaABreve() 
+    {
+        // TRENTACINQUE
+        $CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo');
+        $CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo');
+        $CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo');
+        $CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo = ($this->getDataFromBilancio('CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo') ? $this->getDataFromBilancio('CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo') : $this->getDataFromBilancioPrev('CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo'));
+        $CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo = ($this->getDataFromBilancio('CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo') ? $this->getDataFromBilancio('CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo') : $this->getDataFromBilancioPrev('CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo'));
+        $TrentaCinque = $CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo + $CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo + $CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo;
+       
+
+        // QUARANTANOVE
+        $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo');
+        $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo');
+        $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo = ($this->getDataFromBilancio('DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo') ? $this->getDataFromBilancio('DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo') : $this->getDataFromBilancioPrev('DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo'));
+        $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo');
+        $DebitiAccontiEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiAccontiEsigibiliEntroEsercizioSuccessivo');
+        $DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo = ($this->getDataFromBilancio('DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo') ? $this->getDataFromBilancio('DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo') : $this->getDataFromBilancioPrev('DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo'));
+        $DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo');
+        $DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo');
+        $DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo');
+        $DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo');
+        $DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo = ($this->getDataFromBilancio('DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo') ? $this->getDataFromBilancio('DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo') : $this->getDataFromBilancioPrev('DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo'));
+        $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo = ($this->getDataFromBilancio('DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo') ? $this->getDataFromBilancio('DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo') : $this->getDataFromBilancioPrev('DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo'));
+        $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo');
+        $DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo');
+      
+        $PassivoRateiRisconti = $this->getDataFromBilancio('PassivoRateiRisconti');
+        $TotaleDisponibilitaLiquide = $this->getDataFromBilancio('TotaleDisponibilitaLiquide');
+        $TotaleRimanenze = $this->getDataFromBilancio('TotaleRimanenze');
+        $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni = $this->getDataFromBilancio('TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni');
+        $AttivoRateiRisconti = $this->getDataFromBilancio('AttivoRateiRisconti');
+
+        $QuarantaNove = $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo + $DebitiAccontiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo + $DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo;
+        $CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo');
+
+        $Attivita_a_breve_Passivita_a_Breve_Ordinario_divisore = $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo + $DebitiAccontiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo + $DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo + $PassivoRateiRisconti;
+
+        if ($Attivita_a_breve_Passivita_a_Breve_Ordinario_divisore > 0) {
+            $Attivita_a_breve_Passivita_a_Breve_Ordinario = number_format(((($TotaleDisponibilitaLiquide + $CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo + $CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo + $CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo + $CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo + $TotaleRimanenze + $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + $AttivoRateiRisconti) / ($Attivita_a_breve_Passivita_a_Breve_Ordinario_divisore))) * 100, 2, ',', '');
+            $dataAnalisis['Attivita_a_breve_Passività_a_Breve_Ordinario'] = $Attivita_a_breve_Passivita_a_Breve_Ordinario . '%';
+        }
+
+        $data = [
+            'DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo' => $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo,
+            'DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo' => $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo,
+            'DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo' => $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo,
+            'DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo' => $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo,
+            'DebitiAccontiEsigibiliEntroEsercizioSuccessivo' => $DebitiAccontiEsigibiliEntroEsercizioSuccessivo,
+            'DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo' => $DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo,
+            'DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo' => $DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo,
+            'DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo' => $DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo,
+            'DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo' => $DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo,
+            'DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo' => $DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo,
+            'DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo' => $DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo,
+            'DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo' => $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo,
+            'DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo' => $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo,
+            'DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo' => $DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo,
+            'Attivita_a_breve_Passività_a_Breve_Ordinario' => $Attivita_a_breve_Passivita_a_Breve_Ordinario . '%',
+            'QuarantaNove' => $QuarantaNove,
+            'TrentaCinque' => $TrentaCinque
+        ];
+
+        return $data;
     }
 
 }
