@@ -1062,7 +1062,7 @@ class AllertaHelper
         } else if ($bilancioData['Giudizi']['Score'] >= 0.28 && $bilancioData['Giudizi']['Score'] < 0.42) {
             $resultAnalisiBilancio = "Alert";
         } else if ($bilancioData['Giudizi']['Score'] >= 0.42 && $bilancioData['Giudizi']['Score'] < 0.56) {
-            echo "Rischio alert";
+            $resultAnalisiBilancio = "Rischio alert";
         } else if ($bilancioData['Giudizi']['Score'] >= 0.56 && $bilancioData['Giudizi']['Score'] < 0.70) {
             $resultAnalisiBilancio = "Fragilità elevata";
         } else if ($bilancioData['Giudizi']['Score'] >= 0.70 && $bilancioData['Giudizi']['Score'] < 0.85) {
