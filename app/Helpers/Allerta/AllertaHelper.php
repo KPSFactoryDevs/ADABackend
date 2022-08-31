@@ -1263,20 +1263,37 @@ class AllertaHelper
     public function getArrayQuestionarioAsIs($id, $idCr)
     {
         $arrayQuestionario = array();
+
         $questionario = DB::table('questionario')->where('document_id', $idCr)->where('bilancio_id', $id)->get();
-        foreach ($questionario as $item => $data) {
-            $arrayQuestionario[$data->parameter]['Result'] = $data->result;
-            $arrayQuestionario[$data->parameter]['Details'] = $data->details == null ? '' : $data->details;
-        }
+       
+            foreach ($questionario as $item => $data) {
+                $arrayQuestionario[$data->parameter]['Result'] = $data->result;
+                $arrayQuestionario[$data->parameter]['Details'] = $data->details == null ? '' : $data->details;
+            }
 
         return $arrayQuestionario;
     }
 
     public function getArrayQuestionarioToBe($id, $idCr)
     {
-        $arrayForwardLooking = array();
+        $arrayForwardLooking = array(
+            "forwardLooking1" => 0,
+            "forwardLooking2" => 0,
+            "forwardLooking3" => 0,
+            "forwardLooking4" => 0,
+            "forwardLooking5" => 0,
+            "forwardLooking6" => 0,
+            "forwardLooking7" => 0,
+            "forwardLooking8" => 0,
+            "forwardLooking9" => 0,
+            "forwardLooking10" => 0,
+            "forwardLooking11" => 0,
+            "forwardLooking12" => 0
+        );
+
         $forwardLooking = DB::table('forwardlooking')->where('document_id', $idCr)->where('bilancio_id', $id)->get();
       
+        
         foreach ($forwardLooking as $item => $data) {
             $arrayForwardLooking[$data->question] = $data->answer;
         }
