@@ -239,6 +239,12 @@ class CentraleRischiController extends Controller
                 $earlierDate = new DateTime(cr::select('date')->where('document_id', $crAndamentaleData['period'])->orderBy('date', 'desc')->first()->date);
                 $earlierDate = $earlierDate->modify('-11 months')->modify('first day of this month');
             } else {
+                if(!is_int($crAndamentaleData['data_inizio']) || !is_int($crAndamentaleData['data_fine'])) {
+                    return response()->json([
+                        'error' => true,
+                        'message' => 'Invalid data range specified'
+                    ]);
+                }
                 $earlierDate = $crAndamentaleData['data_inizio'];
                 $lastDate = $crAndamentaleData['data_fine'];
 
