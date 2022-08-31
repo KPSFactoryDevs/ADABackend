@@ -336,8 +336,8 @@ class BilanciHelper
         $TotaleRimanenze = $getRitornoLiquidoAttivo['TotaleRimanenze'];
         $PassivoRateiRisconti = $getRitornoLiquidoAttivo['PassivoRateiRisconti'];
 
-        $TotaleCreditiEntroDodiciMesi = $bilancioCalculationHelper->getTotaleCreditiEntroDodiciMesi();
-        $TotaleDebitiEntroDodiciMesi = $bilancioCalculationHelper->getTotaleDebitiEntroDodiciMesi();
+        // $TotaleCreditiEntroDodiciMesi = $bilancioCalculationHelper->getTotaleCreditiEntroDodiciMesi();
+        // $TotaleDebitiEntroDodiciMesi = $bilancioCalculationHelper->getTotaleDebitiEntroDodiciMesi();
 
         // ### LIQUIDITA ###
         $getLiquidita = $bilancioCalculationHelper->getLiquidita();
