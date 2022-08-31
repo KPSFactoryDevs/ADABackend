@@ -243,7 +243,7 @@ class CentraleRischiController extends Controller
                     return response()->json([
                         'error' => true,
                         'message' => 'Invalid data range specified'
-                    ]);
+                    ], 400);
                 }
                 $earlierDate = $crAndamentaleData['data_inizio'];
                 $lastDate = $crAndamentaleData['data_fine'];
