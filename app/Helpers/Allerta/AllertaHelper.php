@@ -1275,11 +1275,12 @@ class AllertaHelper
     public function getArrayQuestionarioToBe($id, $idCr)
     {
         $arrayForwardLooking = array();
-        $forwardLooking = DB::table('forwardlooking')->get();
+        $forwardLooking = DB::table('forwardlooking')->where('document_id', $idCr)->where('bilancio_id', $id)->get();
+      
         foreach ($forwardLooking as $item => $data) {
             $arrayForwardLooking[$data->question] = $data->answer;
         }
-
+   
         return $arrayForwardLooking;
     }
 

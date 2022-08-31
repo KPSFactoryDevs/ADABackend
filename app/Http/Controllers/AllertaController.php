@@ -74,14 +74,14 @@ class AllertaController extends Controller
             return response()->json([
                 'error' => true,
                 'message' => 'Non è stata caricata nessuna Centrale Rischi'
-            ], 204);
+            ], 400);
         }
 
         if (!Bilanci::findOrFail($id) || !isset($id)) {
             return response()->json([
                 'error' => true,
                 'message' => 'Non è stato trovato nessun Bilancio'
-            ], 204);
+            ], 400);
         }
 
 
@@ -97,8 +97,8 @@ class AllertaController extends Controller
 
         $bilancioHelper = new BilanciHelper;
 
-        $getAsIsDataFromDB = $allertaHelper->getQuestionarioAsis($id, $idCr);
-        $getToBeDataFromDB = $allertaHelper->getQuestionarioToBe($id, $idCr);
+       // $getAsIsDataFromDB = $allertaHelper->getQuestionarioAsis($id, $idCr);
+       // $getToBeDataFromDB = $allertaHelper->getQuestionarioToBe($id, $idCr);
 
         $ASISfinalScore = false;
         $scoreASIS = array('1' => 0, '2' => 0, '3' => 0, '4' => 0);
@@ -146,8 +146,6 @@ class AllertaController extends Controller
         $alerts['16'] = $allertaHelper->getAnalisiCRSedici($banks);
         $punteggioCR = $allertaHelper->getPunteggioCR($alerts);
 
-
-
         $arrayQuestionario = $allertaHelper->getArrayQuestionarioAsIs($id, $idCr);
         $arrayForwardLooking = $allertaHelper->getArrayQuestionarioToBe($id, $idCr);
 
@@ -174,8 +172,8 @@ class AllertaController extends Controller
             'pageData' => [
                 'scoreCR' => $scoreCR,
                 'crAlerts' => $alerts,
-                'arrayQuestionarioAsIs' => $getAsIsDataFromDB,  // questionario per document id e bilancio id
-                'arrayForwardLookingToBe' => $getToBeDataFromDB,
+                'arrayQuestionarioAsIs' => $arrayQuestionario,  // questionario per document id e bilancio id
+                'arrayForwardLookingToBe' => $arrayForwardLooking,
                 'bilancioData' => $bilancioData
             ],
             'GeneralScore' => [
