@@ -59,7 +59,7 @@ class AllertaController extends Controller
         unset($arrayForwarLooking['_token']);
 
         foreach ($arrayForwarLooking as $index => $singleAnswer) {
-            DB::table('forwarlooking')->insert([
+            DB::table('forwardlooking')->insert([
                 'question' => $index,
                 'answer' => $singleAnswer,
                 'date' => date("Y/m/d"),
