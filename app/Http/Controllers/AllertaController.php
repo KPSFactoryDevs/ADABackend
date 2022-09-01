@@ -54,12 +54,12 @@ class AllertaController extends Controller
     {
         $documentId = $request->document_id;
         $bilancioId = $request->bilancio_id;
-        $arrayForwarLooking = $request->forwardLooking;
+        $arrayForwarLooking = $request->forwardlooking;
 
         unset($arrayForwarLooking['_token']);
 
         foreach ($arrayForwarLooking as $index => $singleAnswer) {
-            DB::table('forwardLooking')->insert([
+            DB::table('forwarlooking')->insert([
                 'question' => $index,
                 'answer' => $singleAnswer,
                 'date' => date("Y/m/d"),
