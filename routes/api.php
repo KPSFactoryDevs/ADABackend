@@ -68,8 +68,7 @@ Route::group(['middleware' => ['cors', 'json.response']], function () {
     Route::get('/company', 'App\Http\Controllers\CompaniesController@index');
     Route::get('/createCompany', 'App\Http\Controllers\CompaniesController@create');
     Route::get('/showCompany/{company}', 'App\Http\Controllers\CompaniesController@show');
-    Route::get('/editCompany/{company}', 'App\Http\Controllers\CompaniesController@edit');
     Route::post('/company', 'App\Http\Controllers\CompaniesController@store');
-    Route::put('/company/{company}', 'App\Http\Controllers\CompaniesController@update');
+    Route::post('/editCompany/{company}', 'App\Http\Controllers\CompaniesController@update');
     Route::delete('/company/{company}', 'App\Http\Controllers\CompaniesController@destroy');
 });
