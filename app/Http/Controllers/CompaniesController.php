@@ -107,10 +107,11 @@ dd($exception);
      * @return Illuminate\Http\RedirectResponse | Illuminate\Routing\Redirector
      */
     public function update($id, Request $request)
-    {	dd($request);
+    {	
         try {
             $data = $this->getData($request);
-            dd($data);
+
+         
             $company = Company::findOrFail($id);
             $company->update($data);
 

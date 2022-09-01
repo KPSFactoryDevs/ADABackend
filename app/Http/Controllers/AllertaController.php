@@ -26,21 +26,29 @@ class AllertaController extends Controller
         $arrayQuestionario = $request->questionario;
 
         
-        foreach ($arrayQuestionario as $domanda => $risposta) {
-            DB::table('questionario')->insert([
-                'result' => $risposta['response'],
-                'parameter' => $domanda,
-                'details' => $risposta['details'],
-                'date' => date("Y/m/d"),
-                'document_id' => $documentId,
-                'bilancio_id' =>  $bilancioId
-            ]);
+       $questionarioAsIs = DB::table('questionario')->where('document_id', $documentId)->where('bilancio_id', $bilancioId)->get();
+
+       if(count($questionarioAsIs) > 0) {
+            DB::table('questionario')->where('document_id', $documentId)->where('bilancio_id', $bilancioId)->delete();
+       } 
+           
+       foreach ($arrayQuestionario as $domanda => $risposta) {
+                DB::table('questionario')->insert([
+                    'result' => $risposta['response'],
+                    'parameter' => $domanda,
+                    'details' => $risposta['details'],
+                    'date' => date("Y/m/d"),
+                    'document_id' => $documentId,
+                    'bilancio_id' =>  $bilancioId
+                ]);
         }
 
-        return response()->json([
-            'error' => false,
-            'data' => 'Dati inviati correttamente'
-        ], 200);
+            return response()->json([
+                'error' => false,
+                'data' => 'Dati inviati correttamente'
+            ], 200);
+        
+
     }
 
 
