@@ -25,6 +25,7 @@ class AllertaController extends Controller
         $bilancioId = $request->bilancio_id;
         $arrayQuestionario = $request->questionario;
 
+        
         foreach ($arrayQuestionario as $domanda => $risposta) {
             DB::table('questionario')->insert([
                 'result' => $risposta['response'],

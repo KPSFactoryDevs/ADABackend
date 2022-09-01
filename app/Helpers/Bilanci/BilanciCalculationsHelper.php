@@ -133,36 +133,9 @@ class BilanciCalculationsHelper
         return (float)$DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo + (float)$DebitiAccontiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo + (float)$DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo;
     }
 
-
-    public function getRitornoLiquidoAttivo()
-    {
-        $DebitiEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiEsigibiliEntroEsercizioSuccessivo');
-        $TotaleDisponibilitaLiquide = $this->getDataFromBilancio('TotaleDisponibilitaLiquide');
-        $AttivoRateiRisconti = $this->getDataFromBilancio('AttivoRateiRisconti');
-        $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni = $this->getDataFromBilancio('TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni');
-        $TotaleRimanenze = $this->getDataFromBilancio('TotaleRimanenze');
-        $TotaleCrediti = $this->getDataFromBilancio('TotaleCrediti');
-
-        $PassivoRateiRisconti = $this->getDataFromBilancio('PassivoRateiRisconti');
-
-        $data = [
-            'DebitiEsigibiliEntroEsercizioSuccessivo' => $DebitiEsigibiliEntroEsercizioSuccessivo,
-            'TotaleDisponibilitaLiquide' => $TotaleDisponibilitaLiquide,
-            'AttivoRateiRisconti' => $AttivoRateiRisconti,
-            'TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni' => $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni,
-            'TotaleRimanenze' => $TotaleRimanenze,
-            'TotaleCrediti' => $TotaleCrediti,
-            'PassivoRateiRisconti' => $PassivoRateiRisconti,
-        ];
-
-        return $data;
-    }
-
     public function getLiquidita()
     {
         $CostiProduzioneAccantonamentiRischi = $this->getDataFromBilancio('CostiProduzioneAccantonamentiRischi');
-        $ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari = $this->getDataFromBilancio('ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari');
-        $ValoreProduzioneRicaviVenditePrestazioni = $this->getDataFromBilancio('ValoreProduzioneRicaviVenditePrestazioni');
         $TotaleAttivo = $this->getDataFromBilancio('TotaleAttivo');
         $UtilePerditaEsercizio = $this->getDataFromBilancio('UtilePerditaEsercizio');
         $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni = $this->getDataFromBilancio('CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni');
@@ -171,49 +144,30 @@ class BilanciCalculationsHelper
 
         if ($TotaleAttivo == 0) {
             $LIQUIDITA = 0;
-            $dataAnalisis['LIQUIDITA'] = $LIQUIDITA . '%';
+           // $dataAnalisis['LIQUIDITA'] = $LIQUIDITA . '%';
         } else {
             $LIQUIDITA = number_format((($UtilePerditaEsercizio + $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni + (float)$CostiProduzioneAccantonamentiRischi + (float)$CostiProduzioneAltriAccantonamenti) / (float)$TotaleAttivo) * 100, 2, ',', '');
-            $dataAnalisis['LIQUIDITA'] = $LIQUIDITA . '%';
+           // $dataAnalisis['LIQUIDITA'] = $LIQUIDITA . '%';
         }
 
-        $data = [
-            'CostiProduzioneAccantonamentiRischi' => $CostiProduzioneAccantonamentiRischi,
-            'ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari' => $ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari,
-            'ValoreProduzioneRicaviVenditePrestazioni' => $ValoreProduzioneRicaviVenditePrestazioni,
-            'LIQUIDITA' => $LIQUIDITA . '%',
-        ];
-
-        return $data;
+        return $LIQUIDITA . '%';
     }
 
     public function getIndebitamentoPrevidenzialeTributario()
     {
-        $DebitiDebitiTributariTotaleDebitiTributariCorrente = $this->getDataFromBilancio('DebitiDebitiTributariTotaleDebitiTributari');
         $DebitiDebitiTributariTotaleDebitiTributari = $this->getDataFromBilancio('DebitiDebitiTributariTotaleDebitiTributari');
         $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale = $this->getDataFromBilancio('DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale');
-        $ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari = $this->getDataFromBilancio('ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari');
-        $ValoreProduzioneRicaviVenditePrestazioni = $this->getDataFromBilancio('ValoreProduzioneRicaviVenditePrestazioni');
         $TotaleAttivo = $this->getDataFromBilancio('TotaleAttivo');
 
         if ($TotaleAttivo == 0) {
             $INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO = number_format((($DebitiDebitiTributariTotaleDebitiTributari + $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale) / 1) * 100, 2, ',', '');
-            $dataAnalisis['INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO'] = $INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO . '%';
+           // $dataAnalisis['INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO'] = $INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO . '%';
         } else {
             $INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO = number_format((($DebitiDebitiTributariTotaleDebitiTributari + $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale) / $TotaleAttivo) * 100, 2, ',', '');
-            $dataAnalisis['INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO'] = $INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO . '%';
+           // $dataAnalisis['INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO'] = $INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO . '%';
         }
 
-        $data = [
-            'DebitiDebitiTributariTotaleDebitiTributariCorrente' => $DebitiDebitiTributariTotaleDebitiTributariCorrente,
-            'DebitiDebitiTributariTotaleDebitiTributari' => $DebitiDebitiTributariTotaleDebitiTributari,
-            'DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale' => $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale,
-            'ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari' => $ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari,
-            'ValoreProduzioneRicaviVenditePrestazioni' => $ValoreProduzioneRicaviVenditePrestazioni,
-            'INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO' => $INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO . '%'
-        ];
-
-        return $data;
+        return $INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO . '%';
     }
 
     public function getAndamentoDelFatturato()
@@ -222,10 +176,10 @@ class BilanciCalculationsHelper
         $ValoreProduzioneRicaviVenditePrestazioniPrev = $this->getDataFromBilancioPrev('ValoreProduzioneRicaviVenditePrestazioni');
         if ($ValoreProduzioneRicaviVenditePrestazioniPrev == 0) {
             $AndamentoDelFatturato = number_format((- (1 - (($ValoreProduzioneRicaviVenditePrestazioniCurr) / (1)))) * 100, 2, ',', '');
-            $dataAnalisis['Andamento_del_fatturato'] = $AndamentoDelFatturato . '%';
+           // $dataAnalisis['Andamento_del_fatturato'] = $AndamentoDelFatturato . '%';
         } else {
             $AndamentoDelFatturato = number_format((- (1 - (($ValoreProduzioneRicaviVenditePrestazioniCurr) / ($ValoreProduzioneRicaviVenditePrestazioniPrev)))) * 100, 2, ',', '');
-            $dataAnalisis['Andamento_del_fatturato'] = $AndamentoDelFatturato . '%';
+           // $dataAnalisis['Andamento_del_fatturato'] = $AndamentoDelFatturato . '%';
         }
 
         return $AndamentoDelFatturato . '%';
@@ -256,10 +210,10 @@ class BilanciCalculationsHelper
 
         if ($MOLprev == 0) {
             $AndamentoMOL = number_format(- (1 - ($MOLcurr / 1)) * 100, 2, ',', '');
-            $dataAnalisis['Andamento_del_MOL'] = $AndamentoMOL . '%';
+           // $dataAnalisis['Andamento_del_MOL'] = $AndamentoMOL . '%';
         } else {
             $AndamentoMOL = number_format(- (1 - ($MOLcurr / $MOLprev)) * 100, 2, ',', '');
-            $dataAnalisis['Andamento_del_MOL'] = $AndamentoMOL . '%';
+           // $dataAnalisis['Andamento_del_MOL'] = $AndamentoMOL . '%';
         }
 
         $data = [
@@ -284,10 +238,10 @@ class BilanciCalculationsHelper
 
         if ($TotaleAttivo == 0) {
             $ROI = number_format(($DifferenzaValoreCostiProduzione / 1) * 100, 2, ',', '');
-            $dataAnalisis['ROI'] = $ROI . '%';
+           // $dataAnalisis['ROI'] = $ROI . '%';
         } else {
             $ROI = number_format(($DifferenzaValoreCostiProduzione / $TotaleAttivo) * 100, 2, ',', '');
-            $dataAnalisis['ROI'] = $ROI . '%';
+           // $dataAnalisis['ROI'] = $ROI . '%';
         }
 
         $data = [
@@ -306,10 +260,10 @@ class BilanciCalculationsHelper
 
         if ($ValoreProduzioneRicaviVenditePrestazioni == 0) {
             $ROS = number_format(($DifferenzaValoreCostiProduzione / 1) * 100, 2, ',', '');
-            $dataAnalisis['ROS'] = $ROS . '%';
+           // $dataAnalisis['ROS'] = $ROS . '%';
         } else {
             $ROS = number_format(($DifferenzaValoreCostiProduzione / $ValoreProduzioneRicaviVenditePrestazioni) * 100, 2, ',', '');
-            $dataAnalisis['ROS'] = $ROS . '%';
+           // $dataAnalisis['ROS'] = $ROS . '%';
         }
 
         return $ROS . '%';
@@ -322,10 +276,10 @@ class BilanciCalculationsHelper
 
         if ($TotalePatrimonioNetto == 0) {
             $ROE = number_format(($UtilePerditaEsercizio / 1) * 100, 2, ',', '');
-            $dataAnalisis['ROE'] = $ROE . '%';
+           // $dataAnalisis['ROE'] = $ROE . '%';
         } else {
             $ROE = number_format(($UtilePerditaEsercizio / $TotalePatrimonioNetto) * 100, 2, ',', '');
-            $dataAnalisis['ROE'] = $ROE . '%';
+           // $dataAnalisis['ROE'] = $ROE . '%';
         }
 
         return $ROE . '%';
@@ -344,10 +298,10 @@ class BilanciCalculationsHelper
 
         if ($ValoreProduzioneRicaviVenditePrestazioni == 0) {
             $EBITDA_FATTURATO = number_format((($TotaleValoreProduzione - $CostiProduzioneMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneServizi - $CostiProduzioneGodimentoBeniTerzi - $CostiProduzionePersonaleTotaleCostiPersonale - $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneOneriDiversiGestione) / 1) * 100, 2, ',', '');
-            $dataAnalisis['EBITDA_Fatturato'] = $EBITDA_FATTURATO . '%';
+           // $dataAnalisis['EBITDA_Fatturato'] = $EBITDA_FATTURATO . '%';
         } else {
             $EBITDA_FATTURATO = number_format((($TotaleValoreProduzione - $CostiProduzioneMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneServizi - $CostiProduzioneGodimentoBeniTerzi - $CostiProduzionePersonaleTotaleCostiPersonale - $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneOneriDiversiGestione) / $ValoreProduzioneRicaviVenditePrestazioni) * 100, 2, ',', '');
-            $dataAnalisis['EBITDA_Fatturato'] = $EBITDA_FATTURATO . '%';
+           // $dataAnalisis['EBITDA_Fatturato'] = $EBITDA_FATTURATO . '%';
         }
 
         return $EBITDA_FATTURATO . '%';
@@ -360,10 +314,10 @@ class BilanciCalculationsHelper
 
         if ($TotalePatrimonioNettoPrev == 0) {
             $AndamentoDeiMezziPropri = number_format((($TotalePatrimonioNettoCurr / 1) - 1) * 100, 2, ',', '');
-            $dataAnalisis['Andamento_dei_mezzi_propri'] = $AndamentoDeiMezziPropri . '%';
+           // $dataAnalisis['Andamento_dei_mezzi_propri'] = $AndamentoDeiMezziPropri . '%';
         } else {
             $AndamentoDeiMezziPropri = number_format((($TotalePatrimonioNettoCurr / $TotalePatrimonioNettoPrev) - 1) * 100, 2, ',', '');
-            $dataAnalisis['Andamento_dei_mezzi_propri'] = $AndamentoDeiMezziPropri . '%';
+           // $dataAnalisis['Andamento_dei_mezzi_propri'] = $AndamentoDeiMezziPropri . '%';
         }
 
         return $AndamentoDeiMezziPropri . '%';
@@ -376,10 +330,10 @@ class BilanciCalculationsHelper
 
         if ($TotaleImmobilizzazioni == 0) {
             $Margine_Struttura_Primario = number_format((float)($TotalePatrimonioNetto / 1) * 100, 2, ',', '');
-            $dataAnalisis['Margine_Struttura_Primario'] = $Margine_Struttura_Primario;
+           // $dataAnalisis['Margine_Struttura_Primario'] = $Margine_Struttura_Primario;
         } else {
             $Margine_Struttura_Primario = number_format((float)($TotalePatrimonioNetto / $TotaleImmobilizzazioni) * 100, 2, ',', '');
-            $dataAnalisis['Margine_Struttura_Primario'] = $Margine_Struttura_Primario;
+           // $dataAnalisis['Margine_Struttura_Primario'] = $Margine_Struttura_Primario;
         }
 
         $data = [
@@ -412,10 +366,10 @@ class BilanciCalculationsHelper
 
         if ($TotaleImmobilizzazioni == 0) {
             $Margine_Struttura_Secondario_Semplificato = number_format((($TotalePatrimonioNetto + $TrattamentoFineRapportoLavoroSubordinato + $DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo + $DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo + $DebitiAccontiEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoFornitoriEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiRappresentatiTitoliCreditoEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoImpreseControllateEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoImpreseCollegateEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoControllantiEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo + $DebitiAltriDebitiEsigibiliOltreEsercizioSuccessivo) / 1) * 100, 2, ',', '');
-            $dataAnalisis['Margine_Struttura_Secondario'] = $Margine_Struttura_Secondario_Semplificato;
+           // $dataAnalisis['Margine_Struttura_Secondario'] = $Margine_Struttura_Secondario_Semplificato;
         } else {
             $Margine_Struttura_Secondario_Semplificato = number_format((($TotalePatrimonioNetto + $TrattamentoFineRapportoLavoroSubordinato + $DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo + $DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo + $DebitiAccontiEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoFornitoriEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiRappresentatiTitoliCreditoEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoImpreseControllateEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoImpreseCollegateEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoControllantiEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo + $DebitiAltriDebitiEsigibiliOltreEsercizioSuccessivo) / $TotaleImmobilizzazioni) * 100, 2, ',', '');
-            $dataAnalisis['Margine_Struttura_Secondario'] = $Margine_Struttura_Secondario_Semplificato;
+           // $dataAnalisis['Margine_Struttura_Secondario'] = $Margine_Struttura_Secondario_Semplificato;
         }
 
         $data = [
@@ -462,4 +416,357 @@ class BilanciCalculationsHelper
         return $RITORNO_LIQUIDO_ATTIVO . '%';
     }
 
+    public function getAttivitaPassivitaABreve() 
+    {
+        // TRENTACINQUE
+        $CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo');
+        $CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo');
+        $CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo');
+        $CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo = ($this->getDataFromBilancio('CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo') ? $this->getDataFromBilancio('CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo') : $this->getDataFromBilancioPrev('CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo'));
+        $CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo = ($this->getDataFromBilancio('CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo') ? $this->getDataFromBilancio('CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo') : $this->getDataFromBilancioPrev('CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo'));
+        $TrentaCinque = $CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo + $CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo + $CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo;
+       
+
+        // QUARANTANOVE
+        $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo');
+        $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo');
+        $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo = ($this->getDataFromBilancio('DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo') ? $this->getDataFromBilancio('DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo') : $this->getDataFromBilancioPrev('DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo'));
+        $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo');
+        $DebitiAccontiEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiAccontiEsigibiliEntroEsercizioSuccessivo');
+        $DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo = ($this->getDataFromBilancio('DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo') ? $this->getDataFromBilancio('DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo') : $this->getDataFromBilancioPrev('DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo'));
+        $DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo');
+        $DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo');
+        $DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo');
+        $DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo');
+        $DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo = ($this->getDataFromBilancio('DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo') ? $this->getDataFromBilancio('DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo') : $this->getDataFromBilancioPrev('DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo'));
+        $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo = ($this->getDataFromBilancio('DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo') ? $this->getDataFromBilancio('DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo') : $this->getDataFromBilancioPrev('DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo'));
+        $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo');
+        $DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo');
+      
+        $PassivoRateiRisconti = $this->getDataFromBilancio('PassivoRateiRisconti');
+        $TotaleDisponibilitaLiquide = $this->getDataFromBilancio('TotaleDisponibilitaLiquide');
+        $TotaleRimanenze = $this->getDataFromBilancio('TotaleRimanenze');
+        $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni = $this->getDataFromBilancio('TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni');
+        $AttivoRateiRisconti = $this->getDataFromBilancio('AttivoRateiRisconti');
+
+        $QuarantaNove = $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo + $DebitiAccontiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo + $DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo;
+        $CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo');
+
+        $Attivita_a_breve_Passivita_a_Breve_Ordinario_divisore = $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo + $DebitiAccontiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo + $DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo + $PassivoRateiRisconti;
+
+        if ($Attivita_a_breve_Passivita_a_Breve_Ordinario_divisore > 0) {
+            $Attivita_a_breve_Passivita_a_Breve_Ordinario = number_format(((($TotaleDisponibilitaLiquide + $CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo + $CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo + $CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo + $CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo + $TotaleRimanenze + $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + $AttivoRateiRisconti) / ($Attivita_a_breve_Passivita_a_Breve_Ordinario_divisore))) * 100, 2, ',', '');
+           // $dataAnalisis['Attivita_a_breve_Passività_a_Breve_Ordinario'] = $Attivita_a_breve_Passivita_a_Breve_Ordinario . '%';
+        }
+
+        $data = [
+            'DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo' => $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo,
+            'DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo' => $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo,
+            'DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo' => $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo,
+            'DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo' => $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo,
+            'DebitiAccontiEsigibiliEntroEsercizioSuccessivo' => $DebitiAccontiEsigibiliEntroEsercizioSuccessivo,
+            'DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo' => $DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo,
+            'DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo' => $DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo,
+            'DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo' => $DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo,
+            'DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo' => $DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo,
+            'DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo' => $DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo,
+            'DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo' => $DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo,
+            'DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo' => $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo,
+            'DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo' => $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo,
+            'DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo' => $DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo,
+            'Attivita_a_breve_Passività_a_Breve_Ordinario' => $Attivita_a_breve_Passivita_a_Breve_Ordinario . '%',
+            'QuarantaNove' => $QuarantaNove,
+            'TrentaCinque' => $TrentaCinque
+        ];
+
+        return $data;
+    }
+
+    public function getAcidTest() 
+    {
+        $DebitiEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiEsigibiliEntroEsercizioSuccessivo');
+        $PassivoRateiRisconti = $this->getDataFromBilancio('PassivoRateiRisconti');
+        $TotaleCrediti = $this->getDataFromBilancio('TotaleCrediti');
+        $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni = $this->getDataFromBilancio('TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni');
+        $TotaleDisponibilitaLiquide = $this->getDataFromBilancio('TotaleDisponibilitaLiquide');
+        $AttivoRateiRisconti = $this->getDataFromBilancio('AttivoRateiRisconti');
+
+        if ($DebitiEsigibiliEntroEsercizioSuccessivo > 0 || $PassivoRateiRisconti > 0) {
+            $AcidTest = number_format((float)(((float)$TotaleCrediti + (float)$TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + (float)$TotaleDisponibilitaLiquide + (float)$AttivoRateiRisconti) / ((float)$DebitiEsigibiliEntroEsercizioSuccessivo + (float)$PassivoRateiRisconti)), 2, ',', '');
+             // $dataAnalisis['AcidTest'] = $AcidTest.'%';
+        } 
+
+        return $AcidTest. '%';
+    }
+
+    public function getAcidTestSemplificato() 
+    {
+        $getAttivitaPassivitaABreve = $this->getAttivitaPassivitaABreve();
+        $QuarantaNove = $getAttivitaPassivitaABreve['QuarantaNove'];
+        $TrentaCinque = $getAttivitaPassivitaABreve['TrentaCinque'];
+
+        $TotaleRimanenze = $this->getDataFromBilancio('TotaleRimanenze');
+        $PassivoRateiRisconti = $this->getDataFromBilancio('PassivoRateiRisconti');
+        $TotaleDisponibilitaLiquide = $this->getDataFromBilancio('TotaleDisponibilitaLiquide');
+        $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni = $this->getDataFromBilancio('TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni');
+        $AttivoRateiRisconti = $this->getDataFromBilancio('AttivoRateiRisconti');
+
+        if ($QuarantaNove > 0 || $PassivoRateiRisconti > 0) {
+            $ACID_TEST_Semplificato = number_format((float)((((float)$TotaleDisponibilitaLiquide + (float)$TrentaCinque + (float)$TotaleRimanenze + (float)$TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + (float)$AttivoRateiRisconti - (float)$TotaleRimanenze) / ((float)$QuarantaNove + (float)$PassivoRateiRisconti))), 2, ',', '');
+            // $dataAnalisis['ACID_TEST_Semplificato'] = $ACID_TEST_Semplificato.'%';
+        } 
+
+        return $ACID_TEST_Semplificato.'%';
+    }
+
+    public function getAcidTestOrdinario() 
+    {
+        $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo');
+        $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo');
+        $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo = ($this->getDataFromBilancio('DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo') ? $this->getDataFromBilancio('DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo') : $this->getDataFromBilancioPrev('DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo'));
+        $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo');
+        $DebitiAccontiEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiAccontiEsigibiliEntroEsercizioSuccessivo');
+        $DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo = ($this->getDataFromBilancio('DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo') ? $this->getDataFromBilancio('DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo') : $this->getDataFromBilancioPrev('DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo'));
+        $DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo');
+        $DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo');
+        $DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo');
+        $DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo');
+        $DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo = ($this->getDataFromBilancio('DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo') ? $this->getDataFromBilancio('DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo') : $this->getDataFromBilancioPrev('DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo'));
+        $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo = ($this->getDataFromBilancio('DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo') ? $this->getDataFromBilancio('DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo') : $this->getDataFromBilancioPrev('DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo'));
+        $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo');
+        $DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo');
+        $CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo');
+        $CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo');
+        $CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo');
+        $CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo');
+        $CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo');
+        $CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo');
+      
+        $PassivoRateiRisconti = $this->getDataFromBilancio('PassivoRateiRisconti');
+        $TotaleDisponibilitaLiquide = $this->getDataFromBilancio('TotaleDisponibilitaLiquide');
+        $TotaleRimanenze = $this->getDataFromBilancio('TotaleRimanenze');
+        $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni = $this->getDataFromBilancio('TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni');
+        $AttivoRateiRisconti = $this->getDataFromBilancio('AttivoRateiRisconti');
+
+
+        $ACID_TEST_Ordinario_divisore = $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo + $DebitiAccontiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo + $DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo + $PassivoRateiRisconti;
+
+        if ($ACID_TEST_Ordinario_divisore > 0) {
+            $ACID_TEST_Ordinario = number_format(((($TotaleDisponibilitaLiquide + $CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo + $CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo + $CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo + $CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo + $TotaleRimanenze + $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + $AttivoRateiRisconti - $TotaleRimanenze) / ($ACID_TEST_Ordinario_divisore))) * 100, 2, ',', '');
+           // $dataAnalisis['Acid_Test'] = $ACID_TEST_Ordinario . '%';
+        }
+
+        return $ACID_TEST_Ordinario . '%';
+    }
+
+    public function getAutonomiaFinanziaria() 
+    {
+        $TotalePatrimonioNetto = $this->getTotalePatrimonioNetto();
+        $TotaleDebiti = $this->getDataFromBilancio('TotaleDebiti');
+
+        if (($TotalePatrimonioNetto + $TotaleDebiti) == 0) {
+            $AUTONOMIA_FINANZIARIA = number_format((float)(($TotalePatrimonioNetto / 1)) * 100, 2, ',', '');
+           // $dataAnalisis['Autonomia_Finanziaria'] = $AUTONOMIA_FINANZIARIA . '%';
+        } else {
+            $AUTONOMIA_FINANZIARIA = number_format((float)(($TotalePatrimonioNetto / ($TotalePatrimonioNetto + $TotaleDebiti))) * 100, 2, ',', '');
+           // $dataAnalisis['Autonomia_Finanziaria'] = $AUTONOMIA_FINANZIARIA . '%';
+        }
+
+        return $AUTONOMIA_FINANZIARIA . '%'; 
+    }
+
+    public function getLivelloInvestimentiAziendali() 
+    {
+        $TotalePatrimonioNetto = $this->getTotalePatrimonioNetto();
+        $TotaleAttivo = $this->getDataFromBilancio('TotaleAttivo');
+
+        if ($TotaleAttivo == 0) {
+            $LIVELLO_INVESTIMENTI_AZIENDALI = number_format((float)($TotalePatrimonioNetto / 0.1) * 100, 2, ',', '');
+           // $dataAnalisis['Livello_investimenti_aziendali'] = $LIVELLO_INVESTIMENTI_AZIENDALI . '%';
+        } else {
+            $LIVELLO_INVESTIMENTI_AZIENDALI = number_format((float)($TotalePatrimonioNetto / $TotaleAttivo) * 100, 2, ',', '');
+           // $dataAnalisis['Livello_investimenti_aziendali'] = $LIVELLO_INVESTIMENTI_AZIENDALI . '%';
+        }
+
+        return $LIVELLO_INVESTIMENTI_AZIENDALI . '%';
+    }
+
+    public function getPfnEbitda() 
+    {
+        $getAndamentoDelMol = $this->getAndamentoDelMol();
+        $MOLcurr = $getAndamentoDelMol['MOLcurr'];
+
+        $ImmobilizzazioniFinanziarieCreditiTotaleCrediti = $this->getDataFromBilancio('ImmobilizzazioniFinanziarieCreditiTotaleCrediti');
+        $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo');
+        $DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo = $this->getDataFromBilancio('DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo');
+        $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo');
+        $DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo = $this->getDataFromBilancio('DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo');
+        $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo');
+        $DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo = $this->getDataFromBilancio('DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo');
+        $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo');
+        $DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo = $this->getDataFromBilancio('DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo');
+        $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo');
+        $DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo = $this->getDataFromBilancio('DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo');
+        $TotaleDisponibilitaLiquide = $this->getDataFromBilancio('TotaleDisponibilitaLiquide');
+
+        $debitiFinanziariCurr = $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo + $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo;
+        if ($MOLcurr == 0) {
+            $PFN_EBITDA = number_format((($debitiFinanziariCurr - $TotaleDisponibilitaLiquide - $ImmobilizzazioniFinanziarieCreditiTotaleCrediti) / 1), 2, '.', ',');
+           // $dataAnalisis['PFN_EBITDA'] = $PFN_EBITDA * 100;
+        } else {
+            $PFN_EBITDA = number_format((($debitiFinanziariCurr - $TotaleDisponibilitaLiquide - $ImmobilizzazioniFinanziarieCreditiTotaleCrediti) / $MOLcurr), 2, '.', ',');
+           // $dataAnalisis['PFN_EBITDA'] = $PFN_EBITDA * 100;
+        }
+
+        return $PFN_EBITDA * 100;
+    }
+
+    public function getPesoOneriFinanziari() 
+    {
+        $ValoreProduzioneRicaviVenditePrestazioni = $this->getDataFromBilancio('ValoreProduzioneRicaviVenditePrestazioni');
+        $ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari = $this->getDataFromBilancio('ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari');
+
+        if ($ValoreProduzioneRicaviVenditePrestazioni == 0) {
+            $ValoreProduzioneRicaviVenditePrestazioni = 1;
+        }
+
+        $Peso_Oneri_Finanziari = number_format(($ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari / $ValoreProduzioneRicaviVenditePrestazioni) * 100,  2, ',', '');
+
+        return $Peso_Oneri_Finanziari . '%';
+    }
+
+    public function getCoperturaLordaDegliOneriFinanziari() 
+    {
+        $TotaleValoreProduzione = $this->getDataFromBilancio('TotaleValoreProduzione');
+        $CostiProduzioneMateriePrimeSussidiarieConsumoMerci = $this->getDataFromBilancio('CostiProduzioneMateriePrimeSussidiarieConsumoMerci');
+        $CostiProduzioneGodimentoBeniTerzi = $this->getDataFromBilancio('CostiProduzioneGodimentoBeniTerzi');
+        $CostiProduzioneServizi = $this->getDataFromBilancio('CostiProduzioneServizi');
+        $CostiProduzionePersonaleTotaleCostiPersonale = $this->getDataFromBilancio('CostiProduzionePersonaleTotaleCostiPersonale');
+        $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci = $this->getDataFromBilancio('CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci');
+        $CostiProduzioneOneriDiversiGestione = $this->getDataFromBilancio('CostiProduzioneOneriDiversiGestione');
+        $ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari =  $this->getDataFromBilancio('ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari');
+
+        if ($ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari == 0) {
+            $Copertura_Lorda_degli_Oneri_Finanziari = number_format((($TotaleValoreProduzione - $CostiProduzioneMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneServizi - $CostiProduzioneGodimentoBeniTerzi - $CostiProduzionePersonaleTotaleCostiPersonale - $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneOneriDiversiGestione) / 1), 2, '.', ',');
+           // $dataAnalisis['Copertura_Lorda_OF'] = $Copertura_Lorda_degli_Oneri_Finanziari * 100;
+        } else {
+            $Copertura_Lorda_degli_Oneri_Finanziari = number_format((($TotaleValoreProduzione - $CostiProduzioneMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneServizi - $CostiProduzioneGodimentoBeniTerzi - $CostiProduzionePersonaleTotaleCostiPersonale - $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneOneriDiversiGestione) / $ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari), 2, '.', ',');
+           // $dataAnalisis['Copertura_Lorda_OF'] = $Copertura_Lorda_degli_Oneri_Finanziari * 100;
+        }
+
+        return $Copertura_Lorda_degli_Oneri_Finanziari * 100;
+    }
+
+    public function getEbitOf() 
+    {
+        $TotaleValoreProduzione = $this->getDataFromBilancio('TotaleValoreProduzione');
+        $CostiProduzioneMateriePrimeSussidiarieConsumoMerci = $this->getDataFromBilancio('CostiProduzioneMateriePrimeSussidiarieConsumoMerci');
+        $CostiProduzioneGodimentoBeniTerzi = $this->getDataFromBilancio('CostiProduzioneGodimentoBeniTerzi');
+        $CostiProduzioneServizi = $this->getDataFromBilancio('CostiProduzioneServizi');
+        $CostiProduzionePersonaleTotaleCostiPersonale = $this->getDataFromBilancio('CostiProduzionePersonaleTotaleCostiPersonale');
+        $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci = $this->getDataFromBilancio('CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci');
+        $CostiProduzioneOneriDiversiGestione = $this->getDataFromBilancio('CostiProduzioneOneriDiversiGestione');
+        $ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari =  $this->getDataFromBilancio('ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari');
+        $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni = $this->getDataFromBilancio('CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni');
+        $CostiProduzioneAccantonamentiRischi = $this->getDataFromBilancio('CostiProduzioneAccantonamentiRischi');
+        $CostiProduzioneAltriAccantonamenti =  $this->getDataFromBilancio('CostiProduzioneAltriAccantonamenti');
+
+
+        if ($ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari == 0) {
+            $EBIT_OF = number_format((($TotaleValoreProduzione - $CostiProduzioneMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneServizi - $CostiProduzioneGodimentoBeniTerzi - $CostiProduzionePersonaleTotaleCostiPersonale - $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneOneriDiversiGestione - $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni - $CostiProduzioneAccantonamentiRischi - $CostiProduzioneAltriAccantonamenti) / 1), 2, '.', ',');
+           // $dataAnalisis['EBIT_OF'] = $EBIT_OF * 100;
+        } else {
+            $EBIT_OF = number_format((($TotaleValoreProduzione - $CostiProduzioneMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneServizi - $CostiProduzioneGodimentoBeniTerzi - $CostiProduzionePersonaleTotaleCostiPersonale - $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneOneriDiversiGestione - $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni - $CostiProduzioneAccantonamentiRischi - $CostiProduzioneAltriAccantonamenti) / $ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari), 2, '.', ',');
+           // $dataAnalisis['EBIT_OF'] = $EBIT_OF * 100;
+        }
+
+        return $EBIT_OF * 100;
+    }
+
+    public function getCostoDelPersonale() 
+    {
+        $CostiProduzionePersonaleTotaleCostiPersonale = $this->getDataFromBilancio('CostiProduzionePersonaleTotaleCostiPersonale');
+        $ValoreProduzioneRicaviVenditePrestazioni = $this->getDataFromBilancio('ValoreProduzioneRicaviVenditePrestazioni');
+
+
+        if ($ValoreProduzioneRicaviVenditePrestazioni == 0) {
+            $Costo_del_personale = number_format((float)($CostiProduzionePersonaleTotaleCostiPersonale / 1) * 100, 2, ',', '');
+           // $dataAnalisis['Costo_del_personale'] = $Costo_del_personale . '%';
+        } else {
+            $Costo_del_personale = number_format((float)($CostiProduzionePersonaleTotaleCostiPersonale / $ValoreProduzioneRicaviVenditePrestazioni) * 100, 2, ',', '');
+           // $dataAnalisis['Costo_del_personale'] = $Costo_del_personale . '%';
+        }
+
+        return $Costo_del_personale . '%';
+    }
+
+    public function getCfAttivo() 
+    {
+        $TotaleAttivo = $this->getDataFromBilancio('TotaleAttivo');
+        $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni = $this->getDataFromBilancio('CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni');
+        $CostiProduzioneAccantonamentiRischi = $this->getDataFromBilancio('CostiProduzioneAccantonamentiRischi');
+        $CostiProduzioneAltriAccantonamenti =  $this->getDataFromBilancio('CostiProduzioneAltriAccantonamenti');
+        $UtilePerditaEsercizio = $this->getDataFromBilancio('UtilePerditaEsercizio');
+        $imposteRedditoEsercizioImposteAnticipate = $this->getDataFromBilancio('ImposteRedditoEsercizioCorrentiDifferiteAnticipateImposteDifferiteAnticipate');
+
+        if ($TotaleAttivo == 0) {
+           // $CreditiImposteAnticipateTotaleImposteAnticipate = $this->getDataFromBilancio('CreditiImposteAnticipateTotaleImposteAnticipate');
+            $CF_ATTIVO = number_format((($UtilePerditaEsercizio + $CostiProduzioneAccantonamentiRischi + $CostiProduzioneAltriAccantonamenti + $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni - $imposteRedditoEsercizioImposteAnticipate) / 0.1) * 100, 2, '.', ',');
+           // $dataAnalisis['CF_Attivo'] = $CF_ATTIVO . '%';
+        } else {
+           // $CreditiImposteAnticipateTotaleImposteAnticipate = $this->getDataFromBilancio('CreditiImposteAnticipateTotaleImposteAnticipate');
+            $CF_ATTIVO = number_format((($UtilePerditaEsercizio + $CostiProduzioneAccantonamentiRischi + $CostiProduzioneAltriAccantonamenti + $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni - $imposteRedditoEsercizioImposteAnticipate) / $TotaleAttivo) * 100, 2, '.', ',');
+           // $dataAnalisis['CF_Attivo'] = $CF_ATTIVO . '%';
+        }
+
+        return $CF_ATTIVO . '%';
+    }
+
+    public function getIndiceDiIndebitamento() 
+    {
+        $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo');
+        $DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo = $this->getDataFromBilancio('DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo');
+        $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo');
+        $DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo = $this->getDataFromBilancio('DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo');
+        $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo');
+        $DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo = $this->getDataFromBilancio('DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo');
+        $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo');
+        $DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo = $this->getDataFromBilancio('DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo');
+        $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo');
+        $DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo = $this->getDataFromBilancio('DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo');
+        $TotalePatrimonioNetto = $this->getTotalePatrimonioNetto();
+        $TotaleDisponibilitaLiquide = $this->getDataFromBilancio('TotaleDisponibilitaLiquide');
+        $ImmobilizzazioniFinanziarieCreditiTotaleCrediti = $this->getDataFromBilancio('ImmobilizzazioniFinanziarieCreditiTotaleCrediti');
+
+        if ($TotalePatrimonioNetto == 0) {
+            $MOLannoCorrente = $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo + $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo;
+            $Indice_di_Indebitamento = number_format((($MOLannoCorrente - $TotaleDisponibilitaLiquide - $ImmobilizzazioniFinanziarieCreditiTotaleCrediti) / 0.1) * 100, 2, ',', '');
+            $dataAnalisis['Indice_di_Indebitamento'] = $Indice_di_Indebitamento . '%';
+        } else {
+            $MOLannoCorrente = $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo + $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo;
+            $Indice_di_Indebitamento = number_format((($MOLannoCorrente - $TotaleDisponibilitaLiquide - $ImmobilizzazioniFinanziarieCreditiTotaleCrediti) / $TotalePatrimonioNetto) * 100, 2, ',', '');
+            $dataAnalisis['Indice_di_Indebitamento'] = $Indice_di_Indebitamento . '%';
+        }
+
+        return $Indice_di_Indebitamento . '%';
+    }
+
+    public function getSaldoDebitiVsFisco() 
+    {
+        $DebitiDebitiTributariTotaleDebitiTributariCorrente = $this->getDataFromBilancio('DebitiDebitiTributariTotaleDebitiTributari');
+        $FondiRischiOneriTrattamentoQuiescenzaObblighiSimiliCorrente = $this->getDataFromBilancio('FondiRischiOneriTrattamentoQuiescenzaObblighiSimili');
+        $ImposteRedditoEsercizioCorrentiDifferiteAnticipateTotaleImposteRedditoEsercizioCorrentiDifferiteAnticipatePrecedente = $this->getDataFromBilancioPrev('ImposteRedditoEsercizioCorrentiDifferiteAnticipateTotaleImposteRedditoEsercizioCorrentiDifferiteAnticipate');
+        $ImposteRedditoEsercizioCorrentiDifferiteAnticipateTotaleImposteRedditoEsercizioCorrentiDifferiteAnticipate = $this->getDataFromBilancio('ImposteRedditoEsercizioCorrentiDifferiteAnticipateTotaleImposteRedditoEsercizioCorrentiDifferiteAnticipate');
+
+        $DifferenzaImposteReddito = ($ImposteRedditoEsercizioCorrentiDifferiteAnticipateTotaleImposteRedditoEsercizioCorrentiDifferiteAnticipate + $ImposteRedditoEsercizioCorrentiDifferiteAnticipateTotaleImposteRedditoEsercizioCorrentiDifferiteAnticipatePrecedente) / 2;
+        if ($DifferenzaImposteReddito == 0) {
+            $SaldoDebitiVSFisco = number_format(($FondiRischiOneriTrattamentoQuiescenzaObblighiSimiliCorrente + $DebitiDebitiTributariTotaleDebitiTributariCorrente) / 1, 2, '.', ',');
+           // $dataAnalisis['Saldo_dei_Debiti_verso_il_Fisco'] = $SaldoDebitiVSFisco * 100;
+        } else {
+            $SaldoDebitiVSFisco = number_format(($FondiRischiOneriTrattamentoQuiescenzaObblighiSimiliCorrente + $DebitiDebitiTributariTotaleDebitiTributariCorrente) / $DifferenzaImposteReddito, 2, '.', ',');
+           // $dataAnalisis['Saldo_dei_Debiti_verso_il_Fisco'] = $SaldoDebitiVSFisco * 100;
+        }
+
+        return $SaldoDebitiVSFisco * 100;
+    }
 }

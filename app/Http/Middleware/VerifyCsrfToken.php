@@ -28,5 +28,6 @@ class VerifyCsrfToken extends Middleware
 		'api/importCr',
 		'api/bilancio',
 		'api/deleteDocument',
+        'api/editCompany',
     ];
 }
