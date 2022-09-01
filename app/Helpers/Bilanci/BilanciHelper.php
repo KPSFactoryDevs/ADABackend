@@ -221,9 +221,6 @@ class BilanciHelper
 
 
 
-
-
-
     public function getAnalisiBilancio($idBilancio)
     {
         $bilancio = Bilanci::findOrFail($idBilancio);
@@ -245,8 +242,6 @@ class BilanciHelper
         $bilancioJSONprev = json_decode($bilancio['json_data_prev']);
         $bilancioCalculationHelper->setBilancioDataPrev($bilancioJSONprev);
         $dataAnalisis = array();
-        // $righeUtilizzate = array();
-       // $imposteRedditoEsercizioImposteAnticipate = $bilancioCalculationHelper->getDataFromBilancio('ImposteRedditoEsercizioCorrentiDifferiteAnticipateImposteDifferiteAnticipate');
 
         if ($bilancio->provvisorio == 1) {
             $vociContoEconomico = array(
@@ -294,25 +289,14 @@ class BilanciHelper
             }
 
             $bilancioJSON = (object)$bilancioJSON;
-
-            // dd($periodStart, $periodEnd, $daysToYear, $bilancioJSON);
         }
-
-       // $TotaleAttivo = (isset($bilancioJSON->TotaleAttivo) ? $bilancioJSON->TotaleAttivo : 0);
-       // $CostiProduzioneAltriAccantonamenti = (isset($bilancioJSON->CostiProduzioneAltriAccantonamenti) ? $bilancioJSON->CostiProduzioneAltriAccantonamenti : 0);
-       // $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni = (isset($bilancioJSON->CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni) ? $bilancioJSON->CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni : 0);
 
         $setBilancioData = $bilancioCalculationHelper->setBilancioData($bilancioJSON);
 
         // ### PATRIMONIO_NETTO ###
-       // $PN_NEGATIVO = $bilancioCalculationHelper->getPatrimonioNettoNegativo();
         $TotalePatrimonioNetto = $bilancioCalculationHelper->getTotalePatrimonioNetto();
         $dataAnalisis['PATRIMONIO_NETTO'] = $TotalePatrimonioNetto;
         $arrayConVoci['PATRIMONIO_NETTO'] = array('TotalePatrimonioNetto', 'TotaleCreditiVersoSociVersamentiAncoraDovuti');
-
-
-       // $DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo : $val = (isset($bilancioJSONprev->DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSONprev->DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo : 0));
-       // $UtilePerditaEsercizio = (isset($bilancioJSON->UtilePerditaEsercizio) ? $bilancioJSON->UtilePerditaEsercizio : 0);
 
         // Valori bilancio
         // ### OF_RICAVI ###
@@ -326,32 +310,17 @@ class BilanciHelper
         $arrayConVoci['ADEGUATEZZA_PATRIMONIALE'] = array('TotaleDebiti', 'PassivoRateiRisconti');
         $arrayConVoci['ADEGUATEZZA_PATRIMONIALE'] = array_merge($arrayConVoci['ADEGUATEZZA_PATRIMONIALE'], $arrayConVoci['PATRIMONIO_NETTO']);
 
-       // $TotaleDebiti = $bilancioCalculationHelper->getTotaleDebiti();
-
         // ### RITORNO_LIQUIDO_ATTIVO ###
         $TotaleDisponibilitaLiquide = $bilancioCalculationHelper->getDataFromBilancio('TotaleDisponibilitaLiquide');
-       // $AttivoRateiRisconti = $bilancioCalculationHelper->getDataFromBilancio('AttivoRateiRisconti');
-       // $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni = $bilancioCalculationHelper->getDataFromBilancio('TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni');
-       // $TotaleRimanenze = $bilancioCalculationHelper->getDataFromBilancio('TotaleRimanenze');
-       // $PassivoRateiRisconti = $bilancioCalculationHelper->getDataFromBilancio('PassivoRateiRisconti');
-       // $DebitiEsigibiliEntroEsercizioSuccessivo = $bilancioCalculationHelper->getDataFromBilancio('DebitiEsigibiliEntroEsercizioSuccessivo');
-
-        // $TotaleCreditiEntroDodiciMesi = $bilancioCalculationHelper->getTotaleCreditiEntroDodiciMesi();
-        // $TotaleDebitiEntroDodiciMesi = $bilancioCalculationHelper->getTotaleDebitiEntroDodiciMesi();
-
+        
         // ### LIQUIDITA ###
         $getLiquidita = $bilancioCalculationHelper->getLiquidita();
-       // $CostiProduzioneAccantonamentiRischi = $bilancioCalculationHelper->getDataFromBilancio('CostiProduzioneAccantonamentiRischi');
-       // $ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari = $bilancioCalculationHelper->getDataFromBilancio('ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari');
-       // $ValoreProduzioneRicaviVenditePrestazioni = $bilancioCalculationHelper->getDataFromBilancio('ValoreProduzioneRicaviVenditePrestazioni');
 
         $dataAnalisis['LIQUIDITA'] = $getLiquidita;
         $arrayConVoci['LIQUIDITA'] = array('UtilePerditaEsercizio', 'CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni', 'CostiProduzioneAccantonamentiRischi', 'CostiProduzioneAltriAccantonamenti', 'TotaleAttivo');
 
         // ### INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO ###
         $getIndebitamentoPrevidenzialeTributario = $bilancioCalculationHelper->getIndebitamentoPrevidenzialeTributario();
-       // $DebitiDebitiTributariTotaleDebitiTributariCorrente = $bilancioCalculationHelper->getDataFromBilancio('DebitiDebitiTributariTotaleDebitiTributariCorrente');
-       // $ValoreProduzioneRicaviVenditePrestazioni = $bilancioCalculationHelper->getDataFromBilancio('ValoreProduzioneRicaviVenditePrestazioni');
 
         $dataAnalisis['INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO'] = $getIndebitamentoPrevidenzialeTributario;
         $arrayConVoci['INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO'] = array('DebitiDebitiTributariTotaleDebitiTributari', 'DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale', 'TotaleAttivo');
@@ -367,22 +336,14 @@ class BilanciHelper
 
         // ANDAMENTO DEL MOL
         $getAndamentoDelMol = $bilancioCalculationHelper->getAndamentoDelMol();
-       // $TotaleValoreProduzione = $getAndamentoDelMol['TotaleValoreProduzione'];
-       // $CostiProduzioneMateriePrimeSussidiarieConsumoMerci = $getAndamentoDelMol['CostiProduzioneMateriePrimeSussidiarieConsumoMerci'];
-       // $CostiProduzioneGodimentoBeniTerzi = $getAndamentoDelMol['CostiProduzioneGodimentoBeniTerzi'];
-       // $CostiProduzioneServizi = $getAndamentoDelMol['CostiProduzioneServizi'];
-       // $CostiProduzionePersonaleTotaleCostiPersonale = $getAndamentoDelMol['CostiProduzionePersonaleTotaleCostiPersonale'];
-       // $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci = $getAndamentoDelMol['CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci'];
-       // $CostiProduzioneOneriDiversiGestione = $getAndamentoDelMol['CostiProduzioneOneriDiversiGestione'];
-       // $MOLcurr = $getAndamentoDelMol['MOLcurr'];
 
-        $dataAnalisis['Andamento_del_MOL'] = $getAndamentoDelMol['AndamentoMOL'];
+        $dataAnalisis['Andamento_del_MOL'] = $getAndamentoDelMol;
         $arrayConVoci['Andamento_del_MOL'] = array('TotaleValoreProduzione', 'CostiProduzioneMateriePrimeSussidiarieConsumoMerci', 'CostiProduzioneGodimentoBeniTerzi', 'CostiProduzioneServizi', 'CostiProduzionePersonaleTotaleCostiPersonale', 'CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci', 'CostiProduzioneOneriDiversiGestione');
 
         // ### ROI
         $getROI = $bilancioCalculationHelper->getROI();
 
-        $dataAnalisis['ROI'] = $getROI['ROI'];
+        $dataAnalisis['ROI'] = $getROI;
         $arrayConVoci['ROI'] = array('DifferenzaValoreCostiProduzione', 'TotaleAttivo');
 
         // ### ROS
@@ -412,18 +373,13 @@ class BilanciHelper
         //### Margine Struttura Primario
         $getMargineStrutturaPrimario = $bilancioCalculationHelper->getMargineStrutturaPrimario();
 
-        $dataAnalisis['Margine_Struttura_Primario'] = $getMargineStrutturaPrimario['Margine_Struttura_Primario'];
+        $dataAnalisis['Margine_Struttura_Primario'] = $getMargineStrutturaPrimario;
         $arrayConVoci['Margine_Struttura_Primario'] = array('TotalePatrimonioNetto', 'TotaleImmobilizzazioni');
 
         //### Margine Struttura Secondario
         $getMargineStrutturaSecondario = $bilancioCalculationHelper->getMargineStrutturaSecondario();
-       // $DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo = $getMargineStrutturaSecondario['DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo'];
-       // $DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo = $getMargineStrutturaSecondario['DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo'];
-       // $DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo = $getMargineStrutturaSecondario['DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo'];
-       // $DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo = $getMargineStrutturaSecondario['DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo'];
-       // $DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo = $getMargineStrutturaSecondario['DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo'];
 
-        $dataAnalisis['Margine_Struttura_Secondario'] = $getMargineStrutturaSecondario['Margine_Struttura_Secondario_Semplificato'];
+        $dataAnalisis['Margine_Struttura_Secondario'] = $getMargineStrutturaSecondario;
         $arrayConVoci['Margine_Struttura_Secondario'] = array('TotalePatrimonioNetto', 'TrattamentoFineRapportoLavoroSubordinat', 'DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo', 'DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo', 'DebitiAccontiEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiVersoFornitoriEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiRappresentatiTitoliCreditoEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiVersoImpreseControllateEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiVersoImpreseCollegateEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiVersoControllantiEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo', 'DebitiAltriDebitiEsigibiliOltreEsercizioSuccessivo', 'TotaleImmobilizzazioni');
 
         // CURRENT RADIO (VEDI INDICE RITORNO LIQUIDO ATT)
@@ -435,29 +391,10 @@ class BilanciHelper
         //### Attivita a breve / Passività a Breve
         $getAttivitaPassivitaABreve = $bilancioCalculationHelper->getAttivitaPassivitaABreve();
 
-       // $TrentaCinque = $getAttivitaPassivitaABreve['TrentaCinque'];
-
-
-       // $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo = $getAttivitaPassivitaABreve['DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo'];
-       // $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo = $getAttivitaPassivitaABreve['DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo'];
-       // $DebitiAccontiEsigibiliEntroEsercizioSuccessivo = $getAttivitaPassivitaABreve['DebitiAccontiEsigibiliEntroEsercizioSuccessivo'];
-       // $DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo = $getAttivitaPassivitaABreve['DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo'];
-       // $DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo = $getAttivitaPassivitaABreve['DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo'];
-       // $DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo = $getAttivitaPassivitaABreve['DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo'];
-       // $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo = $getAttivitaPassivitaABreve['DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo'];
-       // $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo = $getAttivitaPassivitaABreve['DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo'];
-       // $QuarantaNove = $getAttivitaPassivitaABreve['QuarantaNove'];
-
         $dataAnalisis['Attivita_a_breve_Passività_a_Breve_Ordinario'] = $getAttivitaPassivitaABreve['Attivita_a_breve_Passività_a_Breve_Ordinario'];
         $arrayConVoci['Attivita_a_breve_Passività_a_Breve_Ordinario'] = array();
 
         // ACID TEST
-       // $getAcidTest = $bilancioCalculationHelper->getAcidTest();
-       // $dataAnalisis['AcidTest'] = $getAcidTest;
-
-       // $getAcidTestSemplificato = $bilancioCalculationHelper->getAcidTestSemplificato();
-       // $dataAnalisis['ACID_TEST_Semplificato'] = $getAcidTestSemplificato;
-
         $getAcidTestOrdinario = $bilancioCalculationHelper->getAcidTestOrdinario();
 
         $dataAnalisis['Acid_Test'] = $getAcidTestOrdinario;
@@ -518,15 +455,11 @@ class BilanciHelper
         $dataAnalisis['Indice_di_Indebitamento'] = $getIndiceDiIndebitamento;
         $arrayConVoci['Indice_di_Indebitamento'] = array('DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo', 'DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo', 'DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo', 'DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo', 'DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo', 'DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo', 'DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo', 'TotaleDisponibilitaLiquide', 'ImmobilizzazioniFinanziarieCreditiTotaleCrediti', 'TotalePatrimonioNetto');
 
-        // $indiciBilancio = array();
-
         //SALDO DEBITI VS FISCO
         $getSaldoDebitiVsFisco = $bilancioCalculationHelper->getSaldoDebitiVsFisco();
 
         $dataAnalisis['Saldo_dei_Debiti_verso_il_Fisco'] = $getSaldoDebitiVsFisco;
         $arrayConVoci['Saldo_dei_Debiti_verso_il_Fisco'] = array('FondiRischiOneriTrattamentoQuiescenzaObblighiSimiliCorrente', 'DebitiDebitiTributariTotaleDebitiTributariCorrente', 'DifferenzaImposteReddito');
-
-
 
         $explodedDate = new DateTime((explode(' ', $bilancio->year))[0]);
 

@@ -144,10 +144,8 @@ class BilanciCalculationsHelper
 
         if ($TotaleAttivo == 0) {
             $LIQUIDITA = 0;
-           // $dataAnalisis['LIQUIDITA'] = $LIQUIDITA . '%';
         } else {
             $LIQUIDITA = number_format((($UtilePerditaEsercizio + $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni + (float)$CostiProduzioneAccantonamentiRischi + (float)$CostiProduzioneAltriAccantonamenti) / (float)$TotaleAttivo) * 100, 2, ',', '');
-           // $dataAnalisis['LIQUIDITA'] = $LIQUIDITA . '%';
         }
 
         return $LIQUIDITA . '%';
@@ -161,10 +159,8 @@ class BilanciCalculationsHelper
 
         if ($TotaleAttivo == 0) {
             $INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO = number_format((($DebitiDebitiTributariTotaleDebitiTributari + $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale) / 1) * 100, 2, ',', '');
-           // $dataAnalisis['INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO'] = $INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO . '%';
         } else {
             $INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO = number_format((($DebitiDebitiTributariTotaleDebitiTributari + $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale) / $TotaleAttivo) * 100, 2, ',', '');
-           // $dataAnalisis['INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO'] = $INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO . '%';
         }
 
         return $INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO . '%';
@@ -176,10 +172,8 @@ class BilanciCalculationsHelper
         $ValoreProduzioneRicaviVenditePrestazioniPrev = $this->getDataFromBilancioPrev('ValoreProduzioneRicaviVenditePrestazioni');
         if ($ValoreProduzioneRicaviVenditePrestazioniPrev == 0) {
             $AndamentoDelFatturato = number_format((- (1 - (($ValoreProduzioneRicaviVenditePrestazioniCurr) / (1)))) * 100, 2, ',', '');
-           // $dataAnalisis['Andamento_del_fatturato'] = $AndamentoDelFatturato . '%';
         } else {
             $AndamentoDelFatturato = number_format((- (1 - (($ValoreProduzioneRicaviVenditePrestazioniCurr) / ($ValoreProduzioneRicaviVenditePrestazioniPrev)))) * 100, 2, ',', '');
-           // $dataAnalisis['Andamento_del_fatturato'] = $AndamentoDelFatturato . '%';
         }
 
         return $AndamentoDelFatturato . '%';
@@ -210,20 +204,11 @@ class BilanciCalculationsHelper
 
         if ($MOLprev == 0) {
             $AndamentoMOL = number_format(- (1 - ($MOLcurr / 1)) * 100, 2, ',', '');
-           // $dataAnalisis['Andamento_del_MOL'] = $AndamentoMOL . '%';
         } else {
             $AndamentoMOL = number_format(- (1 - ($MOLcurr / $MOLprev)) * 100, 2, ',', '');
-           // $dataAnalisis['Andamento_del_MOL'] = $AndamentoMOL . '%';
         }
 
         $data = [
-            'TotaleValoreProduzione' => $TotaleValoreProduzione,
-            'CostiProduzioneMateriePrimeSussidiarieConsumoMerci' => $CostiProduzioneMateriePrimeSussidiarieConsumoMerci,
-            'CostiProduzioneGodimentoBeniTerzi' => $CostiProduzioneGodimentoBeniTerzi,
-            'CostiProduzioneServizi' => $CostiProduzioneServizi,
-            'CostiProduzionePersonaleTotaleCostiPersonale' => $CostiProduzionePersonaleTotaleCostiPersonale,
-            'CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci' => $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci,
-            'CostiProduzioneOneriDiversiGestione' => $CostiProduzioneOneriDiversiGestione,
             'MOLcurr' => $MOLcurr,
             'AndamentoMOL' => $AndamentoMOL . '%',
         ];
@@ -238,32 +223,22 @@ class BilanciCalculationsHelper
 
         if ($TotaleAttivo == 0) {
             $ROI = number_format(($DifferenzaValoreCostiProduzione / 1) * 100, 2, ',', '');
-           // $dataAnalisis['ROI'] = $ROI . '%';
         } else {
             $ROI = number_format(($DifferenzaValoreCostiProduzione / $TotaleAttivo) * 100, 2, ',', '');
-           // $dataAnalisis['ROI'] = $ROI . '%';
         }
 
-        $data = [
-            'DifferenzaValoreCostiProduzione' => $DifferenzaValoreCostiProduzione,
-            'ROI' => $ROI . '%'
-        ];
-
-        return $data;
+        return $ROI . '%';
     }
 
     public function getROS()
     {
-        $getROI = $this->getROI();
-        $DifferenzaValoreCostiProduzione = $getROI['DifferenzaValoreCostiProduzione'];
+        $DifferenzaValoreCostiProduzione = $this->getDataFromBilancio('DifferenzaValoreCostiProduzione');
         $ValoreProduzioneRicaviVenditePrestazioni = $this->getDataFromBilancio('ValoreProduzioneRicaviVenditePrestazioni');
 
         if ($ValoreProduzioneRicaviVenditePrestazioni == 0) {
             $ROS = number_format(($DifferenzaValoreCostiProduzione / 1) * 100, 2, ',', '');
-           // $dataAnalisis['ROS'] = $ROS . '%';
         } else {
             $ROS = number_format(($DifferenzaValoreCostiProduzione / $ValoreProduzioneRicaviVenditePrestazioni) * 100, 2, ',', '');
-           // $dataAnalisis['ROS'] = $ROS . '%';
         }
 
         return $ROS . '%';
@@ -276,10 +251,8 @@ class BilanciCalculationsHelper
 
         if ($TotalePatrimonioNetto == 0) {
             $ROE = number_format(($UtilePerditaEsercizio / 1) * 100, 2, ',', '');
-           // $dataAnalisis['ROE'] = $ROE . '%';
         } else {
             $ROE = number_format(($UtilePerditaEsercizio / $TotalePatrimonioNetto) * 100, 2, ',', '');
-           // $dataAnalisis['ROE'] = $ROE . '%';
         }
 
         return $ROE . '%';
@@ -298,10 +271,8 @@ class BilanciCalculationsHelper
 
         if ($ValoreProduzioneRicaviVenditePrestazioni == 0) {
             $EBITDA_FATTURATO = number_format((($TotaleValoreProduzione - $CostiProduzioneMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneServizi - $CostiProduzioneGodimentoBeniTerzi - $CostiProduzionePersonaleTotaleCostiPersonale - $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneOneriDiversiGestione) / 1) * 100, 2, ',', '');
-           // $dataAnalisis['EBITDA_Fatturato'] = $EBITDA_FATTURATO . '%';
         } else {
             $EBITDA_FATTURATO = number_format((($TotaleValoreProduzione - $CostiProduzioneMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneServizi - $CostiProduzioneGodimentoBeniTerzi - $CostiProduzionePersonaleTotaleCostiPersonale - $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneOneriDiversiGestione) / $ValoreProduzioneRicaviVenditePrestazioni) * 100, 2, ',', '');
-           // $dataAnalisis['EBITDA_Fatturato'] = $EBITDA_FATTURATO . '%';
         }
 
         return $EBITDA_FATTURATO . '%';
@@ -314,10 +285,8 @@ class BilanciCalculationsHelper
 
         if ($TotalePatrimonioNettoPrev == 0) {
             $AndamentoDeiMezziPropri = number_format((($TotalePatrimonioNettoCurr / 1) - 1) * 100, 2, ',', '');
-           // $dataAnalisis['Andamento_dei_mezzi_propri'] = $AndamentoDeiMezziPropri . '%';
         } else {
             $AndamentoDeiMezziPropri = number_format((($TotalePatrimonioNettoCurr / $TotalePatrimonioNettoPrev) - 1) * 100, 2, ',', '');
-           // $dataAnalisis['Andamento_dei_mezzi_propri'] = $AndamentoDeiMezziPropri . '%';
         }
 
         return $AndamentoDeiMezziPropri . '%';
@@ -330,18 +299,11 @@ class BilanciCalculationsHelper
 
         if ($TotaleImmobilizzazioni == 0) {
             $Margine_Struttura_Primario = number_format((float)($TotalePatrimonioNetto / 1) * 100, 2, ',', '');
-           // $dataAnalisis['Margine_Struttura_Primario'] = $Margine_Struttura_Primario;
         } else {
             $Margine_Struttura_Primario = number_format((float)($TotalePatrimonioNetto / $TotaleImmobilizzazioni) * 100, 2, ',', '');
-           // $dataAnalisis['Margine_Struttura_Primario'] = $Margine_Struttura_Primario;
         }
 
-        $data = [
-            'TotaleImmobilizzazioni' => $TotaleImmobilizzazioni,
-            'Margine_Struttura_Primario' => $Margine_Struttura_Primario
-        ];
-
-        return $data;
+        return $Margine_Struttura_Primario;
     }
 
     public function getMargineStrutturaSecondario()
@@ -366,32 +328,11 @@ class BilanciCalculationsHelper
 
         if ($TotaleImmobilizzazioni == 0) {
             $Margine_Struttura_Secondario_Semplificato = number_format((($TotalePatrimonioNetto + $TrattamentoFineRapportoLavoroSubordinato + $DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo + $DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo + $DebitiAccontiEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoFornitoriEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiRappresentatiTitoliCreditoEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoImpreseControllateEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoImpreseCollegateEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoControllantiEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo + $DebitiAltriDebitiEsigibiliOltreEsercizioSuccessivo) / 1) * 100, 2, ',', '');
-           // $dataAnalisis['Margine_Struttura_Secondario'] = $Margine_Struttura_Secondario_Semplificato;
         } else {
             $Margine_Struttura_Secondario_Semplificato = number_format((($TotalePatrimonioNetto + $TrattamentoFineRapportoLavoroSubordinato + $DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo + $DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo + $DebitiAccontiEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoFornitoriEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiRappresentatiTitoliCreditoEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoImpreseControllateEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoImpreseCollegateEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoControllantiEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo + $DebitiAltriDebitiEsigibiliOltreEsercizioSuccessivo) / $TotaleImmobilizzazioni) * 100, 2, ',', '');
-           // $dataAnalisis['Margine_Struttura_Secondario'] = $Margine_Struttura_Secondario_Semplificato;
         }
 
-        $data = [
-            'TrattamentoFineRapportoLavoroSubordinato' => $TrattamentoFineRapportoLavoroSubordinato,
-            'DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo' => $DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo,
-            'DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo' => $DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo,
-            'DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo' => $DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo,
-            'DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo' => $DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo,
-            'DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo' => $DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo,
-            'DebitiAccontiEsigibiliOltreEsercizioSuccessivo' => $DebitiAccontiEsigibiliOltreEsercizioSuccessivo,
-            'DebitiDebitiVersoFornitoriEsigibiliOltreEsercizioSuccessivo' => $DebitiDebitiVersoFornitoriEsigibiliOltreEsercizioSuccessivo,
-            'DebitiDebitiRappresentatiTitoliCreditoEsigibiliOltreEsercizioSuccessivo' => $DebitiDebitiRappresentatiTitoliCreditoEsigibiliOltreEsercizioSuccessivo,
-            'DebitiDebitiVersoImpreseControllateEsigibiliOltreEsercizioSuccessivo' => $DebitiDebitiVersoImpreseControllateEsigibiliOltreEsercizioSuccessivo,
-            'DebitiDebitiVersoImpreseCollegateEsigibiliOltreEsercizioSuccessivo' => $DebitiDebitiVersoImpreseCollegateEsigibiliOltreEsercizioSuccessivo,
-            'DebitiDebitiVersoControllantiEsigibiliOltreEsercizioSuccessivo' => $DebitiDebitiVersoControllantiEsigibiliOltreEsercizioSuccessivo,
-            'DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliOltreEsercizioSuccessivo' => $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliOltreEsercizioSuccessivo,
-            'DebitiAltriDebitiEsigibiliOltreEsercizioSuccessivo' => $DebitiAltriDebitiEsigibiliOltreEsercizioSuccessivo,
-            'DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo' => $DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo,
-            'Margine_Struttura_Secondario_Semplificato' => $Margine_Struttura_Secondario_Semplificato
-        ];
-
-        return $data;
+        return $Margine_Struttura_Secondario_Semplificato;
     }
 
     public function getCurrentRatio()
@@ -456,24 +397,9 @@ class BilanciCalculationsHelper
 
         if ($Attivita_a_breve_Passivita_a_Breve_Ordinario_divisore > 0) {
             $Attivita_a_breve_Passivita_a_Breve_Ordinario = number_format(((($TotaleDisponibilitaLiquide + $CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo + $CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo + $CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo + $CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo + $TotaleRimanenze + $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + $AttivoRateiRisconti) / ($Attivita_a_breve_Passivita_a_Breve_Ordinario_divisore))) * 100, 2, ',', '');
-           // $dataAnalisis['Attivita_a_breve_Passività_a_Breve_Ordinario'] = $Attivita_a_breve_Passivita_a_Breve_Ordinario . '%';
         }
 
         $data = [
-            'DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo' => $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo,
-            'DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo' => $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo,
-            'DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo' => $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo,
-            'DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo' => $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo,
-            'DebitiAccontiEsigibiliEntroEsercizioSuccessivo' => $DebitiAccontiEsigibiliEntroEsercizioSuccessivo,
-            'DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo' => $DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo,
-            'DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo' => $DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo,
-            'DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo' => $DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo,
-            'DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo' => $DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo,
-            'DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo' => $DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo,
-            'DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo' => $DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo,
-            'DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo' => $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo,
-            'DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo' => $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo,
-            'DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo' => $DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo,
             'Attivita_a_breve_Passività_a_Breve_Ordinario' => $Attivita_a_breve_Passivita_a_Breve_Ordinario . '%',
             'QuarantaNove' => $QuarantaNove,
             'TrentaCinque' => $TrentaCinque
@@ -493,7 +419,6 @@ class BilanciCalculationsHelper
 
         if ($DebitiEsigibiliEntroEsercizioSuccessivo > 0 || $PassivoRateiRisconti > 0) {
             $AcidTest = number_format((float)(((float)$TotaleCrediti + (float)$TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + (float)$TotaleDisponibilitaLiquide + (float)$AttivoRateiRisconti) / ((float)$DebitiEsigibiliEntroEsercizioSuccessivo + (float)$PassivoRateiRisconti)), 2, ',', '');
-             // $dataAnalisis['AcidTest'] = $AcidTest.'%';
         } 
 
         return $AcidTest. '%';
@@ -513,7 +438,6 @@ class BilanciCalculationsHelper
 
         if ($QuarantaNove > 0 || $PassivoRateiRisconti > 0) {
             $ACID_TEST_Semplificato = number_format((float)((((float)$TotaleDisponibilitaLiquide + (float)$TrentaCinque + (float)$TotaleRimanenze + (float)$TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + (float)$AttivoRateiRisconti - (float)$TotaleRimanenze) / ((float)$QuarantaNove + (float)$PassivoRateiRisconti))), 2, ',', '');
-            // $dataAnalisis['ACID_TEST_Semplificato'] = $ACID_TEST_Semplificato.'%';
         } 
 
         return $ACID_TEST_Semplificato.'%';
@@ -553,7 +477,6 @@ class BilanciCalculationsHelper
 
         if ($ACID_TEST_Ordinario_divisore > 0) {
             $ACID_TEST_Ordinario = number_format(((($TotaleDisponibilitaLiquide + $CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo + $CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo + $CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo + $CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo + $TotaleRimanenze + $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + $AttivoRateiRisconti - $TotaleRimanenze) / ($ACID_TEST_Ordinario_divisore))) * 100, 2, ',', '');
-           // $dataAnalisis['Acid_Test'] = $ACID_TEST_Ordinario . '%';
         }
 
         return $ACID_TEST_Ordinario . '%';
@@ -566,10 +489,8 @@ class BilanciCalculationsHelper
 
         if (($TotalePatrimonioNetto + $TotaleDebiti) == 0) {
             $AUTONOMIA_FINANZIARIA = number_format((float)(($TotalePatrimonioNetto / 1)) * 100, 2, ',', '');
-           // $dataAnalisis['Autonomia_Finanziaria'] = $AUTONOMIA_FINANZIARIA . '%';
         } else {
             $AUTONOMIA_FINANZIARIA = number_format((float)(($TotalePatrimonioNetto / ($TotalePatrimonioNetto + $TotaleDebiti))) * 100, 2, ',', '');
-           // $dataAnalisis['Autonomia_Finanziaria'] = $AUTONOMIA_FINANZIARIA . '%';
         }
 
         return $AUTONOMIA_FINANZIARIA . '%'; 
@@ -582,10 +503,8 @@ class BilanciCalculationsHelper
 
         if ($TotaleAttivo == 0) {
             $LIVELLO_INVESTIMENTI_AZIENDALI = number_format((float)($TotalePatrimonioNetto / 0.1) * 100, 2, ',', '');
-           // $dataAnalisis['Livello_investimenti_aziendali'] = $LIVELLO_INVESTIMENTI_AZIENDALI . '%';
         } else {
             $LIVELLO_INVESTIMENTI_AZIENDALI = number_format((float)($TotalePatrimonioNetto / $TotaleAttivo) * 100, 2, ',', '');
-           // $dataAnalisis['Livello_investimenti_aziendali'] = $LIVELLO_INVESTIMENTI_AZIENDALI . '%';
         }
 
         return $LIVELLO_INVESTIMENTI_AZIENDALI . '%';
@@ -612,10 +531,8 @@ class BilanciCalculationsHelper
         $debitiFinanziariCurr = $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo + $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo;
         if ($MOLcurr == 0) {
             $PFN_EBITDA = number_format((($debitiFinanziariCurr - $TotaleDisponibilitaLiquide - $ImmobilizzazioniFinanziarieCreditiTotaleCrediti) / 1), 2, '.', ',');
-           // $dataAnalisis['PFN_EBITDA'] = $PFN_EBITDA * 100;
         } else {
             $PFN_EBITDA = number_format((($debitiFinanziariCurr - $TotaleDisponibilitaLiquide - $ImmobilizzazioniFinanziarieCreditiTotaleCrediti) / $MOLcurr), 2, '.', ',');
-           // $dataAnalisis['PFN_EBITDA'] = $PFN_EBITDA * 100;
         }
 
         return $PFN_EBITDA * 100;
@@ -648,10 +565,8 @@ class BilanciCalculationsHelper
 
         if ($ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari == 0) {
             $Copertura_Lorda_degli_Oneri_Finanziari = number_format((($TotaleValoreProduzione - $CostiProduzioneMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneServizi - $CostiProduzioneGodimentoBeniTerzi - $CostiProduzionePersonaleTotaleCostiPersonale - $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneOneriDiversiGestione) / 1), 2, '.', ',');
-           // $dataAnalisis['Copertura_Lorda_OF'] = $Copertura_Lorda_degli_Oneri_Finanziari * 100;
         } else {
             $Copertura_Lorda_degli_Oneri_Finanziari = number_format((($TotaleValoreProduzione - $CostiProduzioneMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneServizi - $CostiProduzioneGodimentoBeniTerzi - $CostiProduzionePersonaleTotaleCostiPersonale - $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneOneriDiversiGestione) / $ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari), 2, '.', ',');
-           // $dataAnalisis['Copertura_Lorda_OF'] = $Copertura_Lorda_degli_Oneri_Finanziari * 100;
         }
 
         return $Copertura_Lorda_degli_Oneri_Finanziari * 100;
@@ -674,10 +589,8 @@ class BilanciCalculationsHelper
 
         if ($ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari == 0) {
             $EBIT_OF = number_format((($TotaleValoreProduzione - $CostiProduzioneMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneServizi - $CostiProduzioneGodimentoBeniTerzi - $CostiProduzionePersonaleTotaleCostiPersonale - $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneOneriDiversiGestione - $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni - $CostiProduzioneAccantonamentiRischi - $CostiProduzioneAltriAccantonamenti) / 1), 2, '.', ',');
-           // $dataAnalisis['EBIT_OF'] = $EBIT_OF * 100;
         } else {
             $EBIT_OF = number_format((($TotaleValoreProduzione - $CostiProduzioneMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneServizi - $CostiProduzioneGodimentoBeniTerzi - $CostiProduzionePersonaleTotaleCostiPersonale - $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneOneriDiversiGestione - $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni - $CostiProduzioneAccantonamentiRischi - $CostiProduzioneAltriAccantonamenti) / $ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari), 2, '.', ',');
-           // $dataAnalisis['EBIT_OF'] = $EBIT_OF * 100;
         }
 
         return $EBIT_OF * 100;
@@ -691,10 +604,8 @@ class BilanciCalculationsHelper
 
         if ($ValoreProduzioneRicaviVenditePrestazioni == 0) {
             $Costo_del_personale = number_format((float)($CostiProduzionePersonaleTotaleCostiPersonale / 1) * 100, 2, ',', '');
-           // $dataAnalisis['Costo_del_personale'] = $Costo_del_personale . '%';
         } else {
             $Costo_del_personale = number_format((float)($CostiProduzionePersonaleTotaleCostiPersonale / $ValoreProduzioneRicaviVenditePrestazioni) * 100, 2, ',', '');
-           // $dataAnalisis['Costo_del_personale'] = $Costo_del_personale . '%';
         }
 
         return $Costo_del_personale . '%';
@@ -710,13 +621,9 @@ class BilanciCalculationsHelper
         $imposteRedditoEsercizioImposteAnticipate = $this->getDataFromBilancio('ImposteRedditoEsercizioCorrentiDifferiteAnticipateImposteDifferiteAnticipate');
 
         if ($TotaleAttivo == 0) {
-           // $CreditiImposteAnticipateTotaleImposteAnticipate = $this->getDataFromBilancio('CreditiImposteAnticipateTotaleImposteAnticipate');
             $CF_ATTIVO = number_format((($UtilePerditaEsercizio + $CostiProduzioneAccantonamentiRischi + $CostiProduzioneAltriAccantonamenti + $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni - $imposteRedditoEsercizioImposteAnticipate) / 0.1) * 100, 2, '.', ',');
-           // $dataAnalisis['CF_Attivo'] = $CF_ATTIVO . '%';
         } else {
-           // $CreditiImposteAnticipateTotaleImposteAnticipate = $this->getDataFromBilancio('CreditiImposteAnticipateTotaleImposteAnticipate');
             $CF_ATTIVO = number_format((($UtilePerditaEsercizio + $CostiProduzioneAccantonamentiRischi + $CostiProduzioneAltriAccantonamenti + $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni - $imposteRedditoEsercizioImposteAnticipate) / $TotaleAttivo) * 100, 2, '.', ',');
-           // $dataAnalisis['CF_Attivo'] = $CF_ATTIVO . '%';
         }
 
         return $CF_ATTIVO . '%';
@@ -761,10 +668,8 @@ class BilanciCalculationsHelper
         $DifferenzaImposteReddito = ($ImposteRedditoEsercizioCorrentiDifferiteAnticipateTotaleImposteRedditoEsercizioCorrentiDifferiteAnticipate + $ImposteRedditoEsercizioCorrentiDifferiteAnticipateTotaleImposteRedditoEsercizioCorrentiDifferiteAnticipatePrecedente) / 2;
         if ($DifferenzaImposteReddito == 0) {
             $SaldoDebitiVSFisco = number_format(($FondiRischiOneriTrattamentoQuiescenzaObblighiSimiliCorrente + $DebitiDebitiTributariTotaleDebitiTributariCorrente) / 1, 2, '.', ',');
-           // $dataAnalisis['Saldo_dei_Debiti_verso_il_Fisco'] = $SaldoDebitiVSFisco * 100;
         } else {
             $SaldoDebitiVSFisco = number_format(($FondiRischiOneriTrattamentoQuiescenzaObblighiSimiliCorrente + $DebitiDebitiTributariTotaleDebitiTributariCorrente) / $DifferenzaImposteReddito, 2, '.', ',');
-           // $dataAnalisis['Saldo_dei_Debiti_verso_il_Fisco'] = $SaldoDebitiVSFisco * 100;
         }
 
         return $SaldoDebitiVSFisco * 100;
