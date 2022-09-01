@@ -25,30 +25,28 @@ class AllertaController extends Controller
         $bilancioId = $request->bilancio_id;
         $arrayQuestionario = $request->questionario;
 
-        
-       $questionarioAsIs = DB::table('questionario')->where('document_id', $documentId)->where('bilancio_id', $bilancioId)->get();
 
-       if(count($questionarioAsIs) > 0) {
+        $questionarioAsIs = DB::table('questionario')->where('document_id', $documentId)->where('bilancio_id', $bilancioId)->get();
+
+        if (count($questionarioAsIs) > 0) {
             DB::table('questionario')->where('document_id', $documentId)->where('bilancio_id', $bilancioId)->delete();
-       } 
-           
-       foreach ($arrayQuestionario as $domanda => $risposta) {
-                DB::table('questionario')->insert([
-                    'result' => $risposta['response'],
-                    'parameter' => $domanda,
-                    'details' => $risposta['details'],
-                    'date' => date("Y/m/d"),
-                    'document_id' => $documentId,
-                    'bilancio_id' =>  $bilancioId
-                ]);
         }
 
-            return response()->json([
-                'error' => false,
-                'data' => 'Dati inviati correttamente'
-            ], 200);
-        
+        foreach ($arrayQuestionario as $domanda => $risposta) {
+            DB::table('questionario')->insert([
+                'result' => $risposta['response'],
+                'parameter' => $domanda,
+                'details' => $risposta['details'],
+                'date' => date("Y/m/d"),
+                'document_id' => $documentId,
+                'bilancio_id' =>  $bilancioId
+            ]);
+        }
 
+        return response()->json([
+            'error' => false,
+            'data' => 'Dati inviati correttamente'
+        ], 200);
     }
 
 
@@ -106,9 +104,6 @@ class AllertaController extends Controller
 
         $bilancioHelper = new BilanciHelper;
 
-       // $getAsIsDataFromDB = $allertaHelper->getQuestionarioAsis($id, $idCr);
-       // $getToBeDataFromDB = $allertaHelper->getQuestionarioToBe($id, $idCr);
-
         $ASISfinalScore = false;
         $scoreASIS = array('1' => 0, '2' => 0, '3' => 0, '4' => 0);
         $scoreFL = array('Giudizio' => '', 'Valore' => '0');
@@ -133,7 +128,6 @@ class AllertaController extends Controller
         $countBanks = $crHelper->getCountBanks($banks);
         $creditiPassatiPerdita = $crHelper->getCreditiPassatiPerdita($banks);
         $scoreCR = $crHelper->getScoring($banks, $countBanks, $sconfini, $sofferenze, $creditiPassatiPerdita);
-
 
         // ALERTS CENTRALE RISCHI GENERAL
         $alerts = array();
@@ -164,6 +158,7 @@ class AllertaController extends Controller
             $scoreASIS = $allertaHelper->valutazioneQuestionarioQualitativo($arrayQuestionario);
         }
 
+
         if (count($arrayForwardLooking) == 12) {
             $scoreFL = $allertaHelper->valutazioneFL($arrayForwardLooking);
         }
@@ -172,6 +167,9 @@ class AllertaController extends Controller
 
 
         $bilancioData = $bilancioHelper->getAnalisiBilancio($id);
+
+
+        $ASISfinalScore = $allertaHelper->getAsIsFinalScore($bilancioData['AnalisiAdvanced'], $scoreCR, $scoreASIS);
         $getScoreHelper = $allertaHelper->getScores($punteggioCR, $bilancioData['AnalisiAdvanced'], $scoreASIS, $ASISfinalScore, $scoreFL);
 
 

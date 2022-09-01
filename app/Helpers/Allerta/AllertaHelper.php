@@ -149,7 +149,6 @@ class AllertaHelper
 
     public function getLastTwoMonths()
     {
-        // $cont = 0;
         $trimestrePeriod = $this->getTrimestrePeriod($this->crExtractorHelper->getPeriod());
 
         $lastYear = array_key_last($trimestrePeriod);
@@ -202,9 +201,6 @@ class AllertaHelper
     {
         $crHelper = new CrExtractorHelper;
         $crHelper->setPeriod($periods);
-
-        // $latestYear = array_key_last($periods);
-        //  $latestMonth = array_key_last($periods[$latestYear]);
 
         $trimestrePeriod = array();
 
@@ -304,8 +300,6 @@ class AllertaHelper
 
     public function getMediaAccordatoOperativo($period, $categories)
     {
-        // $mediaAccordatoOp = array();
-
         $periodStart = new DateTime((cr::select('date')
             ->where('document_id', $this->_documentId)
             ->where('anno', array_key_first($period))
@@ -362,7 +356,6 @@ class AllertaHelper
 
     public function getAccordatoOperativo($period, $categories)
     {
-        // $mediaAccordatoOp = array();
 
         $periodStart = new DateTime((cr::select('date')
             ->where('document_id', $this->_documentId)
@@ -477,8 +470,6 @@ class AllertaHelper
     public function getAnalisiCRQuattro($triennioPeriod, $trimestrePeriod, $latestYear, $latestMonth, $categories)
     {
         $periods = $this->crExtractorHelper->getPeriod();
-
-        // $arrayGaranzie = array();
 
         $firstYear = array_key_first($periods);
         $firstYearMonth = array_key_first($periods[$firstYear]);
@@ -695,7 +686,6 @@ class AllertaHelper
 
     public function getAnalisiCROtto($lastYearPeriod, $latestYear, $latestMonth, $trimestrePeriod, $triennioPeriod)
     {
-        // $periods = $this->crExtractorHelper->getPeriod();
 
         $categories = array(
             'RISCHI A SCADENZA'
@@ -1037,6 +1027,7 @@ class AllertaHelper
     public function getScores($punteggioCR, $bilancioData, $scoreASIS, $ASISfinalScore, $scoreFL)
     {
 
+
         if ($punteggioCR >= 0 && $punteggioCR < 0.14) {
             $resultCentraleRischi = "Default";
         } else if ($punteggioCR >= 0.14 && $punteggioCR < 0.28) {
@@ -1146,6 +1137,7 @@ class AllertaHelper
             $resultMinacceRischiCaratteristici = "N/A";
         }
 
+
         if ($ASISfinalScore) {
             $ASISScore = $ASISfinalScore['Giudizio'];
         } else {
@@ -1170,11 +1162,10 @@ class AllertaHelper
         return $data;
     }
 
-    public function getGeneralScore($bilancioData, $scoreCR, $scoreASIS, $scoreFL)
+    public function getAsIsFinalScore($bilancioData, $scoreCR, $scoreASIS)
     {
 
         $ASISfinalScore = array("Score" => ($bilancioData['Giudizi']['Score'] * 0.25) + ($scoreCR * 0.25) + ($scoreASIS['1'] * 0.1) + ($scoreASIS['2'] * 0.1) + ($scoreASIS['3'] * 0.15) + ($scoreASIS['4'] * 0.15));
-
         $rangeGiudizi = array(
             0 => array("Min" => 0, "Max" => 0.14, "Giudizio" => "Default"),
             1 => array("Min" => 0.14, "Max" => 0.28, "Giudizio" => "Situazione Grave"),
@@ -1188,9 +1179,17 @@ class AllertaHelper
         foreach ($rangeGiudizi as $index => $ranges) {
             if ($ASISfinalScore["Score"] >= $ranges["Min"] && $ASISfinalScore["Score"] < $ranges["Max"]) {
                 $ASISfinalScore["Giudizio"] = $ranges['Giudizio'];
-                $ASISfinalScore["Index"] = $index;
             }
         }
+
+        return $ASISfinalScore;
+    }
+
+
+    public function getGeneralScore($bilancioData, $scoreCR, $scoreASIS, $scoreFL)
+    {
+
+        $ASISfinalScore =  $this->getAsIsFinalScore($bilancioData, $scoreCR, $scoreASIS);
 
         $generalScore = array();
 
@@ -1378,11 +1377,11 @@ class AllertaHelper
         ];
 
         $questionario = DB::table('questionario')->where('document_id', $idCr)->where('bilancio_id', $id)->get();
-       
-            foreach ($questionario as $item => $data) {
-                $arrayQuestionario[$data->parameter]['Result'] = $data->result;
-                $arrayQuestionario[$data->parameter]['Details'] = $data->details == null ? '' : $data->details;
-            }
+
+        foreach ($questionario as $item => $data) {
+            $arrayQuestionario[$data->parameter]['Result'] = $data->result;
+            $arrayQuestionario[$data->parameter]['Details'] = $data->details == null ? '' : $data->details;
+        }
 
         return $arrayQuestionario;
     }
@@ -1405,12 +1404,12 @@ class AllertaHelper
         );
 
         $forwardLooking = DB::table('forwardlooking')->where('document_id', $idCr)->where('bilancio_id', $id)->get();
-      
-        
+
+
         foreach ($forwardLooking as $item => $data) {
             $arrayForwardLooking[$data->question] = $data->answer;
         }
-   
+
         return $arrayForwardLooking;
     }
 
@@ -1419,7 +1418,6 @@ class AllertaHelper
         $scoreFL = 0;
         $peso = 0.08333;
         $giudizio = '';
-
         foreach ($arrayForwardLooking as $label => $value) {
             switch ($value) {
                 case 1:
