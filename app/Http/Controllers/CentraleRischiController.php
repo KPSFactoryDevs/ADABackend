@@ -363,7 +363,7 @@ class CentraleRischiController extends Controller
                     'PosizioniDiRischio' => [
                         'Gestibili' => [
                             'TotaleCreditiScaduti' => $rischiGaranzie['CreditiScaduti'],
-                            'TotaleCreditiScadutiImpoagati' => $rischiGaranzie['CreditiScadutiImpagati'],
+                            'TotaleCreditiScadutiImpagati' => $rischiGaranzie['CreditiScadutiImpagati'],
                             'PercentualeIncidenzaImpagati' => $incidenzaImpagati,
                         ],
                         'QuasiPregiudizievoli' => [

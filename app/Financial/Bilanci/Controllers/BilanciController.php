@@ -38,11 +38,10 @@ class BilanciController extends Controller
         $bilancis = $bilancis->paginate(25);
 
         foreach ($bilancis as $singleBilancio) {
-            $year = explode(' ', $singleBilancio->year);
-            $year = $year[0];
-
-            $singleBilancio->company_name = json_decode($singleBilancio->json_data_anag)->DatiAnagraficiDenominazione;
-            $singleBilancio->annoFormatted = date('Y', strtotime($year));
+                $year = explode(' ', $singleBilancio->year);
+                $year = $year[0];
+                $singleBilancio->company_name = json_decode($singleBilancio->json_data_anag)->DatiAnagraficiDenominazione;
+                $singleBilancio->annoFormatted = date('Y', strtotime($year));
         }
 
         return response()->json([
@@ -115,6 +114,7 @@ class BilanciController extends Controller
 
         $years = array_values(array_unique($years));
 
+   
         ksort($contexts);
 
         foreach ($contexts as $data => $value) {
@@ -139,11 +139,14 @@ class BilanciController extends Controller
             $date[] = $val['period']['startDate'];
             $date[] = $val['period']['endDate'];
         }
+
         $ordDate = array_reverse(array_unique($date, SORT_STRING));
         sort($ordDate);
 
         $jsonData['prevYear'] = $years[0] . ' ' . $years[1];
         $jsonData['currentYear'] = $years[2] . ' ' . $years[3];
+        $jsonData['years'] = explode('-', $years[0])[0].'-'.explode('-', $years[2])[0];
+
 
         $elements = $result->getElements();
         $elements = $elements->getElements();
@@ -482,6 +485,7 @@ class BilanciController extends Controller
             'formaGiuridica' => $formaGiuridica,
             'currentYear' => $currentYear,
             'prevYear' => $prevYear,
+            'years' => $jsonData['years'],
             'support3' => $support3,
             'jsonData' => $jsonData,
             'tipo_azienda' => $tipo_azienda,
@@ -510,7 +514,7 @@ class BilanciController extends Controller
      * @return mixed
      */
     public function store(Request $request)
-    {
+    {  
         if (isset($request->base64)) {
             $importBilancio = $request->base64;
 
@@ -613,6 +617,7 @@ class BilanciController extends Controller
         $accountId = $request->input('account_id');
         $currentYear = $request->input('currYear');
         $prevYear = $request->input('prevYear');
+        $years = $request->input('years');
 
         $companyId = 0;
         if ($request->header('currentcompany') || $request->header('currentcompany') === 0) {
@@ -626,7 +631,7 @@ class BilanciController extends Controller
             'json_data_anag' => $jsonAnagDB,
             'current_year' => $currentYear,
             'prev_year' => $prevYear,
-            'year' => $currentYear,
+            'year' => $years,
             'tipo_azienda' => $tipoAzienda,
             'forma_giuridica' => $formaGiuridica,
             'company_id' => $companyId
