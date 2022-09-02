@@ -38,15 +38,10 @@ class BilanciController extends Controller
         $bilancis = $bilancis->paginate(25);
 
         foreach ($bilancis as $singleBilancio) {
-            dd($singleBilancio->year);
-            if (!empty($singleBilancio->year)) {
                 $year = explode(' ', $singleBilancio->year);
                 $year = $year[0];
                 $singleBilancio->company_name = json_decode($singleBilancio->json_data_anag)->DatiAnagraficiDenominazione;
                 $singleBilancio->annoFormatted = date('Y', strtotime($year));
-            } else {
-                $singleBilancio->annoFormatted = "N/A";
-            }
         }
 
         return response()->json([
