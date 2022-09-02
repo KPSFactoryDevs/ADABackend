@@ -486,8 +486,6 @@ AND t.divisa = t2.divisa');
                     if ($singleSconfino->sconfiniTotali >= 6) {
                         $this->_tensioni[$singleSconfino->categoria] = true;
                     }
-
-
                 } else if ($allMonthsCount > 24) {
                     if ($singleSconfino->sconfiniTotali >= 12) {
                         $this->_tensioni[$singleSconfino->categoria] = true;
@@ -612,6 +610,13 @@ AND t.divisa = t2.divisa');
 
         $this->numeroSconfiniTotali = 0;
 
+        $countSconfiniPerCategoria = array(
+            'RISCHI A SCADENZA' => 0,
+            'RISCHI AUTOLIQUIDANTI'  => 0,
+            'RISCHI A REVOCA'  => 0,
+        );
+
+
         $countBanks = $this->getCountBanks($banks);
         $allMonthsCount = $this->getCountMonths();
         $this->_tensioni["RISCHI A SCADENZA"] = false;
@@ -620,6 +625,11 @@ AND t.divisa = t2.divisa');
 
         foreach ($cleanData['SconfiniTotali'] as $singleSconfino) {
             $this->numeroSconfiniTotali += $singleSconfino->sconfiniTotali;
+
+
+            $countSconfiniPerCategoria[$singleSconfino->categoria] = $cleanData['Categorie'][$singleSconfino->categoria];
+
+
             if ($countBanks == 1) {
                 if ($allMonthsCount <= 12) {
                     if ($singleSconfino->sconfiniTotali >= 2) {
@@ -656,6 +666,7 @@ AND t.divisa = t2.divisa');
         }
 
         $cleanData['SconfiniTotali'] = $this->numeroSconfiniTotali;
+        $cleanData['CountSconfiniPerCategoria'] = $countSconfiniPerCategoria;
 
         //dd($cleanData);
         return $cleanData;
@@ -1139,8 +1150,6 @@ AND t.divisa = t2.divisa');
         $scadutiSconfinanti90 = $CentraleRischiModel->select('importo_garantito')->get()
             ->toArray();
         return $scadutiSconfinanti90;
-
-
     }
 
 
@@ -1170,7 +1179,7 @@ AND t.divisa = t2.divisa');
     public function getScadutiSconfinanti180($banks)
     {
 
-// OLTRE I 180
+        // OLTRE I 180
         $allMonthsCount = $this->getCountMonths();
         $periods = $this->buildPeriodArray();
         $CentraleRischiModel = DB::table('crs')->where('document_id', $this->_documentId);
@@ -1459,12 +1468,12 @@ AND t.divisa = t2.divisa');
         foreach ($periods as $queryPeriodArray) {
             $infoGaranti =
                 cr::where('anno', $queryPeriodArray['anno'])
-                    ->where('document_id', $this->_documentId)
-                    ->where('mese', $queryPeriodArray['mese'])
-                    ->where('sezione', 'Garanti')
-                    ->whereIn('nome_banca', $banks)
-                    ->orderBy('date', 'asc')
-                    ->get();
+                ->where('document_id', $this->_documentId)
+                ->where('mese', $queryPeriodArray['mese'])
+                ->where('sezione', 'Garanti')
+                ->whereIn('nome_banca', $banks)
+                ->orderBy('date', 'asc')
+                ->get();
 
             foreach ($infoGaranti as $label => $singleInfo) {
                 $anomalie = cr::where('anno', $singleInfo->anno)
@@ -1519,11 +1528,11 @@ AND t.divisa = t2.divisa');
         foreach ($periods as $queryPeriodArray) {
             $infoGaranti =
                 cr::where('anno', $queryPeriodArray['anno'])
-                    ->where('document_id', $this->_documentId)
-                    ->where('mese', $queryPeriodArray['mese'])
-                    ->where('sezione', 'Garanti')
-                    ->orderBy('date')
-                    ->get();
+                ->where('document_id', $this->_documentId)
+                ->where('mese', $queryPeriodArray['mese'])
+                ->where('sezione', 'Garanti')
+                ->orderBy('date')
+                ->get();
 
             foreach ($infoGaranti as $label => $singleInfo) {
                 $anomalie = cr::where('anno', $singleInfo->anno)
@@ -1559,12 +1568,12 @@ AND t.divisa = t2.divisa');
         foreach ($periods as $queryPeriodArray) {
             $garanzieRicevute =
                 cr::select('importo_garantito', 'garanzia', 'date')
-                    ->where('anno', $queryPeriodArray['anno'])
-                    ->where('document_id', $this->_documentId)
-                    ->where('mese', $queryPeriodArray['mese'])
-                    ->where('categoria', 'GARANZIE RICEVUTE')
-                    ->orderBy('date')
-                    ->get();
+                ->where('anno', $queryPeriodArray['anno'])
+                ->where('document_id', $this->_documentId)
+                ->where('mese', $queryPeriodArray['mese'])
+                ->where('categoria', 'GARANZIE RICEVUTE')
+                ->orderBy('date')
+                ->get();
 
             // dd($garanzieRicevute);
 
@@ -1705,7 +1714,6 @@ AND t.divisa = t2.divisa');
                         'Probabile errata segnalazione' => $probErrataSegnalazione
                     );
                 }
-
             } else if ($item->categoria == 'RISCHI AUTOLIQUIDANTI') {
                 if (((float)$item->utilizzato - (float)$item->accordato_operativo) > 0) {
                     $probErrataSegnalazione = 'Sconfino da verificare, possibile errore di valuta';
@@ -1783,7 +1791,6 @@ AND t.divisa = t2.divisa');
                         'Probabile errata segnalazione' => $probErrataSegnalazione
                     );
                 }
-
             } else if ($item->categoria == 'RISCHI AUTOLIQUIDANTI') {
                 if (((float)$item->utilizzato - (float)$item->accordato_operativo) > 0) {
                     $probErrataSegnalazione = 'Sconfino da verificare, possibile errore di valuta';
@@ -1830,10 +1837,10 @@ AND t.divisa = t2.divisa');
         foreach ($period as $per => $periodQuery) {
             $segnalazioniModel =
                 cr::where('stato_rapporto', 'like', '%cred scad o sconf da%')
-                    ->where('anno', $periodQuery['anno'])
-                    ->where('document_id', $this->_documentId)
-                    ->where('mese', $periodQuery['mese'])
-                    ->whereIn('nome_banca', $banks);
+                ->where('anno', $periodQuery['anno'])
+                ->where('document_id', $this->_documentId)
+                ->where('mese', $periodQuery['mese'])
+                ->whereIn('nome_banca', $banks);
 
             if ($segnalazioniModel->count() != 0) {
                 $errateSegnalazioni[] = $segnalazioniModel->get();
@@ -1854,10 +1861,10 @@ AND t.divisa = t2.divisa');
 
                 $mesiEntro90 =
                     cr::select('date', 'anno', 'mese')
-                        ->where('document_id', $this->_documentId)
-                        ->where('date', '>=', $mancataSegnalazioneEntro90->format('Y-m-d'))
-                        ->where('date', '<=', $dataSegnalazione->format('Y-m-d'))
-                        ->distinct()->orderBy('date')->get()->toArray();
+                    ->where('document_id', $this->_documentId)
+                    ->where('date', '>=', $mancataSegnalazioneEntro90->format('Y-m-d'))
+                    ->where('date', '<=', $dataSegnalazione->format('Y-m-d'))
+                    ->distinct()->orderBy('date')->get()->toArray();
 
                 foreach ($mesiEntro90 as $index => $singleMeseEntro90) {
                     // foreach($)
@@ -1865,20 +1872,20 @@ AND t.divisa = t2.divisa');
 
                 $mesiOltre90 =
                     cr::select('date', 'anno', 'mese')
-                        ->where('document_id', $this->_documentId)
-                        ->where('date', '>=', $mancataSegnalazioneOltre90->format('Y-m-d'))
-                        ->where('date', '<=', $dataSegnalazione->format('Y-m-d'))
-                        ->distinct()->orderBy('date')->get()->toArray();
+                    ->where('document_id', $this->_documentId)
+                    ->where('date', '>=', $mancataSegnalazioneOltre90->format('Y-m-d'))
+                    ->where('date', '<=', $dataSegnalazione->format('Y-m-d'))
+                    ->distinct()->orderBy('date')->get()->toArray();
 
                 foreach ($mesiEntro90 as $index => $singleMeseEntro90) {
                 }
 
                 $mesiOltre180 =
                     cr::select('date', 'anno', 'mese')
-                        ->where('document_id', $this->_documentId)
-                        ->where('date', '>=', $mancataSegnalazioneOltre180->format('Y-m-d'))
-                        ->where('date', '<=', $dataSegnalazione->format('Y-m-d'))
-                        ->distinct()->orderBy('date')->get()->toArray();
+                    ->where('document_id', $this->_documentId)
+                    ->where('date', '>=', $mancataSegnalazioneOltre180->format('Y-m-d'))
+                    ->where('date', '<=', $dataSegnalazione->format('Y-m-d'))
+                    ->distinct()->orderBy('date')->get()->toArray();
 
                 foreach ($mesiEntro90 as $index => $singleMeseEntro90) {
                 }
@@ -2007,8 +2014,6 @@ AND t.divisa = t2.divisa');
             foreach ($categories as $singolaCategoria) {
                 if (isset($multipleCategories[$singolaCategoria])) {
                     array_push($singleBankArray, $multipleCategories[$singolaCategoria]);
-
-
                 } else {
                     array_push($singleBankArray, 0);
                 }
@@ -2081,20 +2086,20 @@ AND t.divisa = t2.divisa');
         foreach ($trimestre as $singleMonth) {
             $impagati =
                 cr::selectRaw('SUM(importo_garantito) as totImportoGarantito')
-                    ->where('stato_rapporto', 'Crediti impagati')
-                    ->where('categoria', $categoriaScaduti)
-                    ->where('anno', $singleMonth['anno'])
-                    ->where('mese', $singleMonth['mese'])
-                    ->get()->first();
+                ->where('stato_rapporto', 'Crediti impagati')
+                ->where('categoria', $categoriaScaduti)
+                ->where('anno', $singleMonth['anno'])
+                ->where('mese', $singleMonth['mese'])
+                ->get()->first();
 
             $affidamento =
                 cr::selectRaw("SUM(accordato_operativo) as totAccordatoOperativo, SUM(utilizzato) as totUtilizzato,categoria, anno, mese")
-                    ->where('anno', $singleMonth['anno'])
-                    ->where('mese', $singleMonth['mese'])
-                    ->where('document_id', $this->_documentId)
-                    ->where('categoria', 'RISCHI A REVOCA')
-                    ->groupBy('categoria', 'anno', 'mese', 'date')
-                    ->get()->first();
+                ->where('anno', $singleMonth['anno'])
+                ->where('mese', $singleMonth['mese'])
+                ->where('document_id', $this->_documentId)
+                ->where('categoria', 'RISCHI A REVOCA')
+                ->groupBy('categoria', 'anno', 'mese', 'date')
+                ->get()->first();
 
             if ($impagati !== null) {
                 if ($affidamento !== null) {
@@ -2812,7 +2817,7 @@ AND t.divisa = t2.divisa');
                 $creditiScaduti[$singleMonth['mese']][$singolaBanca->nome_banca] = array('RISCHI A REVOCA' => 0, 'RISCHI AUTOLIQUIDANTI' => 0, 'RISCHI A SCADENZA' => 0, 'AccordatoTotale' => 0, 'PesoDebitiBreveTermine' => 0);
                 $affidamentiBreveTermineRevoca = cr::selectRaw("SUM(accordato_operativo) as totAccordatoOperativo, SUM(utilizzato) as totUtilizzato,categoria, anno, mese")->where('document_id', $this->_documentId)->where('categoria', 'RISCHI A REVOCA')->where('anno', $singleMonth['anno'])->where('nome_banca', $singolaBanca->nome_banca)->where('mese', $singleMonth['mese'])->groupBy('categoria', 'anno', 'mese')->get()->first();
                 $affidamentiBreveTermineAutoliq = cr::selectRaw("SUM(accordato_operativo) as totAccordatoOperativo, SUM(utilizzato) as totUtilizzato,categoria, anno, mese")->where('document_id', $this->_documentId)->where('categoria', 'RISCHI AUTOLIQUIDANTI')->where('anno', $singleMonth['anno'])->where('nome_banca', $singolaBanca->nome_banca)->where('mese', $singleMonth['mese'])->groupBy('categoria', 'anno', 'mese')->get()->first();
-                $affidamentiBreveTermineScadenza = cr::selectRaw("SUM(accordato_operativo) as totAccordatoOperativo, SUM(utilizzato) as totUtilizzato,categoria, anno, mese")->where('document_id', $this->_documentId)->where('categoria', 'RISCHI A SCADENZA')/*->where('durata_residua', 'like', '%Fino a 1%')*/ ->where('nome_banca', $singolaBanca->nome_banca)->where('anno', $singleMonth['anno'])->where('mese', $singleMonth['mese'])->groupBy('categoria', 'anno', 'mese')->get()->first();
+                $affidamentiBreveTermineScadenza = cr::selectRaw("SUM(accordato_operativo) as totAccordatoOperativo, SUM(utilizzato) as totUtilizzato,categoria, anno, mese")->where('document_id', $this->_documentId)->where('categoria', 'RISCHI A SCADENZA')/*->where('durata_residua', 'like', '%Fino a 1%')*/->where('nome_banca', $singolaBanca->nome_banca)->where('anno', $singleMonth['anno'])->where('mese', $singleMonth['mese'])->groupBy('categoria', 'anno', 'mese')->get()->first();
 
                 $affidamenti = cr::selectRaw("SUM(accordato_operativo) as totAccordatoOperativo, SUM(utilizzato) as totUtilizzato,categoria, anno, mese")->whereIn('categoria', $categories)->where('document_id', $this->_documentId)->where('anno', $singleMonth['anno'])->where('nome_banca', $singolaBanca->nome_banca)->where('mese', $singleMonth['mese'])->groupBy('categoria', 'anno', 'mese')->get();
 
@@ -2929,7 +2934,6 @@ AND t.divisa = t2.divisa');
         }
 
         return $banksScoring;
-
     }
 
     public function percentualiUtilizzato($totAffidamentiConPesiPerBanca)
