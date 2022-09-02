@@ -239,7 +239,7 @@ class CentraleRischiController extends Controller
                 $earlierDate = new DateTime(cr::select('date')->where('document_id', $crAndamentaleData['period'])->orderBy('date', 'desc')->first()->date);
                 $earlierDate = $earlierDate->modify('-11 months')->modify('first day of this month');
             } else {
-                if(!is_int($crAndamentaleData['data_inizio']) || !is_int($crAndamentaleData['data_fine'])) {
+                if (!is_numeric($crAndamentaleData['data_inizio']) || !is_numeric($crAndamentaleData['data_fine'])) {
                     return response()->json([
                         'error' => true,
                         'message' => 'Invalid data range specified'
@@ -333,6 +333,7 @@ class CentraleRischiController extends Controller
                     'AnomalieLievi' => [
                         'Impagati' => $impagati,
                         'Sconfini' => $numeroSconfiniTotali['PresenzaSconfini'],
+                        'NumeroSconfiniPerTipo' => $numeroSconfiniTotali['CountSconfiniPerCategoria'],
                     ],
                     'AnomalieQuasiPregiudizievoli' => [
                         'SconfiniEntroNovantaGiorni' => (!empty($numeroSconfiniTotali['SconfiniEntro90Giorni'])),
