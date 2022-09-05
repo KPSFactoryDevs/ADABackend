@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Exception;
 use App\Helpers\Bilanci\BilanciHelper;
 use Illuminate\Support\Facades\DB;
+use DateTime;
 
 class AnalisisController extends Controller
 {
@@ -27,9 +28,10 @@ class AnalisisController extends Controller
 
 
     public function storeAnalisiBilancioData(Request $request)
-    {
+    {   
         $idBilancio = $request->input('idBilancio');
         $allData = $request->all();
+        $now = new DateTime();
 
         if (DB::table('basic')->where('bilancio_id', '=', $idBilancio)->count() == 0) {
             DB::table('basic')->insert([
@@ -73,7 +75,13 @@ class AnalisisController extends Controller
                 'alertRetribuzioni' => $allData['alertRetribuzioni'],
                 'fornitori1' => $allData["fornitori1"],
                 'fornitori2' => $allData["fornitori2"],
-                'alertFornitori' => $allData['alertFornitori']
+                'alertFornitori' => $allData['alertFornitori'],
+                'created_at' => $now,
+            ]);
+
+            return response()->json([
+                'error' => false,
+                'Message' => "Analisi effettuata correttamente"
             ]);
         } else {
             DB::table('basic')->where('bilancio_id', '=', $idBilancio)->update([
@@ -117,9 +125,14 @@ class AnalisisController extends Controller
                 'alertRetribuzioni' => $allData['alertRetribuzioni'],
                 'fornitori1' => $allData["fornitori1"],
                 'fornitori2' => $allData["fornitori2"],
-                'alertFornitori' => $allData['alertFornitori']
+                'alertFornitori' => $allData['alertFornitori'],
+                'updated_at' => $now,
+            ]);
+
+            return response()->json([
+                'error' => false,
+                'Message' => "Analisi aggiornata correttamente"
             ]);
         }
-        return back();
     }
 }

@@ -25,6 +25,7 @@ Route::group(['middleware' => ['cors', 'json.response']], function () {
 
     // ANALISI DEL BILANCIO
     Route::get('/analisiBilancioGeneral/{id}', 'App\Http\Controllers\AnalisisController@getAnalisiBilancioFull');
+    Route::post('/analisiBilancioBasic', 'App\Http\Controllers\AnalisisController@storeAnalisiBilancioData');
 
 
     // BILANCI

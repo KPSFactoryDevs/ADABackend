@@ -392,7 +392,7 @@ class CentraleRischiController extends Controller
             ];
             return response()->json([
                 'error' => false,
-                /*  'anomalieStatoRapporto' => $anomalieStatoRapporto,
+                /* 'anomalieStatoRapporto' => $anomalieStatoRapporto,
                 'anomalie' => $anomalie,
                 'missingMonths' => $missingMonths,
                 'sconfiniDivisi' => $sconfiniDivisi,
