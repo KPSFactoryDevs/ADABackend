@@ -42,6 +42,10 @@ class BilanciController extends Controller
                 $year = $year[0];
                 $singleBilancio->company_name = json_decode($singleBilancio->json_data_anag)->DatiAnagraficiDenominazione;
                 $singleBilancio->annoFormatted = date('Y', strtotime($year));
+
+                if(isset($singleBilancio->year)) {
+                    $singleBilancio->annoFormatted = $singleBilancio->year;
+                }   
         }
 
         return response()->json([
