@@ -303,10 +303,10 @@ class CentraleRischiController extends Controller
             $incidenzaImpagati = $crHelper->getPercentualeMediaImpagati($banks);
             $informazioniGaranti = $crHelper->getInformazioniGaranti($banks);
             $garanzieRicevute = $crHelper->getGaranzieRicevute($banks);
-            // $importiSconfini = $crHelper->getImportiSconfini($banks);
+           // $importiSconfini = $crHelper->getImportiSconfini($banks);
             // $affidamentiPerMese = $crHelper->getTotaleAffidamentiPerMese($periods, $categories, $banks);
             // $anomalieStatoRapporto = $crHelper->mancateSegnalazioniStatoRapporto($banks);
-            // $sconfiniDivisi = $crHelper->divideAnomalie($numeroSconfiniTotali, $banks);
+             $sconfiniDivisi = $crHelper->divideAnomalie($numeroSconfiniTotali, $banks);
             // $banksScoring = $crHelper->singleBankData($banks, $periods);
             // $informazioniGarantiAnomalie = $crHelper->informazioniSuiGaranti($informazioniGaranti);
             // $percentualiAccordato = $crHelper->percentualiAccordato($totAffidamentiConPesiPerBanca);
@@ -347,9 +347,9 @@ class CentraleRischiController extends Controller
                     ],
                 ],
                 'ResocontoAnomalie' => [
-                    'ListaSconfiniEntroNovantaGiorni' => $numeroSconfiniTotali['SconfiniEntro90Giorni'],
-                    'ListaSconfiniEntroCentoOttantaGiorni' => $numeroSconfiniTotali['SconfiniOltre90Giorni'],
-                    'ListaSconfiniOltreCentoOttantaGiorni' => $numeroSconfiniTotali['SconfiniOltre180Giorni'],
+                    'ListaSconfiniEntroNovantaGiorni' => $sconfiniDivisi['SconfiniEntro90Giorni'],
+                    'ListaSconfiniEntroCentoOttantaGiorni' => $sconfiniDivisi['SconfiniOltre90Giorni'],
+                    'ListaSconfiniOltreCentoOttantaGiorni' => $sconfiniDivisi['SconfiniOltre180Giorni'],
                     'ListaAnomalie' => $anomalie,
                 ],
                 'AnalisiAffidamenti' => [
