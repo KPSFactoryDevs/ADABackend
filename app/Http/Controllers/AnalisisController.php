@@ -18,11 +18,12 @@ class AnalisisController extends Controller
     {
         $bilancioHelper = new BilanciHelper;
         $analisiResult = $bilancioHelper->getAnalisiBilancio($idBilancio);
-
+        $nomeAzienda = $bilancioHelper->getNameCompany($idBilancio);
 
         return response()->json([
             'error' => 'false',
-            'result' =>  $analisiResult
+            'nomeAzienda' => $nomeAzienda,
+            'result' =>  $analisiResult,
         ]);
     }
 

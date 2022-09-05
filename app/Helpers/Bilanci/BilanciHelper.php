@@ -570,4 +570,12 @@ class BilanciHelper
             'InputData' => $sistemaBasic,
         );
     }
+
+    public function getNameCompany($id) {
+
+       $bilancio = Bilanci::findOrFail($id);
+       $bilancioJsonAnag = json_decode($bilancio['json_data_anag']);
+
+       return $bilancioJsonAnag->DatiAnagraficiDenominazione;
+    }
 }
