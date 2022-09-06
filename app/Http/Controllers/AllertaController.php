@@ -163,9 +163,6 @@ class AllertaController extends Controller
             $scoreFL = $allertaHelper->valutazioneFL($arrayForwardLooking);
         }
 
-
-
-
         $bilancioData = $bilancioHelper->getAnalisiBilancio($id);
 
 
