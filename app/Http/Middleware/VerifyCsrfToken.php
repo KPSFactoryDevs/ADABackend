@@ -29,5 +29,6 @@ class VerifyCsrfToken extends Middleware
 		'api/bilancio',
 		'api/deleteDocument',
         'api/editCompany',
+        'api/analisiBilancioBasic',
     ];
 }
