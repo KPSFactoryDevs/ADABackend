@@ -609,7 +609,7 @@ class PDFController extends Controller
 
         $bilanciHelper = new BilanciHelper;
 
-        $explodedDate = (explode('-', $bilancio->year))[0];
+        $explodedDate = explode('-', $bilancio->year)[0];
 
         $valutazioneBilancio = $bilanciHelper->valutazioneIndici($dataAnalisis, $tipoAzienda, $explodedDate);
 
@@ -750,6 +750,8 @@ class PDFController extends Controller
 			}
           
          $response = Http::get('http://kpsfintech.com/api/analisiBilancioGeneral/'.$idBilancio);
+
+			dd($response);
 
 		$pdfBilancioData = [
 			'currentDate' => date('d/m/y'),
