@@ -1136,8 +1136,11 @@ class PDFController extends Controller
 
             $triennioPeriod = $allertaHelper->getTriennioPeriod($periods, $banks);
 
+			$numeroSconfiniTotali = $crHelper->getTotaleSconfini($banks);
+			$sofferenze = $crHelper->getSofferenze($banks);
+            $creditiPassatiPerdita = $crHelper->getCreditiPassatiPerdita($banks);
             $crExtractorHelper->setPeriod($lastYearPeriod);
-            $scoreCR = $crExtractorHelper->getScoring($banks);
+            $scoreCR = $crExtractorHelper->getScoring($banks, $intermediari, $numeroSconfiniTotali, $sofferenze, $creditiPassatiPerdita);
             $alerts = array();
 
             $alerts['1'] = $allertaHelper->getAnalisiCRUno($banks);
