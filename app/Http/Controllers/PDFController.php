@@ -748,10 +748,15 @@ class PDFController extends Controller
 	 		if(isset($sistemaBasic->fornitori2)) {
 				$fornitori2 = $sistemaBasic->fornitori2;
 			}
-          
-         $response = Http::get('http://kpsfintech.com/api/analisiBilancioGeneral/'.$idBilancio);
 
-			dd($response);
+			$bilancioHelper = new BilanciHelper;
+			$analisiResult = $bilancioHelper->getAnalisiBilancio($idBilancio);
+
+		//	dd($analisiResult['AnalisiBasic']['Soglie']);
+          
+        // $response = Http::get('http://127.0.0.1:8000/api/analisiBilancioGeneral/'.$idBilancio);
+
+	
 
 		$pdfBilancioData = [
 			'currentDate' => date('d/m/y'),
@@ -766,7 +771,7 @@ class PDFController extends Controller
 			'patrimonioNetto' => $patrimonioNettoSiNo,
 			'soglie' => [
 				"soglieBool" => $soglieBasic,
-				"basicData" => $response['basicData'],
+				"basicData" => $analisiResult['AnalisiBasic']['Soglie'],
 			],
 			'entrateDSCRCF' => [
 				'DSCRCFmese1' => $sistemaBasic->entrataDSCRCFmese1,
