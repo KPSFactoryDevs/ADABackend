@@ -34,7 +34,6 @@ class printpdf
 	 	$idDocument = $response['document']['id'];
 	 
 	  	return $idDocument;
-
 		
 	}
 	

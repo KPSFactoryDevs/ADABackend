@@ -220,8 +220,10 @@ class CentraleRischiController extends Controller
         unset($crAndamentaleData['_token']);
 
         if (!isset($crAndamentaleData['period'])) {
-            $msg = "Non è stato selezionato nessun documento";
-            return view('allerta.empty', compact(['msg']));
+            return response()->json([
+                'error' => true,
+                'message' => 'Invalid period specified'
+            ], 400);
         } else {
 
             $categories = array(
@@ -233,8 +235,17 @@ class CentraleRischiController extends Controller
 
             $crHelper = new CrExtractorHelper;
 
+            if(cr::select('date')->where('document_id', $crAndamentaleData['period'])->count() == 0) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Invalid period specified'
+                ], 400);
+            }
+
             if (!$crAndamentaleData['data_inizio'] || !$crAndamentaleData['data_fine']) {
-                $lastDate = new DateTime(cr::select('date')->where('document_id', $crAndamentaleData['period'])->orderBy('date', 'desc')->first()->date);
+                $lastDate = new DateTime(
+                    cr::select('date')->where('document_id', $crAndamentaleData['period'])->orderBy('date', 'desc')->first()->date
+                );
                 $lastDate = $lastDate->modify('last day of this month')->format('Y-m-d');
                 $earlierDate = new DateTime(cr::select('date')->where('document_id', $crAndamentaleData['period'])->orderBy('date', 'desc')->first()->date);
                 $earlierDate = $earlierDate->modify('-11 months')->modify('first day of this month');

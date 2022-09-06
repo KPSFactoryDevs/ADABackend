@@ -34,7 +34,46 @@ class AnalisisController extends Controller
         $allData = $request->all();
         $now = new DateTime();
 
-        if (DB::table('basic')->where('bilancio_id', '=', $idBilancio)->count() == 0) {
+        $calcoloDSCR = (
+                        $allData['DSCRdispLiquida'] +
+                        $allData['entrataDSCRCFmese1'] +
+                        $allData['entrataDSCRCFmese2'] +
+                        $allData['entrataDSCRCFmese3'] +
+                        $allData['entrataDSCRCFmese4'] +
+                        $allData['entrataDSCRCFmese5'] +
+                        $allData['entrataDSCRCFmese6'] +
+                        $allData['uscitaDSCRCFmese1'] -
+                        $allData['uscitaDSCRCFmese2'] -
+                        $allData['uscitaDSCRCFmese3'] -
+                        $allData['uscitaDSCRCFmese4'] -
+                        $allData['uscitaDSCRCFmese5'] -
+                        $allData['uscitaDSCRCFmese6']
+                        )
+                         /
+                        (
+                        $allData['rimborsoDSCRmese1'] +
+                        $allData['rimborsoDSCRmese2'] +
+                        $allData['rimborsoDSCRmese3'] +
+                        $allData['rimborsoDSCRmese4'] +
+                        $allData['rimborsoDSCRmese5'] +
+                        $allData['rimborsoDSCRmese6']
+                        );
+                 
+                 if(is_nan($allData['DSCR'])) {
+                    return response()->json([
+                        'error' => true,
+                        'Message' => 'DSCR must be a number'
+                    ]);
+                 }
+
+                 if($allData['DSCR'] > 1){
+                    $allData['alertDSCR'] = "Azienda non a rischio";
+                 }
+                 else{
+                    $allData['alertDSCR'] = "Azienda a rischio";
+                 }
+
+                if (DB::table('basic')->where('bilancio_id', '=', $idBilancio)->count() == 0) {
             DB::table('basic')->insert([
                 'bilancio_id' => ($allData["idBilancio"] != null) ? $allData["idBilancio"] : 0,
                 'DSCR' => ($allData["DSCR"] != null) ? $allData["DSCR"] : 0,
@@ -82,7 +121,9 @@ class AnalisisController extends Controller
 
             return response()->json([
                 'error' => false,
-                'Message' => "Analisi effettuata correttamente"
+                'Message' => "Analisi effettuata correttamente",
+                'DSCRResult' => number_format($calcoloDSCR,2,",","."),
+                'DSCRAlert' => $allData['alertDSCR']
             ]);
         } else {
             DB::table('basic')->where('bilancio_id', '=', $idBilancio)->update([
@@ -132,7 +173,9 @@ class AnalisisController extends Controller
 
             return response()->json([
                 'error' => false,
-                'Message' => "Analisi aggiornata correttamente"
+                'Message' => "Analisi aggiornata correttamente",
+                'DSCRResult' => number_format($calcoloDSCR,2,",","."),
+                'DSCRAlert' => $allData['alertDSCR']
             ]);
         }
     }
