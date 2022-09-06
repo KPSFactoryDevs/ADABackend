@@ -45,6 +45,7 @@ class printpdf
 		'Content-Type' => 'application/json'
 		])->get($this->baseUrl.$documentId);
 
+		dd($getDocument);
 			$fileContent = file_get_contents($getDocument['document']['download_url']);
 
 			$fileName = time().'.pdf';
