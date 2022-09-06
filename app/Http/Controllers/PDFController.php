@@ -609,9 +609,9 @@ class PDFController extends Controller
 
         $bilanciHelper = new BilanciHelper;
 
-        $explodedDate = new DateTime((explode(' ', $bilancio->year))[0]);
+        $explodedDate = (explode('-', $bilancio->year))[0];
 
-        $valutazioneBilancio = $bilanciHelper->valutazioneIndici($dataAnalisis, $tipoAzienda, $explodedDate->format('Y'));
+        $valutazioneBilancio = $bilanciHelper->valutazioneIndici($dataAnalisis, $tipoAzienda, $explodedDate);
 
         $indiciImportanti = array();
 
