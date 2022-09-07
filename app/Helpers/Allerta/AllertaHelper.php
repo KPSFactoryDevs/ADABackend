@@ -168,8 +168,7 @@ class AllertaHelper
         $crHelper = new CrExtractorHelper;
         $crHelper->setPeriod($periods);
         // $cleanCR = $crHelper->getAllDataToArray($banks);
-        
-        if(cr::select('date')->where('document_id', $periods)->count() == 0) {
+        if(cr::select('date')->where('document_id', $this->_documentId)->count() == 0) {
             return response()->json([
                 'error' => true,
                 'message' => 'Invalid period specified'
@@ -354,7 +353,6 @@ class AllertaHelper
                     ->where('accordato_operativo', '>', 0)
                     ->get()->first()
                     ->toArray();
-
                 $mediaAccordato = ($mediaAccordato) + $accordatoModel['Accordato'];
             }
         }
@@ -479,13 +477,6 @@ class AllertaHelper
     {
         $periods = $this->crExtractorHelper->getPeriod();
 
-        if(cr::select('date')->where('document_id', $this->_documentId)) {
-            return response()->json([
-                'error' => true,
-                'message' => 'Invalid period specified'
-            ], 400);
-        }
-
         $firstYear = array_key_first($periods);
         $firstYearMonth = array_key_first($periods[$firstYear]);
         $earlyYearDate = new DateTime((cr::select('date')->where('anno', $firstYear)->where('document_id', $this->_documentId)->where('mese', $firstYearMonth)->first())->date);
@@ -537,13 +528,6 @@ class AllertaHelper
     {
         $aumentiGaranzie = array();
 
-        if(cr::select('date')->where('document_id', $this->_documentId)) {
-            return response()->json([
-                'error' => true,
-                'message' => 'Invalid period specified'
-            ], 400);
-        }
-
         foreach ($lastYearPeriod as $singleYear => $multipleMonths) {
             foreach ($multipleMonths as $singleMonth => $platanoPicchiatore) {
                 $currentMonth = new DateTime((cr::select('date')->where('anno', $singleYear)->where('document_id', $this->_documentId)->where('mese', $singleMonth)->first())->date);
@@ -582,13 +566,6 @@ class AllertaHelper
         $aumentiImpagati = array();
         $impagatiPerBanca = array();
         $utilizzatoPerBanca = array();
-
-        if(cr::select('date')->where('document_id', $this->_documentId)) {
-            return response()->json([
-                'error' => true,
-                'message' => 'Invalid period specified'
-            ], 400);
-        }
 
         foreach ($lastYearPeriod as $singleYear => $multipleMonths) {
             foreach ($multipleMonths as $singleMonth => $platanoPicchiatore) {
@@ -652,13 +629,6 @@ class AllertaHelper
             'RISCHI A REVOCA',
             'RISCHI A SCADENZA'
         );
-
-        if(cr::select('date')->where('document_id', $this->_documentId)) {
-            return response()->json([
-                'error' => true,
-                'message' => 'Invalid period specified'
-            ], 400);
-        }
 
         foreach ($categories as $singleCategoria) {
             foreach ($lastYearPeriod as $singleYear => $multipleMonths) {
@@ -727,13 +697,6 @@ class AllertaHelper
             'RISCHI A SCADENZA'
         );
 
-        if(cr::select('date')->where('document_id', $this->_documentId)) {
-            return response()->json([
-                'error' => true,
-                'message' => 'Invalid period specified'
-            ], 400);
-        }
-
         $lastMonthDate = new DateTime((cr::select('date')
             ->where('document_id', $this->_documentId)
             ->where('anno', $latestYear)
@@ -796,13 +759,6 @@ class AllertaHelper
         $categories = array(
             'RISCHI A REVOCA'
         );
-
-        if(cr::select('date')->where('document_id', $this->_documentId)) {
-            return response()->json([
-                'error' => true,
-                'message' => 'Invalid period specified'
-            ], 400);
-        }
 
         $aumentiUtilizzato = array();
         $importiAumenti = array();
