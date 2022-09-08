@@ -1153,6 +1153,8 @@ class AllertaHelper
             $scoreGiudizioFL = $scoreFL['Giudizio'];
         }
 
+        $generalScoreFinal = $this->getGeneralScore($bilancioData, $punteggioCR, $scoreASIS, $scoreFL);
+
         $data = [
             'resultCentraleRischi' => $resultCentraleRischi,
             'resultAnalisiBilancio' => $resultAnalisiBilancio,
@@ -1161,7 +1163,8 @@ class AllertaHelper
             'resultMinacceEventiPregiudizievoli' => $resultMinacceEventiPregiudizievoli,
             'resultMinacceRischiCaratteristici' => $resultMinacceRischiCaratteristici,
             'ASISScore' => $ASISScore,
-            'scoreGiudizioFL' => $scoreGiudizioFL
+            'scoreGiudizioFL' => $scoreGiudizioFL,
+            'FinalScore' => $generalScoreFinal['Giudizio']
         ];
 
         return $data;
@@ -1184,6 +1187,7 @@ class AllertaHelper
         foreach ($rangeGiudizi as $index => $ranges) {
             if ($ASISfinalScore["Score"] >= $ranges["Min"] && $ASISfinalScore["Score"] < $ranges["Max"]) {
                 $ASISfinalScore["Giudizio"] = $ranges['Giudizio'];
+                $ASISfinalScore["Index"] = $index;
             }
         }
 
@@ -1195,7 +1199,15 @@ class AllertaHelper
     {
 
         $ASISfinalScore =  $this->getAsIsFinalScore($bilancioData, $scoreCR, $scoreASIS);
-
+        $rangeGiudizi = array(
+            0 => array("Min" => 0, "Max" => 0.14, "Giudizio" => "Default"),
+            1 => array("Min" => 0.14, "Max" => 0.28, "Giudizio" => "Situazione Grave"),
+            2 => array("Min" => 0.28, "Max" => 0.42, "Giudizio" => "Alert"),
+            3 => array("Min" => 0.42, "Max" => 0.56, "Giudizio" => "Rischio alert"),
+            4 => array("Min" => 0.56, "Max" => 0.70, "Giudizio" => "Fragilità elevata"),
+            5 => array("Min" => 0.70, "Max" => 0.85, "Giudizio" => "Fragilità"),
+            6 => array("Min" => 0.85, "Max" => 1, "Giudizio" => "Solidità")
+        );
         $generalScore = array();
 
         if ($scoreASIS['4'] < 0.75) {
