@@ -583,9 +583,31 @@ class BilanciHelper
     public function getCalcoloDSCR($allData)
     {
 
+        $data = [
+            'DSCRdispLiquida' => $allData['DSCRdispLiquida'],
+            'entrataDSCRCFmese1' => $allData['entrataDSCRCFmese1'],
+            'entrataDSCRCFmese2' => $allData['entrataDSCRCFmese2'],
+            'entrataDSCRCFmese3' => $allData['entrataDSCRCFmese3'],
+            'entrataDSCRCFmese4' => $allData['entrataDSCRCFmese4'],
+            'entrataDSCRCFmese5' => $allData['entrataDSCRCFmese5'],
+            'entrataDSCRCFmese6' => $allData['entrataDSCRCFmese6'],
+            'uscitaDSCRCFmese1' => $allData['uscitaDSCRCFmese1'] ,
+            'uscitaDSCRCFmese2' => $allData['uscitaDSCRCFmese2'] ,
+            'uscitaDSCRCFmese3' => $allData['uscitaDSCRCFmese3'] ,
+            'uscitaDSCRCFmese4' => $allData['uscitaDSCRCFmese4'] ,
+            'uscitaDSCRCFmese5' => $allData['uscitaDSCRCFmese5'] ,
+            'uscitaDSCRCFmese6' => $allData['uscitaDSCRCFmese6'],
+            'rimborsoDSCRmese1' => $allData['rimborsoDSCRmese1'] ,
+            'rimborsoDSCRmese2' => $allData['rimborsoDSCRmese2'] ,
+            'rimborsoDSCRmese3' => $allData['rimborsoDSCRmese3'] ,
+            'rimborsoDSCRmese4' => $allData['rimborsoDSCRmese4'] ,
+            'rimborsoDSCRmese5' => $allData['rimborsoDSCRmese5'] ,
+            'rimborsoDSCRmese6' => $allData['rimborsoDSCRmese6']
+        ];
+
         $emptyMessage = null;
 
-        foreach ($allData as $singleData) {
+        foreach ($data as $singleData) {
             if (empty($singleData)) {
                 $emptyMessage = "Attenzione, alcuni campi sono vuoti, compila tutti i campi.";
             }
