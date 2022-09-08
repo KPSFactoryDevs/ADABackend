@@ -150,7 +150,6 @@ class AllertaHelper
     public function getLastTwoMonths()
     {
         $trimestrePeriod = $this->getTrimestrePeriod($this->crExtractorHelper->getPeriod());
-
         $lastYear = array_key_last($trimestrePeriod);
         $lastMonth = array_key_last($trimestrePeriod[$lastYear]);
         unset($trimestrePeriod[$lastYear][$lastMonth]);
@@ -168,21 +167,21 @@ class AllertaHelper
         $crHelper = new CrExtractorHelper;
         $crHelper->setPeriod($periods);
         // $cleanCR = $crHelper->getAllDataToArray($banks);
-        if(cr::select('date')->where('document_id', $this->_documentId)->count() == 0) {
+        if (cr::select('date')->where('document_id', $this->_documentId)->count() == 0) {
             return response()->json([
                 'error' => true,
                 'message' => 'Invalid period specified'
             ], 400);
         }
-
         $latestYear = array_key_last($periods);
         $latestMonth = array_key_last($periods[$latestYear]);
+
         $lastDate = new DateTime(cr::select('date')
             ->where('anno', '=', $latestYear)
             ->where('mese', '=', $latestMonth)
             ->where('document_id', $this->_documentId)
             ->first()->date);
-            
+
 
         $triennio = new DateTime($lastDate->format('Y-m-d'));
         $triennio = $triennio->modify('-35 months');
@@ -1395,18 +1394,18 @@ class AllertaHelper
     public function getArrayQuestionarioToBe($id, $idCr)
     {
         $arrayForwardLooking = array(
-            "forwardLooking1" => 0,
-            "forwardLooking2" => 0,
-            "forwardLooking3" => 0,
-            "forwardLooking4" => 0,
-            "forwardLooking5" => 0,
-            "forwardLooking6" => 0,
-            "forwardLooking7" => 0,
-            "forwardLooking8" => 0,
-            "forwardLooking9" => 0,
-            "forwardLooking10" => 0,
-            "forwardLooking11" => 0,
-            "forwardLooking12" => 0
+            "forwardLooking1" => 1,
+            "forwardLooking2" => 1,
+            "forwardLooking3" => 1,
+            "forwardLooking4" => 1,
+            "forwardLooking5" => 1,
+            "forwardLooking6" => 1,
+            "forwardLooking7" => 1,
+            "forwardLooking8" => 1,
+            "forwardLooking9" => 1,
+            "forwardLooking10" => 1,
+            "forwardLooking11" => 1,
+            "forwardLooking12" => 1
         );
 
         $forwardLooking = DB::table('forwardlooking')->where('document_id', $idCr)->where('bilancio_id', $id)->get();
