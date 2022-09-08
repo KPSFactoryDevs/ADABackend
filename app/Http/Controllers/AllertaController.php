@@ -118,9 +118,8 @@ class AllertaController extends Controller
         $banks = cr::select('nome_banca')->where('document_id', $idCr)->where('date', '>=', $lowerBoundDate->format('Y-m-d'))->where('date', '<=', $upperBoundDate->format('Y-m-d'))->distinct()->get()->pluck('nome_banca')->toArray();
 
 
-
-
         $trimestrePeriod = $allertaHelper->getTrimestrePeriod($periods);
+
         $triennioPeriod = $allertaHelper->getTriennioPeriod($periods, $banks);
         $crHelper->setPeriod($lastYearPeriod);
         $sofferenze = $crHelper->getSofferenze($banks);

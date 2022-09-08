@@ -41,7 +41,7 @@ class AnalisisController extends Controller
                 return response()->json([
                     'error' => true,
                     'Message' => "Attenzione, alcuni campi sono vuoti, compila tutti i campi.",
-                ], 400);
+                ], 406);
             }
 
             $dataBasic = $bilancioHelper->saveAnalisiBasicToDB($allData, $idBilancio);
