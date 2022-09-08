@@ -176,7 +176,8 @@ class AllertaController extends Controller
                 'crAlerts' => $alerts,
                 'arrayQuestionarioAsIs' => $arrayQuestionario,  // questionario per document id e bilancio id
                 'arrayForwardLookingToBe' => $arrayForwardLooking,
-                'bilancioData' => $bilancioData
+                'bilancioData' => $bilancioData,
+                'FinalScore' => $getScoreHelper['FinalScore']
             ],
             'GeneralScore' => [
                 'Giudizio_CR' => $getScoreHelper['resultCentraleRischi'],
@@ -187,7 +188,6 @@ class AllertaController extends Controller
                 'Minacce erariali e rischi caratteristici' =>  $getScoreHelper['resultMinacceRischiCaratteristici'],
                 'Profilo rischio AS IS' => $getScoreHelper['ASISScore'],
                 'Questionario TO BE' => $getScoreHelper['scoreGiudizioFL'],
-                'FinalScore' => $getScoreHelper['FinalScore']
             ],
         ];
 
