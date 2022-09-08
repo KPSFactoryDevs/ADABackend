@@ -58,7 +58,6 @@ class CompaniesController extends Controller
 			]);
 
         } catch (Exception $exception) {
-dd($exception);
             return back()->withInput()
                 ->withErrors(['unexpected_error' => 'Unexpected error occurred while trying to process your request.']);
         }
