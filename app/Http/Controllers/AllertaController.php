@@ -186,7 +186,8 @@ class AllertaController extends Controller
                 'Minacce da eventi pregiudizievoli' => $getScoreHelper['resultMinacceEventiPregiudizievoli'],
                 'Minacce erariali e rischi caratteristici' =>  $getScoreHelper['resultMinacceRischiCaratteristici'],
                 'Profilo rischio AS IS' => $getScoreHelper['ASISScore'],
-                'Questionario TO BE' => $getScoreHelper['scoreGiudizioFL']
+                'Questionario TO BE' => $getScoreHelper['scoreGiudizioFL'],
+                'FinalScore' => $getScoreHelper['FinalScore']
             ],
         ];
 
