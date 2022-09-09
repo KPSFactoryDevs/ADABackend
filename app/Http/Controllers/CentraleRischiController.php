@@ -293,7 +293,7 @@ class CentraleRischiController extends Controller
             $earliestMonth = array_key_first($periods[$earliestYear]);
             $finePeriodo = $latestMonth . ' ' . $latestYear;
             $inizioPeriodo = $earliestMonth . ' ' . $earliestYear;
-
+			
             //  $missingMonths = $crHelper->missingMonths($unrefinedPeriods, $crAndamentaleData);
             $intermediari = $crHelper->getCountBanks($banks);
             // $mediaAnalisiIndebitamento = $crHelper->getMediaIndebitamento($banks);
@@ -301,7 +301,9 @@ class CentraleRischiController extends Controller
             $rischiGaranzie = $crHelper->getRischiGaranzie($banks);
             $totaleAffidamentiTable = $crHelper->getTotaleAffidamenti($categories, $latestYear, $latestMonth, $banks);
             //  $totaleAffidamentiGeneral = $crHelper->getTotaleAffidamentiGeneral($categories, $latestYear, $latestMonth, $banks);
-            //  $totAffidamentiConPesiPerBanca = $crHelper->getPesiAffidamentiPerBanca($categories, $latestYear, $latestMonth, $banks);
+            // $totAffidamentiConPesiPerBanca = $crHelper->getPesiAffidamentiPerBanca($categories, $latestYear, $latestMonth, $banks);
+
+            //dd($totAffidamentiConPesiPerBanca);
             $sofferenze = $crHelper->getSofferenze($banks);
             $creditiPassatiPerdita = $crHelper->getCreditiPassatiPerdita($banks);
             $scoreCR = $crHelper->getScoring($banks, $intermediari, $numeroSconfiniTotali, $sofferenze, $creditiPassatiPerdita);
@@ -311,6 +313,7 @@ class CentraleRischiController extends Controller
             $garanzieEsitoNegativo = $crHelper->getGaranzieEsitoNegativo($banks);
 
             $anomalie = $crHelper->getAnomalie($banks);
+
             $incidenzaImpagati = $crHelper->getPercentualeMediaImpagati($banks);
             $informazioniGaranti = $crHelper->getInformazioniGaranti($banks);
             $garanzieRicevute = $crHelper->getGaranzieRicevute($banks);
@@ -324,6 +327,7 @@ class CentraleRischiController extends Controller
             // $percentualiUtilizzato = $crHelper->percentualiUtilizzato($totAffidamentiConPesiPerBanca);
             // $totaleUtilizzatoGeneral = $crHelper->totAffidamentiConPesiPerBanca($totAffidamentiConPesiPerBanca);
             // $monthsList = array_keys($affidamentiPerMese);
+
 
             $response = [
                 'Scoring' => [

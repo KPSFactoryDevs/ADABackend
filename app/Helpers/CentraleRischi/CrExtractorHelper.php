@@ -1363,7 +1363,29 @@ AND t.divisa = t2.divisa');
 
     public function getTotaleAffidamenti($categories, $latestYear, $latestMonth, $banks)
     {
-        return cr::groupBy('nome_banca')->groupBy('categoria')->selectRaw("nome_banca, categoria, SUM(accordato_operativo) as totAccordatoOperativo, SUM(utilizzato) as totUtilizzato")->where('anno', $latestYear)->where('document_id', $this->_documentId)->where('mese', $latestMonth)->whereIn('categoria', $categories)->whereIn('nome_banca', $banks)->get()->toArray();
+
+        // return cr::groupBy('nome_banca')->groupBy('categoria')->selectRaw("nome_banca, categoria, SUM(accordato_operativo) as totAccordatoOperativo, SUM(utilizzato) as totUtilizzato")->where('anno', $latestYear)->where('document_id', $this->_documentId)->where('mese', $latestMonth)->whereIn('categoria', $categories)->whereIn('nome_banca', $banks)->get()->toArray();
+
+        $totAffidamentiConPesiPerBanca = cr::groupBy('nome_banca')->groupBy('categoria')->selectRaw("nome_banca, categoria, SUM(accordato_operativo) as totAccordatoOperativo, SUM(utilizzato) as totUtilizzato")->where('anno', $latestYear)->where('document_id', $this->_documentId)->where('mese', $latestMonth)->whereIn('categoria', $categories)->whereIn('nome_banca', $banks)->get()->toArray();
+        $totaliAccordatiUtilizzatiLastMonth = cr::selectRaw("SUM(accordato_operativo) as totAccordatoOperativo, SUM(utilizzato) as totUtilizzato")->where('anno', $latestYear)->where('mese', $latestMonth)->whereIn('categoria', $categories)->whereIn('nome_banca', $banks)->where('document_id', $this->_documentId)->get()->toArray();
+
+        foreach ($totAffidamentiConPesiPerBanca as $index => $singleBank) {
+
+            // dd($singleBank['totAccordatoOperativo'], $totaliAccordatiUtilizzatiLastMonth[0]['totAccordatoOperativo']);
+            if ($totaliAccordatiUtilizzatiLastMonth[0]['totAccordatoOperativo'] != 0) {
+                $totAffidamentiConPesiPerBanca[$index]['PesoAccordatoOperativo'] = round((($singleBank['totAccordatoOperativo'] / $totaliAccordatiUtilizzatiLastMonth[0]['totAccordatoOperativo']) * 100), 2);
+            } else {
+                $totAffidamentiConPesiPerBanca[$index]['totAccordatoOperativo'] = 0;
+            }
+
+            if ($totaliAccordatiUtilizzatiLastMonth[0]['totUtilizzato'] != 0) {
+                $totAffidamentiConPesiPerBanca[$index]['PesoUtilizzato'] = round((($singleBank['totUtilizzato'] / $totaliAccordatiUtilizzatiLastMonth[0]['totUtilizzato']) * 100), 2);
+            } else {
+                $totAffidamentiConPesiPerBanca[$index]['PesoUtilizzato'] = 0;
+            }
+        }
+
+        return $totAffidamentiConPesiPerBanca;
     }
 
     public function getTotaleAffidamentiGeneral($categories, $latestYear, $latestMonth, $banks)
@@ -1409,7 +1431,6 @@ AND t.divisa = t2.divisa');
     {
         $totaliAccordatiUtilizzatiLastMonth = cr::selectRaw("SUM(accordato_operativo) as totAccordatoOperativo, SUM(utilizzato) as totUtilizzato")->where('anno', $latestYear)->where('mese', $latestMonth)->whereIn('categoria', $categories)->whereIn('nome_banca', $banks)->where('document_id', $this->_documentId)->get()->toArray();
         $totAffidamentiConPesiPerBanca = cr::groupBy('nome_banca')->selectRaw("nome_banca, SUM(accordato_operativo) as totAccordatoOperativo, SUM(utilizzato) as totUtilizzato")->where('anno', $latestYear)->where('mese', $latestMonth)->where('document_id', $this->_documentId)->whereIn('categoria', $categories)->whereIn('nome_banca', $banks)->get()->toArray();
-
 
         foreach ($totAffidamentiConPesiPerBanca as $index => $singleBank) {
             if ($totaliAccordatiUtilizzatiLastMonth[0]['totAccordatoOperativo'] != 0) {
