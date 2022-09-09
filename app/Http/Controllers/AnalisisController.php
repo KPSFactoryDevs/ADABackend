@@ -36,27 +36,13 @@ class AnalisisController extends Controller
             $bilancioHelper = new BilanciHelper;
             $calcoloDSCR = $bilancioHelper->getCalcoloDSCR($allData);
             $dataBasic = $bilancioHelper->saveAnalisiBasicToDB($allData, $idBilancio);
-  
-            if($allData['DSCR'] == 1 && $calcoloDSCR == "Attenzione, alcuni campi sono vuoti, compila tutti i campi.") {
-                return response()->json([
+
+            return response()->json([
                     'error' => false,
                     'Message' => $dataBasic['Message'],
-                    'DSCRAlert' => $dataBasic['Alert'],
-                    'result' => "Attenzione, alcuni campi sono vuoti, compila tutti i campi.",
-                ], 202);
-            } elseif($allData['DSCR'] == 1) {
-                return response()->json([
-                    'error' => false,
-                    'Message' => $dataBasic['Message'],
-                    'DSCRAlert' => $dataBasic['Alert'],
-                    'DSCRResult' => $calcoloDSCR,
+                    'DSCRAlert' => $dataBasic['AlertDSCR'],
+                    'DSCRResult' => $calcoloDSCR
                 ], 200);
-            } elseif ($allData['DSCR'] == 0) {
-                return response()->json([
-                    'error' => false,
-                    'Message' => $dataBasic['Message'],
-                    'DSCRAlert' => $dataBasic['Alert'],
-                ], 200);
-            }         
+        
     }
 }

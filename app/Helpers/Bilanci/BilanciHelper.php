@@ -5,6 +5,7 @@ namespace App\Helpers\Bilanci;
 use App\Http\Requests;
 use App;
 use App\Models\Bilanci;
+use App\Models\Basic;
 use App\Models\Account;
 use App\Models\cr;
 use App\Models\soglie;
@@ -12,6 +13,7 @@ use App\Models\range;
 use App\Models\Roe;
 use Illuminate\Support\Facades\DB;
 use DateTime;
+use Exception;
 use App\Helpers\Bilanci\BilanciCalculationsHelper;
 
 class BilanciHelper
@@ -581,10 +583,9 @@ class BilanciHelper
         return $bilancioJsonAnag->DatiAnagraficiDenominazione;
     }
 
-    public function getCalcoloDSCR($allData)
+    private function getDSCRArrayData($allData)
     {
-
-        $data = [
+        $cleanArray = [
             'DSCR' => $allData['DSCR'],
             'DSCRdispLiquida' => $allData['DSCRdispLiquida'],
             'entrataDSCRCFmese1' => $allData['entrataDSCRCFmese1'],
@@ -604,229 +605,122 @@ class BilanciHelper
             'rimborsoDSCRmese3' => $allData['rimborsoDSCRmese3'],
             'rimborsoDSCRmese4' => $allData['rimborsoDSCRmese4'],
             'rimborsoDSCRmese5' => $allData['rimborsoDSCRmese5'],
-            'rimborsoDSCRmese6' => $allData['rimborsoDSCRmese6']
+            'rimborsoDSCRmese6' => $allData['rimborsoDSCRmese6'],
+            'agenziaEntrate1' => ($allData["agenziaEntrate1"] != null) ? $allData["agenziaEntrate1"] : 0,
+            'agenziaEntrate3' => ($allData["agenziaEntrate3"] != null) ? $allData["agenziaEntrate3"] : 0,
+            'agenziaEntrate2' => ($allData["agenziaEntrate2"] != null) ? $allData["agenziaEntrate2"] : 0,
+            'agenziaEntrate4' => ($allData["agenziaEntrate4"] != null) ? $allData["agenziaEntrate4"] : 0,
+            'INPS1' => ($allData["INPS1"] != null) ? $allData["INPS1"] : 0,
+            'INPS2' => ($allData["INPS2"] != null) ? $allData["INPS2"] : 0,
+            'INPS3' => ($allData["INPS3"] != null) ? $allData["INPS3"] : 0,
+            'riscossione' => ($allData["riscossione"] != null) ? $allData["riscossione"] : 0,
+            'retribuzioni1' => ($allData["retribuzioni1"] != null) ? $allData["retribuzioni1"] : 0,
+            'retribuzioni2' => ($allData["retribuzioni2"] != null) ? $allData["retribuzioni2"] : 0,
+            'retribuzioni3' => ($allData["retribuzioni3"] != null) ? $allData["retribuzioni3"] : 0,
+            'fornitori1' => ($allData["fornitori1"] != null) ? $allData["fornitori1"] : 0,
+            'fornitori2' => ($allData["fornitori2"] != null) ? $allData["fornitori2"] : 0,
+            'alertAgenziaEntrate' => ($allData['alertAgenziaEntrate'] != null) ? $allData["alertAgenziaEntrate"] : 0,
+            'alertINPS' => ($allData['alertINPS'] != null) ? $allData["alertINPS"] : 0,
+            'alertRiscossione' => ($allData['alertRiscossione'] != null) ? $allData["alertRiscossione"] : 0,
+            'alertRetribuzioni' => ($allData['alertRetribuzioni'] != null) ? $allData["alertRetribuzioni"] : 0,
+            'alertFornitori' => ($allData['alertFornitori'] != null) ? $allData["alertFornitori"] : 0,
         ];
 
-        if($data['DSCR'] == 1) {
+        return $cleanArray;
+    }
+
+    private function calculateDSCR($inboundData)
+    {
+
+        $sum = ($inboundData['DSCRdispLiquida'] +
+            $inboundData['entrataDSCRCFmese1'] +
+            $inboundData['entrataDSCRCFmese2'] +
+            $inboundData['entrataDSCRCFmese3'] +
+            $inboundData['entrataDSCRCFmese4'] +
+            $inboundData['entrataDSCRCFmese5'] +
+            $inboundData['entrataDSCRCFmese6'] +
+            $inboundData['uscitaDSCRCFmese1'] -
+            $inboundData['uscitaDSCRCFmese2'] -
+            $inboundData['uscitaDSCRCFmese3'] -
+            $inboundData['uscitaDSCRCFmese4'] -
+            $inboundData['uscitaDSCRCFmese5'] -
+            $inboundData['uscitaDSCRCFmese6']
+        );
+
+        $divisore = ($inboundData['rimborsoDSCRmese1'] +
+            $inboundData['rimborsoDSCRmese2'] +
+            $inboundData['rimborsoDSCRmese3'] +
+            $inboundData['rimborsoDSCRmese4'] +
+            $inboundData['rimborsoDSCRmese5'] +
+            $inboundData['rimborsoDSCRmese6']
+        );
+
+        try {
+            $result = $sum / $divisore;
+            return number_format($result, 2, ",", ".");
+        } catch (Exception $e) {
+            return [
+                'error' => true,
+                'message' => $e->getMessage()
+            ];
+        }
+    }
+
+    public function getCalcoloDSCR($allData)
+    {
+
+        $dscrData = $this->getDSCRArrayData($allData);
+
+        if ($dscrData['DSCR'] != 1) {
+            return [
+                'Message' => "DSCR da non calcolare",
+                'error' => true
+            ];
+        }
 
 
-        $emptyMessage = null;
-
-        foreach ($data as $singleData) {
-            if (empty($singleData)) {
-                $emptyMessage = "Attenzione, alcuni campi sono vuoti, compila tutti i campi.";
+        foreach ($dscrData as $singleData) {
+            if (empty($singleData) || $singleData == 0) {
+                return [
+                    'Message' => "Attenzione, alcuni campi sono vuoti, compila tutti i campi.",
+                    'error' => true
+                ];
             }
         }
 
-        if (!$emptyMessage) {
-            $calcoloDSCR = (
-                $allData['DSCRdispLiquida'] +
-                $allData['entrataDSCRCFmese1'] +
-                $allData['entrataDSCRCFmese2'] +
-                $allData['entrataDSCRCFmese3'] +
-                $allData['entrataDSCRCFmese4'] +
-                $allData['entrataDSCRCFmese5'] +
-                $allData['entrataDSCRCFmese6'] +
-                $allData['uscitaDSCRCFmese1'] -
-                $allData['uscitaDSCRCFmese2'] -
-                $allData['uscitaDSCRCFmese3'] -
-                $allData['uscitaDSCRCFmese4'] -
-                $allData['uscitaDSCRCFmese5'] -
-                $allData['uscitaDSCRCFmese6']
-                )
-                /
-                (
-                $allData['rimborsoDSCRmese1'] +
-                $allData['rimborsoDSCRmese2'] +
-                $allData['rimborsoDSCRmese3'] +
-                $allData['rimborsoDSCRmese4'] +
-                $allData['rimborsoDSCRmese5'] +
-                $allData['rimborsoDSCRmese6']
-                );
 
-            return number_format($calcoloDSCR, 2, ",", ".");
-            } else {
-                return $emptyMessage;
-            }
-        }
+        return $this->calculateDSCR($dscrData);
     }
 
     public function saveAnalisiBasicToDB($allData, $idBilancio)
     {
-        
-        $data = [
-            'DSCR' => $allData['DSCR'],
-            'DSCRdispLiquida' => $allData['DSCRdispLiquida'],
-            'entrataDSCRCFmese1' => $allData['entrataDSCRCFmese1'],
-            'entrataDSCRCFmese2' => $allData['entrataDSCRCFmese2'],
-            'entrataDSCRCFmese3' => $allData['entrataDSCRCFmese3'],
-            'entrataDSCRCFmese4' => $allData['entrataDSCRCFmese4'],
-            'entrataDSCRCFmese5' => $allData['entrataDSCRCFmese5'],
-            'entrataDSCRCFmese6' => $allData['entrataDSCRCFmese6'],
-            'uscitaDSCRCFmese1' => $allData['uscitaDSCRCFmese1'],
-            'uscitaDSCRCFmese2' => $allData['uscitaDSCRCFmese2'],
-            'uscitaDSCRCFmese3' => $allData['uscitaDSCRCFmese3'],
-            'uscitaDSCRCFmese4' => $allData['uscitaDSCRCFmese4'],
-            'uscitaDSCRCFmese5' => $allData['uscitaDSCRCFmese5'],
-            'uscitaDSCRCFmese6' => $allData['uscitaDSCRCFmese6'],
-            'rimborsoDSCRmese1' => $allData['rimborsoDSCRmese1'],
-            'rimborsoDSCRmese2' => $allData['rimborsoDSCRmese2'],
-            'rimborsoDSCRmese3' => $allData['rimborsoDSCRmese3'],
-            'rimborsoDSCRmese4' => $allData['rimborsoDSCRmese4'],
-            'rimborsoDSCRmese5' => $allData['rimborsoDSCRmese5'],
-            'rimborsoDSCRmese6' => $allData['rimborsoDSCRmese6']
-        ];
-        
+
+
         $calcoloDSCR = $this->getCalcoloDSCR($allData);
+        $dscrData = $this->getDSCRArrayData($allData);
 
-            $now = new DateTime();
+        if (isset($calcoloDSCR['error'])) {
+            $dscrData['alertDSCR'] = "DSCR Non Calcolabile: dati mancanti";
+        }
 
-            if ((bool)$allData['DSCR']) {
-                $allData['alertDSCR'] = "Azienda non a rischio";
-            } else {
-                $allData['alertDSCR'] = "Azienda a rischio";
-            }
+        if((bool)$dscrData['DSCR'] == 1) {
+            $dscrData['alertDSCR'] = 'Azienda non a rischio';
+        } else {
+            $dscrData['alertDSCR'] = 'Azienda a rischio';
+        }
 
-            if (DB::table('basic')->where('bilancio_id', '=', $idBilancio)->count() == 0) {
-                if($data['DSCR'] == 1) {
-                    DB::table('basic')->insert([
-                        'bilancio_id' => $allData["idBilancio"],
-                        'DSCR' => $allData["DSCR"],
-                        'alertDSCR' => ($allData['alertDSCR'] != null) ? $allData["alertDSCR"] : false,
-                        'resultDSCR' => $calcoloDSCR,
-                        'DSCRDate' => ($allData["DSCRDate"] != null) ? $allData["DSCRDate"] : 0,
-                        'DSCRdispLiquida' => ($allData["DSCRdispLiquida"] != null) ? $allData["DSCRdispLiquida"] : 0,
-                        'entrataDSCRCFmese1' => ($allData["entrataDSCRCFmese1"] != null) ? $allData["entrataDSCRCFmese1"] : 0,
-                        'entrataDSCRCFmese2' => ($allData["entrataDSCRCFmese2"] != null) ? $allData["entrataDSCRCFmese2"] : 0,
-                        'entrataDSCRCFmese3' => ($allData["entrataDSCRCFmese3"] != null) ? $allData["entrataDSCRCFmese3"] : 0,
-                        'entrataDSCRCFmese4' => ($allData["entrataDSCRCFmese4"] != null) ? $allData["entrataDSCRCFmese4"] : 0,
-                        'entrataDSCRCFmese5' => ($allData["entrataDSCRCFmese5"] != null) ? $allData["entrataDSCRCFmese5"] : 0,
-                        'entrataDSCRCFmese6' => ($allData["entrataDSCRCFmese6"] != null) ? $allData["entrataDSCRCFmese6"] : 0,
-                        'uscitaDSCRCFmese1' => ($allData["uscitaDSCRCFmese1"] != null) ? $allData["uscitaDSCRCFmese1"] : 0,
-                        'uscitaDSCRCFmese2' => ($allData["uscitaDSCRCFmese2"] != null) ? $allData["uscitaDSCRCFmese2"] : 0,
-                        'uscitaDSCRCFmese3' => ($allData["uscitaDSCRCFmese3"] != null) ? $allData["uscitaDSCRCFmese3"] : 0,
-                        'uscitaDSCRCFmese4' => ($allData["uscitaDSCRCFmese4"] != null) ? $allData["uscitaDSCRCFmese4"] : 0,
-                        'uscitaDSCRCFmese5' => ($allData["uscitaDSCRCFmese5"] != null) ? $allData["uscitaDSCRCFmese5"] : 0,
-                        'uscitaDSCRCFmese6' => ($allData["uscitaDSCRCFmese6"] != null) ? $allData["uscitaDSCRCFmese6"] : 0,
-                        'rimborsoDSCRmese1' => ($allData["rimborsoDSCRmese1"] != null) ? $allData["rimborsoDSCRmese1"] : 0,
-                        'rimborsoDSCRmese2' => ($allData["rimborsoDSCRmese2"] != null) ? $allData["rimborsoDSCRmese2"] : 0,
-                        'rimborsoDSCRmese3' => ($allData["rimborsoDSCRmese3"] != null) ? $allData["rimborsoDSCRmese3"] : 0,
-                        'rimborsoDSCRmese4' => ($allData["rimborsoDSCRmese4"] != null) ? $allData["rimborsoDSCRmese4"] : 0,
-                        'rimborsoDSCRmese5' => ($allData["rimborsoDSCRmese5"] != null) ? $allData["rimborsoDSCRmese5"] : 0,
-                        'rimborsoDSCRmese6' => ($allData["rimborsoDSCRmese6"] != null) ? $allData["rimborsoDSCRmese6"] : 0,
-                        'agenziaEntrate1' => ($allData["agenziaEntrate1"] != null) ? $allData["agenziaEntrate1"] : 0,
-                        'agenziaEntrate3' => ($allData["agenziaEntrate3"] != null) ? $allData["agenziaEntrate3"] : 0,
-                        'agenziaEntrate2' => ($allData["agenziaEntrate2"] != null) ? $allData["agenziaEntrate2"] : 0,
-                        'agenziaEntrate4' => ($allData["agenziaEntrate4"] != null) ? $allData["agenziaEntrate4"] : 0,
-                        'INPS1' => ($allData["INPS1"] != null) ? $allData["INPS1"] : 0,
-                        'INPS2' => ($allData["INPS2"] != null) ? $allData["INPS2"] : 0,
-                        'INPS3' => ($allData["INPS3"] != null) ? $allData["INPS3"] : 0,
-                        'riscossione' => ($allData["riscossione"] != null) ? $allData["riscossione"] : 0,
-                        'retribuzioni1' => ($allData["retribuzioni1"] != null) ? $allData["retribuzioni1"] : 0,
-                        'retribuzioni2' => ($allData["retribuzioni2"] != null) ? $allData["retribuzioni2"] : 0,
-                        'retribuzioni3' => ($allData["retribuzioni3"] != null) ? $allData["retribuzioni3"] : 0,
-                        'fornitori1' => ($allData["fornitori1"] != null) ? $allData["fornitori1"] : 0,
-                        'fornitori2' => ($allData["fornitori2"] != null) ? $allData["fornitori2"] : 0,
-                        'alertAgenziaEntrate' => ($allData['alertAgenziaEntrate'] != null) ? true : false,
-                        'alertRiscossione' => ($allData['alertRiscossione'] != null) ? true : false,
-                        'alertRetribuzioni' => ($allData['alertRetribuzioni'] != null) ? true : false,
-                        'alertINPS' => ($allData['alertINPS'] != null) ? true : false,
-                        'alertFornitori' => ($allData['alertFornitori'] != null) ? true : false,
-                        'created_at' => $now,
-                    ]);
-    
-                    $response = [
-                        'Message' => "Analisi effettuata correttamente",
-                        'Alert' => $allData['alertDSCR'],
-                    ];
-    
-                    return $response;
-                } else {
-                    DB::table('basic')->insert([
-                        'bilancio_id' => $allData["idBilancio"],
-                        'DSCR' => $allData["DSCR"],
-                        'alertDSCR' => ($allData['alertDSCR'] != null) ? $allData["alertDSCR"] : false,
-                        'agenziaEntrate1' => ($allData["agenziaEntrate1"] != null) ? $allData["agenziaEntrate1"] : 0,
-                        'agenziaEntrate3' => ($allData["agenziaEntrate3"] != null) ? $allData["agenziaEntrate3"] : 0,
-                        'agenziaEntrate2' => ($allData["agenziaEntrate2"] != null) ? $allData["agenziaEntrate2"] : 0,
-                        'agenziaEntrate4' => ($allData["agenziaEntrate4"] != null) ? $allData["agenziaEntrate4"] : 0,
-                        'INPS1' => ($allData["INPS1"] != null) ? $allData["INPS1"] : 0,
-                        'INPS2' => ($allData["INPS2"] != null) ? $allData["INPS2"] : 0,
-                        'INPS3' => ($allData["INPS3"] != null) ? $allData["INPS3"] : 0,
-                        'riscossione' => ($allData["riscossione"] != null) ? $allData["riscossione"] : 0,
-                        'retribuzioni1' => ($allData["retribuzioni1"] != null) ? $allData["retribuzioni1"] : 0,
-                        'retribuzioni2' => ($allData["retribuzioni2"] != null) ? $allData["retribuzioni2"] : 0,
-                        'retribuzioni3' => ($allData["retribuzioni3"] != null) ? $allData["retribuzioni3"] : 0,
-                        'fornitori1' => ($allData["fornitori1"] != null) ? $allData["fornitori1"] : 0,
-                        'fornitori2' => ($allData["fornitori2"] != null) ? $allData["fornitori2"] : 0,
-                        'alertAgenziaEntrate' => ($allData['alertAgenziaEntrate'] != null) ? true : false,
-                        'alertRiscossione' => ($allData['alertRiscossione'] != null) ? true : false,
-                        'alertRetribuzioni' => ($allData['alertRetribuzioni'] != null) ? true : false,
-                        'alertINPS' => ($allData['alertINPS'] != null) ? true : false,
-                        'alertFornitori' => ($allData['alertFornitori'] != null) ? true : false,
-                        'created_at' => $now,
-                    ]);
-    
-                    $response = [
-                        'Message' => "Analisi effettuata correttamente",
-                        'Alert' => $allData['alertDSCR'],
-                    ];
-    
-                    return $response;
-                }
-            } else {
-                DB::table('basic')->where('bilancio_id', '=', $idBilancio)->update([
-                    'bilancio_id' => ($allData["idBilancio"] != null) ? $allData["idBilancio"] : 0,
-                    'DSCR' => ($allData["DSCR"] != null) ? $allData["DSCR"] : 0,
-                    'alertDSCR' => ($allData['alertDSCR'] != null) ? $allData["alertDSCR"] : 0,
-                    'resultDSCR' => $calcoloDSCR,
-                    'DSCRDate' => ($allData["DSCRDate"] != null) ? $allData["DSCRDate"] : 0,
-                    'DSCRdispLiquida' => ($allData["DSCRdispLiquida"] != null) ? $allData["DSCRdispLiquida"] : 0,
-                    'entrataDSCRCFmese1' => ($allData["entrataDSCRCFmese1"] != null) ? $allData["entrataDSCRCFmese1"] : 0,
-                    'entrataDSCRCFmese2' => ($allData["entrataDSCRCFmese2"] != null) ? $allData["entrataDSCRCFmese2"] : 0,
-                    'entrataDSCRCFmese3' => ($allData["entrataDSCRCFmese3"] != null) ? $allData["entrataDSCRCFmese3"] : 0,
-                    'entrataDSCRCFmese4' => ($allData["entrataDSCRCFmese4"] != null) ? $allData["entrataDSCRCFmese4"] : 0,
-                    'entrataDSCRCFmese5' => ($allData["entrataDSCRCFmese5"] != null) ? $allData["entrataDSCRCFmese5"] : 0,
-                    'entrataDSCRCFmese6' => ($allData["entrataDSCRCFmese6"] != null) ? $allData["entrataDSCRCFmese6"] : 0,
-                    'uscitaDSCRCFmese1' => ($allData["uscitaDSCRCFmese1"] != null) ? $allData["uscitaDSCRCFmese1"] : 0,
-                    'uscitaDSCRCFmese2' => ($allData["uscitaDSCRCFmese2"] != null) ? $allData["uscitaDSCRCFmese2"] : 0,
-                    'uscitaDSCRCFmese3' => ($allData["uscitaDSCRCFmese3"] != null) ? $allData["uscitaDSCRCFmese3"] : 0,
-                    'uscitaDSCRCFmese4' => ($allData["uscitaDSCRCFmese4"] != null) ? $allData["uscitaDSCRCFmese4"] : 0,
-                    'uscitaDSCRCFmese5' => ($allData["uscitaDSCRCFmese5"] != null) ? $allData["uscitaDSCRCFmese5"] : 0,
-                    'uscitaDSCRCFmese6' => ($allData["uscitaDSCRCFmese6"] != null) ? $allData["uscitaDSCRCFmese6"] : 0,
-                    'rimborsoDSCRmese1' => ($allData["rimborsoDSCRmese1"] != null) ? $allData["rimborsoDSCRmese1"] : 0,
-                    'rimborsoDSCRmese2' => ($allData["rimborsoDSCRmese2"] != null) ? $allData["rimborsoDSCRmese2"] : 0,
-                    'rimborsoDSCRmese3' => ($allData["rimborsoDSCRmese3"] != null) ? $allData["rimborsoDSCRmese3"] : 0,
-                    'rimborsoDSCRmese4' => ($allData["rimborsoDSCRmese4"] != null) ? $allData["rimborsoDSCRmese4"] : 0,
-                    'rimborsoDSCRmese5' => ($allData["rimborsoDSCRmese5"] != null) ? $allData["rimborsoDSCRmese5"] : 0,
-                    'rimborsoDSCRmese6' => ($allData["rimborsoDSCRmese6"] != null) ? $allData["rimborsoDSCRmese6"] : 0,
-                    'agenziaEntrate1' => ($allData["agenziaEntrate1"] != null) ? $allData["agenziaEntrate1"] : 0,
-                    'agenziaEntrate3' => ($allData["agenziaEntrate3"] != null) ? $allData["agenziaEntrate3"] : 0,
-                    'agenziaEntrate2' => ($allData["agenziaEntrate2"] != null) ? $allData["agenziaEntrate2"] : 0,
-                    'agenziaEntrate4' => ($allData["agenziaEntrate4"] != null) ? $allData["agenziaEntrate4"] : 0,
-                    'alertAgenziaEntrate' => ($allData['alertAgenziaEntrate'] != null) ? $allData["alertAgenziaEntrate"] : 0,
-                    'INPS1' => ($allData["INPS1"] != null) ? $allData["INPS1"] : 0,
-                    'INPS2' => ($allData["INPS2"] != null) ? $allData["INPS2"] : 0,
-                    'INPS3' => ($allData["INPS3"] != null) ? $allData["INPS3"] : 0,
-                    'alertINPS' => ($allData['alertINPS'] != null) ? $allData["alertINPS"] : 0,
-                    'riscossione' => ($allData["riscossione"] != null) ? $allData["riscossione"] : 0,
-                    'alertRiscossione' => ($allData['alertRiscossione'] != null) ? $allData["alertRiscossione"] : 0,
-                    'retribuzioni1' => ($allData["retribuzioni1"] != null) ? $allData["retribuzioni1"] : 0,
-                    'retribuzioni2' => ($allData["retribuzioni2"] != null) ? $allData["retribuzioni2"] : 0,
-                    'retribuzioni3' => ($allData["retribuzioni3"] != null) ? $allData["retribuzioni3"] : 0,
-                    'alertRetribuzioni' => ($allData['alertRetribuzioni'] != null) ? $allData["alertRetribuzioni"] : 0,
-                    'fornitori1' => ($allData["fornitori1"] != null) ? $allData["fornitori1"] : 0,
-                    'fornitori2' => ($allData["fornitori2"] != null) ? $allData["fornitori2"] : 0,
-                    'alertFornitori' => ($allData['alertFornitori'] != null) ? $allData["alertFornitori"] : 0,
-                    'updated_at' => $now,
-                ]);
+        $dscrData['bilancio_id'] = (int)$idBilancio;
 
-                $response = [
-                    'Message' => "Analisi aggiornata correttamente",
-                    'Alert' => $allData['alertDSCR'],
-                ];
+        Basic::where('bilancio_id', '=', $idBilancio)
+            ->updateOrCreate(
+                $dscrData
+            );
 
-                return $response;
-            }
+
+        return [
+            'Message' => "Analisi aggiornata correttamente",
+            'AlertDSCR' => $dscrData['alertDSCR'],
+            'savedData' => $dscrData
+        ];
     }
 }
