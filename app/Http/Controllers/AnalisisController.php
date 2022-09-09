@@ -43,14 +43,14 @@ class AnalisisController extends Controller
                     'Message' => $dataBasic['Message'],
                     'DSCRAlert' => $dataBasic['Alert'],
                     'result' => "Dati Mancanti",
-                ]);
+                ], 202);
             } else {
                 return response()->json([
                     'error' => false,
                     'Message' => $dataBasic['Message'],
                     'DSCRAlert' => $dataBasic['Alert'],
                     'DSCRResult' => $calcoloDSCR,
-                ]);
+                ], 200);
             }           
     }
 }
