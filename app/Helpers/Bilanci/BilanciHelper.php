@@ -472,6 +472,7 @@ class BilanciHelper
         $dataAnalisis["Margine_Struttura_Primario"] = (float)str_replace('.', '', $dataAnalisis["Margine_Struttura_Primario"]) / 100;
         $dataAnalisis["Margine_Struttura_Secondario"] = (float)str_replace('.', '', $dataAnalisis["Margine_Struttura_Secondario"]) / 100;
 
+
         $response = array(
             'AnalisiBasic' => $this->getBasicAnalisi($tipoAzienda, $dataAnalisis, $dataAnalisis, $idBilancio),
             'AnalisiAdvanced' => [
@@ -591,19 +592,20 @@ class BilanciHelper
             'entrataDSCRCFmese4' => $allData['entrataDSCRCFmese4'],
             'entrataDSCRCFmese5' => $allData['entrataDSCRCFmese5'],
             'entrataDSCRCFmese6' => $allData['entrataDSCRCFmese6'],
-            'uscitaDSCRCFmese1' => $allData['uscitaDSCRCFmese1'] ,
-            'uscitaDSCRCFmese2' => $allData['uscitaDSCRCFmese2'] ,
-            'uscitaDSCRCFmese3' => $allData['uscitaDSCRCFmese3'] ,
-            'uscitaDSCRCFmese4' => $allData['uscitaDSCRCFmese4'] ,
-            'uscitaDSCRCFmese5' => $allData['uscitaDSCRCFmese5'] ,
+            'uscitaDSCRCFmese1' => $allData['uscitaDSCRCFmese1'],
+            'uscitaDSCRCFmese2' => $allData['uscitaDSCRCFmese2'],
+            'uscitaDSCRCFmese3' => $allData['uscitaDSCRCFmese3'],
+            'uscitaDSCRCFmese4' => $allData['uscitaDSCRCFmese4'],
+            'uscitaDSCRCFmese5' => $allData['uscitaDSCRCFmese5'],
             'uscitaDSCRCFmese6' => $allData['uscitaDSCRCFmese6'],
-            'rimborsoDSCRmese1' => $allData['rimborsoDSCRmese1'] ,
-            'rimborsoDSCRmese2' => $allData['rimborsoDSCRmese2'] ,
-            'rimborsoDSCRmese3' => $allData['rimborsoDSCRmese3'] ,
-            'rimborsoDSCRmese4' => $allData['rimborsoDSCRmese4'] ,
-            'rimborsoDSCRmese5' => $allData['rimborsoDSCRmese5'] ,
+            'rimborsoDSCRmese1' => $allData['rimborsoDSCRmese1'],
+            'rimborsoDSCRmese2' => $allData['rimborsoDSCRmese2'],
+            'rimborsoDSCRmese3' => $allData['rimborsoDSCRmese3'],
+            'rimborsoDSCRmese4' => $allData['rimborsoDSCRmese4'],
+            'rimborsoDSCRmese5' => $allData['rimborsoDSCRmese5'],
             'rimborsoDSCRmese6' => $allData['rimborsoDSCRmese6']
         ];
+
 
         $emptyMessage = null;
 
@@ -640,40 +642,13 @@ class BilanciHelper
                 );
 
             return number_format($calcoloDSCR, 2, ",", ".");
-        } else {
-
-            $allData = [
-                'DSCRdispLiquida' => null,
-                'entrataDSCRCFmese1' => null,
-                'entrataDSCRCFmese2' => null,
-                'entrataDSCRCFmese3' => null,
-                'entrataDSCRCFmese4' => null,
-                'entrataDSCRCFmese5' => null,
-                'entrataDSCRCFmese6' => null,
-                'uscitaDSCRCFmese1' => null,
-                'uscitaDSCRCFmese2' => null,
-                'uscitaDSCRCFmese3' => null,
-                'uscitaDSCRCFmese4' => null,
-                'uscitaDSCRCFmese5' => null,
-                'uscitaDSCRCFmese6' => null,
-                'rimborsoDSCRmese1' => null,
-                'rimborsoDSCRmese2' => null,
-                'rimborsoDSCRmese3' => null,
-                'rimborsoDSCRmese4' => null,
-                'rimborsoDSCRmese5' => null,
-                'rimborsoDSCRmese6' => null
-            ];
-
-            return $emptyMessage;
-        }
+        } 
     }
 
     public function saveAnalisiBasicToDB($allData, $idBilancio)
     {
         
         $calcoloDSCR = $this->getCalcoloDSCR($allData);
-
-        if($calcoloDSCR != "Attenzione, alcuni campi sono vuoti, compila tutti i campi.") {
 
             $now = new DateTime();
 
@@ -790,6 +765,5 @@ class BilanciHelper
 
                 return $response;
             }
-        }
     }
 }
