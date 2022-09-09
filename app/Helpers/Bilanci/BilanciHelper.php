@@ -583,6 +583,52 @@ class BilanciHelper
         return $bilancioJsonAnag->DatiAnagraficiDenominazione;
     }
 
+    private function getAnalisisDataFull($allData)
+    {
+        $cleanArray = [
+            'DSCR' => $allData['DSCR'],
+            'DSCRdispLiquida' => $allData['DSCRdispLiquida'],
+            'entrataDSCRCFmese1' => $allData['entrataDSCRCFmese1'],
+            'entrataDSCRCFmese2' => $allData['entrataDSCRCFmese2'],
+            'entrataDSCRCFmese3' => $allData['entrataDSCRCFmese3'],
+            'entrataDSCRCFmese4' => $allData['entrataDSCRCFmese4'],
+            'entrataDSCRCFmese5' => $allData['entrataDSCRCFmese5'],
+            'entrataDSCRCFmese6' => $allData['entrataDSCRCFmese6'],
+            'uscitaDSCRCFmese1' => $allData['uscitaDSCRCFmese1'],
+            'uscitaDSCRCFmese2' => $allData['uscitaDSCRCFmese2'],
+            'uscitaDSCRCFmese3' => $allData['uscitaDSCRCFmese3'],
+            'uscitaDSCRCFmese4' => $allData['uscitaDSCRCFmese4'],
+            'uscitaDSCRCFmese5' => $allData['uscitaDSCRCFmese5'],
+            'uscitaDSCRCFmese6' => $allData['uscitaDSCRCFmese6'],
+            'rimborsoDSCRmese1' => $allData['rimborsoDSCRmese1'],
+            'rimborsoDSCRmese2' => $allData['rimborsoDSCRmese2'],
+            'rimborsoDSCRmese3' => $allData['rimborsoDSCRmese3'],
+            'rimborsoDSCRmese4' => $allData['rimborsoDSCRmese4'],
+            'rimborsoDSCRmese5' => $allData['rimborsoDSCRmese5'],
+            'rimborsoDSCRmese6' => $allData['rimborsoDSCRmese6'],
+            'agenziaEntrate1' => $allData["agenziaEntrate1"],
+            'agenziaEntrate3' => $allData["agenziaEntrate3"],
+            'agenziaEntrate2' => $allData["agenziaEntrate2"],
+            'agenziaEntrate4' => ($allData["agenziaEntrate4"] != null) ? $allData["agenziaEntrate4"] : 0,
+            'INPS1' => ($allData["INPS1"] != null) ? $allData["INPS1"] : 0,
+            'INPS2' => ($allData["INPS2"] != null) ? $allData["INPS2"] : 0,
+            'INPS3' => ($allData["INPS3"] != null) ? $allData["INPS3"] : 0,
+            'riscossione' => ($allData["riscossione"] != null) ? $allData["riscossione"] : 0,
+            'retribuzioni1' => ($allData["retribuzioni1"] != null) ? $allData["retribuzioni1"] : 0,
+            'retribuzioni2' => ($allData["retribuzioni2"] != null) ? $allData["retribuzioni2"] : 0,
+            'retribuzioni3' => ($allData["retribuzioni3"] != null) ? $allData["retribuzioni3"] : 0,
+            'fornitori1' => ($allData["fornitori1"] != null) ? $allData["fornitori1"] : 0,
+            'fornitori2' => ($allData["fornitori2"] != null) ? $allData["fornitori2"] : 0,
+            'alertAgenziaEntrate' => ($allData['alertAgenziaEntrate'] != null) ? $allData["alertAgenziaEntrate"] : 0,
+            'alertINPS' => ($allData['alertINPS'] != null) ? $allData["alertINPS"] : 0,
+            'alertRiscossione' => ($allData['alertRiscossione'] != null) ? $allData["alertRiscossione"] : 0,
+            'alertRetribuzioni' => ($allData['alertRetribuzioni'] != null) ? $allData["alertRetribuzioni"] : 0,
+            'alertFornitori' => ($allData['alertFornitori'] != null) ? $allData["alertFornitori"] : 0,
+        ];
+
+        return $cleanArray;
+    }
+
     private function getDSCRArrayData($allData)
     {
         $cleanArray = [
@@ -606,24 +652,6 @@ class BilanciHelper
             'rimborsoDSCRmese4' => $allData['rimborsoDSCRmese4'],
             'rimborsoDSCRmese5' => $allData['rimborsoDSCRmese5'],
             'rimborsoDSCRmese6' => $allData['rimborsoDSCRmese6'],
-            'agenziaEntrate1' => ($allData["agenziaEntrate1"] != null) ? $allData["agenziaEntrate1"] : 0,
-            'agenziaEntrate3' => ($allData["agenziaEntrate3"] != null) ? $allData["agenziaEntrate3"] : 0,
-            'agenziaEntrate2' => ($allData["agenziaEntrate2"] != null) ? $allData["agenziaEntrate2"] : 0,
-            'agenziaEntrate4' => ($allData["agenziaEntrate4"] != null) ? $allData["agenziaEntrate4"] : 0,
-            'INPS1' => ($allData["INPS1"] != null) ? $allData["INPS1"] : 0,
-            'INPS2' => ($allData["INPS2"] != null) ? $allData["INPS2"] : 0,
-            'INPS3' => ($allData["INPS3"] != null) ? $allData["INPS3"] : 0,
-            'riscossione' => ($allData["riscossione"] != null) ? $allData["riscossione"] : 0,
-            'retribuzioni1' => ($allData["retribuzioni1"] != null) ? $allData["retribuzioni1"] : 0,
-            'retribuzioni2' => ($allData["retribuzioni2"] != null) ? $allData["retribuzioni2"] : 0,
-            'retribuzioni3' => ($allData["retribuzioni3"] != null) ? $allData["retribuzioni3"] : 0,
-            'fornitori1' => ($allData["fornitori1"] != null) ? $allData["fornitori1"] : 0,
-            'fornitori2' => ($allData["fornitori2"] != null) ? $allData["fornitori2"] : 0,
-            'alertAgenziaEntrate' => ($allData['alertAgenziaEntrate'] != null) ? $allData["alertAgenziaEntrate"] : 0,
-            'alertINPS' => ($allData['alertINPS'] != null) ? $allData["alertINPS"] : 0,
-            'alertRiscossione' => ($allData['alertRiscossione'] != null) ? $allData["alertRiscossione"] : 0,
-            'alertRetribuzioni' => ($allData['alertRetribuzioni'] != null) ? $allData["alertRetribuzioni"] : 0,
-            'alertFornitori' => ($allData['alertFornitori'] != null) ? $allData["alertFornitori"] : 0,
         ];
 
         return $cleanArray;
@@ -694,16 +722,14 @@ class BilanciHelper
 
     public function saveAnalisiBasicToDB($allData, $idBilancio)
     {
-
-
         $calcoloDSCR = $this->getCalcoloDSCR($allData);
-        $dscrData = $this->getDSCRArrayData($allData);
+        $dscrData = $this->getAnalisisDataFull($allData);
 
         if (isset($calcoloDSCR['error'])) {
             $dscrData['alertDSCR'] = "DSCR Non Calcolabile: dati mancanti";
         }
 
-        if((bool)$dscrData['DSCR'] == 1) {
+        if ((bool)$dscrData['DSCR'] == 1) {
             $dscrData['alertDSCR'] = 'Azienda non a rischio';
         } else {
             $dscrData['alertDSCR'] = 'Azienda a rischio';
@@ -715,7 +741,6 @@ class BilanciHelper
             ->updateOrCreate(
                 $dscrData
             );
-
 
         return [
             'Message' => "Analisi aggiornata correttamente",
