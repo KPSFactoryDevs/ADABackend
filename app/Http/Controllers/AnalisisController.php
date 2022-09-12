@@ -36,12 +36,13 @@ class AnalisisController extends Controller
             $bilancioHelper = new BilanciHelper;
             $calcoloDSCR = $bilancioHelper->getCalcoloDSCR($allData);
             $dataBasic = $bilancioHelper->saveAnalisiBasicToDB($allData, $idBilancio);
+            $bilancioHelper->calculateRiscossione($allData);
 
             return response()->json([
                     'error' => false,
                     'Message' => $dataBasic['Message'],
                     'DSCRAlert' => $dataBasic['AlertDSCR'],
-                    'DSCRResult' => $calcoloDSCR
+                    'DSCRResult' => $calcoloDSCR,
                 ], 200);
         
     }
