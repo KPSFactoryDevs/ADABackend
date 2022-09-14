@@ -593,8 +593,10 @@ class BilanciHelper
         $riscossioneAlert = $this->calculateRiscossione($allData);
         $alertRetribuzioni = $this->calculateRetribuzione($allData);
         $alertFornitori = $this->calculateFornitori($allData);
+        $alertDSCR = $this->getCalcoloDSCR($allData);
 
         $cleanArray = [
+            'DSCRDate' => $allData['DSCRDate'],
             'DSCR' => $allData['DSCR'],
             'DSCRdispLiquida' => $allData['DSCRdispLiquida'],
             'entrataDSCRCFmese1' => $allData['entrataDSCRCFmese1'],
@@ -628,6 +630,7 @@ class BilanciHelper
             'retribuzioni3' => ($allData["retribuzioni3"] != null) ? $allData["retribuzioni3"] : 0,
             'fornitori1' => ($allData["fornitori1"] != null) ? $allData["fornitori1"] : 0,
             'fornitori2' => ($allData["fornitori2"] != null) ? $allData["fornitori2"] : 0,
+            'resultDSCR' => $alertDSCR,
             'alertAgenziaEntrate' => $agenziaEntrate,
             'alertINPS' => $dataINPS,
             'alertRiscossione' => $riscossioneAlert,
@@ -792,12 +795,12 @@ class BilanciHelper
 
         $dscrData['bilancio_id'] = (int)$idBilancio;
 
-        $balance = Basic::where('bilancio_id', $idBilancio)->first();
+        $balance = Basic::where('bilancio_id', $idBilancio)->get();
 
-        if(!isset($balance)) {
+        if(count($balance) == 0) {
             Basic::create($dscrData);
         } else {
-            DB::table('basic')->update($dscrData);          
+            Basic::where('bilancio_id', $idBilancio)->update($dscrData);          
         }
 
         return [
