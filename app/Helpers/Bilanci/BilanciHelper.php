@@ -644,6 +644,7 @@ class BilanciHelper
     private function getDSCRArrayData($allData)
     {
         $cleanArray = [
+            'DSCRDate' => $allData['DSCRDate'],
             'DSCR' => $allData['DSCR'],
             'DSCRdispLiquida' => $allData['DSCRdispLiquida'],
             'entrataDSCRCFmese1' => $allData['entrataDSCRCFmese1'],
