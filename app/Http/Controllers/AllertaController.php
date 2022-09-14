@@ -168,7 +168,6 @@ class AllertaController extends Controller
         $ASISfinalScore = $allertaHelper->getAsIsFinalScore($bilancioData['AnalisiAdvanced'], $scoreCR, $scoreASIS);
         $getScoreHelper = $allertaHelper->getScores($punteggioCR, $bilancioData['AnalisiAdvanced'], $scoreASIS, $ASISfinalScore, $scoreFL);
 
-
         $arrayScoring = [
             'error' => false,
             'pageData' => [
