@@ -241,6 +241,7 @@ class BilanciCalculationsHelper
             $ROS = number_format(($DifferenzaValoreCostiProduzione / $ValoreProduzioneRicaviVenditePrestazioni) * 100, 2, ',', '');
         }
 
+
         return $ROS . '%';
     }
 
@@ -349,10 +350,10 @@ class BilanciCalculationsHelper
         if (($TotaleDebitiEntroDodiciMesi + $PassivoRateiRisconti) == 0) {
             $denominatoreRitornoLiquidoAttivo = 1;
         }
-
+        
         $formula = ($TotaleDisponibilitaLiquide + $AttivoRateiRisconti + $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + $TotaleRimanenze + $TotaleCreditiEntroDodiciMesi) / ($TotaleDebitiEntroDodiciMesi + $PassivoRateiRisconti + $denominatoreRitornoLiquidoAttivo);
 
-        $RITORNO_LIQUIDO_ATTIVO = number_format((float)$formula * 100, 2, ',', '');
+        $RITORNO_LIQUIDO_ATTIVO = number_format($formula * 100, 2, ',', '.');
 
         return $RITORNO_LIQUIDO_ATTIVO . '%';
     }

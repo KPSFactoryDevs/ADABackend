@@ -21,6 +21,558 @@ use HTTP_Request2;
 
 class PDFController extends Controller
 {
+	/**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function basic($id)
+    {
+
+
+        $bilancio = Bilanci::findOrFail($id);
+
+        $tipoAzienda = $bilancio->tipo_azienda;
+
+        $attributes = $bilancio->getAttributes();
+        $jsonData['current'] = json_decode($attributes['json_data'], true);
+        $jsonData['prev'] = json_decode($attributes['json_data_prev'], true);
+        $jsonData['anagrafic'] = json_decode($attributes['json_data_anag'], true);
+        $jsonData['currentYear'] = $attributes['current_year'];
+        $jsonData['prevYear'] = $attributes['prev_year'];
+        $tipoAzienda = $attributes['tipo_azienda'];
+
+        $bilancioJSON = json_decode($bilancio['json_data']);
+        $bilancioJSONprev = json_decode($bilancio['json_data_prev']);
+        $dataAnalisis = array();
+        $righeUtilizzate = array();
+        $imposteRedditoEsercizioImposteAnticipate = isset($bilancioJSON->ImposteRedditoEsercizioCorrentiDifferiteAnticipateImposteDifferiteAnticipate) ? $bilancioJSON->ImposteRedditoEsercizioCorrentiDifferiteAnticipateImposteDifferiteAnticipate : 0;
+
+        if ($bilancio->provvisorio == 1) {
+            $vociContoEconomico = array(
+                "ValoreProduzioneRicaviVenditePrestazioni",
+                "ValoreProduzioneVariazioniRimanenzeProdottiCorsoLavorazioneSemilavoratiFiniti",
+                "ValoreProduzioneVariazioniLavoriCorsoOrdinazione",
+                "ValoreProduzioneIncrementiImmobilizzazioniLavoriInterni",
+                "ValoreProduzioneAltriRicaviProventiTotaleAltriRicaviProventi",
+                "CostiProduzioneMateriePrimeSussidiarieConsumoMerci",
+                "CostiProduzioneServizi",
+                "CostiProduzioneGodimentoBeniTerzi",
+                "CostiProduzionePersonaleTotaleCostiPersonale",
+                "CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni",
+                "CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci",
+                "CostiProduzioneAccantonamentiRischi",
+                "CostiProduzioneAltriAccantonamenti",
+                "CostiProduzioneOneriDiversiGestione",
+                "ProventiOneriFinanziariProventiPartecipazioniTotaleProventiPartecipazioni",
+                "ProventiOneriFinanziariAltriProventiFinanziariTotaleAltriProventiFinanziari",
+                "ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari",
+                "ProventiOneriStraordinariProventiTotaleProventi",
+                "ProventiOneriStraordinariOneriTotaleOneri",
+            );
+
+            $tmpPeriod = explode(' ', $bilancio->year);
+
+            $periodStart = new DateTime($tmpPeriod[0]);
+
+            $periodEnd = new DateTime($tmpPeriod[1]);
+
+            $days = $periodEnd->diff($periodStart)->format("%a");
+
+            $daysToYear = $days / 365;
+
+            $bilancioJSON = (array)$bilancioJSON;
+
+            $bilancioJSON['ImposteRedditoEsercizioCorrentiDifferiteAnticipateTotaleImposteRedditoEsercizioCorrentiDifferiteAnticipate'] = (float)$bilancioJSON['RisultatoPrimaImposte'] * 0.28;
+
+            $bilancioJSON['UtilePerditaEsercizio'] = (float)$bilancioJSON['RisultatoPrimaImposte'] - (float)$bilancioJSON['ImposteRedditoEsercizioCorrentiDifferiteAnticipateTotaleImposteRedditoEsercizioCorrentiDifferiteAnticipate'];
+
+            foreach ($vociContoEconomico as $tmp => $singolaVoce) {
+                if (isset($bilancioJSON[$singolaVoce])) {
+                    $bilancioJSON[$singolaVoce] = ($bilancioJSON[$singolaVoce]) * $daysToYear;
+                }
+            }
+
+            $bilancioJSON = (object)$bilancioJSON;
+
+            // dd($periodStart, $periodEnd, $daysToYear, $bilancioJSON);
+        }
+
+        $TotaleAttivo = (isset($bilancioJSON->TotaleAttivo) ? $bilancioJSON->TotaleAttivo : 0);
+        $CostiProduzioneAltriAccantonamenti = (isset($bilancioJSON->CostiProduzioneAltriAccantonamenti) ? $bilancioJSON->CostiProduzioneAltriAccantonamenti : 0);
+        $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni = (isset($bilancioJSON->CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni) ? $bilancioJSON->CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni : 0);
+        $TotaleCreditiVersoSociVersamentiAncoraDovuti = (isset($bilancioJSON->TotaleCreditiVersoSociVersamentiAncoraDovuti) ? $bilancioJSON->TotaleCreditiVersoSociVersamentiAncoraDovuti : 0);
+        $TotalePatrimonioNetto = (isset($bilancioJSON->TotalePatrimonioNetto) ? $bilancioJSON->TotalePatrimonioNetto : 0);
+        $PN_NEGATIVO = $TotalePatrimonioNetto - $TotaleCreditiVersoSociVersamentiAncoraDovuti;
+        $dataAnalisis['PATRIMONIO_NETTO'] = $PN_NEGATIVO * 100;
+        $arrayConVoci['PATRIMONIO_NETTO'] = array('TotalePatrimonioNetto', 'TotaleCreditiVersoSociVersamentiAncoraDovuti');
+        $DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo : $val = (isset($bilancioJSONprev->DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSONprev->DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo : 0));
+        $UtilePerditaEsercizio = (isset($bilancioJSON->UtilePerditaEsercizio) ? $bilancioJSON->UtilePerditaEsercizio : 0);
+
+        // Valori bilancio
+        // ### OF_RICAVI ###
+        $ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari = (isset($bilancioJSON->ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari) ? $bilancioJSON->ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari : 0);
+        $ValoreProduzioneRicaviVenditePrestazioni = (isset($bilancioJSON->ValoreProduzioneRicaviVenditePrestazioni) ? $bilancioJSON->ValoreProduzioneRicaviVenditePrestazioni : 0);
+		if($ValoreProduzioneRicaviVenditePrestazioni > 0)  {
+        $OF_RICAVI = number_format((float)($ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari / $ValoreProduzioneRicaviVenditePrestazioni) * 100, 2, '.', ''); } else {
+			$OF_RICAVI = 0;
+		}
+        $dataAnalisis['OF_Fatturato'] = $OF_RICAVI . '%';
+        $arrayConVoci['OF_Fatturato'] = array('ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari', 'ValoreProduzioneRicaviVenditePrestazioni');
+
+        // ### ADEGUATEZZA_PATRIMONIALE ###
+        $TotaleDebiti = (isset($bilancioJSON->TotaleDebiti) ? $bilancioJSON->TotaleDebiti : 0);
+        $PassivoRateiRisconti = (isset($bilancioJSON->PassivoRateiRisconti) ? $bilancioJSON->PassivoRateiRisconti : 0);
+        $ADEGUATEZZA_PATRIMONIALE = number_format((float)($PN_NEGATIVO / ($TotaleDebiti + $PassivoRateiRisconti)) * 100, 2, ',', '');
+        $dataAnalisis['ADEGUATEZZA_PATRIMONIALE'] = $ADEGUATEZZA_PATRIMONIALE . '%';
+        $arrayConVoci['ADEGUATEZZA_PATRIMONIALE'] = array('TotaleDebiti', 'PassivoRateiRisconti');
+
+        $arrayConVoci['ADEGUATEZZA_PATRIMONIALE'] = array_merge($arrayConVoci['ADEGUATEZZA_PATRIMONIALE'], $arrayConVoci['PATRIMONIO_NETTO']);
+
+        // ### RITORNO_LIQUIDO_ATTIVO ###
+        $DebitiEsigibiliEntroEsercizioSuccessivo = isset($bilancioJSON->DebitiEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->DebitiEsigibiliEntroEsercizioSuccessivo : 0;
+
+        $TotaleDisponibilitaLiquide = (isset($bilancioJSON->TotaleDisponibilitaLiquide) ? $bilancioJSON->TotaleDisponibilitaLiquide : $val = (isset($bilancioJSONprev->TotaleDisponibilitaLiquide) ? $bilancioJSONprev->TotaleDisponibilitaLiquide : 0));
+        $AttivoRateiRisconti = (isset($bilancioJSON->AttivoRateiRisconti) ? $bilancioJSON->AttivoRateiRisconti : 0);
+        $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni = (isset($bilancioJSON->TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni) ? $bilancioJSON->TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni : 0);
+        $TotaleRimanenze = (isset($bilancioJSON->TotaleRimanenze) ? $bilancioJSON->TotaleRimanenze : 0);
+        $TotaleCrediti = (isset($bilancioJSON->TotaleCrediti) ? $bilancioJSON->TotaleCrediti : 0);
+        $CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo : 0);
+        $CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo : 0);
+        $CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo : 0);
+        $CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo : 0);
+        $CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo : 0);
+        $CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo : 0);
+        $CreditiImposteAnticipateTotaleImposteAnticipate = (isset($bilancioJSON->CreditiImposteAnticipateTotaleImposteAnticipate) ? $bilancioJSON->CreditiImposteAnticipateTotaleImposteAnticipate : 0);
+
+        $TotaleCreditiEntroDodiciMesi = $CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo + $CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo + $CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo + $CreditiImposteAnticipateTotaleImposteAnticipate + $CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo;
+
+        $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo : 0);
+        $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo : 0);
+        $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo : 0);
+        $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo : 0);
+        $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo : 0);
+        $DebitiAccontiEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->DebitiAccontiEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->DebitiAccontiEsigibiliEntroEsercizioSuccessivo : 0);
+        $DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo : 0);
+        $DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo : 0);
+        $DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo : 0);
+        $DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo : 0);
+        $DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo : 0);
+        $DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo : 0);
+        $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo : 0);
+        $DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo : 0);
+        $PassivoRateiRisconti = (isset($bilancioJSON->PassivoRateiRisconti) ? $bilancioJSON->PassivoRateiRisconti : 0);
+
+
+        $TotaleDebitiEntroDodiciMesi = $DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo + $DebitiAccontiEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo;
+
+        //        dd($TotaleDebitiEntroDodiciMesi);
+
+        //        dd($PassivoRateiRisconti,$DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo,$DebitiAccontiEsigibiliEntroEsercizioSuccessivo,$DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo,$DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo,$DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo);
+
+
+        // dd($arrayConVoci);
+        // ### LIQUIDITA ###
+        $CostiProduzioneAccantonamentiRischi = (isset($bilancioJSON->CostiProduzioneAccantonamentiRischi) ? $bilancioJSON->CostiProduzioneAccantonamentiRischi : 0);
+        $ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari = $bilancioJSON->ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari;
+        $ValoreProduzioneRicaviVenditePrestazioni = $bilancioJSON->ValoreProduzioneRicaviVenditePrestazioni;
+        if ($TotaleAttivo == 0) {
+            $LIQUIDITA = 0;
+            $dataAnalisis['LIQUIDITA'] = $LIQUIDITA . '%';
+        } else {
+            $LIQUIDITA = number_format((float)(($UtilePerditaEsercizio + $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni + $CostiProduzioneAccantonamentiRischi + $CostiProduzioneAltriAccantonamenti) / $TotaleAttivo) * 100, 2, ',', '');
+            $dataAnalisis['LIQUIDITA'] = $LIQUIDITA . '%';
+        }
+        $arrayConVoci['LIQUIDITA'] = array('UtilePerditaEsercizio', 'CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni', 'CostiProduzioneAccantonamentiRischi', 'CostiProduzioneAltriAccantonamenti', 'TotaleAttivo');
+
+        // ### INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO ###
+        $DebitiDebitiTributariTotaleDebitiTributariCorrente = (isset($bilancioJSON->DebitiDebitiTributariTotaleDebitiTributari) ? $bilancioJSON->DebitiDebitiTributariTotaleDebitiTributari : 0);
+        $DebitiDebitiTributariTotaleDebitiTributari = (isset($bilancioJSON->DebitiDebitiTributariTotaleDebitiTributari) ? $bilancioJSON->DebitiDebitiTributariTotaleDebitiTributari : 0);
+        $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale = (isset($bilancioJSON->DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale) ? $bilancioJSON->DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale : 0);
+        $ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari = $bilancioJSON->ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari;
+        $ValoreProduzioneRicaviVenditePrestazioni = $bilancioJSON->ValoreProduzioneRicaviVenditePrestazioni;
+        if ($TotaleAttivo == 0) {
+            $INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO = number_format((($DebitiDebitiTributariTotaleDebitiTributari + $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale) / 1) * 100, 2, ',', '');
+            $dataAnalisis['INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO'] = $INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO . '%';
+        } else {
+            $INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO = number_format((($DebitiDebitiTributariTotaleDebitiTributari + $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale) / $TotaleAttivo) * 100, 2, ',', '');
+            $dataAnalisis['INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO'] = $INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO . '%';
+        }
+
+        $arrayConVoci['INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO'] = array('DebitiDebitiTributariTotaleDebitiTributari', 'DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale', 'TotaleAttivo');
+
+        //        dd($INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO);
+
+        // INDICI ADVANCED
+
+        //### Andamento del fatturato
+        $ValoreProduzioneRicaviVenditePrestazioniCurr = (isset($bilancioJSON->ValoreProduzioneRicaviVenditePrestazioni) ? $bilancioJSON->ValoreProduzioneRicaviVenditePrestazioni : 0);
+        $ValoreProduzioneRicaviVenditePrestazioniPrev = (isset($bilancioJSONprev->ValoreProduzioneRicaviVenditePrestazioni) ? $bilancioJSONprev->ValoreProduzioneRicaviVenditePrestazioni : 0);
+        if ($ValoreProduzioneRicaviVenditePrestazioniPrev == 0) {
+            $AndamentoDelFatturato = number_format((float)(- (1 - (($ValoreProduzioneRicaviVenditePrestazioniCurr) / (1)))) * 100, 2, ',', '');
+            $dataAnalisis['Andamento_del_fatturato'] = $AndamentoDelFatturato . '%';
+        } else {
+            $AndamentoDelFatturato = number_format((float)(- (1 - (($ValoreProduzioneRicaviVenditePrestazioniCurr) / ($ValoreProduzioneRicaviVenditePrestazioniPrev)))) * 100, 2, ',', '');
+            $dataAnalisis['Andamento_del_fatturato'] = $AndamentoDelFatturato . '%';
+        }
+
+        $arrayConVoci['Andamento_del_fatturato'] = array('ValoreProduzioneRicaviVenditePrestazioniCurr', 'ValoreProduzioneRicaviVenditePrestazioniPrev');
+
+        // ANDAMENTO DEL MOL
+        $TotaleValoreProduzione = (isset($bilancioJSON->TotaleValoreProduzione) ? $bilancioJSON->TotaleValoreProduzione : 0);
+        $CostiProduzioneMateriePrimeSussidiarieConsumoMerci = (isset($bilancioJSON->CostiProduzioneMateriePrimeSussidiarieConsumoMerci) ? $bilancioJSON->CostiProduzioneMateriePrimeSussidiarieConsumoMerci : 0);
+        $CostiProduzioneGodimentoBeniTerzi = (isset($bilancioJSON->CostiProduzioneGodimentoBeniTerzi) ? $bilancioJSON->CostiProduzioneGodimentoBeniTerzi : 0);
+        $CostiProduzioneServizi = (isset($bilancioJSON->CostiProduzioneServizi) ? $bilancioJSON->CostiProduzioneServizi : 0);
+        $CostiProduzionePersonaleTotaleCostiPersonale = (isset($bilancioJSON->CostiProduzionePersonaleTotaleCostiPersonale) ? $bilancioJSON->CostiProduzionePersonaleTotaleCostiPersonale : 0);
+        $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci = (isset($bilancioJSON->CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci) ? $bilancioJSON->CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci : 0);
+        $CostiProduzioneOneriDiversiGestione = (isset($bilancioJSON->CostiProduzioneOneriDiversiGestione) ? $bilancioJSON->CostiProduzioneOneriDiversiGestione : 0);
+
+        $TotaleValoreProduzionePrecedente = (isset($bilancioJSONprev->TotaleValoreProduzione) ? $bilancioJSONprev->TotaleValoreProduzione : 0);
+        $CostiProduzioneMateriePrimeSussidiarieConsumoMerciPrecedente = (isset($bilancioJSONprev->CostiProduzioneMateriePrimeSussidiarieConsumoMerci) ? $bilancioJSONprev->CostiProduzioneMateriePrimeSussidiarieConsumoMerci : 0);
+        $CostiProduzioneGodimentoBeniTerziPrecedente = (isset($bilancioJSONprev->CostiProduzioneGodimentoBeniTerzi) ? $bilancioJSONprev->CostiProduzioneGodimentoBeniTerzi : 0);
+        $CostiProduzioneServiziPrecedente = (isset($bilancioJSONprev->CostiProduzioneServizi) ? $bilancioJSONprev->CostiProduzioneServizi : 0);
+        $CostiProduzionePersonaleTotaleCostiPersonalePrecedente = (isset($bilancioJSONprev->CostiProduzionePersonaleTotaleCostiPersonale) ? $bilancioJSONprev->CostiProduzionePersonaleTotaleCostiPersonale : 0);
+        $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerciPrecedente = (isset($bilancioJSONprev->CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci) ? $bilancioJSONprev->CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci : 0);
+        $CostiProduzioneOneriDiversiGestionePrecedente = (isset($bilancioJSONprev->CostiProduzioneOneriDiversiGestione) ? $bilancioJSONprev->CostiProduzioneOneriDiversiGestione : 0);
+
+
+        $MOLcurr = $TotaleValoreProduzione - $CostiProduzioneMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneGodimentoBeniTerzi - $CostiProduzioneServizi - $CostiProduzionePersonaleTotaleCostiPersonale - $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneOneriDiversiGestione;
+        $MOLprev = $TotaleValoreProduzionePrecedente - $CostiProduzioneMateriePrimeSussidiarieConsumoMerciPrecedente - $CostiProduzioneGodimentoBeniTerziPrecedente - $CostiProduzioneServiziPrecedente - $CostiProduzionePersonaleTotaleCostiPersonalePrecedente - $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerciPrecedente - $CostiProduzioneOneriDiversiGestionePrecedente;
+
+        if ($MOLprev == 0) {
+            $AndamentoMOL = number_format(- (1 - ($MOLcurr / 1)) * 100, 2, ',', '');
+            $dataAnalisis['Andamento_del_MOL'] = $AndamentoMOL . '%';
+        } else {
+            $AndamentoMOL = number_format(- (1 - ($MOLcurr / $MOLprev)) * 100, 2, ',', '');
+            $dataAnalisis['Andamento_del_MOL'] = $AndamentoMOL . '%';
+        }
+
+        $arrayConVoci['Andamento_del_MOL'] = array('TotaleValoreProduzione', 'CostiProduzioneMateriePrimeSussidiarieConsumoMerci', 'CostiProduzioneGodimentoBeniTerzi', 'CostiProduzioneServizi', 'CostiProduzionePersonaleTotaleCostiPersonale', 'CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci', 'CostiProduzioneOneriDiversiGestione');
+
+        // ### ROI
+
+        $DifferenzaValoreCostiProduzione = (isset($bilancioJSON->DifferenzaValoreCostiProduzione) ? $bilancioJSON->DifferenzaValoreCostiProduzione : 0);
+        if ($TotaleAttivo == 0) {
+            $ROI = number_format((float)($DifferenzaValoreCostiProduzione / 1) * 100, 2, ',', '');
+            $dataAnalisis['ROI'] = $ROI . '%';
+        } else {
+            $ROI = number_format((float)($DifferenzaValoreCostiProduzione / $TotaleAttivo) * 100, 2, ',', '');
+            $dataAnalisis['ROI'] = $ROI . '%';
+        }
+
+        $arrayConVoci['ROI'] = array('DifferenzaValoreCostiProduzione', 'TotaleAttivo');
+
+        // ### ROS
+
+        if ($ValoreProduzioneRicaviVenditePrestazioni == 0) {
+            $ROS = number_format((float)($DifferenzaValoreCostiProduzione / 1) * 100, 2, ',', '');
+            $dataAnalisis['ROS'] = $ROS . '%';
+        } else {
+            $ROS = number_format((float)($DifferenzaValoreCostiProduzione / $ValoreProduzioneRicaviVenditePrestazioni) * 100, 2, ',', '');
+            $dataAnalisis['ROS'] = $ROS . '%';
+        }
+
+        $arrayConVoci['ROS'] = array('DifferenzaValoreCostiProduzione', 'ValoreProduzioneRicaviVenditePrestazioni');
+
+        //### ROE
+
+        if ($TotalePatrimonioNetto == 0) {
+            $ROE = number_format((float)($UtilePerditaEsercizio / 1) * 100, 2, ',', '');
+            $dataAnalisis['ROE'] = $ROE . '%';
+        } else {
+            $ROE = number_format((float)($UtilePerditaEsercizio / $TotalePatrimonioNetto) * 100, 2, ',', '');
+            $dataAnalisis['ROE'] = $ROE . '%';
+        }
+
+        $arrayConVoci['ROE'] = array('UtilePerditaEsercizio', 'TotalePatrimonioNetto');
+
+        //### EBITDA/Fatturato
+
+        if ($ValoreProduzioneRicaviVenditePrestazioni == 0) {
+            $EBITDA_FATTURATO = number_format((float)(($TotaleValoreProduzione - $CostiProduzioneMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneServizi - $CostiProduzioneGodimentoBeniTerzi - $CostiProduzionePersonaleTotaleCostiPersonale - $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneOneriDiversiGestione) / 1) * 100, 2, ',', '');
+            $dataAnalisis['EBITDA_Fatturato'] = $EBITDA_FATTURATO . '%';
+        } else {
+            $EBITDA_FATTURATO = number_format((float)(($TotaleValoreProduzione - $CostiProduzioneMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneServizi - $CostiProduzioneGodimentoBeniTerzi - $CostiProduzionePersonaleTotaleCostiPersonale - $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneOneriDiversiGestione) / $ValoreProduzioneRicaviVenditePrestazioni) * 100, 2, ',', '');
+            $dataAnalisis['EBITDA_Fatturato'] = $EBITDA_FATTURATO . '%';
+        }
+
+        $arrayConVoci['EBITDA_Fatturato'] = array('TotaleValoreProduzione', 'CostiProduzioneMateriePrimeSussidiarieConsumoMerci', 'CostiProduzioneServizi', 'CostiProduzioneGodimentoBeniTerzi', 'CostiProduzionePersonaleTotaleCostiPersonale', 'CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci', 'CostiProduzioneOneriDiversiGestione', 'ValoreProduzioneRicaviVenditePrestazioni');
+
+        //### Andamento dei mezzi propri
+
+        $TotalePatrimonioNettoCurr = (isset($bilancioJSON->TotalePatrimonioNetto) ? $bilancioJSON->TotalePatrimonioNetto : 0);
+        $TotalePatrimonioNettoPrev = (isset($bilancioJSONprev->TotalePatrimonioNetto) ? $bilancioJSONprev->TotalePatrimonioNetto : 0);
+        if ($TotalePatrimonioNettoPrev == 0) {
+            $AndamentoDeiMezziPropri = number_format((float)(($TotalePatrimonioNettoCurr / 1) - 1) * 100, 2, ',', '');
+            $dataAnalisis['Andamento_dei_mezzi_propri'] = $AndamentoDeiMezziPropri . '%';
+        } else {
+            $AndamentoDeiMezziPropri = number_format((float)(($TotalePatrimonioNettoCurr / $TotalePatrimonioNettoPrev) - 1) * 100, 2, ',', '');
+            $dataAnalisis['Andamento_dei_mezzi_propri'] = $AndamentoDeiMezziPropri . '%';
+        }
+
+        $arrayConVoci['Andamento_dei_mezzi_propri'] = array('TotalePatrimonioNetto');
+
+        //### Margine Struttura Primario
+        $TotaleImmobilizzazioni = (isset($bilancioJSON->TotaleImmobilizzazioni) ? $bilancioJSON->TotaleImmobilizzazioni : 0);
+        if ($TotaleImmobilizzazioni == 0) {
+            $Margine_Struttura_Primario = number_format((float)($TotalePatrimonioNetto / 1) * 100, 2, ',', '');
+            $dataAnalisis['Margine_Struttura_Primario'] = $Margine_Struttura_Primario;
+        } else {
+            $Margine_Struttura_Primario = number_format((float)($TotalePatrimonioNetto / $TotaleImmobilizzazioni) * 100, 2, ',', '');
+            $dataAnalisis['Margine_Struttura_Primario'] = $Margine_Struttura_Primario;
+        }
+
+        $arrayConVoci['Margine_Struttura_Primario'] = array('TotalePatrimonioNetto', 'TotaleImmobilizzazioni');
+
+        //### Margine Struttura Secondario
+        $TrattamentoFineRapportoLavoroSubordinato = (isset($bilancioJSON->TrattamentoFineRapportoLavoroSubordinato) ? $bilancioJSON->TrattamentoFineRapportoLavoroSubordinato : 0);
+        $DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo = (isset($bilancioJSON->DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo) ? $bilancioJSON->DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo : 0);
+        $DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo = (isset($bilancioJSON->DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo) ? $bilancioJSON->DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo : 0);
+        $DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo = (isset($bilancioJSON->DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo) ? $bilancioJSON->DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo : $val = (isset($bilancioJSONprev->DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo) ? $bilancioJSONprev->DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo : 0));
+        $DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo = (isset($bilancioJSON->DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo) ? $bilancioJSON->DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo : 0);
+        $DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo = (isset($bilancioJSON->DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo) ? $bilancioJSON->DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo : 0);
+        $DebitiAccontiEsigibiliOltreEsercizioSuccessivo = (isset($bilancioJSON->DebitiAccontiEsigibiliOltreEsercizioSuccessivo) ? $bilancioJSON->DebitiAccontiEsigibiliOltreEsercizioSuccessivo : 0);
+        $DebitiDebitiVersoFornitoriEsigibiliOltreEsercizioSuccessivo = (isset($bilancioJSON->DebitiDebitiVersoFornitoriEsigibiliOltreEsercizioSuccessivo) ? $bilancioJSON->DebitiDebitiVersoFornitoriEsigibiliOltreEsercizioSuccessivo : 0);
+        $DebitiDebitiRappresentatiTitoliCreditoEsigibiliOltreEsercizioSuccessivo = (isset($bilancioJSON->DebitiDebitiRappresentatiTitoliCreditoEsigibiliOltreEsercizioSuccessivo) ? $bilancioJSON->DebitiDebitiRappresentatiTitoliCreditoEsigibiliOltreEsercizioSuccessivo : 0);
+        $DebitiDebitiVersoImpreseControllateEsigibiliOltreEsercizioSuccessivo = (isset($bilancioJSON->DebitiDebitiVersoImpreseControllateEsigibiliOltreEsercizioSuccessivo) ? $bilancioJSON->DebitiDebitiVersoImpreseControllateEsigibiliOltreEsercizioSuccessivo : 0);
+        $DebitiDebitiVersoImpreseCollegateEsigibiliOltreEsercizioSuccessivo = (isset($bilancioJSON->DebitiDebitiVersoImpreseCollegateEsigibiliOltreEsercizioSuccessivo) ? $bilancioJSON->DebitiDebitiVersoImpreseCollegateEsigibiliOltreEsercizioSuccessivo : 0);
+        $DebitiDebitiVersoControllantiEsigibiliOltreEsercizioSuccessivo = (isset($bilancioJSON->DebitiDebitiVersoControllantiEsigibiliOltreEsercizioSuccessivo) ? $bilancioJSON->DebitiDebitiVersoControllantiEsigibiliOltreEsercizioSuccessivo : 0);
+        $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliOltreEsercizioSuccessivo = (isset($bilancioJSON->DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliOltreEsercizioSuccessivo) ? $bilancioJSON->DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliOltreEsercizioSuccessivo : 0);
+        $DebitiAltriDebitiEsigibiliOltreEsercizioSuccessivo = (isset($bilancioJSON->DebitiAltriDebitiEsigibiliOltreEsercizioSuccessivo) ? $bilancioJSON->DebitiAltriDebitiEsigibiliOltreEsercizioSuccessivo : $val = (isset($bilancioJSONprev->DebitiAltriDebitiEsigibiliOltreEsercizioSuccessivo) ? $bilancioJSONprev->DebitiAltriDebitiEsigibiliOltreEsercizioSuccessivo : 0));
+        $DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo = (isset($bilancioJSON->DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo) ? $bilancioJSON->DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo : $val = (isset($bilancioJSONprev->DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo) ? $bilancioJSONprev->DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo : 0));
+        $DebitiEsigibiliOltreEsercizioSuccessivo = isset($bilancioJSON->DebitiEsigibiliOltreEsercizioSuccessivo) ? $bilancioJSON->DebitiEsigibiliOltreEsercizioSuccessivo : 0;
+
+
+        $QuarantaTre = $DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo + $DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo + $DebitiAccontiEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoFornitoriEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiRappresentatiTitoliCreditoEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoImpreseControllateEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoImpreseCollegateEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoControllantiEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliOltreEsercizioSuccessivo + $DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo; //(isset($bilancioJSON->DebitiOltreEsercizioSuccessivo) ? $bilancioJSON->DebitiOltreEsercizioSuccessivo : 0);
+
+        if ($TotaleImmobilizzazioni == 0) {
+            $Margine_Struttura_Secondario_Semplificato = number_format((float)(($TotalePatrimonioNetto + $TrattamentoFineRapportoLavoroSubordinato + $DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo + $DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo + $DebitiAccontiEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoFornitoriEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiRappresentatiTitoliCreditoEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoImpreseControllateEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoImpreseCollegateEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoControllantiEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo + $DebitiAltriDebitiEsigibiliOltreEsercizioSuccessivo) / 1) * 100, 2, ',', '');
+            $Margine_Struttura_Secondario_Ordinario = number_format((float)(($TotalePatrimonioNetto + $TrattamentoFineRapportoLavoroSubordinato + $QuarantaTre) / 1) * 100, 2, ',', '');
+            $dataAnalisis['Margine_Struttura_Secondario'] = $Margine_Struttura_Secondario_Semplificato;
+        } else {
+            $Margine_Struttura_Secondario_Semplificato = number_format((float)(($TotalePatrimonioNetto + $TrattamentoFineRapportoLavoroSubordinato + $DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo + $DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo + $DebitiAccontiEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoFornitoriEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiRappresentatiTitoliCreditoEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoImpreseControllateEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoImpreseCollegateEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoControllantiEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo + $DebitiAltriDebitiEsigibiliOltreEsercizioSuccessivo) / $TotaleImmobilizzazioni) * 100, 2, ',', '');
+            $Margine_Struttura_Secondario_Ordinario = number_format((float)(($TotalePatrimonioNetto + $TrattamentoFineRapportoLavoroSubordinato + $QuarantaTre) / $TotaleImmobilizzazioni) * 100, 2, ',', '');
+            $dataAnalisis['Margine_Struttura_Secondario'] = $Margine_Struttura_Secondario_Semplificato;
+        }
+
+        $arrayConVoci['Margine_Struttura_Secondario'] = array('TotalePatrimonioNetto', 'TrattamentoFineRapportoLavoroSubordinat', 'DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo', 'DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo', 'DebitiAccontiEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiVersoFornitoriEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiRappresentatiTitoliCreditoEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiVersoImpreseControllateEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiVersoImpreseCollegateEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiVersoControllantiEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo', 'DebitiAltriDebitiEsigibiliOltreEsercizioSuccessivo', 'TotaleImmobilizzazioni');
+
+        // CURRENT RADIO (VEDI INDICE RITORNO LIQUIDO ATT)
+        $denominatoreRitornoLiquidoAttivo = 0;
+        if (($TotaleDebitiEntroDodiciMesi + $PassivoRateiRisconti) == 0) {
+            $denominatoreRitornoLiquidoAttivo = 1;
+        }
+
+        $formula = ($TotaleDisponibilitaLiquide + $AttivoRateiRisconti + $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + $TotaleRimanenze + $TotaleCreditiEntroDodiciMesi) / ($TotaleDebitiEntroDodiciMesi + $PassivoRateiRisconti + $denominatoreRitornoLiquidoAttivo);
+
+        $RITORNO_LIQUIDO_ATTIVO = number_format((float)$formula * 100, 2, ',', '');
+        $dataAnalisis['Current_Ratio'] = $RITORNO_LIQUIDO_ATTIVO . '%';
+        $arrayConVoci['Current_Ratio'] = array('TotaleDisponibilitaLiquide', 'AttivoRateiRisconti', 'TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni', 'TotaleRimanenze', 'TotaleCreditiEntroDodiciMesi', 'TotaleDebitiEntroDodiciMesi', 'PassivoRateiRisconti');
+
+        //### Attivita a breve / Passività a Breve
+
+        // TRENTACINQUE
+        $CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo : 0);
+        $CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo : 0);
+        $CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo : 0);
+        $CreditiVersoControllantiEsigibiliOltreEsercizioSuccessivo = (isset($bilancioJSON->CreditiVersoControllantiEsigibiliOltreEsercizioSuccessivo) ? $bilancioJSON->CreditiVersoControllantiEsigibiliOltreEsercizioSuccessivo : 0);
+        $CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo : $val = (isset($bilancioJSONprev->CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSONprev->CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo : 0));
+        $CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo : $val = (isset($bilancioJSONprev->CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSONprev->CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo : 0));
+        $TrentaCinque = $CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo + $CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo + $CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo;
+        $CreditiCreditiTributariTotaleCreditiTributari = (isset($bilancioJSON->CreditiCreditiTributariTotaleCreditiTributari) ? $bilancioJSON->CreditiCreditiTributariTotaleCreditiTributari : $val = (isset($bilancioJSONprev->CreditiCreditiTributariTotaleCreditiTributari) ? $bilancioJSONprev->CreditiCreditiTributariTotaleCreditiTributari : 0));
+
+        // QUARANTANOVE
+        $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo : 0);
+        $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo : 0);
+        $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo : $val = (isset($bilancioJSONprev->DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSONprev->DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo : 0));
+        $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo : 0);
+        $DebitiAccontiEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->DebitiAccontiEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->DebitiAccontiEsigibiliEntroEsercizioSuccessivo : 0);
+        $DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo : $val = (isset($bilancioJSONprev->DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSONprev->DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo : 0));
+        $DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo : 0);
+        $DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo : 0);
+        $DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo : 0);
+        $DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo : 0);
+        $DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo : $val = (isset($bilancioJSONprev->DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSONprev->DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo : 0));
+        $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo : $val = (isset($bilancioJSONprev->DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSONprev->DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo : 0));
+        $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo : 0);
+        $QuarantaNove = $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo + $DebitiAccontiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo + $DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo;
+        $CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo = (isset($bilancioJSON->CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo) ? $bilancioJSON->CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo : 0);
+
+        if ($QuarantaNove > 0 || $PassivoRateiRisconti > 0) {
+            $Attivita_a_breve_Passivita_a_Breve_Semplificato = number_format((float)((($TotaleDisponibilitaLiquide + $TrentaCinque + $TotaleRimanenze + $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + $AttivoRateiRisconti) / ($QuarantaNove + $PassivoRateiRisconti))), 2, ',', '');
+            //$dataAnalisis['Attivita_a_breve_Passività_a_Breve_Semplificato'] = $Attivita_a_breve_Passivita_a_Breve_Semplificato.'%';
+        }
+        $Attivita_a_breve_Passivita_a_Breve_Ordinario_divisore = $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo + $DebitiAccontiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo + $DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo + $PassivoRateiRisconti;
+
+        if ($Attivita_a_breve_Passivita_a_Breve_Ordinario_divisore > 0) {
+            $Attivita_a_breve_Passivita_a_Breve_Ordinario = number_format((float)((($TotaleDisponibilitaLiquide + $CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo + $CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo + $CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo + $CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo + $TotaleRimanenze + $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + $AttivoRateiRisconti) / ($Attivita_a_breve_Passivita_a_Breve_Ordinario_divisore))) * 100, 2, ',', '');
+            $dataAnalisis['Attivita_a_breve_Passività_a_Breve_Ordinario'] = $Attivita_a_breve_Passivita_a_Breve_Ordinario . '%';
+        }
+
+        $arrayConVoci['Attivita_a_breve_Passività_a_Breve_Ordinario'] = array();
+
+     //   dd($DebitiEsigibiliEntroEsercizioSuccessivo);
+        // ACID TEST
+        if ($DebitiEsigibiliEntroEsercizioSuccessivo > 0 || $PassivoRateiRisconti > 0) {
+			// dd($TotaleDisponibilitaLiquide, $DebitiEsigibiliEntroEsercizioSuccessivo);
+            $AcidTest = number_format((((float)$TotaleCrediti + (float)$TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + (float)$TotaleDisponibilitaLiquide + (float)$AttivoRateiRisconti) / ((float)$DebitiEsigibiliEntroEsercizioSuccessivo + (float)$PassivoRateiRisconti)), 2, ',', '');
+            //            $dataAnalisis['AcidTest'] = $AcidTest.'%';
+        }
+        if ($QuarantaNove > 0 || $PassivoRateiRisconti > 0) {
+            $ACID_TEST_Semplificato = number_format((float)((($TotaleDisponibilitaLiquide + $TrentaCinque + $TotaleRimanenze + $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + $AttivoRateiRisconti - $TotaleRimanenze) / ($QuarantaNove + $PassivoRateiRisconti))), 2, ',', '');
+            // $dataAnalisis['ACID_TEST_Semplificato'] = $ACID_TEST_Semplificato.'%';
+        }
+        $ACID_TEST_Ordinario_divisore = $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo + $DebitiAccontiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo + $DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo + $PassivoRateiRisconti;
+
+        if ($ACID_TEST_Ordinario_divisore > 0) {
+            $ACID_TEST_Ordinario = number_format((float)((($TotaleDisponibilitaLiquide + $CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo + $CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo + $CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo + $CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo + $TotaleRimanenze + $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + $AttivoRateiRisconti - $TotaleRimanenze) / ($ACID_TEST_Ordinario_divisore))) * 100, 2, ',', '');
+            $dataAnalisis['Acid_Test'] = $ACID_TEST_Ordinario . '%';
+        }
+        //dd('TotaleDisponibilitaLiquide', $TotaleDisponibilitaLiquide, 'CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo', $CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo, 'CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo', $CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo, 'CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo', $CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo, 'CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo', $CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo, 'CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo', $CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo, 'CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo', $CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo, 'TotaleRimanenze', $TotaleRimanenze, 'TotaleRimanenze', $TotaleRimanenze, 'AttivoRateiRisconti', $AttivoRateiRisconti, 'TotaleRimanenze', $TotaleRimanenze, 'DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo', $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo, 'DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo', $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo, 'DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo', $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo, 'DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo', $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo, 'DebitiAccontiEsigibiliEntroEsercizioSuccessivo', $DebitiAccontiEsigibiliEntroEsercizioSuccessivo, 'DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo', $DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo, 'DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo', $DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo, 'DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo', $DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo, 'DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo', $DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo, 'DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo', $DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo, 'DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo', $DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo, 'DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo', $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo, 'DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo', $DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo, 'DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo', $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo, 'PassivoRateiRisconti', $PassivoRateiRisconti);
+        $arrayConVoci['Acid_Test'] = array('TotaleDisponibilitaLiquide', 'CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo', 'CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo', 'CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo', 'CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo', 'CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo', 'CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo', 'TotaleRimanenze', 'TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni', 'AttivoRateiRisconti', 'TotaleRimanenze', 'DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo', 'DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo', 'DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo', 'DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo', 'DebitiAccontiEsigibiliEntroEsercizioSuccessivo', 'DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo', 'DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo', 'DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo', 'DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo', 'DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo', 'DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo', 'DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo', 'DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo', 'DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo', 'PassivoRateiRisconti');
+
+        // AUTONOMIA FINANZIARIA
+        if (($TotalePatrimonioNetto + $TotaleDebiti) == 0) {
+            $AUTONOMIA_FINANZIARIA = number_format((float)(($TotalePatrimonioNetto / 1)) * 100, 2, ',', '');
+            $dataAnalisis['Autonomia_Finanziaria'] = $AUTONOMIA_FINANZIARIA . '%';
+        } else {
+            $AUTONOMIA_FINANZIARIA = number_format((float)(($TotalePatrimonioNetto / ($TotalePatrimonioNetto + $TotaleDebiti))) * 100, 2, ',', '');
+            $dataAnalisis['Autonomia_Finanziaria'] = $AUTONOMIA_FINANZIARIA . '%';
+        }
+
+        $arrayConVoci['Autonomia_Finanziaria'] = array('TotalePatrimonioNetto', 'TotalePatrimonioNetto', 'TotaleDebiti');
+
+        // LIVELLO INVESTIMENTI AZIENDALI
+        if ($TotaleAttivo == 0) {
+            $LIVELLO_INVESTIMENTI_AZIENDALI = number_format((float)($TotalePatrimonioNetto / 0.1) * 100, 2, ',', '');
+            $dataAnalisis['Livello_investimenti_aziendali'] = $LIVELLO_INVESTIMENTI_AZIENDALI . '%';
+        } else {
+            $LIVELLO_INVESTIMENTI_AZIENDALI = number_format((float)($TotalePatrimonioNetto / $TotaleAttivo) * 100, 2, ',', '');
+            $dataAnalisis['Livello_investimenti_aziendali'] = $LIVELLO_INVESTIMENTI_AZIENDALI . '%';
+        }
+
+        $arrayConVoci['Livello_investimenti_aziendali'] = array('TotalePatrimonioNetto', 'TotaleAttivo');
+
+
+        // PFN / EBITDA
+        $ImmobilizzazioniFinanziarieCreditiTotaleCrediti = (isset($bilancioJSON->ImmobilizzazioniFinanziarieCreditiTotaleCrediti) ? $bilancioJSON->ImmobilizzazioniFinanziarieCreditiTotaleCrediti : 0);
+        $debitiFinanziariCurr = $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo + $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo;
+        if ($MOLcurr == 0) {
+            $PFN_EBITDA = number_format((float)(($debitiFinanziariCurr - $TotaleDisponibilitaLiquide - $ImmobilizzazioniFinanziarieCreditiTotaleCrediti) / 1), 2, '.', ',');
+            $dataAnalisis['PFN_EBITDA'] = (float)$PFN_EBITDA * 100;
+        } else {
+            $PFN_EBITDA = number_format((float)(($debitiFinanziariCurr - $TotaleDisponibilitaLiquide - $ImmobilizzazioniFinanziarieCreditiTotaleCrediti) / $MOLcurr), 2, '.', ',');
+            $dataAnalisis['PFN_EBITDA'] = (float)$PFN_EBITDA * 100;
+        }
+        // dd($PFN_EBITDA, $OF_RICAVI);
+
+        $arrayConVoci['PFN_EBITDA'] = array('DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo', 'DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo', 'DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo', 'DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo', 'DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo', 'DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo', 'DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo', 'TotaleDisponibilitaLiquide', 'ImmobilizzazioniFinanziarieCreditiTotaleCrediti', 'TotaleValoreProduzione', 'CostiProduzioneMateriePrimeSussidiarieConsumoMerci', 'CostiProduzioneGodimentoBeniTerzi', 'CostiProduzioneServizi', 'CostiProduzionePersonaleTotaleCostiPersonale', 'CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci', 'CostiProduzioneOneriDiversiGestione');
+
+        // Peso Oneri Finanziari (OF/Fatturato)
+        $denominatoreOFfatturato = $ValoreProduzioneRicaviVenditePrestazioni;
+        if ($denominatoreOFfatturato == 0) {
+            $denominatoreOFfatturato = 1;
+        }
+        $Peso_Oneri_Finanziari = number_format((float)($ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari / $denominatoreOFfatturato) * 100,  2, ',', '');
+        $dataAnalisis['Peso_Oneri_Finanziari'] = $Peso_Oneri_Finanziari . '%';
+        $arrayConVoci['Peso_Oneri_Finanziari'] = array('ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari', 'ValoreProduzioneRicaviVenditePrestazioni');
+
+        // Copertura Lorda degli Oneri Finanziari
+        if ($ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari == 0) {
+            $Copertura_Lorda_degli_Oneri_Finanziari = number_format((float)(($TotaleValoreProduzione - $CostiProduzioneMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneServizi - $CostiProduzioneGodimentoBeniTerzi - $CostiProduzionePersonaleTotaleCostiPersonale - $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneOneriDiversiGestione) / 1), 2, '.', ',');
+            $dataAnalisis['Copertura_Lorda_OF'] = (float)$Copertura_Lorda_degli_Oneri_Finanziari * 100;
+        } else {
+            $Copertura_Lorda_degli_Oneri_Finanziari = number_format((float)(($TotaleValoreProduzione - $CostiProduzioneMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneServizi - $CostiProduzioneGodimentoBeniTerzi - $CostiProduzionePersonaleTotaleCostiPersonale - $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneOneriDiversiGestione) / $ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari), 2, '.', ',');
+            $dataAnalisis['Copertura_Lorda_OF'] = (float)$Copertura_Lorda_degli_Oneri_Finanziari * 100;
+        }
+
+        $arrayConVoci['Copertura_Lorda_OF'] = array('TotaleValoreProduzione', 'CostiProduzioneMateriePrimeSussidiarieConsumoMerci', 'CostiProduzioneServizi', 'CostiProduzioneGodimentoBeniTerzi', 'CostiProduzionePersonaleTotaleCostiPersonale', 'CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci', 'CostiProduzioneOneriDiversiGestione', 'ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari');
+
+        // EBIT / OF
+        if ($ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari == 0) {
+            $EBIT_OF = number_format((float)(($TotaleValoreProduzione - $CostiProduzioneMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneServizi - $CostiProduzioneGodimentoBeniTerzi - $CostiProduzionePersonaleTotaleCostiPersonale - $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneOneriDiversiGestione - $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni - $CostiProduzioneAccantonamentiRischi - $CostiProduzioneAltriAccantonamenti) / 1), 2, '.', ',');
+            $dataAnalisis['EBIT_OF'] = (float)$EBIT_OF * 100;
+        } else {
+            $EBIT_OF = number_format((float)(($TotaleValoreProduzione - $CostiProduzioneMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneServizi - $CostiProduzioneGodimentoBeniTerzi - $CostiProduzionePersonaleTotaleCostiPersonale - $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneOneriDiversiGestione - $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni - $CostiProduzioneAccantonamentiRischi - $CostiProduzioneAltriAccantonamenti) / $ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari), 2, '.', ',');
+            $dataAnalisis['EBIT_OF'] = (float)$EBIT_OF * 100;
+        }
+
+        $arrayConVoci['EBIT_OF'] = array('TotaleValoreProduzione', 'CostiProduzioneMateriePrimeSussidiarieConsumoMerci', 'CostiProduzioneServizi', 'CostiProduzioneGodimentoBeniTerzi', 'CostiProduzionePersonaleTotaleCostiPersonale', 'CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci', 'CostiProduzioneOneriDiversiGestione', 'CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni', 'CostiProduzioneAccantonamentiRischi', 'CostiProduzioneAltriAccantonamenti', 'ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari');
+
+        //Costo del personale
+        if ($ValoreProduzioneRicaviVenditePrestazioni == 0) {
+            $Costo_del_personale = number_format((float)($CostiProduzionePersonaleTotaleCostiPersonale / 1) * 100, 2, ',', '');
+            $dataAnalisis['Costo_del_personale'] = $Costo_del_personale . '%';
+        } else {
+            $Costo_del_personale = number_format((float)($CostiProduzionePersonaleTotaleCostiPersonale / $ValoreProduzioneRicaviVenditePrestazioni) * 100, 2, ',', '');
+            $dataAnalisis['Costo_del_personale'] = $Costo_del_personale . '%';
+        }
+
+        $arrayConVoci['Costo_del_personale'] = array('CostiProduzionePersonaleTotaleCostiPersonale', 'ValoreProduzioneRicaviVenditePrestazioni');
+
+        // CF / Attivo
+        if ($TotaleAttivo == 0) {
+            $CreditiImposteAnticipateTotaleImposteAnticipate = (isset($bilancioJSON->CreditiImposteAnticipateTotaleImposteAnticipate) ? $bilancioJSON->CreditiImposteAnticipateTotaleImposteAnticipate : 0);
+            $CF_ATTIVO = number_format((float)(($UtilePerditaEsercizio + $CostiProduzioneAccantonamentiRischi + $CostiProduzioneAltriAccantonamenti + $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni - $imposteRedditoEsercizioImposteAnticipate) / 0.1) * 100, 2, '.', ',');
+            $dataAnalisis['CF_Attivo'] = $CF_ATTIVO . '%';
+        } else {
+            $CreditiImposteAnticipateTotaleImposteAnticipate = (isset($bilancioJSON->CreditiImposteAnticipateTotaleImposteAnticipate) ? $bilancioJSON->CreditiImposteAnticipateTotaleImposteAnticipate : 0);
+            $CF_ATTIVO = number_format((float)(($UtilePerditaEsercizio + $CostiProduzioneAccantonamentiRischi + $CostiProduzioneAltriAccantonamenti + $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni - $imposteRedditoEsercizioImposteAnticipate) / $TotaleAttivo) * 100, 2, '.', ',');
+            $dataAnalisis['CF_Attivo'] = $CF_ATTIVO . '%';
+        }
+
+
+        $arrayConVoci['CF_Attivo'] = array('UtilePerditaEsercizio', 'CostiProduzioneAccantonamentiRischi', 'CostiProduzioneAltriAccantonamenti', 'CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni', 'CreditiImposteAnticipateTotaleImposteAnticipate', 'TotaleAttivo');
+
+        //Indice di Indebitamento (PFN/PN)
+        if ($TotalePatrimonioNetto == 0) {
+            $MOLannoCorrente = $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo + $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo;
+            $Indice_di_Indebitamento = number_format((float)(($MOLannoCorrente - $TotaleDisponibilitaLiquide - $ImmobilizzazioniFinanziarieCreditiTotaleCrediti) / 0.1) * 100, 2, ',', '');
+            $dataAnalisis['Indice_di_Indebitamento'] = $Indice_di_Indebitamento . '%';
+        } else {
+            $MOLannoCorrente = $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo + $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo;
+            $Indice_di_Indebitamento = number_format((float)(($MOLannoCorrente - $TotaleDisponibilitaLiquide - $ImmobilizzazioniFinanziarieCreditiTotaleCrediti) / $TotalePatrimonioNetto) * 100, 2, ',', '');
+            $dataAnalisis['Indice_di_Indebitamento'] = $Indice_di_Indebitamento . '%';
+        }
+
+        $arrayConVoci['Indice_di_Indebitamento'] = array('DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo', 'DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo', 'DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo', 'DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo', 'DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo', 'DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo', 'DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo', 'TotaleDisponibilitaLiquide', 'ImmobilizzazioniFinanziarieCreditiTotaleCrediti', 'TotalePatrimonioNetto');
+
+        $indiciBilancio = array();
+
+        //SALDO DEBITI VS FISCO
+
+        $DebitiDebitiTributariTotaleDebitiTributariCorrente = (isset($bilancioJSON->DebitiDebitiTributariTotaleDebitiTributari) ? $bilancioJSON->DebitiDebitiTributariTotaleDebitiTributari : 0);
+        $FondiRischiOneriTrattamentoQuiescenzaObblighiSimiliCorrente = (isset($bilancioJSON->FondiRischiOneriTrattamentoQuiescenzaObblighiSimili) ? $bilancioJSON->FondiRischiOneriTrattamentoQuiescenzaObblighiSimili : 0);
+        $ImposteRedditoEsercizioCorrentiDifferiteAnticipateTotaleImposteRedditoEsercizioCorrentiDifferiteAnticipatePrecedente = isset($bilancioJSONprev->ImposteRedditoEsercizioCorrentiDifferiteAnticipateTotaleImposteRedditoEsercizioCorrentiDifferiteAnticipate) ? $bilancioJSONprev->ImposteRedditoEsercizioCorrentiDifferiteAnticipateTotaleImposteRedditoEsercizioCorrentiDifferiteAnticipate : 0;
+        $ImposteRedditoEsercizioCorrentiDifferiteAnticipateTotaleImposteRedditoEsercizioCorrentiDifferiteAnticipate = isset($bilancioJSON->ImposteRedditoEsercizioCorrentiDifferiteAnticipateTotaleImposteRedditoEsercizioCorrentiDifferiteAnticipate) ? $bilancioJSON->ImposteRedditoEsercizioCorrentiDifferiteAnticipateTotaleImposteRedditoEsercizioCorrentiDifferiteAnticipate : 0;
+
+        $DifferenzaImposteReddito = ($ImposteRedditoEsercizioCorrentiDifferiteAnticipateTotaleImposteRedditoEsercizioCorrentiDifferiteAnticipate + $ImposteRedditoEsercizioCorrentiDifferiteAnticipateTotaleImposteRedditoEsercizioCorrentiDifferiteAnticipatePrecedente) / 2;
+        if ($DifferenzaImposteReddito == 0) {
+            $SaldoDebitiVSFisco = number_format(($FondiRischiOneriTrattamentoQuiescenzaObblighiSimiliCorrente + $DebitiDebitiTributariTotaleDebitiTributariCorrente) / 1, 2, '.', ',');
+            $dataAnalisis['Saldo_dei_Debiti_verso_il_Fisco'] = $SaldoDebitiVSFisco * 100;
+        } else {
+            $SaldoDebitiVSFisco = number_format(($FondiRischiOneriTrattamentoQuiescenzaObblighiSimiliCorrente + $DebitiDebitiTributariTotaleDebitiTributariCorrente) / $DifferenzaImposteReddito, 2, '.', ',');
+            $dataAnalisis['Saldo_dei_Debiti_verso_il_Fisco'] = (float)$SaldoDebitiVSFisco * 100;
+        }
+
+        $arrayConVoci['Saldo_dei_Debiti_verso_il_Fisco'] = array('FondiRischiOneriTrattamentoQuiescenzaObblighiSimiliCorrente', 'DebitiDebitiTributariTotaleDebitiTributariCorrente', 'DifferenzaImposteReddito');
+
+        $bilanciHelper = new BilanciHelper;
+
+        $explodedDate = (explode(' ', $bilancio->year))[0];
+
+        $valutazioneBilancio = $bilanciHelper->valutazioneIndici($dataAnalisis, $tipoAzienda, $explodedDate);
+
+        $dataAnalisis["PFN_EBITDA"] = $dataAnalisis["PFN_EBITDA"] / 100;
+        $dataAnalisis["Copertura_Lorda_OF"] = $dataAnalisis["Copertura_Lorda_OF"] / 100;
+        $dataAnalisis["EBIT_OF"] = $dataAnalisis["EBIT_OF"] / 100;
+        $dataAnalisis["Saldo_dei_Debiti_verso_il_Fisco"] = $dataAnalisis["Saldo_dei_Debiti_verso_il_Fisco"] / 100;
+        $dataAnalisis["Margine_Struttura_Primario"] = (float)str_replace('.', '', $dataAnalisis["Margine_Struttura_Primario"]) / 100;
+        $dataAnalisis["Margine_Struttura_Secondario"] = (float)str_replace('.', '', $dataAnalisis["Margine_Struttura_Secondario"]) / 100;
+
+        return array('Indici' => $dataAnalisis, 'Giudizi' => $valutazioneBilancio);
+    }
+	
 	public function reportBasicPdf($idBilancio)
 	{
 		$bilancio = Bilanci::findOrFail($idBilancio);
@@ -941,6 +1493,8 @@ class PDFController extends Controller
 			$totaleAffidamentiGeneral = $crHelper->getTotaleAffidamentiGeneral($categories, $latestYear, $latestMonth, $banks);
 
 			$totAffidamentiConPesiPerBanca = $crHelper->getPesiAffidamentiPerBanca($categories, $latestYear, $latestMonth, $banks);
+			
+
 			$scoreCR = $crHelper->getScoring($banks);
 			$creditiContestati = $crHelper->getCreditiContestati($banks);
 			$impagati = $crHelper->getAlertImpagati($banks);
@@ -1084,6 +1638,9 @@ class PDFController extends Controller
 			return view('allerta.empty', compact(['msg']));
 		} else {
 
+
+			$bilancioHelper = new BilanciHelper;
+			
 			$allertaHelper = new AllertaHelper;
 			$setDocumentId = $allertaHelper->setDocumentId($idCr);
 			$getDocumentId = $allertaHelper->getDocumentId();
@@ -1215,10 +1772,12 @@ class PDFController extends Controller
 
 			if (Bilanci::count() != 0) {
 
+				// $bilancioData = $bilancioHelper->getAnalisiBilancio($id);
 				$bilancioData = $this->basic($id);
-
-				if (DB::table('questionario')->count() != 0) {
-					$ASISfinalScore = array("Score" => ($bilancioData['Giudizi']['Score'] * 0.25) + ($scoreCR * 0.25) + ($scoreASIS['3'] * 0.1) + ($scoreASIS['4'] * 0.1) + ($scoreASIS['5'] * 0.15) + ($scoreASIS['6'] * 0.15));
+			
+// dd($bilancioData['Giudizi']['Score']);
+				if (DB::table('questionario')->where('document_id', $getDocumentId)->count() != 0) {
+					$ASISfinalScore = array("Score" => ($bilancioData['Giudizi']['Score'] * 0.25) + ($scoreCR * 0.25) + ($scoreASIS['1'] * 0.1) + ($scoreASIS['2'] * 0.1) + ($scoreASIS['3'] * 0.15) + ($scoreASIS['4'] * 0.15));
 
 					$rangeGiudizi = array(
 						0 => array("Min" => 0, "Max" => 0.14, "Giudizio" => "Default"),
@@ -1239,7 +1798,7 @@ class PDFController extends Controller
 
 					$generalScore = array();
 
-					if ($scoreASIS['6'] < 0.75) {
+					if ($scoreASIS['4'] < 0.75) {
 						$generalScore["Giudizio"] = $rangeGiudizi[$ASISfinalScore["Index"] - 1]['Giudizio'];
 						$generalScore["Index"] = $ASISfinalScore["Index"] - 1;
 					} else {
@@ -1294,68 +1853,68 @@ class PDFController extends Controller
 					$analisiCR = "Solidità";
 				}
 				$minacceRapportiComerciali = null;
-				if ($scoreASIS['3'] >= 0 && $scoreASIS['3'] < 0.14) {
+				if ($scoreASIS['1'] >= 0 && $scoreASIS['1'] < 0.14) {
 					$minacceRapportiComerciali = "Default";
-				} else if ($scoreASIS['3'] >= 0.14 && $scoreASIS['3'] < 0.28) {
+				} else if ($scoreASIS['1'] >= 0.14 && $scoreASIS['1'] < 0.28) {
 					$minacceRapportiComerciali = "Situazione Grave";
-				} else if ($scoreASIS['3'] >= 0.28 && $scoreASIS['3'] < 0.42) {
+				} else if ($scoreASIS['1'] >= 0.28 && $scoreASIS['1'] < 0.42) {
 					$minacceRapportiComerciali = "Alert";
-				} else if ($scoreASIS['3'] >= 0.42 && $scoreASIS['3'] < 0.56) {
+				} else if ($scoreASIS['1'] >= 0.42 && $scoreASIS['1'] < 0.56) {
 					$minacceRapportiComerciali = "Rischio alert";
-				} else if ($scoreASIS['3'] >= 0.56 && $scoreASIS['3'] < 0.70) {
+				} else if ($scoreASIS['1'] >= 0.56 && $scoreASIS['1'] < 0.70) {
 					$minacceRapportiComerciali = "Fragilità elevata";
-				} else if ($scoreASIS['3'] >= 0.70 && $scoreASIS['3'] < 0.85) {
+				} else if ($scoreASIS['1'] >= 0.70 && $scoreASIS['1'] < 0.85) {
 					$minacceRapportiComerciali = "Fragilità";
-				} else if ($scoreASIS['3'] >= 0.85 && $scoreASIS['3'] <= 1) {
+				} else if ($scoreASIS['1'] >= 0.85 && $scoreASIS['1'] <= 1) {
 					$minacceRapportiComerciali = "Solidità";
 				}
 
 				$MinacceGestioneAziendale = null;
-				if ($scoreASIS['4'] >= 0 && $scoreASIS['4'] < 0.14) {
+				if ($scoreASIS['2'] >= 0 && $scoreASIS['2'] < 0.14) {
 					$MinacceGestioneAziendale = "Default";
-				} else if ($scoreASIS['4'] >= 0.14 && $scoreASIS['4'] < 0.28) {
+				} else if ($scoreASIS['2'] >= 0.14 && $scoreASIS['2'] < 0.28) {
 					$MinacceGestioneAziendale = "Situazione Grave";
-				} else if ($scoreASIS['4'] >= 0.28 && $scoreASIS['4'] < 0.42) {
+				} else if ($scoreASIS['2'] >= 0.28 && $scoreASIS['2'] < 0.42) {
 					$MinacceGestioneAziendale = "Alert";
-				} else if ($scoreASIS['4'] >= 0.42 && $scoreASIS['4'] < 0.56) {
+				} else if ($scoreASIS['2'] >= 0.42 && $scoreASIS['2'] < 0.56) {
 					$MinacceGestioneAziendale = "Rischio alert";
-				} else if ($scoreASIS['4'] >= 0.56 && $scoreASIS['4'] < 0.70) {
+				} else if ($scoreASIS['2'] >= 0.56 && $scoreASIS['2'] < 0.70) {
 					$MinacceGestioneAziendale = "Fragilità elevata";
-				} else if ($scoreASIS['4'] >= 0.70 && $scoreASIS['4'] < 0.85) {
+				} else if ($scoreASIS['2'] >= 0.70 && $scoreASIS['2'] < 0.85) {
 					$MinacceGestioneAziendale = "Fragilità";
-				} else if ($scoreASIS['4'] >= 0.85 && $scoreASIS['4'] <= 1) {
+				} else if ($scoreASIS['2'] >= 0.85 && $scoreASIS['2'] <= 1) {
 					$MinacceGestioneAziendale = "Solidità";
 				}
 				$minacceERischiCaratteristici = null;
-				if ($scoreASIS['6'] >= 0 && $scoreASIS['6'] < 0.14) {
+				if ($scoreASIS['4'] >= 0 && $scoreASIS['4'] < 0.14) {
 					$minacceERischiCaratteristici = "Default";
-				} else if ($scoreASIS['6'] >= 0.14 && $scoreASIS['6'] < 0.28) {
+				} else if ($scoreASIS['4'] >= 0.14 && $scoreASIS['4'] < 0.28) {
 					$minacceERischiCaratteristici = "Situazione Grave";
-				} else if ($scoreASIS['6'] >= 0.28 && $scoreASIS['6'] < 0.42) {
+				} else if ($scoreASIS['4'] >= 0.28 && $scoreASIS['4'] < 0.42) {
 					$minacceERischiCaratteristici = "Alert";
-				} else if ($scoreASIS['6'] >= 0.42 && $scoreASIS['6'] < 0.56) {
+				} else if ($scoreASIS['4'] >= 0.42 && $scoreASIS['4'] < 0.56) {
 					$minacceERischiCaratteristici = "Rischio alert";
-				} else if ($scoreASIS['6'] >= 0.56 && $scoreASIS['6'] < 0.70) {
+				} else if ($scoreASIS['4'] >= 0.56 && $scoreASIS['4'] < 0.70) {
 					$minacceERischiCaratteristici = "Fragilità elevata";
-				} else if ($scoreASIS['6'] >= 0.70 && $scoreASIS['6'] < 0.85) {
+				} else if ($scoreASIS['4'] >= 0.70 && $scoreASIS['4'] < 0.85) {
 					$minacceERischiCaratteristici = "Fragilità";
-				} else if ($scoreASIS['6'] >= 0.85 && $scoreASIS['6'] <= 1) {
+				} else if ($scoreASIS['4'] >= 0.85 && $scoreASIS['4'] <= 1) {
 					$minacceERischiCaratteristici = "Solidità";
 				}
 				$MinacceEventiPregiudizievoli = null;
-				if ($scoreASIS['5'] >= 0 && $scoreASIS['5'] < 0.14) {
+				if ($scoreASIS['3'] >= 0 && $scoreASIS['3'] < 0.14) {
 					$MinacceEventiPregiudizievoli = "Default";
-				} else if ($scoreASIS['5'] >= 0.14 && $scoreASIS['5'] < 0.28) {
+				} else if ($scoreASIS['3'] >= 0.14 && $scoreASIS['3'] < 0.28) {
 					$MinacceEventiPregiudizievoli = "Situazione Grave";
-				} else if ($scoreASIS['5'] >= 0.28 && $scoreASIS['5'] < 0.42) {
+				} else if ($scoreASIS['3'] >= 0.28 && $scoreASIS['3'] < 0.42) {
 					$MinacceEventiPregiudizievoli = "Alert";
-				} else if ($scoreASIS['5'] >= 0.42 && $scoreASIS['5'] < 0.56) {
+				} else if ($scoreASIS['3'] >= 0.42 && $scoreASIS['3'] < 0.56) {
 					$MinacceEventiPregiudizievoli = "Rischio alert";
-				} else if ($scoreASIS['5'] >= 0.56 && $scoreASIS['5'] < 0.70) {
+				} else if ($scoreASIS['3'] >= 0.56 && $scoreASIS['3'] < 0.70) {
 					$MinacceEventiPregiudizievoli = "Fragilità elevata";
-				} else if ($scoreASIS['5'] >= 0.70 && $scoreASIS['5'] < 0.85) {
+				} else if ($scoreASIS['3'] >= 0.70 && $scoreASIS['3'] < 0.85) {
 					$MinacceEventiPregiudizievoli = "Fragilità";
-				} else if ($scoreASIS['5'] >= 0.85 && $scoreASIS['5'] <= 1) {
+				} else if ($scoreASIS['3'] >= 0.85 && $scoreASIS['3'] <= 1) {
 					$MinacceEventiPregiudizievoli = "Solidità";
 				}
 				$ProfiloRischioASIS = null;
@@ -1387,312 +1946,312 @@ class PDFController extends Controller
 				$questionarioAsIs = [];
 
 				if (count($arrayQuestionario) > 0) {
-					if ($arrayQuestionario['3-1']['Result'] == 'Si') {
+					if ($arrayQuestionario['1-1']['Result'] == 'Si') {
 						$questionarioAsIs['MinacceRapportiCommerciali']['1'] = "Si";
-						if (isset($arrayQuestionario['3-1']['Details'])) {
-							$questionarioAsIs['MinacceRapportiCommerciali']['1-details'] = $arrayQuestionario['3-1']['Details'];
+						if (isset($arrayQuestionario['1-1']['Details'])) {
+							$questionarioAsIs['MinacceRapportiCommerciali']['1-details'] = $arrayQuestionario['1-1']['Details'];
 						}
 					} else {
 						$questionarioAsIs['MinacceRapportiCommerciali']['1'] = "No";
-						if (isset($arrayQuestionario['3-1']['Details'])) {
-							$questionarioAsIs['MinacceRapportiCommerciali']['1-details'] = $arrayQuestionario['3-1']['Details'];
+						if (isset($arrayQuestionario['1-1']['Details'])) {
+							$questionarioAsIs['MinacceRapportiCommerciali']['1-details'] = $arrayQuestionario['1-1']['Details'];
 						}
 					}
-					if ($arrayQuestionario['3-2']['Result'] == 'Si') {
+					if ($arrayQuestionario['1-2']['Result'] == 'Si') {
 						$questionarioAsIs['MinacceRapportiCommerciali']['2'] = "Si";
-						if (isset($arrayQuestionario['3-2']['Details'])) {
-							$questionarioAsIs['MinacceRapportiCommerciali']['2-details'] = $arrayQuestionario['3-2']['Details'];
+						if (isset($arrayQuestionario['1-2']['Details'])) {
+							$questionarioAsIs['MinacceRapportiCommerciali']['2-details'] = $arrayQuestionario['1-2']['Details'];
 						}
 					} else {
 						$questionarioAsIs['MinacceRapportiCommerciali']['2'] = "No";
-						if (isset($arrayQuestionario['3-2']['Details'])) {
-							$questionarioAsIs['MinacceRapportiCommerciali']['2-details'] = $arrayQuestionario['3-2']['Details'];
+						if (isset($arrayQuestionario['1-2']['Details'])) {
+							$questionarioAsIs['MinacceRapportiCommerciali']['2-details'] = $arrayQuestionario['1-2']['Details'];
 						}
 					}
-					if ($arrayQuestionario['3-3']['Result'] == 'Si') {
+					if ($arrayQuestionario['1-3']['Result'] == 'Si') {
 						$questionarioAsIs['MinacceRapportiCommerciali']['3'] = "Si";
-						if (isset($arrayQuestionario['3-3']['Details'])) {
-							$questionarioAsIs['MinacceRapportiCommerciali']['3-details'] = $arrayQuestionario['3-3']['Details'];
+						if (isset($arrayQuestionario['1-3']['Details'])) {
+							$questionarioAsIs['MinacceRapportiCommerciali']['3-details'] = $arrayQuestionario['1-3']['Details'];
 						}
 					} else {
 						$questionarioAsIs['MinacceRapportiCommerciali']['3'] = "No";
-						if (isset($arrayQuestionario['3-3']['Details'])) {
-							$questionarioAsIs['MinacceRapportiCommerciali']['3-details'] = $arrayQuestionario['3-3']['Details'];
+						if (isset($arrayQuestionario['1-3']['Details'])) {
+							$questionarioAsIs['MinacceRapportiCommerciali']['3-details'] = $arrayQuestionario['1-3']['Details'];
 						}
 					}
-					if ($arrayQuestionario['3-4']['Result'] == 'Si') {
+					if ($arrayQuestionario['1-4']['Result'] == 'Si') {
 						$questionarioAsIs['MinacceRapportiCommerciali']['4'] = "Si";
-						if (isset($arrayQuestionario['3-4']['Details'])) {
-							$questionarioAsIs['MinacceRapportiCommerciali']['4-details'] = $arrayQuestionario['3-4']['Details'];
+						if (isset($arrayQuestionario['1-4']['Details'])) {
+							$questionarioAsIs['MinacceRapportiCommerciali']['4-details'] = $arrayQuestionario['1-4']['Details'];
 						}
 					} else {
 						$questionarioAsIs['MinacceRapportiCommerciali']['4'] = "No";
-						if (isset($arrayQuestionario['3-4']['Details'])) {
-							$questionarioAsIs['MinacceRapportiCommerciali']['4-details'] = $arrayQuestionario['3-4']['Details'];
+						if (isset($arrayQuestionario['1-4']['Details'])) {
+							$questionarioAsIs['MinacceRapportiCommerciali']['4-details'] = $arrayQuestionario['1-4']['Details'];
 						}
 					}
-					if ($arrayQuestionario['3-5']['Result'] == 'Si') {
+					if ($arrayQuestionario['1-5']['Result'] == 'Si') {
 						$questionarioAsIs['MinacceRapportiCommerciali']['5'] = "Si";
-						if (isset($arrayQuestionario['3-5']['Details'])) {
-							$questionarioAsIs['MinacceRapportiCommerciali']['5-details'] = $arrayQuestionario['3-5']['Details'];
+						if (isset($arrayQuestionario['1-5']['Details'])) {
+							$questionarioAsIs['MinacceRapportiCommerciali']['5-details'] = $arrayQuestionario['1-5']['Details'];
 						}
 					} else {
 						$questionarioAsIs['MinacceRapportiCommerciali']['5'] = "No";
-						if (isset($arrayQuestionario['3-5']['Details'])) {
-							$questionarioAsIs['MinacceRapportiCommerciali']['5-details'] = $arrayQuestionario['3-5']['Details'];
+						if (isset($arrayQuestionario['1-5']['Details'])) {
+							$questionarioAsIs['MinacceRapportiCommerciali']['5-details'] = $arrayQuestionario['1-5']['Details'];
 						}
 					}
-					if ($arrayQuestionario['3-6']['Result'] == 'Si') {
+					if ($arrayQuestionario['1-6']['Result'] == 'Si') {
 						$questionarioAsIs['MinacceRapportiCommerciali']['6'] = "Si";
-						if (isset($arrayQuestionario['3-6']['Details'])) {
-							$questionarioAsIs['MinacceRapportiCommerciali']['6-details'] = $arrayQuestionario['3-6']['Details'];
+						if (isset($arrayQuestionario['1-6']['Details'])) {
+							$questionarioAsIs['MinacceRapportiCommerciali']['6-details'] = $arrayQuestionario['1-6']['Details'];
 						}
 					} else {
 						$questionarioAsIs['MinacceRapportiCommerciali']['6'] = "No";
-						if (isset($arrayQuestionario['3-6']['Details'])) {
-							$questionarioAsIs['MinacceRapportiCommerciali']['6-details'] = $arrayQuestionario['3-6']['Details'];
+						if (isset($arrayQuestionario['1-6']['Details'])) {
+							$questionarioAsIs['MinacceRapportiCommerciali']['6-details'] = $arrayQuestionario['1-6']['Details'];
 						}
 					}
-					if ($arrayQuestionario['3-7']['Result'] == 'Si') {
+					if ($arrayQuestionario['1-7']['Result'] == 'Si') {
 						$questionarioAsIs['MinacceRapportiCommerciali']['7'] = "Si";
-						if (isset($arrayQuestionario['3-7']['Details'])) {
-							$questionarioAsIs['MinacceRapportiCommerciali']['7-details'] = $arrayQuestionario['3-7']['Details'];
+						if (isset($arrayQuestionario['1-7']['Details'])) {
+							$questionarioAsIs['MinacceRapportiCommerciali']['7-details'] = $arrayQuestionario['1-7']['Details'];
 						}
 					} else {
 						$questionarioAsIs['MinacceRapportiCommerciali']['7'] = "No";
-						if (isset($arrayQuestionario['3-7']['Details'])) {
-							$questionarioAsIs['MinacceRapportiCommerciali']['7-details'] = $arrayQuestionario['3-7']['Details'];
+						if (isset($arrayQuestionario['1-7']['Details'])) {
+							$questionarioAsIs['MinacceRapportiCommerciali']['7-details'] = $arrayQuestionario['1-7']['Details'];
 						}
 					}
-					if ($arrayQuestionario['3-8']['Result'] == 'Si') {
+					if ($arrayQuestionario['1-8']['Result'] == 'Si') {
 						$questionarioAsIs['MinacceRapportiCommerciali']['8'] = "Si";
-						if (isset($arrayQuestionario['3-8']['Details'])) {
-							$questionarioAsIs['MinacceRapportiCommerciali']['8-details'] = $arrayQuestionario['3-8']['Details'];
+						if (isset($arrayQuestionario['1-8']['Details'])) {
+							$questionarioAsIs['MinacceRapportiCommerciali']['8-details'] = $arrayQuestionario['1-8']['Details'];
 						}
 					} else {
 						$questionarioAsIs['MinacceRapportiCommerciali']['8'] = "No";
-						if (isset($arrayQuestionario['3-8']['Details'])) {
-							$questionarioAsIs['MinacceRapportiCommerciali']['8-details'] = $arrayQuestionario['3-8']['Details'];
+						if (isset($arrayQuestionario['1-8']['Details'])) {
+							$questionarioAsIs['MinacceRapportiCommerciali']['8-details'] = $arrayQuestionario['1-8']['Details'];
 						}
 					}
-					if ($arrayQuestionario['4-1']['Result'] == 'Si') {
+					if ($arrayQuestionario['2-1']['Result'] == 'Si') {
 						$questionarioAsIs['MinacceGestioneAziendale']['1'] = "Si";
-						if (isset($arrayQuestionario['4-1']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['1-details'] = $arrayQuestionario['4-1']['Details'];
+						if (isset($arrayQuestionario['2-1']['Details'])) {
+							$questionarioAsIs['MinacceGestioneAziendale']['1-details'] = $arrayQuestionario['2-1']['Details'];
 						}
 					} else {
 						$questionarioAsIs['MinacceGestioneAziendale']['1'] = "No";
-						if (isset($arrayQuestionario['4-1']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['1-details'] = $arrayQuestionario['4-1']['Details'];
+						if (isset($arrayQuestionario['2-1']['Details'])) {
+							$questionarioAsIs['MinacceGestioneAziendale']['1-details'] = $arrayQuestionario['2-1']['Details'];
 						}
 					}
-					if ($arrayQuestionario['4-2']['Result'] == 'Si') {
+					if ($arrayQuestionario['2-2']['Result'] == 'Si') {
 						$questionarioAsIs['MinacceGestioneAziendale']['2'] = "Si";
-						if (isset($arrayQuestionario['4-2']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['2-details'] = $arrayQuestionario['4-2']['Details'];
+						if (isset($arrayQuestionario['2-2']['Details'])) {
+							$questionarioAsIs['MinacceGestioneAziendale']['2-details'] = $arrayQuestionario['2-2']['Details'];
 						}
 					} else {
 						$questionarioAsIs['MinacceGestioneAziendale']['2'] = "No";
-						if (isset($arrayQuestionario['4-2']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['2-details'] = $arrayQuestionario['4-2']['Details'];
+						if (isset($arrayQuestionario['2-2']['Details'])) {
+							$questionarioAsIs['MinacceGestioneAziendale']['2-details'] = $arrayQuestionario['2-2']['Details'];
 						}
 					}
-					if ($arrayQuestionario['4-3']['Result'] == 'Si') {
+					if ($arrayQuestionario['2-3']['Result'] == 'Si') {
 						$questionarioAsIs['MinacceGestioneAziendale']['3'] = "Si";
-						if (isset($arrayQuestionario['4-3']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['3-details'] = $arrayQuestionario['4-3']['Details'];
+						if (isset($arrayQuestionario['2-3']['Details'])) {
+							$questionarioAsIs['MinacceGestioneAziendale']['3-details'] = $arrayQuestionario['2-3']['Details'];
 						}
 					} else {
 						$questionarioAsIs['MinacceGestioneAziendale']['3'] = "No";
-						if (isset($arrayQuestionario['4-3']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['3-details'] = $arrayQuestionario['4-3']['Details'];
+						if (isset($arrayQuestionario['2-3']['Details'])) {
+							$questionarioAsIs['MinacceGestioneAziendale']['3-details'] = $arrayQuestionario['2-3']['Details'];
 						}
 					}
-					if ($arrayQuestionario['4-4']['Result'] == 'Si') {
+					if ($arrayQuestionario['2-4']['Result'] == 'Si') {
 						$questionarioAsIs['MinacceGestioneAziendale']['4'] = "Si";
-						if (isset($arrayQuestionario['4-4']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['4-details'] = $arrayQuestionario['4-4']['Details'];
+						if (isset($arrayQuestionario['2-4']['Details'])) {
+							$questionarioAsIs['MinacceGestioneAziendale']['4-details'] = $arrayQuestionario['2-4']['Details'];
 						}
 					} else {
 						$questionarioAsIs['MinacceGestioneAziendale']['4'] = "No";
-						if (isset($arrayQuestionario['4-4']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['4-details'] = $arrayQuestionario['4-4']['Details'];
+						if (isset($arrayQuestionario['2-4']['Details'])) {
+							$questionarioAsIs['MinacceGestioneAziendale']['4-details'] = $arrayQuestionario['2-4']['Details'];
 						}
 					}
-					if ($arrayQuestionario['4-5']['Result'] == 'Si') {
+					if ($arrayQuestionario['2-5']['Result'] == 'Si') {
 						$questionarioAsIs['MinacceGestioneAziendale']['5'] = "Si";
-						if (isset($arrayQuestionario['4-5']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['5-details'] = $arrayQuestionario['4-5']['Details'];
+						if (isset($arrayQuestionario['2-5']['Details'])) {
+							$questionarioAsIs['MinacceGestioneAziendale']['5-details'] = $arrayQuestionario['2-5']['Details'];
 						}
 					} else {
 						$questionarioAsIs['MinacceGestioneAziendale']['5'] = "No";
-						if (isset($arrayQuestionario['4-5']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['5-details'] = $arrayQuestionario['4-5']['Details'];
+						if (isset($arrayQuestionario['2-5']['Details'])) {
+							$questionarioAsIs['MinacceGestioneAziendale']['5-details'] = $arrayQuestionario['2-5']['Details'];
 						}
 					}
-					if ($arrayQuestionario['4-6']['Result'] == 'Si') {
+					if ($arrayQuestionario['2-6']['Result'] == 'Si') {
 						$questionarioAsIs['MinacceGestioneAziendale']['6'] = "Si";
-						if (isset($arrayQuestionario['4-6']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['6-details'] = $arrayQuestionario['4-6']['Details'];
+						if (isset($arrayQuestionario['2-6']['Details'])) {
+							$questionarioAsIs['MinacceGestioneAziendale']['6-details'] = $arrayQuestionario['2-6']['Details'];
 						}
 					} else {
 						$questionarioAsIs['MinacceGestioneAziendale']['6'] = "No";
-						if (isset($arrayQuestionario['4-6']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['6-details'] = $arrayQuestionario['4-6']['Details'];
+						if (isset($arrayQuestionario['2-6']['Details'])) {
+							$questionarioAsIs['MinacceGestioneAziendale']['6-details'] = $arrayQuestionario['2-6']['Details'];
 						}
 					}
-					if ($arrayQuestionario['4-7']['Result'] == 'Si') {
+					if ($arrayQuestionario['2-7']['Result'] == 'Si') {
 						$questionarioAsIs['MinacceGestioneAziendale']['7'] = "Si";
-						if (isset($arrayQuestionario['4-7']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['7-details'] = $arrayQuestionario['4-7']['Details'];
+						if (isset($arrayQuestionario['2-7']['Details'])) {
+							$questionarioAsIs['MinacceGestioneAziendale']['7-details'] = $arrayQuestionario['2-7']['Details'];
 						}
 					} else {
 						$questionarioAsIs['MinacceGestioneAziendale']['7'] = "No";
-						if (isset($arrayQuestionario['4-7']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['7-details'] = $arrayQuestionario['4-7']['Details'];
+						if (isset($arrayQuestionario['2-7']['Details'])) {
+							$questionarioAsIs['MinacceGestioneAziendale']['7-details'] = $arrayQuestionario['2-7']['Details'];
 						}
 					}
-					if ($arrayQuestionario['4-8']['Result'] == 'Si') {
+					if ($arrayQuestionario['2-8']['Result'] == 'Si') {
 						$questionarioAsIs['MinacceGestioneAziendale']['8'] = "Si";
-						if (isset($arrayQuestionario['4-8']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['8-details'] = $arrayQuestionario['4-8']['Details'];
+						if (isset($arrayQuestionario['2-8']['Details'])) {
+							$questionarioAsIs['MinacceGestioneAziendale']['8-details'] = $arrayQuestionario['2-8']['Details'];
 						}
 					} else {
 						$questionarioAsIs['MinacceGestioneAziendale']['8'] = "No";
-						if (isset($arrayQuestionario['4-8']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['8-details'] = $arrayQuestionario['4-8']['Details'];
+						if (isset($arrayQuestionario['2-8']['Details'])) {
+							$questionarioAsIs['MinacceGestioneAziendale']['8-details'] = $arrayQuestionario['2-8']['Details'];
 						}
 					}
-					if ($arrayQuestionario['4-9']['Result'] == 'Si') {
+					if ($arrayQuestionario['2-9']['Result'] == 'Si') {
 						$questionarioAsIs['MinacceGestioneAziendale']['9'] = "Si";
-						if (isset($arrayQuestionario['4-9']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['9-details'] = $arrayQuestionario['4-9']['Details'];
+						if (isset($arrayQuestionario['2-9']['Details'])) {
+							$questionarioAsIs['MinacceGestioneAziendale']['9-details'] = $arrayQuestionario['2-9']['Details'];
 						}
 					} else {
 						$questionarioAsIs['MinacceGestioneAziendale']['9'] = "No";
-						if (isset($arrayQuestionario['4-9']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['9-details'] = $arrayQuestionario['4-9']['Details'];
+						if (isset($arrayQuestionario['2-9']['Details'])) {
+							$questionarioAsIs['MinacceGestioneAziendale']['9-details'] = $arrayQuestionario['2-9']['Details'];
 						}
 					}
-					if ($arrayQuestionario['4-10']['Result'] == 'Si') {
+					if ($arrayQuestionario['2-10']['Result'] == 'Si') {
 						$questionarioAsIs['MinacceGestioneAziendale']['10'] = "Si";
-						if (isset($arrayQuestionario['4-10']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['10-details'] = $arrayQuestionario['4-10']['Details'];
+						if (isset($arrayQuestionario['2-10']['Details'])) {
+							$questionarioAsIs['MinacceGestioneAziendale']['10-details'] = $arrayQuestionario['2-10']['Details'];
 						}
 					} else {
 						$questionarioAsIs['MinacceGestioneAziendale']['10'] = "No";
-						if (isset($arrayQuestionario['4-10']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['10-details'] = $arrayQuestionario['4-10']['Details'];
+						if (isset($arrayQuestionario['2-10']['Details'])) {
+							$questionarioAsIs['MinacceGestioneAziendale']['10-details'] = $arrayQuestionario['2-10']['Details'];
 						}
 					}
-					if ($arrayQuestionario['5-1']['Result'] == 'Si') {
+					if ($arrayQuestionario['3-1']['Result'] == 'Si') {
 						$questionarioAsIs['MinacceErarialiRischiCaratteristici']['1'] = "Si";
-						if (isset($arrayQuestionario['5-1']['Details'])) {
-							$questionarioAsIs['MinacceErarialiRischiCaratteristici']['1details'] = $arrayQuestionario['5-1']['Details'];
+						if (isset($arrayQuestionario['3-1']['Details'])) {
+							$questionarioAsIs['MinacceErarialiRischiCaratteristici']['1details'] = $arrayQuestionario['3-1']['Details'];
 						}
 					} else {
 						$questionarioAsIs['MinacceErarialiRischiCaratteristici']['1'] = "No";
-						if (isset($arrayQuestionario['5-1']['Details'])) {
-							$questionarioAsIs['MinacceErarialiRischiCaratteristici']['1details'] = $arrayQuestionario['5-1']['Details'];
+						if (isset($arrayQuestionario['3-1']['Details'])) {
+							$questionarioAsIs['MinacceErarialiRischiCaratteristici']['1details'] = $arrayQuestionario['3-1']['Details'];
 						}
 					}
-					if ($arrayQuestionario['5-2']['Result'] == 'Si') {
+					if ($arrayQuestionario['3-2']['Result'] == 'Si') {
 						$questionarioAsIs['MinacceErarialiRischiCaratteristici']['2'] = "Si";
-						if (isset($arrayQuestionario['5-2']['Details'])) {
-							$questionarioAsIs['MinacceErarialiRischiCaratteristici']['2details'] = $arrayQuestionario['5-2']['Details'];
+						if (isset($arrayQuestionario['3-2']['Details'])) {
+							$questionarioAsIs['MinacceErarialiRischiCaratteristici']['2details'] = $arrayQuestionario['3-2']['Details'];
 						}
 					} else {
 						$questionarioAsIs['MinacceErarialiRischiCaratteristici']['2'] = "No";
-						if (isset($arrayQuestionario['5-2']['Details'])) {
-							$questionarioAsIs['MinacceErarialiRischiCaratteristici']['2details'] = $arrayQuestionario['5-2']['Details'];
+						if (isset($arrayQuestionario['3-2']['Details'])) {
+							$questionarioAsIs['MinacceErarialiRischiCaratteristici']['2details'] = $arrayQuestionario['3-2']['Details'];
 						}
 					}
-					if ($arrayQuestionario['5-3']['Result'] == 'Si') {
+					if ($arrayQuestionario['3-3']['Result'] == 'Si') {
 						$questionarioAsIs['MinacceErarialiRischiCaratteristici']['3'] = "Si";
-						if (isset($arrayQuestionario['5-3']['Details'])) {
-							$questionarioAsIs['MinacceErarialiRischiCaratteristici']['3details'] = $arrayQuestionario['5-3']['Details'];
+						if (isset($arrayQuestionario['3-3']['Details'])) {
+							$questionarioAsIs['MinacceErarialiRischiCaratteristici']['3details'] = $arrayQuestionario['3-3']['Details'];
 						}
 					} else {
 						$questionarioAsIs['MinacceErarialiRischiCaratteristici']['3'] = "No";
-						if (isset($arrayQuestionario['5-3']['Details'])) {
-							$questionarioAsIs['MinacceErarialiRischiCaratteristici']['3details'] = $arrayQuestionario['5-3']['Details'];
+						if (isset($arrayQuestionario['3-3']['Details'])) {
+							$questionarioAsIs['MinacceErarialiRischiCaratteristici']['3details'] = $arrayQuestionario['3-3']['Details'];
 						}
 					}
-					if ($arrayQuestionario['5-4']['Result'] == 'Si') {
+					if ($arrayQuestionario['3-4']['Result'] == 'Si') {
 						$questionarioAsIs['MinacceErarialiRischiCaratteristici']['4'] = "Si";
-						if (isset($arrayQuestionario['5-4']['Details'])) {
-							$questionarioAsIs['MinacceErarialiRischiCaratteristici']['4details'] = $arrayQuestionario['5-4']['Details'];
+						if (isset($arrayQuestionario['3-4']['Details'])) {
+							$questionarioAsIs['MinacceErarialiRischiCaratteristici']['4details'] = $arrayQuestionario['3-4']['Details'];
 						}
 					} else {
 						$questionarioAsIs['MinacceErarialiRischiCaratteristici']['4'] = "No";
-						if (isset($arrayQuestionario['5-4']['Details'])) {
-							$questionarioAsIs['MinacceErarialiRischiCaratteristici']['4details'] = $arrayQuestionario['5-4']['Details'];
+						if (isset($arrayQuestionario['3-4']['Details'])) {
+							$questionarioAsIs['MinacceErarialiRischiCaratteristici']['4details'] = $arrayQuestionario['3-4']['Details'];
 						}
 					}
-					if ($arrayQuestionario['6-1']['Result'] == 'Si') {
+					if ($arrayQuestionario['4-1']['Result'] == 'Si') {
 						$questionarioAsIs['MinacceEventiPregiudizievoli']['1'] = "Si";
-						if (isset($arrayQuestionario['6-1']['Details'])) {
-							$questionarioAsIs['MinacceEventiPregiudizievoli']['1details'] = $arrayQuestionario['6-1']['Details'];
+						if (isset($arrayQuestionario['4-1']['Details'])) {
+							$questionarioAsIs['MinacceEventiPregiudizievoli']['1details'] = $arrayQuestionario['4-1']['Details'];
 						}
 					} else {
 						$questionarioAsIs['MinacceEventiPregiudizievoli']['1'] = "No";
-						if (isset($arrayQuestionario['6-1']['Details'])) {
-							$questionarioAsIs['MinacceEventiPregiudizievoli']['1details'] = $arrayQuestionario['6-1']['Details'];
+						if (isset($arrayQuestionario['4-1']['Details'])) {
+							$questionarioAsIs['MinacceEventiPregiudizievoli']['1details'] = $arrayQuestionario['4-1']['Details'];
 						}
 					}
-					if ($arrayQuestionario['6-2']['Result'] == 'Si') {
+					if ($arrayQuestionario['4-2']['Result'] == 'Si') {
 						$questionarioAsIs['MinacceEventiPregiudizievoli']['2'] = "Si";
-						if (isset($arrayQuestionario['6-2']['Details'])) {
-							$questionarioAsIs['MinacceEventiPregiudizievoli']['2details'] = $arrayQuestionario['6-2']['Details'];
+						if (isset($arrayQuestionario['4-2']['Details'])) {
+							$questionarioAsIs['MinacceEventiPregiudizievoli']['2details'] = $arrayQuestionario['4-2']['Details'];
 						}
 					} else {
 						$questionarioAsIs['MinacceEventiPregiudizievoli']['2'] = "No";
-						if (isset($arrayQuestionario['6-2']['Details'])) {
-							$questionarioAsIs['MinacceEventiPregiudizievoli']['2details'] = $arrayQuestionario['6-2']['Details'];
+						if (isset($arrayQuestionario['4-2']['Details'])) {
+							$questionarioAsIs['MinacceEventiPregiudizievoli']['2details'] = $arrayQuestionario['4-2']['Details'];
 						}
 					}
-					if ($arrayQuestionario['6-3']['Result'] == 'Si') {
+					if ($arrayQuestionario['4-3']['Result'] == 'Si') {
 						$questionarioAsIs['MinacceErarialiRischiCaratteristici']['3'] = "Si";
-						if (isset($arrayQuestionario['6-3']['Details'])) {
-							$questionarioAsIs['MinacceErarialiRischiCaratteristici']['3details'] = $arrayQuestionario['6-3']['Details'];
+						if (isset($arrayQuestionario['4-3']['Details'])) {
+							$questionarioAsIs['MinacceErarialiRischiCaratteristici']['3details'] = $arrayQuestionario['4-3']['Details'];
 						}
 					} else {
 						$questionarioAsIs['MinacceEventiPregiudizievoli']['3'] = "No";
-						if (isset($arrayQuestionario['6-3']['Details'])) {
-							$questionarioAsIs['MinacceEventiPregiudizievoli']['3details'] = $arrayQuestionario['6-3']['Details'];
+						if (isset($arrayQuestionario['4-3']['Details'])) {
+							$questionarioAsIs['MinacceEventiPregiudizievoli']['3details'] = $arrayQuestionario['4-3']['Details'];
 						}
 					}
-					if ($arrayQuestionario['6-4']['Result'] == 'Si') {
+					if ($arrayQuestionario['4-4']['Result'] == 'Si') {
 						$questionarioAsIs['MinacceEventiPregiudizievoli']['4'] = "Si";
-						if (isset($arrayQuestionario['6-4']['Details'])) {
-							$questionarioAsIs['MinacceEventiPregiudizievoli']['4details'] = $arrayQuestionario['6-4']['Details'];
+						if (isset($arrayQuestionario['4-4']['Details'])) {
+							$questionarioAsIs['MinacceEventiPregiudizievoli']['4details'] = $arrayQuestionario['4-4']['Details'];
 						}
 					} else {
 						$questionarioAsIs['MinacceEventiPregiudizievoli']['4'] = "No";
-						if (isset($arrayQuestionario['6-4']['Details'])) {
-							$questionarioAsIs['MinacceEventiPregiudizievoli']['4details'] = $arrayQuestionario['6-4']['Details'];
+						if (isset($arrayQuestionario['4-4']['Details'])) {
+							$questionarioAsIs['MinacceEventiPregiudizievoli']['4details'] = $arrayQuestionario['4-4']['Details'];
 						}
 					}
-					if ($arrayQuestionario['6-5']['Result'] == 'Si') {
+					if ($arrayQuestionario['4-5']['Result'] == 'Si') {
 						$questionarioAsIs['MinacceEventiPregiudizievoli']['5'] = "Si";
-						if (isset($arrayQuestionario['6-5']['Details'])) {
-							$questionarioAsIs['MinacceEventiPregiudizievoli']['5details'] = $arrayQuestionario['6-5']['Details'];
+						if (isset($arrayQuestionario['4-5']['Details'])) {
+							$questionarioAsIs['MinacceEventiPregiudizievoli']['5details'] = $arrayQuestionario['4-5']['Details'];
 						}
 					} else {
 						$questionarioAsIs['MinacceEventiPregiudizievoli']['5'] = "No";
-						if (isset($arrayQuestionario['6-5']['Details'])) {
-							$questionarioAsIs['MinacceEventiPregiudizievoli']['5details'] = $arrayQuestionario['6-5']['Details'];
+						if (isset($arrayQuestionario['4-5']['Details'])) {
+							$questionarioAsIs['MinacceEventiPregiudizievoli']['5details'] = $arrayQuestionario['4-5']['Details'];
 						}
 					}
-					if ($arrayQuestionario['6-6']['Result'] == 'Si') {
+					if ($arrayQuestionario['4-6']['Result'] == 'Si') {
 						$questionarioAsIs['MinacceEventiPregiudizievoli']['6'] = "Si";
-						if (isset($arrayQuestionario['6-6']['Details'])) {
-							$questionarioAsIs['MinacceEventiPregiudizievoli']['6details'] = $arrayQuestionario['6-6']['Details'];
+						if (isset($arrayQuestionario['4-6']['Details'])) {
+							$questionarioAsIs['MinacceEventiPregiudizievoli']['6details'] = $arrayQuestionario['4-6']['Details'];
 						}
 					} else {
 						$questionarioAsIs['MinacceEventiPregiudizievoli']['6'] = "No";
-						if (isset($arrayQuestionario['6-6']['Details'])) {
-							$questionarioAsIs['MinacceEventiPregiudizievoli']['6details'] = $arrayQuestionario['6-6']['Details'];
+						if (isset($arrayQuestionario['4-6']['Details'])) {
+							$questionarioAsIs['MinacceEventiPregiudizievoli']['6details'] = $arrayQuestionario['4-6']['Details'];
 						}
 					}
 				}
@@ -1825,8 +2384,10 @@ class PDFController extends Controller
 					$acidTestScoring = $bilancioData['Giudizi']['Giudizi']['Acid Test']['Scoring'];
 					$acidTestGiudizio = $bilancioData['Giudizi']['Giudizi']['Acid Test']['Giudizio'];
 				}
-
+				dd($bilancioData);
+				// dd($bilancioData['Giudizi']['Giudizi']);
 				// dd($bilancioData['Giudizi']['Giudizi']['Andamento del fatturato']);
+
 				$dataAllerta = [
 					"id" => $id,
 					"andamentoDelFatturato" => [
@@ -1848,7 +2409,7 @@ class PDFController extends Controller
 						'Valore' =>  $bilancioData['Indici']['ROS'],
 						'Score' => $bilancioData['Giudizi']['Giudizi']['ROS']['Scoring'],
 						'Giudizio' => $bilancioData['Giudizi']['Giudizi']['ROS']['Giudizio'],
-					],
+					],   
 					"ROE" => [
 						'Valore' =>  $bilancioData['Indici']['ROE'],
 						'Score' => $bilancioData['Giudizi']['Giudizi']['ROE']['Scoring'],
@@ -1876,8 +2437,8 @@ class PDFController extends Controller
 					],
 					"CurrentRatio" => [
 						'Valore' =>  $bilancioData['Indici']['Current_Ratio'],
-						'Score' => $bilancioData['Giudizi']['Giudizi']['Current Ratio']['Scoring'],
-						'Giudizio' => $bilancioData['Giudizi']['Giudizi']['Current Ratio']['Giudizio'],
+						//'Score' => $bilancioData['Giudizi']['Giudizi']['Current Ratio']['Scoring'],
+						//'Giudizio' => $bilancioData['Giudizi']['Giudizi']['Current Ratio']['Giudizio'],
 					],
 					"AcidTest" => [
 						'Valore' =>  $acidTestValue,
@@ -1916,8 +2477,8 @@ class PDFController extends Controller
 					],
 					"CostoDelPersonale" => [
 						'Valore' =>  $bilancioData['Indici']['Costo_del_personale'],
-						'Score' => $bilancioData['Giudizi']['Giudizi']['Costo del personale']['Scoring'],
-						'Giudizio' => $bilancioData['Giudizi']['Giudizi']['Costo del personale']['Giudizio'],
+						//'Score' => $bilancioData['Giudizi']['Giudizi']['Costo del personale']['Scoring'],
+						//'Giudizio' => $bilancioData['Giudizi']['Giudizi']['Costo del personale']['Giudizio'],
 					],
 					"CFAttivo" => [
 						'Valore' =>  $bilancioData['Indici']['CF_Attivo'],

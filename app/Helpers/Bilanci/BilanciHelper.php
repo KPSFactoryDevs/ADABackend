@@ -97,9 +97,14 @@ class BilanciHelper
         foreach ($data as $label => $value) {
 
             $giudizio = '';
+            if(str_contains((float)$value, '%') && isset($value)) {
+                $value = explode('%', (float)$value)[0];
+            }
+
             $label = str_replace('_', ' ', $label);
             $value = (float)str_replace(',', '.', $value);
 
+            // dump(($value == 8.47) ? $value /= 100 : 0);
             if ($label == 'ROE') {
                 $tassoInflazione = (float)Roe::where('year', $currentYear)->get()->first()->value / 100;
                 $value /= 100;
@@ -129,7 +134,6 @@ class BilanciHelper
             $arrayIndici[$label] = $value / 100;
 
             // dd($tipoAzienda);
-
             $arraySoglie[$label] = range::where([['range_min', '<', $arrayIndici[$label]], ['range_max', '>', $arrayIndici[$label]], ['indice', '=', $label], ['tipo_azienda', '=', $tipoAzienda]])->with('pesi')->get();
 
             // if ($label == 'Costo del personale') {
@@ -145,6 +149,7 @@ class BilanciHelper
                 $scoringAreaBilancio += $arrayGiudizi[$label]['Scoring'];
             } else {
                 $arraySoglie[$label] = range::where([['range_min', '<', $arrayIndici[$label]], ['range_max', '>', $arrayIndici[$label]], ['indice', '=', $label], ['tipo_azienda', '=', 'Generica']])->with('pesi')->get();
+
                 // if ($label == 'PFN EBITDA') {
                 //     dd($label, $value, $tipoAzienda, count($arraySoglie['PFN EBITDA']));
                 // }
@@ -475,7 +480,6 @@ class BilanciHelper
         $dataAnalisis["Margine_Struttura_Primario"] = (float)str_replace('.', '', $dataAnalisis["Margine_Struttura_Primario"]) / 100;
         $dataAnalisis["Margine_Struttura_Secondario"] = (float)str_replace('.', '', $dataAnalisis["Margine_Struttura_Secondario"]) / 100;
 
-
         $response = array(
             'AnalisiBasic' => $this->getBasicAnalisi($tipoAzienda, $dataAnalisis, $dataAnalisis, $idBilancio),
             'AnalisiAdvanced' => [
@@ -554,8 +558,6 @@ class BilanciHelper
             $soglieBasic['Ritorno Liquido Attivo'] = false;
             $basicData['Ritorno Liquido Attivo'] = floatval($dataAnalisis['Current_Ratio']);
         }
-
-
         // dd(floatval($dataAnalisis['Current_Ratio']), floatval($dataAnalisisBasic['OF_Fatturato']), floatval($dataAnalisisBasic['Adeguatezza_Patrimoniale']), floatval($dataAnalisisBasic['Liquidità']), floatval($dataAnalisisBasic['Indebitamento_Previdenziale_Tributario']));
 
         $valutazioneAllertaBasic = true;
@@ -591,8 +593,10 @@ class BilanciHelper
         $riscossioneAlert = $this->calculateRiscossione($allData);
         $alertRetribuzioni = $this->calculateRetribuzione($allData);
         $alertFornitori = $this->calculateFornitori($allData);
+        $alertDSCR = $this->getCalcoloDSCR($allData);
 
         $cleanArray = [
+            'DSCRDate' => $allData['DSCRDate'],
             'DSCR' => $allData['DSCR'],
             'DSCRdispLiquida' => $allData['DSCRdispLiquida'],
             'entrataDSCRCFmese1' => $allData['entrataDSCRCFmese1'],
@@ -626,6 +630,7 @@ class BilanciHelper
             'retribuzioni3' => ($allData["retribuzioni3"] != null) ? $allData["retribuzioni3"] : 0,
             'fornitori1' => ($allData["fornitori1"] != null) ? $allData["fornitori1"] : 0,
             'fornitori2' => ($allData["fornitori2"] != null) ? $allData["fornitori2"] : 0,
+            'resultDSCR' => $alertDSCR,
             'alertAgenziaEntrate' => $agenziaEntrate,
             'alertINPS' => $dataINPS,
             'alertRiscossione' => $riscossioneAlert,
@@ -790,12 +795,12 @@ class BilanciHelper
 
         $dscrData['bilancio_id'] = (int)$idBilancio;
 
-        $balance = Basic::where('bilancio_id', $idBilancio)->first();
+        $balance = Basic::where('bilancio_id', $idBilancio)->get();
 
-        if(!isset($balance)) {
+        if(count($balance) == 0) {
             Basic::create($dscrData);
         } else {
-            DB::table('basic')->update($dscrData);          
+            Basic::where('bilancio_id', $idBilancio)->update($dscrData);          
         }
 
         return [
