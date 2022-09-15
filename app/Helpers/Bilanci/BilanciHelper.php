@@ -714,10 +714,7 @@ class BilanciHelper
         $dscrData = $this->getDSCRArrayData($allData);
 
         if ($dscrData['DSCR'] != 1) {
-            return [
-                'Message' => "DSCR da non calcolare",
-                'error' => true
-            ];
+            return "DSCR da non calcolare";
         }
 
             if (empty($dscrData['uscitaDSCRCFmese6']) || $dscrData['uscitaDSCRCFmese6'] == 0 || empty($dscrData['rimborsoDSCRmese1']) || $dscrData['rimborsoDSCRmese1'] == 0 ) {
