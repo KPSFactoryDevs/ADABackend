@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use DateTime;
 use Exception;
 use App\Helpers\Bilanci\BilanciCalculationsHelper;
+use Illuminate\Support\Facades\Date;
 
 class BilanciHelper
 {
@@ -596,9 +597,9 @@ class BilanciHelper
         $alertDSCR = $this->getCalcoloDSCR($allData);
 
         $cleanArray = [
-            'DSCRDate' => $allData['DSCRDate'],
+            'DSCRDate' => (empty($allData['DSCRDate']) || $allData['DSCRDate'] == 0) ? "1970-01-01" : $allData['DSCRDate'],
             'DSCR' => $allData['DSCR'],
-            'DSCRdispLiquida' => $allData['DSCRdispLiquida'],
+            'DSCRdispLiquida' => (isset($allData['DSCRdispLiquida'])) ? $allData['DSCRdispLiquida'] : 0,
             'entrataDSCRCFmese1' => $allData['entrataDSCRCFmese1'],
             'entrataDSCRCFmese2' => $allData['entrataDSCRCFmese2'],
             'entrataDSCRCFmese3' => $allData['entrataDSCRCFmese3'],
@@ -617,10 +618,10 @@ class BilanciHelper
             'rimborsoDSCRmese4' => $allData['rimborsoDSCRmese4'],
             'rimborsoDSCRmese5' => $allData['rimborsoDSCRmese5'],
             'rimborsoDSCRmese6' => $allData['rimborsoDSCRmese6'],
-            'agenziaEntrate1' => (isset($agenziaEntrate['agenziaEntrate1'])) ? $agenziaEntrate["agenziaEntrate1"] : 0,
-            'agenziaEntrate2' => (isset($agenziaEntrate['agenziaEntrate2'])) ? $agenziaEntrate["agenziaEntrate2"] : 0, 
-            'agenziaEntrate3' => (isset($agenziaEntrate['agenziaEntrate3'])) ? $agenziaEntrate["agenziaEntrate3"] : 0,
-            'agenziaEntrate4' => (isset($agenziaEntrate['agenziaEntrate4'])) ? $agenziaEntrate["agenziaEntrate4"] : 0,
+            'agenziaEntrate1' => (isset($allData['agenziaEntrate1'])) ? $allData["agenziaEntrate1"] : 0,
+            'agenziaEntrate2' => (isset($allData['agenziaEntrate2'])) ? $allData["agenziaEntrate2"] : 0, 
+            'agenziaEntrate3' => (isset($allData['agenziaEntrate3'])) ? $allData["agenziaEntrate3"] : 0,
+            'agenziaEntrate4' => (isset($allData['agenziaEntrate4'])) ? $allData["agenziaEntrate4"] : 0,
             'INPS1' => ($allData["INPS1"] != null) ? $allData["INPS1"] : 0,
             'INPS2' => ($allData["INPS2"] != null) ? $allData["INPS2"] : 0,
             'INPS3' => ($allData["INPS3"] != null) ? $allData["INPS3"] : 0,
