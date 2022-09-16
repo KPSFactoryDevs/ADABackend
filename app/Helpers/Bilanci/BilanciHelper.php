@@ -569,7 +569,14 @@ class BilanciHelper
             }
         }
 
-        $sistemaBasic = DB::table('basic')->where('bilancio_id', '=', $idBilancio)->get()->toArray();
+        $sistemaBasic = DB::table('basic')->where('bilancio_id', '=', $idBilancio)->get();
+        $basic = $sistemaBasic[0];
+
+        if($valutazioneAllertaBasic) {
+                $basic->indiceCNDCEC = "Azienda a Rischio";
+            } else {
+                $basic->indiceCNDCEC = "Azienda non a Rischio";
+            }
 
         return array(
             'Soglie' => $soglieBasic,
@@ -786,7 +793,7 @@ class BilanciHelper
             $dscrData['alertDSCR'] = "DSCR Non Calcolabile: dati mancanti";
         }
 
-        if ((bool)$dscrData['DSCR'] == 1) {
+        if ($calcoloDSCR > 1) {
             $dscrData['alertDSCR'] = 'Azienda non a rischio';
         } else {
             $dscrData['alertDSCR'] = 'Azienda a rischio';
