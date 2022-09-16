@@ -16,6 +16,7 @@ use Symfony\Component\Process\Process;
 use App\Helpers\CentraleRischi\CrExtractorHelper;
 use App\Helpers\CentraleRischi\newCrExtractor;
 use App\Models\Document;
+use Carbon\Carbon;
 use DateTime;
 use Storage;
 use Exception;
@@ -217,6 +218,8 @@ class CentraleRischiController extends Controller
         $crAndamentaleData['period'] = $period;
         $crAndamentaleData['data_inizio'] = $data_inizio;
         $crAndamentaleData['data_fine'] = $data_fine;
+
+
         unset($crAndamentaleData['_token']);
 
         if (!isset($crAndamentaleData['period'])) {
@@ -281,6 +284,7 @@ class CentraleRischiController extends Controller
             }
 
             $periods = $crHelper->getCleanPeriods($unrefinedPeriods);
+           
 
             $crHelper->setPeriod($periods);
             $periodsCorrect = $crHelper->buildPeriodArray();
@@ -293,7 +297,17 @@ class CentraleRischiController extends Controller
             $earliestMonth = array_key_first($periods[$earliestYear]);
             $finePeriodo = $latestMonth . ' ' . $latestYear;
             $inizioPeriodo = $earliestMonth . ' ' . $earliestYear;
-			
+// dd($finePeriodo, $inizioPeriodo);
+            $minAvalaibleMonth = array_key_first($periods[$latestYear]);
+            $minAvalaibleYear = array_key_first($periods);
+
+            $maxAvalaibleMonth = array_key_last($periods[$latestYear]);
+            $maxAvalaibleYear = array_key_last($periods);
+
+            // dd($minAvalaibleMoth->format('m'));
+             $periodoMinimoDisponibile = $minAvalaibleMonth.' '.$minAvalaibleYear;
+             $periodoMassimoDisponibile = $maxAvalaibleMonth.' '.$maxAvalaibleYear;
+
             //  $missingMonths = $crHelper->missingMonths($unrefinedPeriods, $crAndamentaleData);
             $intermediari = $crHelper->getCountBanks($banks);
             // $mediaAnalisiIndebitamento = $crHelper->getMediaIndebitamento($banks);
@@ -328,6 +342,17 @@ class CentraleRischiController extends Controller
             // $totaleUtilizzatoGeneral = $crHelper->totAffidamentiConPesiPerBanca($totAffidamentiConPesiPerBanca);
             // $monthsList = array_keys($affidamentiPerMese);
 
+            $defaultStartDate = new DateTime();
+            $defaultEndDate = new DateTime();
+
+            $generalDates = [
+                'defaultStartDate' => $defaultStartDate->format('Y-m-d'),
+                'defaultEndDate' => $defaultEndDate->format('Y-m-d'),
+                'periodoMassimoDisponibile' => $periodoMassimoDisponibile,
+                'periodoMinimoDisponibile' => $periodoMinimoDisponibile,
+            ];
+
+            // dd($dates);
 
             $response = [
                 'Scoring' => [
@@ -403,7 +428,7 @@ class CentraleRischiController extends Controller
                         ],
                     ]
                 ],
-
+                'generalDates' => $generalDates
             ];
             return response()->json([
                 'error' => false,
