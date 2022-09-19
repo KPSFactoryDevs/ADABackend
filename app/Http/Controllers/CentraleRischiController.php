@@ -219,7 +219,6 @@ class CentraleRischiController extends Controller
         $crAndamentaleData['data_inizio'] = $data_inizio;
         $crAndamentaleData['data_fine'] = $data_fine;
 
-
         unset($crAndamentaleData['_token']);
 
         if (!isset($crAndamentaleData['period'])) {
@@ -238,7 +237,7 @@ class CentraleRischiController extends Controller
 
             $crHelper = new CrExtractorHelper;
 
-            if(cr::select('date')->where('document_id', $crAndamentaleData['period'])->count() == 0) {
+            if (cr::select('date')->where('document_id', $crAndamentaleData['period'])->count() == 0) {
                 return response()->json([
                     'error' => true,
                     'message' => 'Invalid period specified'
@@ -252,6 +251,11 @@ class CentraleRischiController extends Controller
                 $lastDate = $lastDate->modify('last day of this month')->format('Y-m-d');
                 $earlierDate = new DateTime(cr::select('date')->where('document_id', $crAndamentaleData['period'])->orderBy('date', 'desc')->first()->date);
                 $earlierDate = $earlierDate->modify('-11 months')->modify('first day of this month');
+
+                $lastAvailableDate = new DateTime(
+                    cr::select('date')->where('document_id', $crAndamentaleData['period'])->orderBy('date', 'asc')->first()->date
+                );
+                $lastAvailableDate = $lastAvailableDate->modify('first day of this month')->format('Y-m-d');
             } else {
                 if (!is_numeric($crAndamentaleData['data_inizio']) || !is_numeric($crAndamentaleData['data_fine'])) {
                     return response()->json([
@@ -284,7 +288,6 @@ class CentraleRischiController extends Controller
             }
 
             $periods = $crHelper->getCleanPeriods($unrefinedPeriods);
-           
 
             $crHelper->setPeriod($periods);
             $periodsCorrect = $crHelper->buildPeriodArray();
@@ -297,16 +300,6 @@ class CentraleRischiController extends Controller
             $earliestMonth = array_key_first($periods[$earliestYear]);
             $finePeriodo = $latestMonth . ' ' . $latestYear;
             $inizioPeriodo = $earliestMonth . ' ' . $earliestYear;
-// dd($finePeriodo, $inizioPeriodo);
-            $minAvalaibleMonth = array_key_first($periods[$latestYear]);
-            $minAvalaibleYear = array_key_first($periods);
-
-            $maxAvalaibleMonth = array_key_last($periods[$latestYear]);
-            $maxAvalaibleYear = array_key_last($periods);
-
-            // dd($minAvalaibleMoth->format('m'));
-             $periodoMinimoDisponibile = $minAvalaibleMonth.' '.$minAvalaibleYear;
-             $periodoMassimoDisponibile = $maxAvalaibleMonth.' '.$maxAvalaibleYear;
 
             //  $missingMonths = $crHelper->missingMonths($unrefinedPeriods, $crAndamentaleData);
             $intermediari = $crHelper->getCountBanks($banks);
@@ -331,10 +324,10 @@ class CentraleRischiController extends Controller
             $incidenzaImpagati = $crHelper->getPercentualeMediaImpagati($banks);
             $informazioniGaranti = $crHelper->getInformazioniGaranti($banks);
             $garanzieRicevute = $crHelper->getGaranzieRicevute($banks);
-           // $importiSconfini = $crHelper->getImportiSconfini($banks);
+            // $importiSconfini = $crHelper->getImportiSconfini($banks);
             // $affidamentiPerMese = $crHelper->getTotaleAffidamentiPerMese($periods, $categories, $banks);
             // $anomalieStatoRapporto = $crHelper->mancateSegnalazioniStatoRapporto($banks);
-             $sconfiniDivisi = $crHelper->divideAnomalie($numeroSconfiniTotali, $banks);
+            $sconfiniDivisi = $crHelper->divideAnomalie($numeroSconfiniTotali, $banks);
             // $banksScoring = $crHelper->singleBankData($banks, $periods);
             // $informazioniGarantiAnomalie = $crHelper->informazioniSuiGaranti($informazioniGaranti);
             // $percentualiAccordato = $crHelper->percentualiAccordato($totAffidamentiConPesiPerBanca);
@@ -342,17 +335,14 @@ class CentraleRischiController extends Controller
             // $totaleUtilizzatoGeneral = $crHelper->totAffidamentiConPesiPerBanca($totAffidamentiConPesiPerBanca);
             // $monthsList = array_keys($affidamentiPerMese);
 
-            $defaultStartDate = new DateTime();
-            $defaultEndDate = new DateTime();
+            $lastDate = new DateTime($lastDate);
+            $lastAvailableDate = new DateTime($lastAvailableDate);
 
             $generalDates = [
-                'defaultStartDate' => $defaultStartDate->format('Y-m-d'),
-                'defaultEndDate' => $defaultEndDate->format('Y-m-d'),
-                'periodoMassimoDisponibile' => $periodoMassimoDisponibile,
-                'periodoMinimoDisponibile' => $periodoMinimoDisponibile,
+                'defaultEndDate' => $lastDate->format('U'),
+                'periodoMassimoDisponibile' => $lastAvailableDate->format('U'),
+                'periodoMinimoDisponibile' => $earlierDate->format('U'),
             ];
-
-            // dd($dates);
 
             $response = [
                 'Scoring' => [
