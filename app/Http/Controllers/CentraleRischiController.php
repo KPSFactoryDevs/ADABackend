@@ -249,6 +249,7 @@ class CentraleRischiController extends Controller
                     cr::select('date')->where('document_id', $crAndamentaleData['period'])->orderBy('date', 'desc')->first()->date
                 );
                 $lastDate = $lastDate->modify('last day of this month')->format('Y-m-d');
+
                 $earlierDate = new DateTime(cr::select('date')->where('document_id', $crAndamentaleData['period'])->orderBy('date', 'desc')->first()->date);
                 $earlierDate = $earlierDate->modify('-11 months')->modify('first day of this month');
             } else {
@@ -273,6 +274,11 @@ class CentraleRischiController extends Controller
                 cr::select('date')->where('document_id', $crAndamentaleData['period'])->orderBy('date', 'asc')->first()->date
             );
             $lastAvailableDate = $lastAvailableDate->modify('first day of this month')->format('Y-m-d');
+
+            $firstAvailableDate = new DateTime(
+                cr::select('date')->where('document_id', $crAndamentaleData['period'])->orderBy('date', 'desc')->first()->date
+            );
+            $firstAvailableDate = $firstAvailableDate->modify('last day of this month')->format('Y-m-d');
 
 
             $unrefinedPeriods = json_decode(DB::table('crs')
@@ -340,13 +346,15 @@ class CentraleRischiController extends Controller
 
             $lastDate = new DateTime($lastDate);
             $lastAvailableDate = new DateTime($lastAvailableDate);
-            $earlierDate = new DateTime($earlierDate);
+            $firstAvailableDate = new DateTime($firstAvailableDate);
+
+
 
 
             $generalDates = [
                 'defaultEndDate' => $lastDate->format('U'),
                 'periodoMassimoDisponibile' => $lastAvailableDate->format('U'),
-                'periodoMinimoDisponibile' => $earlierDate->format('U'),
+                'periodoMinimoDisponibile' => $firstAvailableDate->format('U'),
             ];
 
             $response = [
