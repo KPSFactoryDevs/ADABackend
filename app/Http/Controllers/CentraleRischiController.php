@@ -251,11 +251,6 @@ class CentraleRischiController extends Controller
                 $lastDate = $lastDate->modify('last day of this month')->format('Y-m-d');
                 $earlierDate = new DateTime(cr::select('date')->where('document_id', $crAndamentaleData['period'])->orderBy('date', 'desc')->first()->date);
                 $earlierDate = $earlierDate->modify('-11 months')->modify('first day of this month');
-
-                $lastAvailableDate = new DateTime(
-                    cr::select('date')->where('document_id', $crAndamentaleData['period'])->orderBy('date', 'asc')->first()->date
-                );
-                $lastAvailableDate = $lastAvailableDate->modify('first day of this month')->format('Y-m-d');
             } else {
                 if (!is_numeric($crAndamentaleData['data_inizio']) || !is_numeric($crAndamentaleData['data_fine'])) {
                     return response()->json([
@@ -271,6 +266,14 @@ class CentraleRischiController extends Controller
                 $lastDate = new DateTime('@' . $lastDate);
                 $lastDate = $lastDate->modify('last day of this month')->format('Y-m-d');
             }
+
+
+
+            $lastAvailableDate = new DateTime(
+                cr::select('date')->where('document_id', $crAndamentaleData['period'])->orderBy('date', 'asc')->first()->date
+            );
+            $lastAvailableDate = $lastAvailableDate->modify('first day of this month')->format('Y-m-d');
+
 
             $unrefinedPeriods = json_decode(DB::table('crs')
                 ->select('anno', 'mese', 'date')
