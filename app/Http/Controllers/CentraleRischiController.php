@@ -340,6 +340,8 @@ class CentraleRischiController extends Controller
 
             $lastDate = new DateTime($lastDate);
             $lastAvailableDate = new DateTime($lastAvailableDate);
+            $earlierDate = new DateTime($earlierDate);
+
 
             $generalDates = [
                 'defaultEndDate' => $lastDate->format('U'),
