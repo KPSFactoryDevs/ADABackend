@@ -344,7 +344,7 @@ class CentraleRischiController extends Controller
             // $totaleUtilizzatoGeneral = $crHelper->totAffidamentiConPesiPerBanca($totAffidamentiConPesiPerBanca);
             // $monthsList = array_keys($affidamentiPerMese);
 
-            $lastDate = new DateTime($lastDate);
+
             $lastAvailableDate = new DateTime($lastAvailableDate);
             $firstAvailableDate = new DateTime($firstAvailableDate);
 
@@ -352,9 +352,8 @@ class CentraleRischiController extends Controller
 
 
             $generalDates = [
-                'defaultEndDate' => $lastDate->format('U'),
-                'periodoMassimoDisponibile' => $lastAvailableDate->format('U'),
-                'periodoMinimoDisponibile' => $firstAvailableDate->format('U'),
+                'periodoMinimoDisponibile' => $lastAvailableDate->format('U'),
+                'periodoMassimoDisponibile' => $firstAvailableDate->format('U'),
             ];
 
             $response = [
