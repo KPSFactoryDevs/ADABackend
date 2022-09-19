@@ -569,13 +569,13 @@ class BilanciHelper
             }
         }
 
+        
         $sistemaBasic = DB::table('basic')->where('bilancio_id', '=', $idBilancio)->get();
-        $basic = $sistemaBasic[0];
 
-        if($valutazioneAllertaBasic) {
-                $basic->indiceCNDCEC = "Azienda a Rischio";
+            if($valutazioneAllertaBasic) {
+                $soglieBasic['indiceCNDCEC'] = "Azienda a Rischio";
             } else {
-                $basic->indiceCNDCEC = "Azienda non a Rischio";
+                $soglieBasic['indiceCNDCEC'] = "Azienda non a Rischio";
             }
 
         return array(
@@ -602,11 +602,11 @@ class BilanciHelper
         $alertRetribuzioni = $this->calculateRetribuzione($allData);
         $alertFornitori = $this->calculateFornitori($allData);
         $alertDSCR = $this->getCalcoloDSCR($allData);
-
+        
         $cleanArray = [
-            'DSCRDate' => (empty($allData['DSCRDate']) || $allData['DSCRDate'] == 0) ? "1970-01-01" : $allData['DSCRDate'],
+            'DSCRDate' => (isset($allData['DSCRdispLiquida'])) ? $allData['DSCRDate'] : "1970-01-01",
             'DSCR' => $allData['DSCR'],
-            'DSCRdispLiquida' => (isset($allData['DSCRdispLiquida'])) ? $allData['DSCRdispLiquida'] : 0,
+            'DSCRdispLiquida' => (empty($allData['DSCRdispLiquida']) || $allData['DSCRdispLiquida'] == 0) ? 0 : $allData['DSCRdispLiquida'],
             'entrataDSCRCFmese1' => $allData['entrataDSCRCFmese1'],
             'entrataDSCRCFmese2' => $allData['entrataDSCRCFmese2'],
             'entrataDSCRCFmese3' => $allData['entrataDSCRCFmese3'],
