@@ -1740,7 +1740,7 @@ class PDFController extends Controller
 
 			$arrayForwardLooking = array();
 
-			$forwardLooking = DB::table('forwardLooking')->where('document_id', $getDocumentId)->get();
+			$forwardLooking = DB::table('forwardlooking')->where('document_id', $getDocumentId)->get();
 			foreach ($forwardLooking as $item => $data) {
 				$arrayForwardLooking[$data->question] = $data->answer;
 			}
