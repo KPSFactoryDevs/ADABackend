@@ -28,8 +28,6 @@ class PDFController extends Controller
      */
     public function basic($id)
     {
-
-
         $bilancio = Bilanci::findOrFail($id);
 
         $tipoAzienda = $bilancio->tipo_azienda;
@@ -1633,9 +1631,11 @@ class PDFController extends Controller
 		$ASISfinalScore = false;
 		$generalScore = false;
 
-		if (cr::All()->count() == 0) {
-			$msg = "Non è stata caricata nessuna Centrale Rischi";
-			return view('allerta.empty', compact(['msg']));
+		if (cr::where('document_id', $idCr)->count() == 0) {
+			return response()->json([
+				'error' => true,
+				'message' => "Non è stata caricata nessuna Centrale Rischi"
+			]);
 		} else {
 
 
@@ -1665,13 +1665,13 @@ class PDFController extends Controller
 			$earliestYear = array_key_first($periods);
 			$earliestMonth = array_key_first($periods[$earliestYear]);
 
-			$upperBoundDate = new DateTime((cr::select('date')->where('anno', $earliestYear)->where('mese', $earliestMonth)->get()->first())->date);
+			$upperBoundDate = new DateTime((cr::select('date')->where('anno', $earliestYear)->where('mese', $earliestMonth)->where('document_id', $getDocumentId)->get()->first())->date);
 			$lowerBoundDate = new DateTime($upperBoundDate->format('Y-m-d'));
 			$lowerBoundDate = $lowerBoundDate->modify('-11 months');
 
 			$banks = array();
 
-			foreach (cr::select('nome_banca')->where('date', '>=', $lowerBoundDate->format('Y-m-d'))->where('date', '<=', $upperBoundDate->format('Y-m-d'))->distinct()->get()->toArray() as $label => $nomeBanca) {
+			foreach (cr::select('nome_banca')->where('date', '>=', $lowerBoundDate->format('Y-m-d'))->where('date', '<=', $upperBoundDate->format('Y-m-d'))->where('document_id', $getDocumentId)->distinct()->get()->toArray() as $label => $nomeBanca) {
 				$banks[] = $nomeBanca["nome_banca"];
 			}
 
@@ -1730,7 +1730,7 @@ class PDFController extends Controller
 
 			$arrayQuestionario = array();
 
-			$questionario = DB::table('questionario')->get();
+			$questionario = DB::table('questionario')->where('document_id', $getDocumentId)->get();
 			foreach ($questionario as $item => $data) {
 				$arrayQuestionario[$data->parameter]['Result'] = $data->result;
 				$arrayQuestionario[$data->parameter]['Details'] = $data->details == null ? '' : $data->details;
@@ -1740,7 +1740,7 @@ class PDFController extends Controller
 
 			$arrayForwardLooking = array();
 
-			$forwardLooking = DB::table('forwardLooking')->get();
+			$forwardLooking = DB::table('forwardLooking')->where('document_id', $getDocumentId)->get();
 			foreach ($forwardLooking as $item => $data) {
 				$arrayForwardLooking[$data->question] = $data->answer;
 			}
@@ -1772,12 +1772,14 @@ class PDFController extends Controller
 
 			if (Bilanci::count() != 0) {
 
-				// $bilancioData = $bilancioHelper->getAnalisiBilancio($id);
-				$bilancioData = $this->basic($id);
-			
-// dd($bilancioData['Giudizi']['Score']);
+				$bilancioData = $bilancioHelper->getAnalisiBilancio($id);
+
+				// $bilancioData = $this->basic($id);
+
+				// dd($bilancioData['Giudizi']['Score']);
 				if (DB::table('questionario')->where('document_id', $getDocumentId)->count() != 0) {
-					$ASISfinalScore = array("Score" => ($bilancioData['Giudizi']['Score'] * 0.25) + ($scoreCR * 0.25) + ($scoreASIS['1'] * 0.1) + ($scoreASIS['2'] * 0.1) + ($scoreASIS['3'] * 0.15) + ($scoreASIS['4'] * 0.15));
+					// dd($bilancioData);
+					$ASISfinalScore = array("Score" => ($bilancioData['AnalisiAdvanced']['Giudizi']['Score'] * 0.25) + ($scoreCR * 0.25) + ($scoreASIS['1'] * 0.1) + ($scoreASIS['2'] * 0.1) + ($scoreASIS['3'] * 0.15) + ($scoreASIS['4'] * 0.15));
 
 					$rangeGiudizi = array(
 						0 => array("Min" => 0, "Max" => 0.14, "Giudizio" => "Default"),
@@ -1821,19 +1823,19 @@ class PDFController extends Controller
 
 				$analisiBilancioGiudizio = null;
 
-				if ($bilancioData['Giudizi']['Score'] >= 0 && $bilancioData['Giudizi']['Score'] < 0.14) {
+				if ($bilancioData['AnalisiAdvanced']['Giudizi']['Score'] >= 0 && $bilancioData['AnalisiAdvanced']['Giudizi']['Score'] < 0.14) {
 					$analisiBilancioGiudizio = "Default";
-				} else if ($bilancioData['Giudizi']['Score'] >= 0.14 && $bilancioData['Giudizi']['Score'] < 0.28) {
+				} else if ($bilancioData['AnalisiAdvanced']['Giudizi']['Score'] >= 0.14 && $bilancioData['AnalisiAdvanced']['Giudizi']['Score'] < 0.28) {
 					$analisiBilancioGiudizio = "Situazione Grave";
-				} else if ($bilancioData['Giudizi']['Score'] >= 0.28 && $bilancioData['Giudizi']['Score'] < 0.42) {
+				} else if ($bilancioData['AnalisiAdvanced']['Giudizi']['Score'] >= 0.28 && $bilancioData['AnalisiAdvanced']['Giudizi']['Score'] < 0.42) {
 					$analisiBilancioGiudizio = "Alert";
-				} else if ($bilancioData['Giudizi']['Score'] >= 0.42 && $bilancioData['Giudizi']['Score'] < 0.56) {
+				} else if ($bilancioData['AnalisiAdvanced']['Giudizi']['Score'] >= 0.42 && $bilancioData['AnalisiAdvanced']['Giudizi']['Score'] < 0.56) {
 					$analisiBilancioGiudizio = "Rischio alert";
-				} else if ($bilancioData['Giudizi']['Score'] >= 0.56 && $bilancioData['Giudizi']['Score'] < 0.70) {
+				} else if ($bilancioData['AnalisiAdvanced']['Giudizi']['Score'] >= 0.56 && $bilancioData['AnalisiAdvanced']['Giudizi']['Score'] < 0.70) {
 					$analisiBilancioGiudizio = "Fragilità elevata";
-				} else if ($bilancioData['Giudizi']['Score'] >= 0.70 && $bilancioData['Giudizi']['Score'] < 0.85) {
+				} else if ($bilancioData['AnalisiAdvanced']['Giudizi']['Score'] >= 0.70 && $bilancioData['AnalisiAdvanced']['Giudizi']['Score'] < 0.85) {
 					$analisiBilancioGiudizio = "Fragilità";
-				} else if ($bilancioData['Giudizi']['Score'] >= 0.85 && $bilancioData['Giudizi']['Score'] <= 1) {
+				} else if ($bilancioData['AnalisiAdvanced']['Giudizi']['Score'] >= 0.85 && $bilancioData['AnalisiAdvanced']['Giudizi']['Score'] <= 1) {
 					$analisiBilancioGiudizio = "Solidità";
 				}
 				$analisiCR = null;
@@ -2381,64 +2383,64 @@ class PDFController extends Controller
 				$acidTestGiudizio = "Ottimo";
 				if (isset($bilancioData['Indici']['Acid_Test'])) {
 					$acidTestValue = $bilancioData['Indici']['Acid_Test'];
-					$acidTestScoring = $bilancioData['Giudizi']['Giudizi']['Acid Test']['Scoring'];
-					$acidTestGiudizio = $bilancioData['Giudizi']['Giudizi']['Acid Test']['Giudizio'];
+					$acidTestScoring = $bilancioData['AnalisiAdvanced']['Giudizi']['AnalisiAdvanced']['Giudizi']['Acid Test']['Scoring'];
+					$acidTestGiudizio = $bilancioData['AnalisiAdvanced']['Giudizi']['AnalisiAdvanced']['Giudizi']['Acid Test']['Giudizio'];
 				}
-				dd($bilancioData);
-				// dd($bilancioData['Giudizi']['Giudizi']);
-				// dd($bilancioData['Giudizi']['Giudizi']['Andamento del fatturato']);
+				// dd($bilancioData);
+				// dd($bilancioData['AnalisiAdvanced']['Giudizi']['AnalisiAdvanced']['Giudizi']);
+				// dd($bilancioData['AnalisiAdvanced']['Giudizi']['AnalisiAdvanced']['Giudizi']['Andamento del fatturato']);
 
 				$dataAllerta = [
 					"id" => $id,
 					"andamentoDelFatturato" => [
-						'Valore' =>  $bilancioData['Indici']['Andamento_del_fatturato'],
-						'Score' => $bilancioData['Giudizi']['Giudizi']['Andamento del fatturato']['Scoring'],
-						'Giudizio' => $bilancioData['Giudizi']['Giudizi']['Andamento del fatturato']['Giudizio'],
+						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['Andamento_del_fatturato'],
+						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento del fatturato']['Scoring'],
+						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento del fatturato']['Giudizio'],
 					],
 					"AndamentoDelMOL" => [
-						'Valore' =>  $bilancioData['Indici']['Andamento_del_MOL'],
-						'Score' => $bilancioData['Giudizi']['Giudizi']['Andamento del MOL']['Scoring'],
-						'Giudizio' => $bilancioData['Giudizi']['Giudizi']['Andamento del MOL']['Giudizio'],
+						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['Andamento_del_MOL'],
+						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento del MOL']['Scoring'],
+						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento del MOL']['Giudizio'],
 					],
 					"ROI" => [
-						'Valore' =>  $bilancioData['Indici']['ROI'],
-						'Score' => $bilancioData['Giudizi']['Giudizi']['ROI']['Scoring'],
-						'Giudizio' => $bilancioData['Giudizi']['Giudizi']['ROI']['Giudizio'],
+						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['ROI'],
+						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROI']['Scoring'],
+						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROI']['Giudizio'],
 					],
 					"ROS" => [
-						'Valore' =>  $bilancioData['Indici']['ROS'],
-						'Score' => $bilancioData['Giudizi']['Giudizi']['ROS']['Scoring'],
-						'Giudizio' => $bilancioData['Giudizi']['Giudizi']['ROS']['Giudizio'],
+						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['ROS'],
+						//'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROS']['Scoring'],
+						//'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROS']['Giudizio'],
 					],   
 					"ROE" => [
-						'Valore' =>  $bilancioData['Indici']['ROE'],
-						'Score' => $bilancioData['Giudizi']['Giudizi']['ROE']['Scoring'],
-						'Giudizio' => $bilancioData['Giudizi']['Giudizi']['ROE']['Giudizio'],
+						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['ROE'],
+						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROE']['Scoring'],
+						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROE']['Giudizio'],
 					],
 					"EBITDAFatturato" => [
-						'Valore' =>  $bilancioData['Indici']['EBITDA_Fatturato'],
-						'Score' => $bilancioData['Giudizi']['Giudizi']['EBITDA Fatturato']['Scoring'],
-						'Giudizio' => $bilancioData['Giudizi']['Giudizi']['EBITDA Fatturato']['Giudizio'],
+						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['EBITDA_Fatturato'],
+						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['EBITDA Fatturato']['Scoring'],
+						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['EBITDA Fatturato']['Giudizio'],
 					],
 					"AndamentoDeiMezziPropri" => [
-						'Valore' =>  $bilancioData['Indici']['Andamento_dei_mezzi_propri'],
-						'Score' => $bilancioData['Giudizi']['Giudizi']['Andamento dei mezzi propri']['Scoring'],
-						'Giudizio' => $bilancioData['Giudizi']['Giudizi']['Andamento dei mezzi propri']['Giudizio'],
+						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['Andamento_dei_mezzi_propri'],
+						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento dei mezzi propri']['Scoring'],
+						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento dei mezzi propri']['Giudizio'],
 					],
 					"MargineStrutturaPrimario" => [
-						'Valore' =>  $bilancioData['Indici']['Margine_Struttura_Primario'],
-						'Score' => $bilancioData['Giudizi']['Giudizi']['Margine Struttura Primario']['Scoring'],
-						'Giudizio' => $bilancioData['Giudizi']['Giudizi']['Margine Struttura Primario']['Giudizio'],
+						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['Margine_Struttura_Primario'],
+						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Margine Struttura Primario']['Scoring'],
+						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Margine Struttura Primario']['Giudizio'],
 					],
 					"MargineStrutturaSecondario" => [
-						'Valore' =>  $bilancioData['Indici']['Margine_Struttura_Secondario'],
-						'Score' => $bilancioData['Giudizi']['Giudizi']['Margine Struttura Secondario']['Scoring'],
-						'Giudizio' => $bilancioData['Giudizi']['Giudizi']['Margine Struttura Secondario']['Giudizio'],
+						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['Margine_Struttura_Secondario'],
+						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Margine Struttura Secondario']['Scoring'],
+						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Margine Struttura Secondario']['Giudizio'],
 					],
 					"CurrentRatio" => [
-						'Valore' =>  $bilancioData['Indici']['Current_Ratio'],
-						//'Score' => $bilancioData['Giudizi']['Giudizi']['Current Ratio']['Scoring'],
-						//'Giudizio' => $bilancioData['Giudizi']['Giudizi']['Current Ratio']['Giudizio'],
+						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['Current_Ratio'],
+						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Current Ratio']['Scoring'],
+						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Current Ratio']['Giudizio'],
 					],
 					"AcidTest" => [
 						'Valore' =>  $acidTestValue,
@@ -2446,54 +2448,54 @@ class PDFController extends Controller
 						'Giudizio' => $acidTestGiudizio,
 					],
 					"AutonomiaFinanziaria" => [
-						'Valore' =>  $bilancioData['Indici']['Autonomia_Finanziaria'],
-						'Score' => $bilancioData['Giudizi']['Giudizi']['Autonomia Finanziaria']['Scoring'],
-						'Giudizio' => $bilancioData['Giudizi']['Giudizi']['Autonomia Finanziaria']['Giudizio'],
+						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['Autonomia_Finanziaria'],
+						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Autonomia Finanziaria']['Scoring'],
+						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Autonomia Finanziaria']['Giudizio'],
 					],
 					"LivelloInvestimentiAziendali" => [
-						'Valore' =>  $bilancioData['Indici']['Livello_investimenti_aziendali'],
-						'Score' => $bilancioData['Giudizi']['Giudizi']['Livello investimenti aziendali']['Scoring'],
-						'Giudizio' => $bilancioData['Giudizi']['Giudizi']['Livello investimenti aziendali']['Giudizio'],
+						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['Livello_investimenti_aziendali'],
+						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Livello investimenti aziendali']['Scoring'],
+						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Livello investimenti aziendali']['Giudizio'],
 					],
 					"PFN_EBITDA" => [
-						'Valore' =>  $bilancioData['Indici']['PFN_EBITDA'],
-						'Score' => $bilancioData['Giudizi']['Giudizi']['PFN EBITDA']['Scoring'],
-						'Giudizio' => $bilancioData['Giudizi']['Giudizi']['PFN EBITDA']['Giudizio'],
+						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['PFN_EBITDA'],
+						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['PFN EBITDA']['Scoring'],
+						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['PFN EBITDA']['Giudizio'],
 					],
 					"OF_Fatturato" => [
-						'Valore' =>  $bilancioData['Indici']['OF_Fatturato'],
-						'Score' => $bilancioData['Giudizi']['Giudizi']['Copertura Lorda OF']['Scoring'],
-						'Giudizio' => $bilancioData['Giudizi']['Giudizi']['Copertura Lorda OF']['Giudizio'],
+						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['OF_Fatturato'],
+						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Copertura Lorda OF']['Scoring'],
+						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Copertura Lorda OF']['Giudizio'],
 					],
 					"EBIT_OF" => [
-						'Valore' =>  $bilancioData['Indici']['EBIT_OF'],
-						'Score' => $bilancioData['Giudizi']['Giudizi']['EBIT OF']['Scoring'],
-						'Giudizio' => $bilancioData['Giudizi']['Giudizi']['EBIT OF']['Giudizio'],
+						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['EBIT_OF'],
+						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['EBIT OF']['Scoring'],
+						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['EBIT OF']['Giudizio'],
 					],
 					"CoperturaLordaOF" => [
-						'Valore' =>  $bilancioData['Indici']['Copertura_Lorda_OF'],
-						'Score' => $bilancioData['Giudizi']['Giudizi']['Copertura Lorda OF']['Scoring'],
-						'Giudizio' => $bilancioData['Giudizi']['Giudizi']['Copertura Lorda OF']['Giudizio'],
+						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['Copertura_Lorda_OF'],
+						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Copertura Lorda OF']['Scoring'],
+						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Copertura Lorda OF']['Giudizio'],
 					],
 					"CostoDelPersonale" => [
-						'Valore' =>  $bilancioData['Indici']['Costo_del_personale'],
+						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['Costo_del_personale'],
 						//'Score' => $bilancioData['Giudizi']['Giudizi']['Costo del personale']['Scoring'],
 						//'Giudizio' => $bilancioData['Giudizi']['Giudizi']['Costo del personale']['Giudizio'],
 					],
 					"CFAttivo" => [
-						'Valore' =>  $bilancioData['Indici']['CF_Attivo'],
-						'Score' => $bilancioData['Giudizi']['Giudizi']['CF Attivo']['Scoring'],
-						'Giudizio' => $bilancioData['Giudizi']['Giudizi']['CF Attivo']['Giudizio'],
+						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['CF_Attivo'],
+						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['CF Attivo']['Scoring'],
+						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['CF Attivo']['Giudizio'],
 					],
 					"IndiceDiIndebitamento" => [
-						'Valore' =>  $bilancioData['Indici']['Indice_di_Indebitamento'],
-						'Score' => $bilancioData['Giudizi']['Giudizi']['Indice di Indebitamento']['Scoring'],
-						'Giudizio' => $bilancioData['Giudizi']['Giudizi']['Indice di Indebitamento']['Giudizio'],
+						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['Indice_di_Indebitamento'],
+						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Indice di Indebitamento']['Scoring'],
+						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Indice di Indebitamento']['Giudizio'],
 					],
 					"SaldoDeiDebitiVersoIlFisco" => [
-						'Valore' =>  $bilancioData['Indici']['Saldo_dei_Debiti_verso_il_Fisco'],
-						'Score' => $bilancioData['Giudizi']['Giudizi']['Saldo dei Debiti verso il Fisco']['Scoring'],
-						'Giudizio' => $bilancioData['Giudizi']['Giudizi']['Saldo dei Debiti verso il Fisco']['Giudizio'],
+						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['Saldo_dei_Debiti_verso_il_Fisco'],
+						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Saldo dei Debiti verso il Fisco']['Scoring'],
+						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Saldo dei Debiti verso il Fisco']['Giudizio'],
 					],
 					"ASISfinalScore" => $ASISfinalScore,
 					"generalScore" => $generalScore,
