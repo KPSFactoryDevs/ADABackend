@@ -16,8 +16,8 @@ class printpdf
 	}
 
 	private function getBearerToken() {
-		$token = "YZsssKa8rfMNHm6Gy2c8"; 
-	//	$token = "HXC-K3sK3Pcp7sC3LXgJ";
+	//	$token = "YZsssKa8rfMNHm6Gy2c8"; 
+		$token = "HXC-K3sK3Pcp7sC3LXgJ";
 		return $token;
 	}
 
@@ -30,8 +30,8 @@ class printpdf
 		'Authorization' => 'Bearer '.$token,
 		'Content-Type' => 'application/json'
 		])->post($this->baseUrl, $body);
-dd($response);
-	 	$idDocument = $response['document']['id'];
+
+		$idDocument = $response['document']['id'];
 
 	  	return $idDocument;
 	}
