@@ -45,11 +45,9 @@ class CompaniesController extends Controller
      * @return Illuminate\Http\RedirectResponse | Illuminate\Routing\Redirector
      */
     public function store(Request $request)
-    {
+    {   
         try {
-
             $data = $this->getData($request);
-
           	$company = Company::create($data);
 
             return response()->json([

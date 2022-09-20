@@ -3,8 +3,9 @@
 namespace Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
+use Illuminate\Support\Facades\DB;
 
-class Bilanci extends TestCase
+class BilanciTest extends TestCase
 {
     /**
      * A basic unit test example.
@@ -12,6 +13,11 @@ class Bilanci extends TestCase
      * @return void
      */
     public function test_example()
+    {
+        $this->assertTrue(true);
+    }
+
+    public function test_index_bilanci() 
     {
         $this->assertTrue(true);
     }
