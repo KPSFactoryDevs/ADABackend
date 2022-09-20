@@ -133,8 +133,10 @@ class BilanciHelper
             }
             // dump($label, $value);
             $arrayIndici[$label] = $value / 100;
+            // dump($arrayIndici[$label]);
+            // dump($tipoAzienda);
+            // dump($arrayIndici);
 
-            // dd($tipoAzienda);
             $arraySoglie[$label] = range::where([['range_min', '<', $arrayIndici[$label]], ['range_max', '>', $arrayIndici[$label]], ['indice', '=', $label], ['tipo_azienda', '=', $tipoAzienda]])->with('pesi')->get();
 
             // if ($label == 'Costo del personale') {
@@ -150,7 +152,6 @@ class BilanciHelper
                 $scoringAreaBilancio += $arrayGiudizi[$label]['Scoring'];
             } else {
                 $arraySoglie[$label] = range::where([['range_min', '<', $arrayIndici[$label]], ['range_max', '>', $arrayIndici[$label]], ['indice', '=', $label], ['tipo_azienda', '=', 'Generica']])->with('pesi')->get();
-
                 // if ($label == 'PFN EBITDA') {
                 //     dd($label, $value, $tipoAzienda, count($arraySoglie['PFN EBITDA']));
                 // }

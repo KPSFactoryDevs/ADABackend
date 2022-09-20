@@ -30,11 +30,10 @@ class printpdf
 		'Authorization' => 'Bearer '.$token,
 		'Content-Type' => 'application/json'
 		])->post($this->baseUrl, $body);
-
+dd($response);
 	 	$idDocument = $response['document']['id'];
-	 
+
 	  	return $idDocument;
-		
 	}
 	
 	public function getDocumentData($documentId) {
