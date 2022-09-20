@@ -348,9 +348,6 @@ class CentraleRischiController extends Controller
             $lastAvailableDate = new DateTime($lastAvailableDate);
             $firstAvailableDate = new DateTime($firstAvailableDate);
 
-
-
-
             $generalDates = [
                 'periodoMinimoDisponibile' => $lastAvailableDate->format('U'),
                 'periodoMassimoDisponibile' => $firstAvailableDate->format('U'),

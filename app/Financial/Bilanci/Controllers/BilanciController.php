@@ -51,7 +51,7 @@ class BilanciController extends Controller
         return response()->json([
             'error' => false,
             'data' => $bilancis
-        ]);
+        ], 200);
     }
 
     /**
@@ -644,8 +644,8 @@ class BilanciController extends Controller
         return response()->json([
             'bilancioImported' => true,
             'tipo_azienda' => $tipoAzienda,
-            'forma_giuridica' => $formaGiuridica
-
+            'forma_giuridica' => $formaGiuridica,
+            'idBilancio' => $bilancio->id
         ]);
     }
 
