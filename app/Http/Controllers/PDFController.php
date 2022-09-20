@@ -2386,7 +2386,7 @@ class PDFController extends Controller
 					$acidTestScoring = $bilancioData['AnalisiAdvanced']['Giudizi']['AnalisiAdvanced']['Giudizi']['Acid Test']['Scoring'];
 					$acidTestGiudizio = $bilancioData['AnalisiAdvanced']['Giudizi']['AnalisiAdvanced']['Giudizi']['Acid Test']['Giudizio'];
 				}
-				// dd($bilancioData);
+				// dd($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROS']['Scoring']);
 				// dd($bilancioData['AnalisiAdvanced']['Giudizi']['AnalisiAdvanced']['Giudizi']);
 				// dd($bilancioData['AnalisiAdvanced']['Giudizi']['AnalisiAdvanced']['Giudizi']['Andamento del fatturato']);
 
@@ -2409,8 +2409,8 @@ class PDFController extends Controller
 					],
 					"ROS" => [
 						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['ROS'],
-						//'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROS']['Scoring'],
-						//'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROS']['Giudizio'],
+						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROS']['Scoring'],
+						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROS']['Giudizio'],
 					],   
 					"ROE" => [
 						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['ROE'],
@@ -2479,8 +2479,8 @@ class PDFController extends Controller
 					],
 					"CostoDelPersonale" => [
 						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['Costo_del_personale'],
-						//'Score' => $bilancioData['Giudizi']['Giudizi']['Costo del personale']['Scoring'],
-						//'Giudizio' => $bilancioData['Giudizi']['Giudizi']['Costo del personale']['Giudizio'],
+						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Costo del personale']['Scoring'],
+						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Costo del personale']['Giudizio'],
 					],
 					"CFAttivo" => [
 						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['CF_Attivo'],
