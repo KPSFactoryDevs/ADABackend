@@ -64,7 +64,7 @@ Route::group(['middleware' => ['cors', 'json.response']], function () {
     // PDF MONKEY
     Route::get('/reportBasicPDF/{id}', 'App\Http\Controllers\PDFController@reportBasicPdf');
     Route::get('/reportAllerta/{idBilancio}/{idCr}', 'App\Http\Controllers\PDFController@reportAllerta');
-    Route::get('/crAndamentale/{years}', 'App\Http\Controllers\PDFController@reportCrAndamentale');
+    Route::get('/reportAndamentale/{years}', 'App\Http\Controllers\PDFController@reportCrAndamentale');
 
     // Companies
     Route::get('/company', 'App\Http\Controllers\CompaniesController@index');
