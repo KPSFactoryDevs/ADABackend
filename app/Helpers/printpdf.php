@@ -16,7 +16,6 @@ class printpdf
 	}
 
 	private function getBearerToken() {
-	//	$token = "YZsssKa8rfMNHm6Gy2c8"; 
 		$token = "HXC-K3sK3Pcp7sC3LXgJ";
 		return $token;
 	}
@@ -61,13 +60,13 @@ class printpdf
 	private function getTemplateId($type) {
 		switch ($type) {
 			case "bilancio":
-				return "7CEDF658-EB45-450D-9280-EF277C85E6CC";
+				return "4B9C1CE4-B36E-4371-9385-778BB9CEA134";
 				break;
 			case "crAndamentale":
-				return "A187E905-99F6-40C2-9ABD-EE4D88E5F29A";
+				return "54A28FE1-8985-4F39-BCA1-2B1B5690BA8C";
 				break;
 			case "allerta":
-				return "AFB142A4-B910-4E48-AFF7-0BCE3D6E292F";  // template monkey test 2B18B647-7186-4AA0-A1A3-C67BEE465469
+				return "AFB142A4-B910-4E48-AFF7-0BCE3D6E292F";
 				break;
 		}
 	}
