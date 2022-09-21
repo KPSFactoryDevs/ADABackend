@@ -44,7 +44,7 @@ class AnalisisController extends Controller
                     'Message' => $dataBasic['Message'],
                     'DSCRAlert' => $dataBasic['AlertDSCR'],
                     'DSCRResult' => "Attenzione, alcuni campi sono vuoti, compila tutti i campi.",
-                ], 400);
+                ], 422);
             }
 
             return response()->json([
