@@ -98,7 +98,7 @@ class BilanciHelper
         foreach ($data as $label => $value) {
 
             $giudizio = '';
-            if(str_contains((float)$value, '%') && isset($value)) {
+            if (str_contains((float)$value, '%') && isset($value)) {
                 $value = explode('%', (float)$value)[0];
             }
 
@@ -570,14 +570,14 @@ class BilanciHelper
             }
         }
 
-        
+
         $sistemaBasic = DB::table('basic')->where('bilancio_id', '=', $idBilancio)->get();
 
-            if($valutazioneAllertaBasic) {
-                $soglieBasic['indiceCNDCEC'] = "Azienda a Rischio";
-            } else {
-                $soglieBasic['indiceCNDCEC'] = "Azienda non a Rischio";
-            }
+        if ($valutazioneAllertaBasic) {
+            $soglieBasic['indiceCNDCEC'] = "Azienda a Rischio";
+        } else {
+            $soglieBasic['indiceCNDCEC'] = "Azienda non a Rischio";
+        }
 
         return array(
             'Soglie' => $soglieBasic,
@@ -603,7 +603,7 @@ class BilanciHelper
         $alertRetribuzioni = $this->calculateRetribuzione($allData);
         $alertFornitori = $this->calculateFornitori($allData);
         $alertDSCR = $this->getCalcoloDSCR($allData);
-        
+
         $cleanArray = [
             'DSCRDate' => (isset($allData['DSCRdispLiquida'])) ? $allData['DSCRDate'] : "1970-01-01",
             'DSCR' => $allData['DSCR'],
@@ -627,7 +627,7 @@ class BilanciHelper
             'rimborsoDSCRmese5' => (isset($allData['rimborsoDSCRmese5'])) ? $allData['rimborsoDSCRmese5'] : null,
             'rimborsoDSCRmese6' => (isset($allData['rimborsoDSCRmese6'])) ? $allData['rimborsoDSCRmese6'] : null,
             'agenziaEntrate1' => (isset($allData['agenziaEntrate1'])) ? $allData["agenziaEntrate1"] : null,
-            'agenziaEntrate2' => (isset($allData['agenziaEntrate2'])) ? $allData["agenziaEntrate2"] : null, 
+            'agenziaEntrate2' => (isset($allData['agenziaEntrate2'])) ? $allData["agenziaEntrate2"] : null,
             'agenziaEntrate3' => (isset($allData['agenziaEntrate3'])) ? $allData["agenziaEntrate3"] : 0,
             'agenziaEntrate4' => (isset($allData['agenziaEntrate4'])) ? $allData["agenziaEntrate4"] : null,
             'INPS1' => ($allData["INPS1"] != null) ? $allData["INPS1"] : null,
@@ -726,62 +726,55 @@ class BilanciHelper
             return "DSCR da non calcolare";
         }
 
-            if (empty($dscrData['uscitaDSCRCFmese6']) || $dscrData['uscitaDSCRCFmese6'] == 0 || empty($dscrData['rimborsoDSCRmese1']) || $dscrData['rimborsoDSCRmese1'] == 0 ) {
-                return [
-                    'Message' => "Attenzione, alcuni campi sono vuoti, compila tutti i campi.",
-                    'error' => true
-                ];
-            }
+        if (empty($dscrData['uscitaDSCRCFmese6']) || $dscrData['uscitaDSCRCFmese6'] == 0 || empty($dscrData['rimborsoDSCRmese1']) || $dscrData['rimborsoDSCRmese1'] == 0) {
+            return ['error' => true];
+        }
 
 
         return $this->calculateDSCR($dscrData);
     }
 
-    public function calculateAgenziaEntrate($allData) 
+    public function calculateAgenziaEntrate($allData)
     {
 
-        if(empty($allData['agenziaEntrate1']) || $allData['agenziaEntrate1'] == 0 || empty($allData['agenziaEntrate2']) || $allData['agenziaEntrate2'] == 0) {
+        if (empty($allData['agenziaEntrate1']) || $allData['agenziaEntrate1'] == 0 || empty($allData['agenziaEntrate2']) || $allData['agenziaEntrate2'] == 0) {
             $alert = "Dati Mancanti";
         } else {
             $alert = "No";
         }
 
         try {
-           if($alert != "Dati Mancanti") {
-                if($allData['agenziaEntrate1'] >= (($allData['agenziaEntrate2']/100)*30)){
-                    if($allData['agenziaEntrate3'] >= 0 && $allData['agenziaEntrate3'] < 2000000){
-                        if($allData['agenziaEntrate1'] >= 25000){
+            if ($alert != "Dati Mancanti") {
+                if ($allData['agenziaEntrate1'] >= (($allData['agenziaEntrate2'] / 100) * 30)) {
+                    if ($allData['agenziaEntrate3'] >= 0 && $allData['agenziaEntrate3'] < 2000000) {
+                        if ($allData['agenziaEntrate1'] >= 25000) {
                             $alert = "Si";
-                        } 
-                    }
-                    else if($allData['agenziaEntrate3'] >= 2000000 && $allData['agenziaEntrate3'] < 10000000){
-                        if($allData['agenziaEntrate1'] >= 50000){
+                        }
+                    } else if ($allData['agenziaEntrate3'] >= 2000000 && $allData['agenziaEntrate3'] < 10000000) {
+                        if ($allData['agenziaEntrate1'] >= 50000) {
                             $alert = "Si";
-                        } 
-                    }
-                    else if($allData['agenziaEntrate3'] > 10000000){
-                        if($allData['agenziaEntrate1'] > 100000){
+                        }
+                    } else if ($allData['agenziaEntrate3'] > 10000000) {
+                        if ($allData['agenziaEntrate1'] > 100000) {
                             $alert = "Si";
-                        } 
+                        }
                     }
                 }
 
-                if(is_finite($allData['agenziaEntrate1'] / $allData['agenziaEntrate2'])){
+                if (is_finite($allData['agenziaEntrate1'] / $allData['agenziaEntrate2'])) {
                     $cleanData['agenziaEntrate4'] = (float)number_format((($allData['agenziaEntrate1'] / $allData['agenziaEntrate2'])), 2, ",", ".");
-                }
-                else{
+                } else {
                     $cleanData['agenziaEntrate4'] = "0";
                 }
             }
 
-             return $alert;
-
-            } catch (Exception $e) {
-                return [
-                    'error' => true,
-                    'message' => $e->getMessage()
-                ];
-            }
+            return $alert;
+        } catch (Exception $e) {
+            return [
+                'error' => true,
+                'message' => $e->getMessage()
+            ];
+        }
     }
 
 
@@ -804,10 +797,10 @@ class BilanciHelper
 
         $balance = Basic::where('bilancio_id', $idBilancio)->get();
 
-        if(count($balance) == 0) {
+        if (count($balance) == 0) {
             Basic::create($dscrData);
         } else {
-            Basic::where('bilancio_id', $idBilancio)->update($dscrData);          
+            Basic::where('bilancio_id', $idBilancio)->update($dscrData);
         }
 
         return [
@@ -817,19 +810,19 @@ class BilanciHelper
         ];
     }
 
-    public function calcoloINPS($allData) 
+    public function calcoloINPS($allData)
     {
-        if(empty($allData['INPS1']) || $allData['INPS1'] == 0 || empty($allData['INPS2']) || $allData['INPS2'] == 0) {
+        if (empty($allData['INPS1']) || $allData['INPS1'] == 0 || empty($allData['INPS2']) || $allData['INPS2'] == 0) {
             $alert = "Dati Mancanti";
         } else {
             $alert = "No";
         }
 
-        if($alert != "Dati Mancanti") {
-            $inps3 = number_format((($allData['INPS1'] / $allData['INPS2'])*100), 2, ",", ".");
+        if ($alert != "Dati Mancanti") {
+            $inps3 = number_format((($allData['INPS1'] / $allData['INPS2']) * 100), 2, ",", ".");
 
-            if($allData['INPS1'] > 50000){
-                if($inps3 > 50.50){
+            if ($allData['INPS1'] > 50000) {
+                if ($inps3 > 50.50) {
                     $alert = "Si";
                 }
             }
@@ -837,31 +830,28 @@ class BilanciHelper
         return $alert;
     }
 
-    public function calculateRiscossione($allData) 
+    public function calculateRiscossione($allData)
     {
         $balance = Bilanci::findOrFail($allData['idBilancio']);
 
         $formaGiuridica = $balance->forma_giuridica;
 
-        if(empty($allData['riscossione']) || $allData['riscossione'] == 0) {
+        if (empty($allData['riscossione']) || $allData['riscossione'] == 0) {
             $alert = "Dati Mancanti";
         } else {
             $alert = "No";
         }
 
-        if($formaGiuridica == "DITTA INDIVIDUALE"){
-            if($allData['riscossione'] > 500000){
+        if ($formaGiuridica == "DITTA INDIVIDUALE") {
+            if ($allData['riscossione'] > 500000) {
                 $alert = "Si";
-            }
-            else{
+            } else {
                 $alert = "No";
             }
-        }
-        else{
-            if($allData['riscossione'] > 1000000){
+        } else {
+            if ($allData['riscossione'] > 1000000) {
                 $alert = "Si";
-            }
-            else{
+            } else {
                 $alert = "No";
             }
         }
@@ -869,43 +859,40 @@ class BilanciHelper
         return $alert;
     }
 
-    public function calculateRetribuzione($allData) 
+    public function calculateRetribuzione($allData)
     {
-       
-        if(empty($allData['retribuzioni1']) || $allData['retribuzioni1'] == 0 || empty($allData['retribuzioni2']) || $allData['retribuzioni2'] == 0) {
+
+        if (empty($allData['retribuzioni1']) || $allData['retribuzioni1'] == 0 || empty($allData['retribuzioni2']) || $allData['retribuzioni2'] == 0) {
             $alert = "Dati Mancanti";
         } else {
             $alert = "No";
         }
 
-         if($alert != "Dati Mancanti") {
-                if(($allData['retribuzioni1'] / $allData['retribuzioni2'])*100 >= 50){
-                    $alert = "Si";
-                }
-                else{
-                    $alert = "No";
-                }
-                if(is_finite($allData['retribuzioni1'] / $allData['retribuzioni1'])){
-                    $allData['retribuzioni3'] = number_format((($allData['retribuzioni1'] / $allData['retribuzioni2'])*100), 2, ",", ".");
-                }
-                else{
-                    $allData['retribuzioni3'] = "0";
-                }
+        if ($alert != "Dati Mancanti") {
+            if (($allData['retribuzioni1'] / $allData['retribuzioni2']) * 100 >= 50) {
+                $alert = "Si";
+            } else {
+                $alert = "No";
             }
+            if (is_finite($allData['retribuzioni1'] / $allData['retribuzioni1'])) {
+                $allData['retribuzioni3'] = number_format((($allData['retribuzioni1'] / $allData['retribuzioni2']) * 100), 2, ",", ".");
+            } else {
+                $allData['retribuzioni3'] = "0";
+            }
+        }
 
         return $alert;
     }
 
-    public function calculateFornitori($allData) 
+    public function calculateFornitori($allData)
     {
-        if(empty($allData['fornitori1']) || $allData['fornitori1'] == 0 || empty($allData['fornitori2']) || $allData['fornitori2'] == 0) {
+        if (empty($allData['fornitori1']) || $allData['fornitori1'] == 0 || empty($allData['fornitori2']) || $allData['fornitori2'] == 0) {
             $alert = "Dati Mancanti";
         } else {
             $alert = "No";
         }
 
-        if($allData['fornitori1'] > $allData['fornitori2'])
-        {
+        if ($allData['fornitori1'] > $allData['fornitori2']) {
             $alert = "Si";
         }
 
