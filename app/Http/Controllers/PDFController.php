@@ -361,638 +361,399 @@ class PDFController extends Controller
 
 	public function reportAllerta($idBilancio, $idCr)
 	{
-		$id = $idBilancio;
-		$ASISfinalScore = false;
-		$generalScore = false;
+		if (cr::where('document_id', $idCr)->get()->count() == 0 || !isset($idCr)) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Non è stata caricata nessuna Centrale Rischi'
+            ], 400);
+        }
 
-		if (cr::where('document_id', $idCr)->count() == 0) {
-			return response()->json([
-				'error' => true,
-				'message' => "Non è stata caricata nessuna Centrale Rischi"
-			]);
-		} else {
+        if (!Bilanci::findOrFail($idBilancio) || !isset($idBilancio)) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Non è stato trovato nessun Bilancio'
+            ], 400);
+        }
 
 
-			$bilancioHelper = new BilanciHelper;
+        $allertaHelper = new AllertaHelper;
+        $allertaHelper->setDocumentId($idCr);
+        $getDate = $allertaHelper->getDate($idCr);
+
+        $crHelper = new CrExtractorHelper;
+        $crHelper->setPeriod($getDate['periods']);
+        $crHelper->setDocumentId($idCr);
+
+        $allertaHelper->setCrExtractor($crHelper);
+
+        $bilancioHelper = new BilanciHelper;
+
+        $ASISfinalScore = false;
+        $scoreASIS = array('1' => 0, '2' => 0, '3' => 0, '4' => 0);
+        $scoreFL = array('Giudizio' => '', 'Valore' => '0');
+
+        $periods = $getDate['periods'];
+        $latestYear = $getDate['latestYear'];
+        $latestMonth = $getDate['latestMonth'];
+        $categories = $getDate['categories'];
+        $upperBoundDate = $getDate['upperBoundDate'];
+        $lowerBoundDate = $getDate['lowerBoundDate'];
+        $lastYearPeriod = $periods;
+        $banks = cr::select('nome_banca')->where('document_id', $idCr)->where('date', '>=', $lowerBoundDate->format('Y-m-d'))->where('date', '<=', $upperBoundDate->format('Y-m-d'))->distinct()->get()->pluck('nome_banca')->toArray();
+
+
+        $trimestrePeriod = $allertaHelper->getTrimestrePeriod($periods);
+
+        $triennioPeriod = $allertaHelper->getTriennioPeriod($periods, $banks);
+        $crHelper->setPeriod($lastYearPeriod);
+        $sofferenze = $crHelper->getSofferenze($banks);
+        $sconfini = $crHelper->getTotaleSconfini($banks);
+        $countBanks = $crHelper->getCountBanks($banks);
+        $creditiPassatiPerdita = $crHelper->getCreditiPassatiPerdita($banks);
+        $scoreCR = $crHelper->getScoring($banks, $countBanks, $sconfini, $sofferenze, $creditiPassatiPerdita);
+
+        // ALERTS CENTRALE RISCHI GENERAL
+        $alerts = array();
+        $alerts['1'] = $allertaHelper->getAnalisiCRUno($banks);
+        $alerts['2'] = $allertaHelper->getAnalisiCRDue($banks);
+        $alerts['3'] = $allertaHelper->getAnalisiCRTre($banks);
+        $alerts['4'] = $allertaHelper->getAnalisiCRQuattro($triennioPeriod, $trimestrePeriod, $latestYear, $latestMonth, $categories);
+        $alerts['5'] = $allertaHelper->getAnalisiCRCinque($periods);
+        $alerts['6'] = $allertaHelper->getAnalisiCRSei($lastYearPeriod, array('RISCHI AUTOLIQUIDANTI'), $banks);
+        $alerts['7'] = $allertaHelper->getAnalisiCRSette($lastYearPeriod);
+        $alerts['8'] = $allertaHelper->getAnalisiCROtto($lastYearPeriod, $latestYear, $latestMonth, $trimestrePeriod, $triennioPeriod);
+        $alerts['9'] = $allertaHelper->getAnalisiCRNove($lastYearPeriod, $latestYear, $latestMonth);
+        $alerts['10'] = $allertaHelper->getAnalisiCRDieci($triennioPeriod, $latestYear, $latestMonth);
+        $alerts['11'] = $allertaHelper->getAnalisiCRUndici($triennioPeriod, $trimestrePeriod, $lastYearPeriod, $latestYear, $latestMonth, array('RISCHI A REVOCA'));
+        $alerts['12'] = $allertaHelper->getAnalisiCRDodici($triennioPeriod, $trimestrePeriod, $lastYearPeriod, $latestYear, $latestMonth, array('RISCHI AUTOLIQUIDANTI', 'RISCHI AUTOLIQUIDANTI - CREDITI SCADUTI'), $banks);
+        $alerts['13'] = $allertaHelper->getAnalisiCRTredici($triennioPeriod, $trimestrePeriod, $lastYearPeriod, $latestYear, $latestMonth, $categories, $banks);
+        $alerts['14'] = $allertaHelper->getAnalisiCRQuattordici($banks);
+        $alerts['15'] = $allertaHelper->getAnalisiCRQuindici($banks);
+        $alerts['16'] = $allertaHelper->getAnalisiCRSedici($banks);
+        $punteggioCR = $allertaHelper->getPunteggioCR($alerts);
+
+        $arrayQuestionario = $allertaHelper->getArrayQuestionarioAsIs($idBilancio, $idCr);
+        $arrayForwardLooking = $allertaHelper->getArrayQuestionarioToBe($idBilancio, $idCr);
+
+		$questionarioAsIs = [];
+
+        if (count($arrayQuestionario) > 0) {
+            $scoreASIS = $allertaHelper->valutazioneQuestionarioQualitativo($arrayQuestionario);
 			
-			$allertaHelper = new AllertaHelper;
-			$setDocumentId = $allertaHelper->setDocumentId($idCr);
-			$getDocumentId = $allertaHelper->getDocumentId();
-
-			$crs = cr::select('anno', 'mese', 'date')->where('document_id', $getDocumentId)->distinct()->orderBy('date', 'asc')->get();
-
-			for ($i = count($crs) - 12; $i < count($crs); $i++) {
-				$periods[$crs[$i]->anno][$crs[$i]->mese] = null;
-			}
-
-			$latestYear = array_key_last($periods);
-			$latestMonth = array_key_last($periods[$latestYear]);
-
-			$crData = array();
-
-			$categories = array(
-				'RISCHI A SCADENZA',
-				'RISCHI AUTOLIQUIDANTI',
-				'RISCHI A REVOCA',
-			);
-
-			$earliestYear = array_key_first($periods);
-			$earliestMonth = array_key_first($periods[$earliestYear]);
-
-			$upperBoundDate = new DateTime((cr::select('date')->where('anno', $earliestYear)->where('mese', $earliestMonth)->where('document_id', $getDocumentId)->get()->first())->date);
-			$lowerBoundDate = new DateTime($upperBoundDate->format('Y-m-d'));
-			$lowerBoundDate = $lowerBoundDate->modify('-11 months');
-
-			$banks = array();
-
-			foreach (cr::select('nome_banca')->where('date', '>=', $lowerBoundDate->format('Y-m-d'))->where('date', '<=', $upperBoundDate->format('Y-m-d'))->where('document_id', $getDocumentId)->distinct()->get()->toArray() as $label => $nomeBanca) {
-				$banks[] = $nomeBanca["nome_banca"];
-			}
-
-			$crHelper = new CrExtractorHelper;
-			$crHelper->setPeriod($periods);
-			// $crHelper->setDocumentId($idCr);
-			$cleanCR = $crHelper->getAllDataToArray($banks);
-			$intermediari = $crHelper->getCountBanks($banks);
-
-			$crExtractorHelper = new CrExtractorHelper;
-
-			$allertaHelper->setCrExtractor($crExtractorHelper);
-
-			$trimestrePeriod = $allertaHelper->getTrimestrePeriod($periods);
-			$lastYearPeriod = $periods;
-
-			$triennioPeriod = $allertaHelper->getTriennioPeriod($periods, $banks);
-
-			$numeroSconfiniTotali = $crHelper->getTotaleSconfini($banks);
-			$sofferenze = $crHelper->getSofferenze($banks);
-			$creditiPassatiPerdita = $crHelper->getCreditiPassatiPerdita($banks);
-			$crExtractorHelper->setPeriod($lastYearPeriod);
-			$scoreCR = $crExtractorHelper->getScoring($banks, $intermediari, $numeroSconfiniTotali, $sofferenze, $creditiPassatiPerdita);
-			$alerts = array();
-
-			$alerts['1'] = $allertaHelper->getAnalisiCRUno($banks);
-
-			$alerts['2'] = $allertaHelper->getAnalisiCRDue($banks);
-
-			$alerts['3'] = $allertaHelper->getAnalisiCRTre($banks);
-
-			$alerts['4'] = $allertaHelper->getAnalisiCRQuattro($triennioPeriod, $trimestrePeriod, $latestYear, $latestMonth, $categories);
-
-			$alerts['5'] = $allertaHelper->getAnalisiCRCinque($periods);
-
-			$alerts['6'] = $allertaHelper->getAnalisiCRSei($lastYearPeriod, $categories, $banks);
-
-			$alerts['7'] = $allertaHelper->getAnalisiCRSette($lastYearPeriod);
-
-			$alerts['8'] = $allertaHelper->getAnalisiCROtto($lastYearPeriod, $latestYear, $latestMonth, $trimestrePeriod, $triennioPeriod);
-
-			$alerts['9'] = $allertaHelper->getAnalisiCRNove($lastYearPeriod, $latestYear, $latestMonth);
-
-			$alerts['10'] = $allertaHelper->getAnalisiCRDieci($triennioPeriod, $latestYear, $latestMonth);
-
-			$alerts['11'] = $allertaHelper->getAnalisiCRUndici($triennioPeriod, $trimestrePeriod, $lastYearPeriod, $latestYear, $latestMonth, array('RISCHI A REVOCA'));
-
-			$alerts['12'] = $allertaHelper->getAnalisiCRDodici($triennioPeriod, $trimestrePeriod, $lastYearPeriod, $latestYear, $latestMonth, array('RISCHI AUTOLIQUIDANTI', 'RISCHI AUTOLIQUIDANTI - CREDITI SCADUTI'), $banks);
-
-			$alerts['13'] = $allertaHelper->getAnalisiCRTredici($triennioPeriod, $trimestrePeriod, $lastYearPeriod, $latestYear, $latestMonth, $categories, $banks);
-
-			$alerts['14'] = $allertaHelper->getAnalisiCRQuattordici($banks);
-			$alerts['15'] = $allertaHelper->getAnalisiCRQuindici($banks);
-			$alerts['16'] = $allertaHelper->getAnalisiCRSedici($banks);
-			$punteggioCR = $allertaHelper->getPunteggioCR($alerts);
-
-			$arrayQuestionario = array();
-
-			$questionario = DB::table('questionario')->where('document_id', $getDocumentId)->get();
-			foreach ($questionario as $item => $data) {
-				$arrayQuestionario[$data->parameter]['Result'] = $data->result;
-				$arrayQuestionario[$data->parameter]['Details'] = $data->details == null ? '' : $data->details;
-			}
-
-			// dd($questionario);
-
-			$arrayForwardLooking = array();
-
-			$forwardLooking = DB::table('forwardlooking')->where('document_id', $getDocumentId)->get();
-			foreach ($forwardLooking as $item => $data) {
-				$arrayForwardLooking[$data->question] = $data->answer;
-			}
-
-			if (count($arrayQuestionario) > 0) {
-				$scoreASIS = $allertaHelper->valutazioneQuestionarioQualitativo($arrayQuestionario);
+			if ($arrayQuestionario['1-1']['Result'] == 'Si') {
+				$questionarioAsIs['MinacceRapportiCommerciali']['1'] = "Si";
+				if (isset($arrayQuestionario['1-1']['Details'])) {
+					$questionarioAsIs['MinacceRapportiCommerciali']['1-details'] = $arrayQuestionario['1-1']['Details'];
+				}
 			} else {
-				$scoreASIS = array('3' => 0, '4' => 0, '5' => 0, '6' => 0);
+				$questionarioAsIs['MinacceRapportiCommerciali']['1'] = "No";
+				if (isset($arrayQuestionario['1-1']['Details'])) {
+					$questionarioAsIs['MinacceRapportiCommerciali']['1-details'] = $arrayQuestionario['1-1']['Details'];
+				}
 			}
-			if (count($arrayForwardLooking) == 12) {
-				$scoreFL = $allertaHelper->valutazioneFL($arrayForwardLooking);
+			if ($arrayQuestionario['1-2']['Result'] == 'Si') {
+				$questionarioAsIs['MinacceRapportiCommerciali']['2'] = "Si";
+				if (isset($arrayQuestionario['1-2']['Details'])) {
+					$questionarioAsIs['MinacceRapportiCommerciali']['2-details'] = $arrayQuestionario['1-2']['Details'];
+				}
 			} else {
-				$arrayForwardLooking = array(
-					"forwardLooking1" => 0,
-					"forwardLooking2" => 0,
-					"forwardLooking3" => 0,
-					"forwardLooking4" => 0,
-					"forwardLooking5" => 0,
-					"forwardLooking6" => 0,
-					"forwardLooking7" => 0,
-					"forwardLooking8" => 0,
-					"forwardLooking9" => 0,
-					"forwardLooking10" => 0,
-					"forwardLooking11" => 0,
-					"forwardLooking12" => 0,
-				);
-				$scoreFL = array('Giudizio' => '', 'Valore' => '0');
+				$questionarioAsIs['MinacceRapportiCommerciali']['2'] = "No";
+				if (isset($arrayQuestionario['1-2']['Details'])) {
+					$questionarioAsIs['MinacceRapportiCommerciali']['2-details'] = $arrayQuestionario['1-2']['Details'];
+				}
 			}
-
-			if (Bilanci::count() != 0) {
-
-				$bilancioData = $bilancioHelper->getAnalisiBilancio($id);
-
-				// $bilancioData = $this->basic($id);
-
-				// dd($bilancioData['Giudizi']['Score']);
-				if (DB::table('questionario')->where('document_id', $getDocumentId)->count() != 0) {
-					// dd($bilancioData);
-					$ASISfinalScore = array("Score" => ($bilancioData['AnalisiAdvanced']['Giudizi']['Score'] * 0.25) + ($scoreCR * 0.25) + ($scoreASIS['1'] * 0.1) + ($scoreASIS['2'] * 0.1) + ($scoreASIS['3'] * 0.15) + ($scoreASIS['4'] * 0.15));
-
-					$rangeGiudizi = array(
-						0 => array("Min" => 0, "Max" => 0.14, "Giudizio" => "Default"),
-						1 => array("Min" => 0.14, "Max" => 0.28, "Giudizio" => "Situazione Grave"),
-						2 => array("Min" => 0.28, "Max" => 0.42, "Giudizio" => "Alert"),
-						3 => array("Min" => 0.42, "Max" => 0.56, "Giudizio" => "Rischio alert"),
-						4 => array("Min" => 0.56, "Max" => 0.70, "Giudizio" => "Fragilità elevata"),
-						5 => array("Min" => 0.70, "Max" => 0.85, "Giudizio" => "Fragilità"),
-						6 => array("Min" => 0.85, "Max" => 1, "Giudizio" => "Solidità")
-					);
-
-					foreach ($rangeGiudizi as $index => $ranges) {
-						if ($ASISfinalScore["Score"] >= $ranges["Min"] && $ASISfinalScore["Score"] < $ranges["Max"]) {
-							$ASISfinalScore["Giudizio"] = $ranges['Giudizio'];
-							$ASISfinalScore["Index"] = $index;
-						}
-					}
-
-					$generalScore = array();
-
-					if ($scoreASIS['4'] < 0.75) {
-						$generalScore["Giudizio"] = $rangeGiudizi[$ASISfinalScore["Index"] - 1]['Giudizio'];
-						$generalScore["Index"] = $ASISfinalScore["Index"] - 1;
-					} else {
-						$generalScore = $ASISfinalScore;
-					}
-
-
-					if ($scoreFL['Giudizio'] == 'Miglioramento') {
-						if ($generalScore["Index"] != 6) {
-							$generalScore["Giudizio"] = $rangeGiudizi[$ASISfinalScore["Index"] + 1]['Giudizio'];
-							$generalScore["Index"] = $generalScore["Index"] + 1;
-						}
-					} else if ($scoreFL['Giudizio'] == 'Peggioramento') {
-						if ($generalScore["Index"] != 0) {
-							$generalScore["Giudizio"] = $rangeGiudizi[$ASISfinalScore["Index"] - 1]['Giudizio'];
-							$generalScore["Index"] = $generalScore["Index"] - 1;
-						}
-					}
+			if ($arrayQuestionario['1-3']['Result'] == 'Si') {
+				$questionarioAsIs['MinacceRapportiCommerciali']['3'] = "Si";
+				if (isset($arrayQuestionario['1-3']['Details'])) {
+					$questionarioAsIs['MinacceRapportiCommerciali']['3-details'] = $arrayQuestionario['1-3']['Details'];
 				}
+			} else {
+				$questionarioAsIs['MinacceRapportiCommerciali']['3'] = "No";
+				if (isset($arrayQuestionario['1-3']['Details'])) {
+					$questionarioAsIs['MinacceRapportiCommerciali']['3-details'] = $arrayQuestionario['1-3']['Details'];
+				}
+			}
+			if ($arrayQuestionario['1-4']['Result'] == 'Si') {
+				$questionarioAsIs['MinacceRapportiCommerciali']['4'] = "Si";
+				if (isset($arrayQuestionario['1-4']['Details'])) {
+					$questionarioAsIs['MinacceRapportiCommerciali']['4-details'] = $arrayQuestionario['1-4']['Details'];
+				}
+			} else {
+				$questionarioAsIs['MinacceRapportiCommerciali']['4'] = "No";
+				if (isset($arrayQuestionario['1-4']['Details'])) {
+					$questionarioAsIs['MinacceRapportiCommerciali']['4-details'] = $arrayQuestionario['1-4']['Details'];
+				}
+			}
+			if ($arrayQuestionario['1-5']['Result'] == 'Si') {
+				$questionarioAsIs['MinacceRapportiCommerciali']['5'] = "Si";
+				if (isset($arrayQuestionario['1-5']['Details'])) {
+					$questionarioAsIs['MinacceRapportiCommerciali']['5-details'] = $arrayQuestionario['1-5']['Details'];
+				}
+			} else {
+				$questionarioAsIs['MinacceRapportiCommerciali']['5'] = "No";
+				if (isset($arrayQuestionario['1-5']['Details'])) {
+					$questionarioAsIs['MinacceRapportiCommerciali']['5-details'] = $arrayQuestionario['1-5']['Details'];
+				}
+			}
+			if ($arrayQuestionario['1-6']['Result'] == 'Si') {
+				$questionarioAsIs['MinacceRapportiCommerciali']['6'] = "Si";
+				if (isset($arrayQuestionario['1-6']['Details'])) {
+					$questionarioAsIs['MinacceRapportiCommerciali']['6-details'] = $arrayQuestionario['1-6']['Details'];
+				}
+			} else {
+				$questionarioAsIs['MinacceRapportiCommerciali']['6'] = "No";
+				if (isset($arrayQuestionario['1-6']['Details'])) {
+					$questionarioAsIs['MinacceRapportiCommerciali']['6-details'] = $arrayQuestionario['1-6']['Details'];
+				}
+			}
+			if ($arrayQuestionario['1-7']['Result'] == 'Si') {
+				$questionarioAsIs['MinacceRapportiCommerciali']['7'] = "Si";
+				if (isset($arrayQuestionario['1-7']['Details'])) {
+					$questionarioAsIs['MinacceRapportiCommerciali']['7-details'] = $arrayQuestionario['1-7']['Details'];
+				}
+			} else {
+				$questionarioAsIs['MinacceRapportiCommerciali']['7'] = "No";
+				if (isset($arrayQuestionario['1-7']['Details'])) {
+					$questionarioAsIs['MinacceRapportiCommerciali']['7-details'] = $arrayQuestionario['1-7']['Details'];
+				}
+			}
+			if ($arrayQuestionario['1-8']['Result'] == 'Si') {
+				$questionarioAsIs['MinacceRapportiCommerciali']['8'] = "Si";
+				if (isset($arrayQuestionario['1-8']['Details'])) {
+					$questionarioAsIs['MinacceRapportiCommerciali']['8-details'] = $arrayQuestionario['1-8']['Details'];
+				}
+			} else {
+				$questionarioAsIs['MinacceRapportiCommerciali']['8'] = "No";
+				if (isset($arrayQuestionario['1-8']['Details'])) {
+					$questionarioAsIs['MinacceRapportiCommerciali']['8-details'] = $arrayQuestionario['1-8']['Details'];
+				}
+			}
+			if ($arrayQuestionario['2-1']['Result'] == 'Si') {
+				$questionarioAsIs['MinacceGestioneAziendale']['1'] = "Si";
+				if (isset($arrayQuestionario['2-1']['Details'])) {
+					$questionarioAsIs['MinacceGestioneAziendale']['1-details'] = $arrayQuestionario['2-1']['Details'];
+				}
+			} else {
+				$questionarioAsIs['MinacceGestioneAziendale']['1'] = "No";
+				if (isset($arrayQuestionario['2-1']['Details'])) {
+					$questionarioAsIs['MinacceGestioneAziendale']['1-details'] = $arrayQuestionario['2-1']['Details'];
+				}
+			}
+			if ($arrayQuestionario['2-2']['Result'] == 'Si') {
+				$questionarioAsIs['MinacceGestioneAziendale']['2'] = "Si";
+				if (isset($arrayQuestionario['2-2']['Details'])) {
+					$questionarioAsIs['MinacceGestioneAziendale']['2-details'] = $arrayQuestionario['2-2']['Details'];
+				}
+			} else {
+				$questionarioAsIs['MinacceGestioneAziendale']['2'] = "No";
+				if (isset($arrayQuestionario['2-2']['Details'])) {
+					$questionarioAsIs['MinacceGestioneAziendale']['2-details'] = $arrayQuestionario['2-2']['Details'];
+				}
+			}
+			if ($arrayQuestionario['2-3']['Result'] == 'Si') {
+				$questionarioAsIs['MinacceGestioneAziendale']['3'] = "Si";
+				if (isset($arrayQuestionario['2-3']['Details'])) {
+					$questionarioAsIs['MinacceGestioneAziendale']['3-details'] = $arrayQuestionario['2-3']['Details'];
+				}
+			} else {
+				$questionarioAsIs['MinacceGestioneAziendale']['3'] = "No";
+				if (isset($arrayQuestionario['2-3']['Details'])) {
+					$questionarioAsIs['MinacceGestioneAziendale']['3-details'] = $arrayQuestionario['2-3']['Details'];
+				}
+			}
+			if ($arrayQuestionario['2-4']['Result'] == 'Si') {
+				$questionarioAsIs['MinacceGestioneAziendale']['4'] = "Si";
+				if (isset($arrayQuestionario['2-4']['Details'])) {
+					$questionarioAsIs['MinacceGestioneAziendale']['4-details'] = $arrayQuestionario['2-4']['Details'];
+				}
+			} else {
+				$questionarioAsIs['MinacceGestioneAziendale']['4'] = "No";
+				if (isset($arrayQuestionario['2-4']['Details'])) {
+					$questionarioAsIs['MinacceGestioneAziendale']['4-details'] = $arrayQuestionario['2-4']['Details'];
+				}
+			}
+			if ($arrayQuestionario['2-5']['Result'] == 'Si') {
+				$questionarioAsIs['MinacceGestioneAziendale']['5'] = "Si";
+				if (isset($arrayQuestionario['2-5']['Details'])) {
+					$questionarioAsIs['MinacceGestioneAziendale']['5-details'] = $arrayQuestionario['2-5']['Details'];
+				}
+			} else {
+				$questionarioAsIs['MinacceGestioneAziendale']['5'] = "No";
+				if (isset($arrayQuestionario['2-5']['Details'])) {
+					$questionarioAsIs['MinacceGestioneAziendale']['5-details'] = $arrayQuestionario['2-5']['Details'];
+				}
+			}
+			if ($arrayQuestionario['2-6']['Result'] == 'Si') {
+				$questionarioAsIs['MinacceGestioneAziendale']['6'] = "Si";
+				if (isset($arrayQuestionario['2-6']['Details'])) {
+					$questionarioAsIs['MinacceGestioneAziendale']['6-details'] = $arrayQuestionario['2-6']['Details'];
+				}
+			} else {
+				$questionarioAsIs['MinacceGestioneAziendale']['6'] = "No";
+				if (isset($arrayQuestionario['2-6']['Details'])) {
+					$questionarioAsIs['MinacceGestioneAziendale']['6-details'] = $arrayQuestionario['2-6']['Details'];
+				}
+			}
+			if ($arrayQuestionario['2-7']['Result'] == 'Si') {
+				$questionarioAsIs['MinacceGestioneAziendale']['7'] = "Si";
+				if (isset($arrayQuestionario['2-7']['Details'])) {
+					$questionarioAsIs['MinacceGestioneAziendale']['7-details'] = $arrayQuestionario['2-7']['Details'];
+				}
+			} else {
+				$questionarioAsIs['MinacceGestioneAziendale']['7'] = "No";
+				if (isset($arrayQuestionario['2-7']['Details'])) {
+					$questionarioAsIs['MinacceGestioneAziendale']['7-details'] = $arrayQuestionario['2-7']['Details'];
+				}
+			}
+			if ($arrayQuestionario['2-8']['Result'] == 'Si') {
+				$questionarioAsIs['MinacceGestioneAziendale']['8'] = "Si";
+				if (isset($arrayQuestionario['2-8']['Details'])) {
+					$questionarioAsIs['MinacceGestioneAziendale']['8-details'] = $arrayQuestionario['2-8']['Details'];
+				}
+			} else {
+				$questionarioAsIs['MinacceGestioneAziendale']['8'] = "No";
+				if (isset($arrayQuestionario['2-8']['Details'])) {
+					$questionarioAsIs['MinacceGestioneAziendale']['8-details'] = $arrayQuestionario['2-8']['Details'];
+				}
+			}
+			if ($arrayQuestionario['2-9']['Result'] == 'Si') {
+				$questionarioAsIs['MinacceGestioneAziendale']['9'] = "Si";
+				if (isset($arrayQuestionario['2-9']['Details'])) {
+					$questionarioAsIs['MinacceGestioneAziendale']['9-details'] = $arrayQuestionario['2-9']['Details'];
+				}
+			} else {
+				$questionarioAsIs['MinacceGestioneAziendale']['9'] = "No";
+				if (isset($arrayQuestionario['2-9']['Details'])) {
+					$questionarioAsIs['MinacceGestioneAziendale']['9-details'] = $arrayQuestionario['2-9']['Details'];
+				}
+			}
+			if ($arrayQuestionario['2-10']['Result'] == 'Si') {
+				$questionarioAsIs['MinacceGestioneAziendale']['10'] = "Si";
+				if (isset($arrayQuestionario['2-10']['Details'])) {
+					$questionarioAsIs['MinacceGestioneAziendale']['10-details'] = $arrayQuestionario['2-10']['Details'];
+				}
+			} else {
+				$questionarioAsIs['MinacceGestioneAziendale']['10'] = "No";
+				if (isset($arrayQuestionario['2-10']['Details'])) {
+					$questionarioAsIs['MinacceGestioneAziendale']['10-details'] = $arrayQuestionario['2-10']['Details'];
+				}
+			}
+			if ($arrayQuestionario['3-1']['Result'] == 'Si') {
+				$questionarioAsIs['MinacceErarialiRischiCaratteristici']['1'] = "Si";
+				if (isset($arrayQuestionario['3-1']['Details'])) {
+					$questionarioAsIs['MinacceErarialiRischiCaratteristici']['1details'] = $arrayQuestionario['3-1']['Details'];
+				}
+			} else {
+				$questionarioAsIs['MinacceErarialiRischiCaratteristici']['1'] = "No";
+				if (isset($arrayQuestionario['3-1']['Details'])) {
+					$questionarioAsIs['MinacceErarialiRischiCaratteristici']['1details'] = $arrayQuestionario['3-1']['Details'];
+				}
+			}
+			if ($arrayQuestionario['3-2']['Result'] == 'Si') {
+				$questionarioAsIs['MinacceErarialiRischiCaratteristici']['2'] = "Si";
+				if (isset($arrayQuestionario['3-2']['Details'])) {
+					$questionarioAsIs['MinacceErarialiRischiCaratteristici']['2details'] = $arrayQuestionario['3-2']['Details'];
+				}
+			} else {
+				$questionarioAsIs['MinacceErarialiRischiCaratteristici']['2'] = "No";
+				if (isset($arrayQuestionario['3-2']['Details'])) {
+					$questionarioAsIs['MinacceErarialiRischiCaratteristici']['2details'] = $arrayQuestionario['3-2']['Details'];
+				}
+			}
+			if ($arrayQuestionario['3-3']['Result'] == 'Si') {
+				$questionarioAsIs['MinacceErarialiRischiCaratteristici']['3'] = "Si";
+				if (isset($arrayQuestionario['3-3']['Details'])) {
+					$questionarioAsIs['MinacceErarialiRischiCaratteristici']['3details'] = $arrayQuestionario['3-3']['Details'];
+				}
+			} else {
+				$questionarioAsIs['MinacceErarialiRischiCaratteristici']['3'] = "No";
+				if (isset($arrayQuestionario['3-3']['Details'])) {
+					$questionarioAsIs['MinacceErarialiRischiCaratteristici']['3details'] = $arrayQuestionario['3-3']['Details'];
+				}
+			}
+			if ($arrayQuestionario['3-4']['Result'] == 'Si') {
+				$questionarioAsIs['MinacceErarialiRischiCaratteristici']['4'] = "Si";
+				if (isset($arrayQuestionario['3-4']['Details'])) {
+					$questionarioAsIs['MinacceErarialiRischiCaratteristici']['4details'] = $arrayQuestionario['3-4']['Details'];
+				}
+			} else {
+				$questionarioAsIs['MinacceErarialiRischiCaratteristici']['4'] = "No";
+				if (isset($arrayQuestionario['3-4']['Details'])) {
+					$questionarioAsIs['MinacceErarialiRischiCaratteristici']['4details'] = $arrayQuestionario['3-4']['Details'];
+				}
+			}
+			if ($arrayQuestionario['4-1']['Result'] == 'Si') {
+				$questionarioAsIs['MinacceEventiPregiudizievoli']['1'] = "Si";
+				if (isset($arrayQuestionario['4-1']['Details'])) {
+					$questionarioAsIs['MinacceEventiPregiudizievoli']['1details'] = $arrayQuestionario['4-1']['Details'];
+				}
+			} else {
+				$questionarioAsIs['MinacceEventiPregiudizievoli']['1'] = "No";
+				if (isset($arrayQuestionario['4-1']['Details'])) {
+					$questionarioAsIs['MinacceEventiPregiudizievoli']['1details'] = $arrayQuestionario['4-1']['Details'];
+				}
+			}
+			if ($arrayQuestionario['4-2']['Result'] == 'Si') {
+				$questionarioAsIs['MinacceEventiPregiudizievoli']['2'] = "Si";
+				if (isset($arrayQuestionario['4-2']['Details'])) {
+					$questionarioAsIs['MinacceEventiPregiudizievoli']['2details'] = $arrayQuestionario['4-2']['Details'];
+				}
+			} else {
+				$questionarioAsIs['MinacceEventiPregiudizievoli']['2'] = "No";
+				if (isset($arrayQuestionario['4-2']['Details'])) {
+					$questionarioAsIs['MinacceEventiPregiudizievoli']['2details'] = $arrayQuestionario['4-2']['Details'];
+				}
+			}
+			if ($arrayQuestionario['4-3']['Result'] == 'Si') {
+				$questionarioAsIs['MinacceErarialiRischiCaratteristici']['3'] = "Si";
+				if (isset($arrayQuestionario['4-3']['Details'])) {
+					$questionarioAsIs['MinacceErarialiRischiCaratteristici']['3details'] = $arrayQuestionario['4-3']['Details'];
+				}
+			} else {
+				$questionarioAsIs['MinacceEventiPregiudizievoli']['3'] = "No";
+				if (isset($arrayQuestionario['4-3']['Details'])) {
+					$questionarioAsIs['MinacceEventiPregiudizievoli']['3details'] = $arrayQuestionario['4-3']['Details'];
+				}
+			}
+			if ($arrayQuestionario['4-4']['Result'] == 'Si') {
+				$questionarioAsIs['MinacceEventiPregiudizievoli']['4'] = "Si";
+				if (isset($arrayQuestionario['4-4']['Details'])) {
+					$questionarioAsIs['MinacceEventiPregiudizievoli']['4details'] = $arrayQuestionario['4-4']['Details'];
+				}
+			} else {
+				$questionarioAsIs['MinacceEventiPregiudizievoli']['4'] = "No";
+				if (isset($arrayQuestionario['4-4']['Details'])) {
+					$questionarioAsIs['MinacceEventiPregiudizievoli']['4details'] = $arrayQuestionario['4-4']['Details'];
+				}
+			}
+			if ($arrayQuestionario['4-5']['Result'] == 'Si') {
+				$questionarioAsIs['MinacceEventiPregiudizievoli']['5'] = "Si";
+				if (isset($arrayQuestionario['4-5']['Details'])) {
+					$questionarioAsIs['MinacceEventiPregiudizievoli']['5details'] = $arrayQuestionario['4-5']['Details'];
+				}
+			} else {
+				$questionarioAsIs['MinacceEventiPregiudizievoli']['5'] = "No";
+				if (isset($arrayQuestionario['4-5']['Details'])) {
+					$questionarioAsIs['MinacceEventiPregiudizievoli']['5details'] = $arrayQuestionario['4-5']['Details'];
+				}
+			}
+			if ($arrayQuestionario['4-6']['Result'] == 'Si') {
+				$questionarioAsIs['MinacceEventiPregiudizievoli']['6'] = "Si";
+				if (isset($arrayQuestionario['4-6']['Details'])) {
+					$questionarioAsIs['MinacceEventiPregiudizievoli']['6details'] = $arrayQuestionario['4-6']['Details'];
+				}
+			} else {
+				$questionarioAsIs['MinacceEventiPregiudizievoli']['6'] = "No";
+				if (isset($arrayQuestionario['4-6']['Details'])) {
+					$questionarioAsIs['MinacceEventiPregiudizievoli']['6details'] = $arrayQuestionario['4-6']['Details'];
+				}
+			}
+        }
 
-				$analisiBilancioGiudizio = null;
+		$forwardLooking = [];
 
-				if ($bilancioData['AnalisiAdvanced']['Giudizi']['Score'] >= 0 && $bilancioData['AnalisiAdvanced']['Giudizi']['Score'] < 0.14) {
-					$analisiBilancioGiudizio = "Default";
-				} else if ($bilancioData['AnalisiAdvanced']['Giudizi']['Score'] >= 0.14 && $bilancioData['AnalisiAdvanced']['Giudizi']['Score'] < 0.28) {
-					$analisiBilancioGiudizio = "Situazione Grave";
-				} else if ($bilancioData['AnalisiAdvanced']['Giudizi']['Score'] >= 0.28 && $bilancioData['AnalisiAdvanced']['Giudizi']['Score'] < 0.42) {
-					$analisiBilancioGiudizio = "Alert";
-				} else if ($bilancioData['AnalisiAdvanced']['Giudizi']['Score'] >= 0.42 && $bilancioData['AnalisiAdvanced']['Giudizi']['Score'] < 0.56) {
-					$analisiBilancioGiudizio = "Rischio alert";
-				} else if ($bilancioData['AnalisiAdvanced']['Giudizi']['Score'] >= 0.56 && $bilancioData['AnalisiAdvanced']['Giudizi']['Score'] < 0.70) {
-					$analisiBilancioGiudizio = "Fragilità elevata";
-				} else if ($bilancioData['AnalisiAdvanced']['Giudizi']['Score'] >= 0.70 && $bilancioData['AnalisiAdvanced']['Giudizi']['Score'] < 0.85) {
-					$analisiBilancioGiudizio = "Fragilità";
-				} else if ($bilancioData['AnalisiAdvanced']['Giudizi']['Score'] >= 0.85 && $bilancioData['AnalisiAdvanced']['Giudizi']['Score'] <= 1) {
-					$analisiBilancioGiudizio = "Solidità";
-				}
-				$analisiCR = null;
-				if ($punteggioCR >= 0 && $punteggioCR < 0.14) {
-					$analisiCR = "Default";
-				} else if ($punteggioCR >= 0.14 && $punteggioCR < 0.28) {
-					$analisiCR = "Situazione Grave";
-				} else if ($punteggioCR >= 0.28 && $punteggioCR < 0.42) {
-					$analisiCR = "Alert";
-				} else if ($punteggioCR >= 0.42 && $punteggioCR < 0.56) {
-					$analisiCR = "Rischio alert";
-				} else if ($punteggioCR >= 0.56 && $punteggioCR < 0.70) {
-					$analisiCR = "Fragilità elevata";
-				} else if ($punteggioCR >= 0.70 && $punteggioCR < 0.85) {
-					$analisiCR = "Fragilità";
-				} else if ($punteggioCR >= 0.85 && $punteggioCR <= 1) {
-					$analisiCR = "Solidità";
-				}
-				$minacceRapportiComerciali = null;
-				if ($scoreASIS['1'] >= 0 && $scoreASIS['1'] < 0.14) {
-					$minacceRapportiComerciali = "Default";
-				} else if ($scoreASIS['1'] >= 0.14 && $scoreASIS['1'] < 0.28) {
-					$minacceRapportiComerciali = "Situazione Grave";
-				} else if ($scoreASIS['1'] >= 0.28 && $scoreASIS['1'] < 0.42) {
-					$minacceRapportiComerciali = "Alert";
-				} else if ($scoreASIS['1'] >= 0.42 && $scoreASIS['1'] < 0.56) {
-					$minacceRapportiComerciali = "Rischio alert";
-				} else if ($scoreASIS['1'] >= 0.56 && $scoreASIS['1'] < 0.70) {
-					$minacceRapportiComerciali = "Fragilità elevata";
-				} else if ($scoreASIS['1'] >= 0.70 && $scoreASIS['1'] < 0.85) {
-					$minacceRapportiComerciali = "Fragilità";
-				} else if ($scoreASIS['1'] >= 0.85 && $scoreASIS['1'] <= 1) {
-					$minacceRapportiComerciali = "Solidità";
-				}
-
-				$MinacceGestioneAziendale = null;
-				if ($scoreASIS['2'] >= 0 && $scoreASIS['2'] < 0.14) {
-					$MinacceGestioneAziendale = "Default";
-				} else if ($scoreASIS['2'] >= 0.14 && $scoreASIS['2'] < 0.28) {
-					$MinacceGestioneAziendale = "Situazione Grave";
-				} else if ($scoreASIS['2'] >= 0.28 && $scoreASIS['2'] < 0.42) {
-					$MinacceGestioneAziendale = "Alert";
-				} else if ($scoreASIS['2'] >= 0.42 && $scoreASIS['2'] < 0.56) {
-					$MinacceGestioneAziendale = "Rischio alert";
-				} else if ($scoreASIS['2'] >= 0.56 && $scoreASIS['2'] < 0.70) {
-					$MinacceGestioneAziendale = "Fragilità elevata";
-				} else if ($scoreASIS['2'] >= 0.70 && $scoreASIS['2'] < 0.85) {
-					$MinacceGestioneAziendale = "Fragilità";
-				} else if ($scoreASIS['2'] >= 0.85 && $scoreASIS['2'] <= 1) {
-					$MinacceGestioneAziendale = "Solidità";
-				}
-				$minacceERischiCaratteristici = null;
-				if ($scoreASIS['4'] >= 0 && $scoreASIS['4'] < 0.14) {
-					$minacceERischiCaratteristici = "Default";
-				} else if ($scoreASIS['4'] >= 0.14 && $scoreASIS['4'] < 0.28) {
-					$minacceERischiCaratteristici = "Situazione Grave";
-				} else if ($scoreASIS['4'] >= 0.28 && $scoreASIS['4'] < 0.42) {
-					$minacceERischiCaratteristici = "Alert";
-				} else if ($scoreASIS['4'] >= 0.42 && $scoreASIS['4'] < 0.56) {
-					$minacceERischiCaratteristici = "Rischio alert";
-				} else if ($scoreASIS['4'] >= 0.56 && $scoreASIS['4'] < 0.70) {
-					$minacceERischiCaratteristici = "Fragilità elevata";
-				} else if ($scoreASIS['4'] >= 0.70 && $scoreASIS['4'] < 0.85) {
-					$minacceERischiCaratteristici = "Fragilità";
-				} else if ($scoreASIS['4'] >= 0.85 && $scoreASIS['4'] <= 1) {
-					$minacceERischiCaratteristici = "Solidità";
-				}
-				$MinacceEventiPregiudizievoli = null;
-				if ($scoreASIS['3'] >= 0 && $scoreASIS['3'] < 0.14) {
-					$MinacceEventiPregiudizievoli = "Default";
-				} else if ($scoreASIS['3'] >= 0.14 && $scoreASIS['3'] < 0.28) {
-					$MinacceEventiPregiudizievoli = "Situazione Grave";
-				} else if ($scoreASIS['3'] >= 0.28 && $scoreASIS['3'] < 0.42) {
-					$MinacceEventiPregiudizievoli = "Alert";
-				} else if ($scoreASIS['3'] >= 0.42 && $scoreASIS['3'] < 0.56) {
-					$MinacceEventiPregiudizievoli = "Rischio alert";
-				} else if ($scoreASIS['3'] >= 0.56 && $scoreASIS['3'] < 0.70) {
-					$MinacceEventiPregiudizievoli = "Fragilità elevata";
-				} else if ($scoreASIS['3'] >= 0.70 && $scoreASIS['3'] < 0.85) {
-					$MinacceEventiPregiudizievoli = "Fragilità";
-				} else if ($scoreASIS['3'] >= 0.85 && $scoreASIS['3'] <= 1) {
-					$MinacceEventiPregiudizievoli = "Solidità";
-				}
-				$ProfiloRischioASIS = null;
-				if ($ASISfinalScore) {
-					$ProfiloRischioASIS = $ASISfinalScore['Giudizio'];
-				}
-				$questionarioToBe = null;
-				if ($ASISfinalScore) {
-					$questionarioToBe = $scoreFL['Giudizio'];
-				}
-				$ProfiloRischioComplessivo = null;
-				if (isset($generalScore['Giudizio'])) {
-					$ProfiloRischioComplessivo = $generalScore['Giudizio'];
-				}
-
-
-				$giudiziFinali = [
-					'AnalisiBilancio' => $analisiBilancioGiudizio,
-					'AnalisiCentraleRischi' => $analisiCR,
-					'MinacceRapportiCommerciali' => $minacceRapportiComerciali,
-					'MinacceGestioneAziendali' => $MinacceGestioneAziendale,
-					'MinacceErarialiRischiCaratteristici' => $minacceERischiCaratteristici,
-					'MinacceEventiPregiudizievoli' => $MinacceEventiPregiudizievoli,
-					'ProfiloRischioASIS' => $ProfiloRischioASIS,
-					'QuestionarioToBe' => $questionarioToBe,
-					'ProfiloRischioComplessivo' => $ProfiloRischioComplessivo,
-				];
-
-				$questionarioAsIs = [];
-
-				if (count($arrayQuestionario) > 0) {
-					if ($arrayQuestionario['1-1']['Result'] == 'Si') {
-						$questionarioAsIs['MinacceRapportiCommerciali']['1'] = "Si";
-						if (isset($arrayQuestionario['1-1']['Details'])) {
-							$questionarioAsIs['MinacceRapportiCommerciali']['1-details'] = $arrayQuestionario['1-1']['Details'];
-						}
-					} else {
-						$questionarioAsIs['MinacceRapportiCommerciali']['1'] = "No";
-						if (isset($arrayQuestionario['1-1']['Details'])) {
-							$questionarioAsIs['MinacceRapportiCommerciali']['1-details'] = $arrayQuestionario['1-1']['Details'];
-						}
-					}
-					if ($arrayQuestionario['1-2']['Result'] == 'Si') {
-						$questionarioAsIs['MinacceRapportiCommerciali']['2'] = "Si";
-						if (isset($arrayQuestionario['1-2']['Details'])) {
-							$questionarioAsIs['MinacceRapportiCommerciali']['2-details'] = $arrayQuestionario['1-2']['Details'];
-						}
-					} else {
-						$questionarioAsIs['MinacceRapportiCommerciali']['2'] = "No";
-						if (isset($arrayQuestionario['1-2']['Details'])) {
-							$questionarioAsIs['MinacceRapportiCommerciali']['2-details'] = $arrayQuestionario['1-2']['Details'];
-						}
-					}
-					if ($arrayQuestionario['1-3']['Result'] == 'Si') {
-						$questionarioAsIs['MinacceRapportiCommerciali']['3'] = "Si";
-						if (isset($arrayQuestionario['1-3']['Details'])) {
-							$questionarioAsIs['MinacceRapportiCommerciali']['3-details'] = $arrayQuestionario['1-3']['Details'];
-						}
-					} else {
-						$questionarioAsIs['MinacceRapportiCommerciali']['3'] = "No";
-						if (isset($arrayQuestionario['1-3']['Details'])) {
-							$questionarioAsIs['MinacceRapportiCommerciali']['3-details'] = $arrayQuestionario['1-3']['Details'];
-						}
-					}
-					if ($arrayQuestionario['1-4']['Result'] == 'Si') {
-						$questionarioAsIs['MinacceRapportiCommerciali']['4'] = "Si";
-						if (isset($arrayQuestionario['1-4']['Details'])) {
-							$questionarioAsIs['MinacceRapportiCommerciali']['4-details'] = $arrayQuestionario['1-4']['Details'];
-						}
-					} else {
-						$questionarioAsIs['MinacceRapportiCommerciali']['4'] = "No";
-						if (isset($arrayQuestionario['1-4']['Details'])) {
-							$questionarioAsIs['MinacceRapportiCommerciali']['4-details'] = $arrayQuestionario['1-4']['Details'];
-						}
-					}
-					if ($arrayQuestionario['1-5']['Result'] == 'Si') {
-						$questionarioAsIs['MinacceRapportiCommerciali']['5'] = "Si";
-						if (isset($arrayQuestionario['1-5']['Details'])) {
-							$questionarioAsIs['MinacceRapportiCommerciali']['5-details'] = $arrayQuestionario['1-5']['Details'];
-						}
-					} else {
-						$questionarioAsIs['MinacceRapportiCommerciali']['5'] = "No";
-						if (isset($arrayQuestionario['1-5']['Details'])) {
-							$questionarioAsIs['MinacceRapportiCommerciali']['5-details'] = $arrayQuestionario['1-5']['Details'];
-						}
-					}
-					if ($arrayQuestionario['1-6']['Result'] == 'Si') {
-						$questionarioAsIs['MinacceRapportiCommerciali']['6'] = "Si";
-						if (isset($arrayQuestionario['1-6']['Details'])) {
-							$questionarioAsIs['MinacceRapportiCommerciali']['6-details'] = $arrayQuestionario['1-6']['Details'];
-						}
-					} else {
-						$questionarioAsIs['MinacceRapportiCommerciali']['6'] = "No";
-						if (isset($arrayQuestionario['1-6']['Details'])) {
-							$questionarioAsIs['MinacceRapportiCommerciali']['6-details'] = $arrayQuestionario['1-6']['Details'];
-						}
-					}
-					if ($arrayQuestionario['1-7']['Result'] == 'Si') {
-						$questionarioAsIs['MinacceRapportiCommerciali']['7'] = "Si";
-						if (isset($arrayQuestionario['1-7']['Details'])) {
-							$questionarioAsIs['MinacceRapportiCommerciali']['7-details'] = $arrayQuestionario['1-7']['Details'];
-						}
-					} else {
-						$questionarioAsIs['MinacceRapportiCommerciali']['7'] = "No";
-						if (isset($arrayQuestionario['1-7']['Details'])) {
-							$questionarioAsIs['MinacceRapportiCommerciali']['7-details'] = $arrayQuestionario['1-7']['Details'];
-						}
-					}
-					if ($arrayQuestionario['1-8']['Result'] == 'Si') {
-						$questionarioAsIs['MinacceRapportiCommerciali']['8'] = "Si";
-						if (isset($arrayQuestionario['1-8']['Details'])) {
-							$questionarioAsIs['MinacceRapportiCommerciali']['8-details'] = $arrayQuestionario['1-8']['Details'];
-						}
-					} else {
-						$questionarioAsIs['MinacceRapportiCommerciali']['8'] = "No";
-						if (isset($arrayQuestionario['1-8']['Details'])) {
-							$questionarioAsIs['MinacceRapportiCommerciali']['8-details'] = $arrayQuestionario['1-8']['Details'];
-						}
-					}
-					if ($arrayQuestionario['2-1']['Result'] == 'Si') {
-						$questionarioAsIs['MinacceGestioneAziendale']['1'] = "Si";
-						if (isset($arrayQuestionario['2-1']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['1-details'] = $arrayQuestionario['2-1']['Details'];
-						}
-					} else {
-						$questionarioAsIs['MinacceGestioneAziendale']['1'] = "No";
-						if (isset($arrayQuestionario['2-1']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['1-details'] = $arrayQuestionario['2-1']['Details'];
-						}
-					}
-					if ($arrayQuestionario['2-2']['Result'] == 'Si') {
-						$questionarioAsIs['MinacceGestioneAziendale']['2'] = "Si";
-						if (isset($arrayQuestionario['2-2']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['2-details'] = $arrayQuestionario['2-2']['Details'];
-						}
-					} else {
-						$questionarioAsIs['MinacceGestioneAziendale']['2'] = "No";
-						if (isset($arrayQuestionario['2-2']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['2-details'] = $arrayQuestionario['2-2']['Details'];
-						}
-					}
-					if ($arrayQuestionario['2-3']['Result'] == 'Si') {
-						$questionarioAsIs['MinacceGestioneAziendale']['3'] = "Si";
-						if (isset($arrayQuestionario['2-3']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['3-details'] = $arrayQuestionario['2-3']['Details'];
-						}
-					} else {
-						$questionarioAsIs['MinacceGestioneAziendale']['3'] = "No";
-						if (isset($arrayQuestionario['2-3']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['3-details'] = $arrayQuestionario['2-3']['Details'];
-						}
-					}
-					if ($arrayQuestionario['2-4']['Result'] == 'Si') {
-						$questionarioAsIs['MinacceGestioneAziendale']['4'] = "Si";
-						if (isset($arrayQuestionario['2-4']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['4-details'] = $arrayQuestionario['2-4']['Details'];
-						}
-					} else {
-						$questionarioAsIs['MinacceGestioneAziendale']['4'] = "No";
-						if (isset($arrayQuestionario['2-4']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['4-details'] = $arrayQuestionario['2-4']['Details'];
-						}
-					}
-					if ($arrayQuestionario['2-5']['Result'] == 'Si') {
-						$questionarioAsIs['MinacceGestioneAziendale']['5'] = "Si";
-						if (isset($arrayQuestionario['2-5']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['5-details'] = $arrayQuestionario['2-5']['Details'];
-						}
-					} else {
-						$questionarioAsIs['MinacceGestioneAziendale']['5'] = "No";
-						if (isset($arrayQuestionario['2-5']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['5-details'] = $arrayQuestionario['2-5']['Details'];
-						}
-					}
-					if ($arrayQuestionario['2-6']['Result'] == 'Si') {
-						$questionarioAsIs['MinacceGestioneAziendale']['6'] = "Si";
-						if (isset($arrayQuestionario['2-6']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['6-details'] = $arrayQuestionario['2-6']['Details'];
-						}
-					} else {
-						$questionarioAsIs['MinacceGestioneAziendale']['6'] = "No";
-						if (isset($arrayQuestionario['2-6']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['6-details'] = $arrayQuestionario['2-6']['Details'];
-						}
-					}
-					if ($arrayQuestionario['2-7']['Result'] == 'Si') {
-						$questionarioAsIs['MinacceGestioneAziendale']['7'] = "Si";
-						if (isset($arrayQuestionario['2-7']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['7-details'] = $arrayQuestionario['2-7']['Details'];
-						}
-					} else {
-						$questionarioAsIs['MinacceGestioneAziendale']['7'] = "No";
-						if (isset($arrayQuestionario['2-7']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['7-details'] = $arrayQuestionario['2-7']['Details'];
-						}
-					}
-					if ($arrayQuestionario['2-8']['Result'] == 'Si') {
-						$questionarioAsIs['MinacceGestioneAziendale']['8'] = "Si";
-						if (isset($arrayQuestionario['2-8']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['8-details'] = $arrayQuestionario['2-8']['Details'];
-						}
-					} else {
-						$questionarioAsIs['MinacceGestioneAziendale']['8'] = "No";
-						if (isset($arrayQuestionario['2-8']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['8-details'] = $arrayQuestionario['2-8']['Details'];
-						}
-					}
-					if ($arrayQuestionario['2-9']['Result'] == 'Si') {
-						$questionarioAsIs['MinacceGestioneAziendale']['9'] = "Si";
-						if (isset($arrayQuestionario['2-9']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['9-details'] = $arrayQuestionario['2-9']['Details'];
-						}
-					} else {
-						$questionarioAsIs['MinacceGestioneAziendale']['9'] = "No";
-						if (isset($arrayQuestionario['2-9']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['9-details'] = $arrayQuestionario['2-9']['Details'];
-						}
-					}
-					if ($arrayQuestionario['2-10']['Result'] == 'Si') {
-						$questionarioAsIs['MinacceGestioneAziendale']['10'] = "Si";
-						if (isset($arrayQuestionario['2-10']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['10-details'] = $arrayQuestionario['2-10']['Details'];
-						}
-					} else {
-						$questionarioAsIs['MinacceGestioneAziendale']['10'] = "No";
-						if (isset($arrayQuestionario['2-10']['Details'])) {
-							$questionarioAsIs['MinacceGestioneAziendale']['10-details'] = $arrayQuestionario['2-10']['Details'];
-						}
-					}
-					if ($arrayQuestionario['3-1']['Result'] == 'Si') {
-						$questionarioAsIs['MinacceErarialiRischiCaratteristici']['1'] = "Si";
-						if (isset($arrayQuestionario['3-1']['Details'])) {
-							$questionarioAsIs['MinacceErarialiRischiCaratteristici']['1details'] = $arrayQuestionario['3-1']['Details'];
-						}
-					} else {
-						$questionarioAsIs['MinacceErarialiRischiCaratteristici']['1'] = "No";
-						if (isset($arrayQuestionario['3-1']['Details'])) {
-							$questionarioAsIs['MinacceErarialiRischiCaratteristici']['1details'] = $arrayQuestionario['3-1']['Details'];
-						}
-					}
-					if ($arrayQuestionario['3-2']['Result'] == 'Si') {
-						$questionarioAsIs['MinacceErarialiRischiCaratteristici']['2'] = "Si";
-						if (isset($arrayQuestionario['3-2']['Details'])) {
-							$questionarioAsIs['MinacceErarialiRischiCaratteristici']['2details'] = $arrayQuestionario['3-2']['Details'];
-						}
-					} else {
-						$questionarioAsIs['MinacceErarialiRischiCaratteristici']['2'] = "No";
-						if (isset($arrayQuestionario['3-2']['Details'])) {
-							$questionarioAsIs['MinacceErarialiRischiCaratteristici']['2details'] = $arrayQuestionario['3-2']['Details'];
-						}
-					}
-					if ($arrayQuestionario['3-3']['Result'] == 'Si') {
-						$questionarioAsIs['MinacceErarialiRischiCaratteristici']['3'] = "Si";
-						if (isset($arrayQuestionario['3-3']['Details'])) {
-							$questionarioAsIs['MinacceErarialiRischiCaratteristici']['3details'] = $arrayQuestionario['3-3']['Details'];
-						}
-					} else {
-						$questionarioAsIs['MinacceErarialiRischiCaratteristici']['3'] = "No";
-						if (isset($arrayQuestionario['3-3']['Details'])) {
-							$questionarioAsIs['MinacceErarialiRischiCaratteristici']['3details'] = $arrayQuestionario['3-3']['Details'];
-						}
-					}
-					if ($arrayQuestionario['3-4']['Result'] == 'Si') {
-						$questionarioAsIs['MinacceErarialiRischiCaratteristici']['4'] = "Si";
-						if (isset($arrayQuestionario['3-4']['Details'])) {
-							$questionarioAsIs['MinacceErarialiRischiCaratteristici']['4details'] = $arrayQuestionario['3-4']['Details'];
-						}
-					} else {
-						$questionarioAsIs['MinacceErarialiRischiCaratteristici']['4'] = "No";
-						if (isset($arrayQuestionario['3-4']['Details'])) {
-							$questionarioAsIs['MinacceErarialiRischiCaratteristici']['4details'] = $arrayQuestionario['3-4']['Details'];
-						}
-					}
-					if ($arrayQuestionario['4-1']['Result'] == 'Si') {
-						$questionarioAsIs['MinacceEventiPregiudizievoli']['1'] = "Si";
-						if (isset($arrayQuestionario['4-1']['Details'])) {
-							$questionarioAsIs['MinacceEventiPregiudizievoli']['1details'] = $arrayQuestionario['4-1']['Details'];
-						}
-					} else {
-						$questionarioAsIs['MinacceEventiPregiudizievoli']['1'] = "No";
-						if (isset($arrayQuestionario['4-1']['Details'])) {
-							$questionarioAsIs['MinacceEventiPregiudizievoli']['1details'] = $arrayQuestionario['4-1']['Details'];
-						}
-					}
-					if ($arrayQuestionario['4-2']['Result'] == 'Si') {
-						$questionarioAsIs['MinacceEventiPregiudizievoli']['2'] = "Si";
-						if (isset($arrayQuestionario['4-2']['Details'])) {
-							$questionarioAsIs['MinacceEventiPregiudizievoli']['2details'] = $arrayQuestionario['4-2']['Details'];
-						}
-					} else {
-						$questionarioAsIs['MinacceEventiPregiudizievoli']['2'] = "No";
-						if (isset($arrayQuestionario['4-2']['Details'])) {
-							$questionarioAsIs['MinacceEventiPregiudizievoli']['2details'] = $arrayQuestionario['4-2']['Details'];
-						}
-					}
-					if ($arrayQuestionario['4-3']['Result'] == 'Si') {
-						$questionarioAsIs['MinacceErarialiRischiCaratteristici']['3'] = "Si";
-						if (isset($arrayQuestionario['4-3']['Details'])) {
-							$questionarioAsIs['MinacceErarialiRischiCaratteristici']['3details'] = $arrayQuestionario['4-3']['Details'];
-						}
-					} else {
-						$questionarioAsIs['MinacceEventiPregiudizievoli']['3'] = "No";
-						if (isset($arrayQuestionario['4-3']['Details'])) {
-							$questionarioAsIs['MinacceEventiPregiudizievoli']['3details'] = $arrayQuestionario['4-3']['Details'];
-						}
-					}
-					if ($arrayQuestionario['4-4']['Result'] == 'Si') {
-						$questionarioAsIs['MinacceEventiPregiudizievoli']['4'] = "Si";
-						if (isset($arrayQuestionario['4-4']['Details'])) {
-							$questionarioAsIs['MinacceEventiPregiudizievoli']['4details'] = $arrayQuestionario['4-4']['Details'];
-						}
-					} else {
-						$questionarioAsIs['MinacceEventiPregiudizievoli']['4'] = "No";
-						if (isset($arrayQuestionario['4-4']['Details'])) {
-							$questionarioAsIs['MinacceEventiPregiudizievoli']['4details'] = $arrayQuestionario['4-4']['Details'];
-						}
-					}
-					if ($arrayQuestionario['4-5']['Result'] == 'Si') {
-						$questionarioAsIs['MinacceEventiPregiudizievoli']['5'] = "Si";
-						if (isset($arrayQuestionario['4-5']['Details'])) {
-							$questionarioAsIs['MinacceEventiPregiudizievoli']['5details'] = $arrayQuestionario['4-5']['Details'];
-						}
-					} else {
-						$questionarioAsIs['MinacceEventiPregiudizievoli']['5'] = "No";
-						if (isset($arrayQuestionario['4-5']['Details'])) {
-							$questionarioAsIs['MinacceEventiPregiudizievoli']['5details'] = $arrayQuestionario['4-5']['Details'];
-						}
-					}
-					if ($arrayQuestionario['4-6']['Result'] == 'Si') {
-						$questionarioAsIs['MinacceEventiPregiudizievoli']['6'] = "Si";
-						if (isset($arrayQuestionario['4-6']['Details'])) {
-							$questionarioAsIs['MinacceEventiPregiudizievoli']['6details'] = $arrayQuestionario['4-6']['Details'];
-						}
-					} else {
-						$questionarioAsIs['MinacceEventiPregiudizievoli']['6'] = "No";
-						if (isset($arrayQuestionario['4-6']['Details'])) {
-							$questionarioAsIs['MinacceEventiPregiudizievoli']['6details'] = $arrayQuestionario['4-6']['Details'];
-						}
-					}
-				}
-
-				$forwardLooking = [];
+        if (count($arrayForwardLooking) == 12) {
+            $scoreFL = $allertaHelper->valutazioneFL($arrayForwardLooking);
 
 				if ($arrayForwardLooking['forwardLooking1'] == 1) {
 					$forwardLooking['response1'] = "Costante";
@@ -1112,127 +873,129 @@ class PDFController extends Controller
 					$forwardLooking['response12'] = "Si, usiamo sempre al limite le disponibilità";
 				}
 
-				$acidTestValue = 0;
-				$acidTestScoring = null;
-				$acidTestGiudizio = "Ottimo";
-				if (isset($bilancioData['Indici']['Acid_Test'])) {
-					$acidTestValue = $bilancioData['Indici']['Acid_Test'];
-					$acidTestScoring = $bilancioData['AnalisiAdvanced']['Giudizi']['AnalisiAdvanced']['Giudizi']['Acid Test']['Scoring'];
-					$acidTestGiudizio = $bilancioData['AnalisiAdvanced']['Giudizi']['AnalisiAdvanced']['Giudizi']['Acid Test']['Giudizio'];
-				}
+        }
+
+
+
+        $bilancioData = $bilancioHelper->getAnalisiBilancio($idBilancio);
+
+
+        $ASISfinalScore = $allertaHelper->getAsIsFinalScore($bilancioData['AnalisiAdvanced'], $scoreCR, $scoreASIS);
+        $getScoreHelper = $allertaHelper->getScores($punteggioCR, $bilancioData['AnalisiAdvanced'], $scoreASIS, $ASISfinalScore, $scoreFL);
+		$getGeneralScore = $allertaHelper->getGeneralScore($bilancioData['AnalisiAdvanced'], $scoreCR, $scoreASIS, $scoreFL);
+
 				// dd($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROS']['Scoring']);
 				// dd($bilancioData['AnalisiAdvanced']['Giudizi']['AnalisiAdvanced']['Giudizi']);
 				// dd($bilancioData['AnalisiAdvanced']['Giudizi']['AnalisiAdvanced']['Giudizi']['Andamento del fatturato']);
 
 				$dataAllerta = [
-					"id" => $id,
+					"id" => $idBilancio,
 					"andamentoDelFatturato" => [
-						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['Andamento_del_fatturato'],
-						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento del fatturato']['Scoring'],
-						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento del fatturato']['Giudizio'],
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Andamento_del_fatturato'])) ? $bilancioData['AnalisiAdvanced']['Indici']['Andamento_del_fatturato'] : null,
+						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento del fatturato'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento del fatturato']['Scoring'] : null,
+						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento del fatturato'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento del fatturato']['Giudizio'] : null,
 					],
 					"AndamentoDelMOL" => [
-						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['Andamento_del_MOL'],
-						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento del MOL']['Scoring'],
-						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento del MOL']['Giudizio'],
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Andamento_del_MOL'])) ? $bilancioData['AnalisiAdvanced']['Indici']['Andamento_del_MOL'] : null,
+						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento del MOL'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento del MOL']['Scoring'] : null,
+						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento del MOL'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento del MOL']['Giudizio'] : null,
 					],
 					"ROI" => [
-						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['ROI'],
-						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROI']['Scoring'],
-						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROI']['Giudizio'],
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['ROI'])) ? $bilancioData['AnalisiAdvanced']['Indici']['ROI'] : null,
+						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROI'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROI']['Scoring'] : null,
+						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROI'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROI']['Giudizio'] : null,
 					],
 					"ROS" => [
-						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['ROS'],
-						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROS']['Scoring'],
-						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROS']['Giudizio'],
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['ROS'])) ? $bilancioData['AnalisiAdvanced']['Indici']['ROS'] : null,
+						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROS'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROS']['Scoring'] : null,
+						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROS'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROS']['Giudizio'] : null,
 					],   
 					"ROE" => [
-						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['ROE'],
-						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROE']['Scoring'],
-						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROE']['Giudizio'],
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['ROE'])) ? $bilancioData['AnalisiAdvanced']['Indici']['ROE'] : null,
+						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROE'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROE']['Scoring'] : null,
+						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROE'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROE']['Giudizio'] : null,
 					],
 					"EBITDAFatturato" => [
-						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['EBITDA_Fatturato'],
-						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['EBITDA Fatturato']['Scoring'],
-						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['EBITDA Fatturato']['Giudizio'],
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['EBITDA_Fatturato'])) ? $bilancioData['AnalisiAdvanced']['Indici']['EBITDA_Fatturato'] : null,
+						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['EBITDA Fatturato'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['EBITDA Fatturato']['Scoring'] : null,
+						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['EBITDA Fatturato'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['EBITDA Fatturato']['Giudizio'] : null,
 					],
 					"AndamentoDeiMezziPropri" => [
-						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['Andamento_dei_mezzi_propri'],
-						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento dei mezzi propri']['Scoring'],
-						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento dei mezzi propri']['Giudizio'],
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Andamento_dei_mezzi_propri'])) ? $bilancioData['AnalisiAdvanced']['Indici']['Andamento_dei_mezzi_propri'] : null,
+						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento dei mezzi propri'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento dei mezzi propri']['Scoring'] : null,
+						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento dei mezzi propri'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento dei mezzi propri']['Giudizio'] : null,
 					],
 					"MargineStrutturaPrimario" => [
-						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['Margine_Struttura_Primario'],
-						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Margine Struttura Primario']['Scoring'],
-						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Margine Struttura Primario']['Giudizio'],
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Margine_Struttura_Primario'])) ? $bilancioData['AnalisiAdvanced']['Indici']['Margine_Struttura_Primario'] : null,
+						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Margine Struttura Primario'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Margine Struttura Primario']['Scoring'] : null,
+						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Margine Struttura Primario'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Margine Struttura Primario']['Giudizio'] : null,
 					],
 					"MargineStrutturaSecondario" => [
-						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['Margine_Struttura_Secondario'],
-						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Margine Struttura Secondario']['Scoring'],
-						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Margine Struttura Secondario']['Giudizio'],
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Margine_Struttura_Secondario'])) ? $bilancioData['AnalisiAdvanced']['Indici']['Margine_Struttura_Secondario'] : null,
+						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Margine Struttura Secondario'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Margine Struttura Secondario']['Scoring'] : null,
+						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Margine Struttura Secondario'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Margine Struttura Secondario']['Giudizio'] : null,
 					],
 					"CurrentRatio" => [
-						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['Current_Ratio'],
-						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Current Ratio']['Scoring'],
-						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Current Ratio']['Giudizio'],
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Current_Ratio'])) ? $bilancioData['AnalisiAdvanced']['Indici']['Current_Ratio'] : null,
+						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Current Ratio'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Current Ratio']['Scoring'] : null,
+						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Current Ratio'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Current Ratio']['Giudizio'] : null,
 					],
 					"AcidTest" => [
-						'Valore' =>  $acidTestValue,
-						'Score' => $acidTestScoring,
-						'Giudizio' => $acidTestGiudizio,
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Acid_Test'])) ? $bilancioData['AnalisiAdvanced']['Indici']['Acid_Test'] : null,
+						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Acid Test'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Acid Test']['Scoring'] : null,
+						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Acid Test'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Acid Test']['Giudizio'] : null,
 					],
 					"AutonomiaFinanziaria" => [
-						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['Autonomia_Finanziaria'],
-						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Autonomia Finanziaria']['Scoring'],
-						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Autonomia Finanziaria']['Giudizio'],
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Autonomia_Finanziaria'])) ? $bilancioData['AnalisiAdvanced']['Indici']['Autonomia_Finanziaria'] : null,
+						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Autonomia Finanziaria'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Autonomia Finanziaria']['Scoring'] : null,
+						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Autonomia Finanziaria'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Autonomia Finanziaria']['Giudizio'] : null,
 					],
 					"LivelloInvestimentiAziendali" => [
-						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['Livello_investimenti_aziendali'],
-						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Livello investimenti aziendali']['Scoring'],
-						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Livello investimenti aziendali']['Giudizio'],
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Livello_investimenti_aziendali'])) ? $bilancioData['AnalisiAdvanced']['Indici']['Livello_investimenti_aziendali'] : null,
+						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Livello investimenti aziendali'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Livello investimenti aziendali']['Scoring'] : null,
+						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Livello investimenti aziendali'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Livello investimenti aziendali']['Giudizio'] : null,
 					],
 					"PFN_EBITDA" => [
-						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['PFN_EBITDA'],
-						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['PFN EBITDA']['Scoring'],
-						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['PFN EBITDA']['Giudizio'],
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['PFN_EBITDA'])) ? $bilancioData['AnalisiAdvanced']['Indici']['PFN_EBITDA'] : null,
+						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['PFN EBITDA'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['PFN EBITDA']['Scoring'] : null,
+						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['PFN EBITDA'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['PFN EBITDA']['Giudizio'] : null,
 					],
 					"OF_Fatturato" => [
-						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['OF_Fatturato'],
-						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Copertura Lorda OF']['Scoring'],
-						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Copertura Lorda OF']['Giudizio'],
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['OF_Fatturato'])) ? $bilancioData['AnalisiAdvanced']['Indici']['OF_Fatturato'] : null,
+						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Copertura Lorda OF'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Copertura Lorda OF']['Scoring'] : null,
+						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Copertura Lorda OF'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Copertura Lorda OF']['Giudizio'] : null,
 					],
 					"EBIT_OF" => [
-						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['EBIT_OF'],
-						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['EBIT OF']['Scoring'],
-						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['EBIT OF']['Giudizio'],
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['EBIT_OF'])) ? $bilancioData['AnalisiAdvanced']['Indici']['EBIT_OF'] : null,
+						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['EBIT OF'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['EBIT OF']['Scoring'] : null,
+						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['EBIT OF'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['EBIT OF']['Giudizio'] : null,
 					],
 					"CoperturaLordaOF" => [
-						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['Copertura_Lorda_OF'],
-						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Copertura Lorda OF']['Scoring'],
-						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Copertura Lorda OF']['Giudizio'],
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Copertura_Lorda_OF'])) ? $bilancioData['AnalisiAdvanced']['Indici']['Copertura_Lorda_OF'] : null,
+						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Copertura Lorda OF'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Copertura Lorda OF']['Scoring'] : null,
+						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Copertura Lorda OF'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Copertura Lorda OF']['Giudizio'] : null,
 					],
 					"CostoDelPersonale" => [
-						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['Costo_del_personale'],
-						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Costo del personale']['Scoring'],
-						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Costo del personale']['Giudizio'],
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Costo_del_personale'])) ? $bilancioData['AnalisiAdvanced']['Indici']['Costo_del_personale'] : null,
+						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Costo del personale'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Costo del personale']['Scoring'] : null,
+						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Costo del personale'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Costo del personale']['Giudizio'] : null,
 					],
 					"CFAttivo" => [
-						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['CF_Attivo'],
-						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['CF Attivo']['Scoring'],
-						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['CF Attivo']['Giudizio'],
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['CF_Attivo'])) ? $bilancioData['AnalisiAdvanced']['Indici']['CF_Attivo'] : null,
+						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['CF Attivo'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['CF Attivo']['Scoring'] : null,
+						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['CF Attivo'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['CF Attivo']['Giudizio'] : null,
 					],
 					"IndiceDiIndebitamento" => [
-						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['Indice_di_Indebitamento'],
-						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Indice di Indebitamento']['Scoring'],
-						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Indice di Indebitamento']['Giudizio'],
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Indice_di_Indebitamento'])) ? $bilancioData['AnalisiAdvanced']['Indici']['Indice_di_Indebitamento'] : null,
+						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Indice di Indebitamento'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Indice di Indebitamento']['Scoring'] : null,
+						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Indice di Indebitamento'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Indice di Indebitamento']['Giudizio'] : null,
 					],
 					"SaldoDeiDebitiVersoIlFisco" => [
-						'Valore' =>  $bilancioData['AnalisiAdvanced']['Indici']['Saldo_dei_Debiti_verso_il_Fisco'],
-						'Score' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Saldo dei Debiti verso il Fisco']['Scoring'],
-						'Giudizio' => $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Saldo dei Debiti verso il Fisco']['Giudizio'],
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Saldo_dei_Debiti_verso_il_Fisco'])) ? $bilancioData['AnalisiAdvanced']['Indici']['Saldo_dei_Debiti_verso_il_Fisco'] : null,
+						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Saldo dei Debiti verso il Fisco'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Saldo dei Debiti verso il Fisco']['Scoring'] : null,
+						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Saldo dei Debiti verso il Fisco'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Saldo dei Debiti verso il Fisco']['Giudizio'] : null,
 					],
 					"ASISfinalScore" => $ASISfinalScore,
-					"generalScore" => $generalScore,
 					"bilancioData" => $bilancioData,
 					"punteggioCR" => $punteggioCR,
 					"alerts" => $alerts,
@@ -1240,9 +1003,9 @@ class PDFController extends Controller
 					"arrayForwardLooking" => $forwardLooking,
 					"scoreFL" => $scoreFL,
 					"scoreASIS" => $scoreASIS,
-					"GiudizioFinale" => $giudiziFinali,
+					"generalScore" => $getGeneralScore['Giudizio'],
+					"GiudizioFinale" => $getScoreHelper,
 				];
-
 
 				$printPDF = new printpdf;
 				$printPDF->currentPayload = $dataAllerta;
@@ -1250,11 +1013,6 @@ class PDFController extends Controller
 				sleep(5);
 
 				return $printPDF->getDocumentData($documentId);
-			} else {
-				$msg = "Non è stata caricata nessun Bilancio";
-				return view('allerta.empty', compact(['msg']));
-			}
-		}
 
 		/*	$printPDF = new printpdf;
 	 
