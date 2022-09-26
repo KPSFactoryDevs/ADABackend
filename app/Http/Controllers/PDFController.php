@@ -121,7 +121,7 @@ class PDFController extends Controller
 				'alertFornitori' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->alertFornitori : null,
 			],
 		];
-dd($pdfBilancioData);
+
 		$printPDF = new printpdf;
 		$printPDF->currentPayload = $pdfBilancioData;
 		$documentId = $printPDF->generateDocument('bilancio');
@@ -346,8 +346,6 @@ dd($pdfBilancioData);
                 ],
                 'generalDates' => $generalDates
             ];
-
-			dd($response);
 
 			$printPDF = new printpdf;
 
@@ -1008,8 +1006,6 @@ dd($pdfBilancioData);
 					"generalScore" => $getGeneralScore['Giudizio'],
 					"GiudizioFinale" => $getScoreHelper,
 				];
-
-dd($dataAllerta);
 
 				$printPDF = new printpdf;
 				$printPDF->currentPayload = $dataAllerta;
