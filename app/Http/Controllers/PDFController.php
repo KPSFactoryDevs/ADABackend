@@ -878,6 +878,10 @@ class PDFController extends Controller
 
 
         $bilancioData = $bilancioHelper->getAnalisiBilancio($idBilancio);
+		$bilancio = Bilanci::find($idBilancio);
+
+		$annoEsaminato = $bilancio->year;
+		$nomeAzienda = json_decode($bilancio->json_data_anag)->DatiAnagraficiDenominazione;
 
 
         $ASISfinalScore = $allertaHelper->getAsIsFinalScore($bilancioData['AnalisiAdvanced'], $scoreCR, $scoreASIS);
@@ -890,6 +894,8 @@ class PDFController extends Controller
 
 				$dataAllerta = [
 					"id" => $idBilancio,
+					"nomeAzienda" => $nomeAzienda,
+					"annoEsaminato" => $annoEsaminato,
 					"andamentoDelFatturato" => [
 						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Andamento_del_fatturato'])) ? $bilancioData['AnalisiAdvanced']['Indici']['Andamento_del_fatturato'] : null,
 						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento del fatturato'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento del fatturato']['Scoring'] : null,
