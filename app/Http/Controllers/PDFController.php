@@ -395,12 +395,20 @@ class PDFController extends Controller
         $periods = $getDate['periods'];
         $latestYear = $getDate['latestYear'];
         $latestMonth = $getDate['latestMonth'];
+
         $categories = $getDate['categories'];
         $upperBoundDate = $getDate['upperBoundDate'];
         $lowerBoundDate = $getDate['lowerBoundDate'];
         $lastYearPeriod = $periods;
         $banks = cr::select('nome_banca')->where('document_id', $idCr)->where('date', '>=', $lowerBoundDate->format('Y-m-d'))->where('date', '<=', $upperBoundDate->format('Y-m-d'))->distinct()->get()->pluck('nome_banca')->toArray();
 
+
+		$latestYear = array_key_last($periods);
+		$latestMonth = array_key_last($periods[$latestYear]);
+		$earliestYear = array_key_first($periods);
+		$earliestMonth = array_key_first($periods[$earliestYear]);
+		$finePeriodo = $latestMonth . ' ' . $latestYear;
+		$inizioPeriodo = $earliestMonth . ' ' . $earliestYear;
 
         $trimestrePeriod = $allertaHelper->getTrimestrePeriod($periods);
 
@@ -883,6 +891,10 @@ class PDFController extends Controller
 		$annoEsaminato = $bilancio->year;
 		$nomeAzienda = json_decode($bilancio->json_data_anag)->DatiAnagraficiDenominazione;
 
+		// $firstPeriodAnalized = $getDate['lowerBoundDate']->format('Y');
+		// $lastPeriodAnalized = $getDate['upperBoundDate']->format('Y');
+
+		// dd($firstPeriodAnalized, $lastPeriodAnalized, $annoEsaminato);
 
         $ASISfinalScore = $allertaHelper->getAsIsFinalScore($bilancioData['AnalisiAdvanced'], $scoreCR, $scoreASIS);
         $getScoreHelper = $allertaHelper->getScores($punteggioCR, $bilancioData['AnalisiAdvanced'], $scoreASIS, $ASISfinalScore, $scoreFL);
@@ -895,7 +907,11 @@ class PDFController extends Controller
 				$dataAllerta = [
 					"id" => $idBilancio,
 					"nomeAzienda" => $nomeAzienda,
-					"annoEsaminato" => $annoEsaminato,
+					"annoEsaminato" => [
+						'years' => $annoEsaminato,
+						'periodoDa' => $inizioPeriodo,
+						'periodoA' => $finePeriodo 
+					],
 					"andamentoDelFatturato" => [
 						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Andamento_del_fatturato'])) ? $bilancioData['AnalisiAdvanced']['Indici']['Andamento_del_fatturato'] : null,
 						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento del fatturato'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento del fatturato']['Scoring'] : null,
