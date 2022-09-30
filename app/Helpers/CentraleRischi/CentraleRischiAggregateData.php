@@ -115,7 +115,8 @@ class CentraleRischiAggregateData
                             strpos($singleRow, 'GARANZIE CONNESSE') !== false ||
                             strpos($singleRow, 'SOFFERENZE') !== false ||
                             strpos($singleRow, 'CREDITI') !== false ||
-                            strpos($singleRow, 'GARANZIE RICEVUTE') !== false)
+                            strpos($singleRow, 'GARANZIE RICEVUTE') !== false ||
+                            strpos($singleRow, 'SOFFERENZE - CREDITI PASSATI') !== false)
                     ) {
 
                         foreach ($currentCategoryArray as $arrKey => $arrValue) {
