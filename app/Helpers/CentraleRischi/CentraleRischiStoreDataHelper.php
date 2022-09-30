@@ -153,7 +153,8 @@ class CentraleRischiStoreDataHelper
         }
     }
 
-    public function saveSofferenze($value, $anno, $mese, $transformedMonth, $singleBank, $index, $codiceDocumento, $companyId) {
+    public function saveSofferenze($value, $anno, $mese, $transformedMonth, $singleBank, $index, $codiceDocumento, $companyId)
+    {
         $array = $value;
         $arraytmp = [];
         foreach ($array as $key => $val) {
@@ -214,7 +215,8 @@ class CentraleRischiStoreDataHelper
         }
     }
 
-    public function saveCassa($value, $anno, $mese, $transformedMonth, $singleBank, $index, $codiceDocumento, $companyId) {
+    public function saveCassa($value, $anno, $mese, $transformedMonth, $singleBank, $index, $codiceDocumento, $companyId)
+    {
         $array = $value;
         $arraytmp = [];
         foreach ($array as $key => $val) {
@@ -280,7 +282,8 @@ class CentraleRischiStoreDataHelper
         }
     }
 
-    public function saveInformativa($value, $anno, $mese, $transformedMonth, $singleBank, $index, $codiceDocumento, $companyId)  {
+    public function saveInformativa($value, $anno, $mese, $transformedMonth, $singleBank, $index, $codiceDocumento, $companyId)
+    {
 
         $array = $value;
         $arraytmp = [];
@@ -343,10 +346,65 @@ class CentraleRischiStoreDataHelper
                 $cr->company_id = $companyId;
                 $cr->save();
             }
+
+            if (isset($arraytmp['Categoria']) && $arraytmp['Categoria'] == 'SOFFERENZE - CREDITI PASSATI A PERDITA') {
+                $categoria = $arraytmp['Categoria'];
+                $accordato = '';
+                $accordatoOperativo = '';
+                $utilizzato = '';
+                $durataResidua = '';
+                $durataOriginaria = '';
+                $localizzazione = $arraytmp['Localizzazione'];
+                $divisa = '';
+                $tipoGaranzia = '';
+                $statoRapporto = '';
+                $tipoAttivita = '';
+                $ruoloAffidato = '';
+                $importExport = '';
+                $saldo_medio = isset($arraytmp['Saldo Medio']) ? $arraytmp['Saldo Medio'] : 'N/A';
+                $importo_garantito = isset($arraytmp['Importo']) ? $arraytmp['Importo'] : 'N/A';
+                // if ($statoRapporto == 'Crediti pagati' || $statoRapporto == 'Crediti impagati' || str_contains($categoria, 'A PERDITA')) {
+                $importo = isset($arraytmp['Importo']) ? $arraytmp['Importo'] : 'N/A';
+                $importo_garantito = str_replace('.', '', $importo);
+                $codiceCoint = isset($arraytmp['Cointestazione']) ? $arraytmp['Cointestazione'] : null;
+                // }
+
+                $cr = new cr;
+                $buildDate = $anno . ' ' . $transformedMonth;
+
+                $createdDate = date_create_from_format("Y n", $buildDate);
+                $cr->date = $createdDate;
+                $cr->anno = $anno;
+                $cr->mese = $mese;
+                $cr->account_id = 1;
+                $cr->nome_banca = $singleBank;
+                $cr->sezione = $index;
+                $cr->categoria = $categoria;
+                $cr->accordato = $accordato;
+                $cr->accordato_operativo = $accordatoOperativo;
+                $cr->utilizzato = $utilizzato;
+                $cr->durata_residua = $durataResidua;
+                $cr->durata_originaria = $durataOriginaria;
+                $cr->localizzazione = $localizzazione;
+                $cr->divisa = $divisa;
+                $cr->tipo_garanzia = $tipoGaranzia;
+                $cr->stato_rapporto = $statoRapporto;
+                $cr->tipo_attivita = $tipoAttivita;
+                $cr->ruolo_affidato = $ruoloAffidato;
+                $cr->import_export = $importExport;
+                $cr->saldo_medio = $saldo_medio;
+                $cr->importo_garantito = $importo_garantito;
+                $cr->codice_coint = $codiceCoint;
+                //new data
+                $cr->document_id = $codiceDocumento;
+                $cr->company_id = $companyId;
+                $cr->save();
+            }
         }
     }
 
-    public function saveGaranti($value, $anno, $mese, $transformedMonth, $singleBank, $index, $codiceDocumento, $companyId)  {
+    public function saveGaranti($value, $anno, $mese, $transformedMonth, $singleBank, $index, $codiceDocumento, $companyId)
+    {
 
         $array = $value;
         $arraytmp = [];
