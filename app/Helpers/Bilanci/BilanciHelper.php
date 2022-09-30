@@ -629,7 +629,7 @@ class BilanciHelper
             'agenziaEntrate1' => (isset($allData['agenziaEntrate1'])) ? $allData["agenziaEntrate1"] : null,
             'agenziaEntrate2' => (isset($allData['agenziaEntrate2'])) ? $allData["agenziaEntrate2"] : null,
             'agenziaEntrate3' => (isset($allData['agenziaEntrate3'])) ? $allData["agenziaEntrate3"] : 0,
-            'agenziaEntrate4' => (isset($allData['agenziaEntrate4'])) ? $allData["agenziaEntrate4"] : null,
+            'agenziaEntrate4' => (isset($allData['agenziaEntrate4'])) ? (float)$agenziaEntrate['agenziaEntrate4']['agenziaEntrate4'] : null,
             'INPS1' => ($allData["INPS1"] != null) ? $allData["INPS1"] : null,
             'INPS2' => ($allData["INPS2"] != null) ? $allData["INPS2"] : null,
             'INPS3' => ($allData["INPS3"] != null) ? $allData["INPS3"] : null,
@@ -640,7 +640,7 @@ class BilanciHelper
             'fornitori1' => ($allData["fornitori1"] != null) ? $allData["fornitori1"] : null,
             'fornitori2' => ($allData["fornitori2"] != null) ? $allData["fornitori2"] : null,
             'resultDSCR' => $alertDSCR,
-            'alertAgenziaEntrate' => $agenziaEntrate,
+            'alertAgenziaEntrate' => $agenziaEntrate['alert'],
             'alertINPS' => $dataINPS,
             'alertRiscossione' => $riscossioneAlert,
             'alertRetribuzioni' => $alertRetribuzioni,
@@ -762,13 +762,19 @@ class BilanciHelper
                 }
 
                 if (is_finite($allData['agenziaEntrate1'] / $allData['agenziaEntrate2'])) {
-                    $cleanData['agenziaEntrate4'] = (float)number_format((($allData['agenziaEntrate1'] / $allData['agenziaEntrate2'])), 2, ",", ".");
+                    // dd((float)number_format((((float)$allData['agenziaEntrate1'] / (float)$allData['agenziaEntrate2'])), 2, ",", "."));
+                    $cleanData['agenziaEntrate4'] = number_format((($allData['agenziaEntrate1'] / $allData['agenziaEntrate2'])), 2, ".", ",");
                 } else {
                     $cleanData['agenziaEntrate4'] = "0";
                 }
             }
 
-            return $alert;
+            $data = [
+                'alert' => $alert,
+                'agenziaEntrate4' => $cleanData
+            ];
+
+            return $data;
         } catch (Exception $e) {
             return [
                 'error' => true,
