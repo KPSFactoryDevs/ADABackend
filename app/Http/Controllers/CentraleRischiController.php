@@ -20,6 +20,7 @@ use Carbon\Carbon;
 use DateTime;
 use Storage;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class CentraleRischiController extends Controller
 {
@@ -101,6 +102,7 @@ class CentraleRischiController extends Controller
             $companyId = $crFileToElaborate->company_id;
             $CentraleRischiStoreDataHelper = new App\Helpers\CentraleRischi\CentraleRischiStoreDataHelper();
 
+            Log::info('Json data from document'.$codiceDocumento. ' #### '.$jsonArray);
 
             foreach ($dataToSave as $anno => $months) {
                 foreach ($months as $mese => $data) {
@@ -251,7 +253,7 @@ class CentraleRischiController extends Controller
                 $lastDate = $lastDate->modify('last day of this month')->format('Y-m-d');
 
                 $earlierDate = new DateTime(cr::select('date')->where('document_id', $crAndamentaleData['period'])->orderBy('date', 'desc')->first()->date);
-                $earlierDate = $earlierDate->modify('-11 months')->modify('first day of this month');
+                $earlierDate = $earlierDate->modify('-12 months')->modify('first day of this month');
             } else {
                 if (!is_numeric($crAndamentaleData['data_inizio']) || !is_numeric($crAndamentaleData['data_fine'])) {
                     return response()->json([
