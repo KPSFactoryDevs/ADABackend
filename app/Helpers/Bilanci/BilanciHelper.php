@@ -628,22 +628,22 @@ class BilanciHelper
             'rimborsoDSCRmese6' => (isset($allData['rimborsoDSCRmese6'])) ? $allData['rimborsoDSCRmese6'] : null,
             'agenziaEntrate1' => (isset($allData['agenziaEntrate1'])) ? $allData["agenziaEntrate1"] : null,
             'agenziaEntrate2' => (isset($allData['agenziaEntrate2'])) ? $allData["agenziaEntrate2"] : null,
-            'agenziaEntrate3' => (isset($allData['agenziaEntrate3'])) ? $allData["agenziaEntrate3"] : 0,
+            'agenziaEntrate3' => (isset($allData['agenziaEntrate3'])) ? $allData["agenziaEntrate3"] : null,
             'agenziaEntrate4' => (isset($allData['agenziaEntrate4'])) ? (float)$agenziaEntrate['agenziaEntrate4']['agenziaEntrate4'] : null,
             'INPS1' => ($allData["INPS1"] != null) ? $allData["INPS1"] : null,
             'INPS2' => ($allData["INPS2"] != null) ? $allData["INPS2"] : null,
-            'INPS3' => ($allData["INPS3"] != null) ? $allData["INPS3"] : null,
+            'INPS3' => ($dataINPS['inps3'] != null) ? (float)$dataINPS['inps3'] : null,
             'riscossione' => ($allData["riscossione"] != null) ? $allData["riscossione"] : null,
             'retribuzioni1' => ($allData["retribuzioni1"] != null) ? $allData["retribuzioni1"] : null,
             'retribuzioni2' => ($allData["retribuzioni2"] != null) ? $allData["retribuzioni2"] : null,
-            'retribuzioni3' => ($allData["retribuzioni3"] != null) ? $allData["retribuzioni3"] : null,
+            'retribuzioni3' => ($alertRetribuzioni["retribuzioni3"] != null) ? (float)$alertRetribuzioni["retribuzioni3"] : null,
             'fornitori1' => ($allData["fornitori1"] != null) ? $allData["fornitori1"] : null,
             'fornitori2' => ($allData["fornitori2"] != null) ? $allData["fornitori2"] : null,
             'resultDSCR' => $alertDSCR,
-            'alertAgenziaEntrate' => $agenziaEntrate['alert'],
-            'alertINPS' => $dataINPS,
+            'alertAgenziaEntrate' => (isset($agenziaEntrate['alert'])) ? $agenziaEntrate['alert'] : "Dati Mancanti",
+            'alertINPS' => $dataINPS['alert'],
             'alertRiscossione' => $riscossioneAlert,
-            'alertRetribuzioni' => $alertRetribuzioni,
+            'alertRetribuzioni' => $alertRetribuzioni['alert'],
             'alertFornitori' => $alertFornitori,
         ];
 
@@ -825,15 +825,23 @@ class BilanciHelper
         }
 
         if ($alert != "Dati Mancanti") {
-            $inps3 = number_format((($allData['INPS1'] / $allData['INPS2']) * 100), 2, ",", ".");
+            $inps3 = number_format((($allData['INPS1'] / $allData['INPS2']) * 100), 2, ".", ",");
 
             if ($allData['INPS1'] > 50000) {
                 if ($inps3 > 50.50) {
                     $alert = "Si";
                 }
             }
+        } else {
+            $inps3 = "Non Calcolabile";
         }
-        return $alert;
+
+        $data = [
+            'alert' => $alert,
+            'inps3' => $inps3
+        ];
+
+        return $data;
     }
 
     public function calculateRiscossione($allData)
@@ -880,14 +888,19 @@ class BilanciHelper
             } else {
                 $alert = "No";
             }
-            if (is_finite($allData['retribuzioni1'] / $allData['retribuzioni1'])) {
-                $allData['retribuzioni3'] = number_format((($allData['retribuzioni1'] / $allData['retribuzioni2']) * 100), 2, ",", ".");
+            if (is_finite($allData['retribuzioni1'] / $allData['retribuzioni2'])) {
+                $cleanData['retribuzioni3'] = number_format((($allData['retribuzioni1'] / $allData['retribuzioni2']) * 100), 2, ".", ",");
             } else {
-                $allData['retribuzioni3'] = "0";
+                $cleanData['retribuzioni3'] = "Non Calcolabile";
             }
         }
 
-        return $alert;
+        $data = [
+            'alert' => $alert,
+            'retribuzioni3' => (isset($cleanData)) ? $cleanData['retribuzioni3'] : "Non Calcolabile"
+        ];
+
+        return $data;
     }
 
     public function calculateFornitori($allData)
