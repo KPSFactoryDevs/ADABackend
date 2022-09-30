@@ -44,7 +44,8 @@ class CentraleRischiAggregateData
             "SOFFERENZE" => 'Sofferenze',
             "GARANZIE CONNESSE CON OPERAZIONI DI NATURA COMMERCIALE" => 'Firma',
             "GARANZIE RICEVUTE" => 'Garanzie',
-            'Garanti' => 'Garanti'
+            'Garanti' => 'Garanti',
+            "SOFFERENZE - CREDITI PASSATI A PERDITA" => 'Informativa'
         );
 
         foreach ($json as $singleJsonArray) {
