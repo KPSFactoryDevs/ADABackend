@@ -245,7 +245,7 @@ class PDFController extends Controller
             $impagati = $crHelper->getAlertImpagati($banks);
             $garanzieEsitoNegativo = $crHelper->getGaranzieEsitoNegativo($banks);
 
-            $anomalie = $crHelper->getAnomalie($banks);
+            $anomalie = $crHelper->getAnomalie($banks);  
 
             $incidenzaImpagati = $crHelper->getPercentualeMediaImpagati($banks);
             $informazioniGaranti = $crHelper->getInformazioniGaranti($banks);
@@ -253,7 +253,7 @@ class PDFController extends Controller
             // $importiSconfini = $crHelper->getImportiSconfini($banks);
             // $affidamentiPerMese = $crHelper->getTotaleAffidamentiPerMese($periods, $categories, $banks);
             // $anomalieStatoRapporto = $crHelper->mancateSegnalazioniStatoRapporto($banks);
-            $sconfiniDivisi = $crHelper->divideAnomalie($numeroSconfiniTotali, $banks);
+            $sconfiniDivisi = $crHelper->divideAnomalie($numeroSconfiniTotali, $banks);   
             // $banksScoring = $crHelper->singleBankData($banks, $periods);
             // $informazioniGarantiAnomalie = $crHelper->informazioniSuiGaranti($informazioniGaranti);
             // $percentualiAccordato = $crHelper->percentualiAccordato($totAffidamentiConPesiPerBanca);
@@ -895,7 +895,10 @@ class PDFController extends Controller
 		// $lastPeriodAnalized = $getDate['upperBoundDate']->format('Y');
 
 		// dd($firstPeriodAnalized, $lastPeriodAnalized, $annoEsaminato);
-
+		
+		$numeroSconfiniTotali = $crHelper->getTotaleSconfini($banks);
+        $anomalie = $crHelper->getAnomalie($banks);
+		$sconfiniDivisi = $crHelper->divideAnomalie($numeroSconfiniTotali, $banks); 
         $ASISfinalScore = $allertaHelper->getAsIsFinalScore($bilancioData['AnalisiAdvanced'], $scoreCR, $scoreASIS);
         $getScoreHelper = $allertaHelper->getScores($punteggioCR, $bilancioData['AnalisiAdvanced'], $scoreASIS, $ASISfinalScore, $scoreFL);
 		$getGeneralScore = $allertaHelper->getGeneralScore($bilancioData['AnalisiAdvanced'], $scoreCR, $scoreASIS, $scoreFL);
@@ -913,109 +916,115 @@ class PDFController extends Controller
 						'periodoA' => $finePeriodo 
 					],
 					"andamentoDelFatturato" => [
-						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Andamento_del_fatturato'])) ? $bilancioData['AnalisiAdvanced']['Indici']['Andamento_del_fatturato'] : null,
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Andamento_del_fatturato']) && $bilancioData['AnalisiAdvanced']['Indici']['Andamento_del_fatturato'] < 1000) ? number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['Andamento_del_fatturato'], '2', ',', '.').'%' : ( (float)$bilancioData['AnalisiAdvanced']['Indici']['Andamento_del_fatturato'] >= 1000 ? (number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['Andamento_del_fatturato'], '2', ',', '.')."% Valore anomalo") : (null)),
 						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento del fatturato'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento del fatturato']['Scoring'] : null,
 						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento del fatturato'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento del fatturato']['Giudizio'] : null,
 					],
 					"AndamentoDelMOL" => [
-						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Andamento_del_MOL'])) ? $bilancioData['AnalisiAdvanced']['Indici']['Andamento_del_MOL'] : null,
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Andamento_del_MOL']['AndamentoMOL']) && $bilancioData['AnalisiAdvanced']['Indici']['Andamento_del_MOL']['AndamentoMOL'] < 1000) ? number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['Andamento_del_MOL']['AndamentoMOL'], '2', ',', '.').'%' : ( $bilancioData['AnalisiAdvanced']['Indici']['Andamento_del_MOL']['AndamentoMOL'] >= 1000 ? (number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['Andamento_del_MOL']['AndamentoMOL'], '2', ',', '.').'% Valore anomalo') : (null)),
 						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento del MOL'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento del MOL']['Scoring'] : null,
 						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento del MOL'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento del MOL']['Giudizio'] : null,
 					],
 					"ROI" => [
-						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['ROI'])) ? $bilancioData['AnalisiAdvanced']['Indici']['ROI'] : null,
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['ROI']) && $bilancioData['AnalisiAdvanced']['Indici']['ROI'] < 1000) ? number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['ROI'], '2', ',', '.').'%' : ($bilancioData['AnalisiAdvanced']['Indici']['ROI'] >= 1000 ? (number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['ROI'], '2', ',', '.')."% Valore anomalo") : (null)),
 						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROI'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROI']['Scoring'] : null,
 						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROI'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROI']['Giudizio'] : null,
 					],
 					"ROS" => [
-						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['ROS'])) ? $bilancioData['AnalisiAdvanced']['Indici']['ROS'] : null,
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['ROS']) && $bilancioData['AnalisiAdvanced']['Indici']['ROS'] < 1000) ? number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['ROS'], '2', ',', '.').'%' : ($bilancioData['AnalisiAdvanced']['Indici']['ROS'] >= 1000 ? (number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['ROS'], '2', ',', '.')."% Valore anomalo") : (null)),
 						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROS'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROS']['Scoring'] : null,
 						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROS'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROS']['Giudizio'] : null,
 					],   
 					"ROE" => [
-						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['ROE'])) ? $bilancioData['AnalisiAdvanced']['Indici']['ROE'] : null,
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['ROE']) && $bilancioData['AnalisiAdvanced']['Indici']['ROE'] < 1000) ? number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['ROE'], '2', ',', '.').'%' : ($bilancioData['AnalisiAdvanced']['Indici']['ROE'] >= 1000 ? (number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['ROE'], '2', ',', '.')."% Valore anomalo") : (null)),
 						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROE'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROE']['Scoring'] : null,
 						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROE'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROE']['Giudizio'] : null,
 					],
 					"EBITDAFatturato" => [
-						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['EBITDA_Fatturato'])) ? $bilancioData['AnalisiAdvanced']['Indici']['EBITDA_Fatturato'] : null,
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['EBITDA_Fatturato']) && $bilancioData['AnalisiAdvanced']['Indici']['EBITDA_Fatturato'] < 1000) ? number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['EBITDA_Fatturato'], '2', ',', '.').'%' : ($bilancioData['AnalisiAdvanced']['Indici']['EBITDA_Fatturato'] >= 1000 ? (number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['EBITDA_Fatturato'], '2', ',', '.')."% Valore anomalo") : (null)),
 						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['EBITDA Fatturato'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['EBITDA Fatturato']['Scoring'] : null,
 						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['EBITDA Fatturato'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['EBITDA Fatturato']['Giudizio'] : null,
 					],
 					"AndamentoDeiMezziPropri" => [
-						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Andamento_dei_mezzi_propri'])) ? $bilancioData['AnalisiAdvanced']['Indici']['Andamento_dei_mezzi_propri'] : null,
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Andamento_dei_mezzi_propri']) && $bilancioData['AnalisiAdvanced']['Indici']['Andamento_dei_mezzi_propri'] < 1000) ? number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['Andamento_dei_mezzi_propri'], '2', ',', '.').'%' : ($bilancioData['AnalisiAdvanced']['Indici']['Andamento_dei_mezzi_propri'] >= 1000 ? (number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['Andamento_dei_mezzi_propri'], '2', ',', '.')."% Valore anomalo") : (null)),
 						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento dei mezzi propri'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento dei mezzi propri']['Scoring'] : null,
 						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento dei mezzi propri'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Andamento dei mezzi propri']['Giudizio'] : null,
 					],
 					"MargineStrutturaPrimario" => [
-						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Margine_Struttura_Primario'])) ? $bilancioData['AnalisiAdvanced']['Indici']['Margine_Struttura_Primario'] : null,
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Margine_Struttura_Primario']) && $bilancioData['AnalisiAdvanced']['Indici']['Margine_Struttura_Primario'] < 1000) ? number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['Margine_Struttura_Primario'], '2', ',', '.').'%' : ($bilancioData['AnalisiAdvanced']['Indici']['Margine_Struttura_Primario'] >= 1000 ? (number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['Margine_Struttura_Primario'], '2', ',', '.')."% Valore anomalo") : (null)),
 						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Margine Struttura Primario'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Margine Struttura Primario']['Scoring'] : null,
 						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Margine Struttura Primario'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Margine Struttura Primario']['Giudizio'] : null,
 					],
 					"MargineStrutturaSecondario" => [
-						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Margine_Struttura_Secondario'])) ? $bilancioData['AnalisiAdvanced']['Indici']['Margine_Struttura_Secondario'] : null,
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Margine_Struttura_Secondario']) && $bilancioData['AnalisiAdvanced']['Indici']['Margine_Struttura_Secondario'] < 1000) ? number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['Margine_Struttura_Secondario'], '2', ',', '.').'%' : ($bilancioData['AnalisiAdvanced']['Indici']['Margine_Struttura_Secondario'] >= 1000 ? (number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['Margine_Struttura_Secondario'], '2', ',', '.')."% Valore anomalo") : (null)),
 						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Margine Struttura Secondario'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Margine Struttura Secondario']['Scoring'] : null,
 						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Margine Struttura Secondario'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Margine Struttura Secondario']['Giudizio'] : null,
 					],
 					"CurrentRatio" => [
-						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Current_Ratio'])) ? $bilancioData['AnalisiAdvanced']['Indici']['Current_Ratio'] : null,
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Current_Ratio']) && $bilancioData['AnalisiAdvanced']['Indici']['Current_Ratio'] < 1000) ? number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['Current_Ratio'], '2', ',', '.').'%' : ($bilancioData['AnalisiAdvanced']['Indici']['Current_Ratio'] >= 1000 ? (number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['Current_Ratio'], '2', ',', '.')."% Valore anomalo") : (null)),
 						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Current Ratio'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Current Ratio']['Scoring'] : null,
 						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Current Ratio'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Current Ratio']['Giudizio'] : null,
 					],
 					"AcidTest" => [
-						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Acid_Test'])) ? $bilancioData['AnalisiAdvanced']['Indici']['Acid_Test'] : null,
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Acid_Test']) && $bilancioData['AnalisiAdvanced']['Indici']['Acid_Test'] < 1000) ? number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['Acid_Test'], '2', ',', '.').'%' : ($bilancioData['AnalisiAdvanced']['Indici']['Acid_Test'] >= 1000 ? (number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['Acid_Test'], '2', ',', '.')."% Valore anomalo") : (null)),
 						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Acid Test'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Acid Test']['Scoring'] : null,
 						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Acid Test'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Acid Test']['Giudizio'] : null,
 					],
 					"AutonomiaFinanziaria" => [
-						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Autonomia_Finanziaria'])) ? $bilancioData['AnalisiAdvanced']['Indici']['Autonomia_Finanziaria'] : null,
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Autonomia_Finanziaria']) && $bilancioData['AnalisiAdvanced']['Indici']['Autonomia_Finanziaria'] < 1000) ? number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['Autonomia_Finanziaria'], '2', ',', '.').'%' : ($bilancioData['AnalisiAdvanced']['Indici']['Autonomia_Finanziaria'] >= 1000 ? (number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['Autonomia_Finanziaria'], '2', ',', '.')."% Valore anomalo") : (null)),
 						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Autonomia Finanziaria'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Autonomia Finanziaria']['Scoring'] : null,
 						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Autonomia Finanziaria'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Autonomia Finanziaria']['Giudizio'] : null,
 					],
 					"LivelloInvestimentiAziendali" => [
-						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Livello_investimenti_aziendali'])) ? $bilancioData['AnalisiAdvanced']['Indici']['Livello_investimenti_aziendali'] : null,
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Livello_investimenti_aziendali']) && $bilancioData['AnalisiAdvanced']['Indici']['Livello_investimenti_aziendali'] < 1000) ? number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['Livello_investimenti_aziendali'], '2', ',', '.').'%' : ($bilancioData['AnalisiAdvanced']['Indici']['Livello_investimenti_aziendali'] >= 1000 ? (number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['Livello_investimenti_aziendali'], '2', ',', '.')."% Valore anomalo") : (null)),
 						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Livello investimenti aziendali'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Livello investimenti aziendali']['Scoring'] : null,
 						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Livello investimenti aziendali'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Livello investimenti aziendali']['Giudizio'] : null,
 					],
 					"PFN_EBITDA" => [
-						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['PFN_EBITDA'])) ? $bilancioData['AnalisiAdvanced']['Indici']['PFN_EBITDA'] : null,
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['PFN_EBITDA']) && $bilancioData['AnalisiAdvanced']['Indici']['PFN_EBITDA'] < 1000) ? number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['PFN_EBITDA'], '2', ',', '.').'%' : ($bilancioData['AnalisiAdvanced']['Indici']['PFN_EBITDA'] >= 1000 ? (number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['PFN_EBITDA'], '2', ',', '.')."% Valore anomalo") : (null)),
 						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['PFN EBITDA'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['PFN EBITDA']['Scoring'] : null,
 						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['PFN EBITDA'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['PFN EBITDA']['Giudizio'] : null,
 					],
 					"OF_Fatturato" => [
-						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['OF_Fatturato'])) ? $bilancioData['AnalisiAdvanced']['Indici']['OF_Fatturato'] : null,
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['OF_Fatturato']) && $bilancioData['AnalisiAdvanced']['Indici']['OF_Fatturato'] < 1000) ? number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['OF_Fatturato'], '2', ',', '.').'%' : ($bilancioData['AnalisiAdvanced']['Indici']['OF_Fatturato'] >= 1000 ? (number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['OF_Fatturato'], '2', ',', '.')."% Valore anomalo") : (null)),
 						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Copertura Lorda OF'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Copertura Lorda OF']['Scoring'] : null,
 						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Copertura Lorda OF'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Copertura Lorda OF']['Giudizio'] : null,
 					],
 					"EBIT_OF" => [
-						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['EBIT_OF'])) ? $bilancioData['AnalisiAdvanced']['Indici']['EBIT_OF'] : null,
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['EBIT_OF']) && $bilancioData['AnalisiAdvanced']['Indici']['EBIT_OF'] < 1000) ? number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['EBIT_OF'], '2', ',', '.').'%' : ($bilancioData['AnalisiAdvanced']['Indici']['EBIT_OF'] >= 1000 ? (number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['EBIT_OF'], '2', ',', '.')."% Valore anomalo") : (null)),
 						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['EBIT OF'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['EBIT OF']['Scoring'] : null,
 						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['EBIT OF'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['EBIT OF']['Giudizio'] : null,
 					],
 					"CoperturaLordaOF" => [
-						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Copertura_Lorda_OF'])) ? $bilancioData['AnalisiAdvanced']['Indici']['Copertura_Lorda_OF'] : null,
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Copertura_Lorda_OF']) && $bilancioData['AnalisiAdvanced']['Indici']['Copertura_Lorda_OF'] < 1000) ? number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['Copertura_Lorda_OF'], '2', ',', '.').'%' : ($bilancioData['AnalisiAdvanced']['Indici']['Copertura_Lorda_OF'] >= 1000 ? (number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['Copertura_Lorda_OF'], '2', ',', '.')."% Valore anomalo") : (null)),
 						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Copertura Lorda OF'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Copertura Lorda OF']['Scoring'] : null,
 						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Copertura Lorda OF'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Copertura Lorda OF']['Giudizio'] : null,
 					],
 					"CostoDelPersonale" => [
-						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Costo_del_personale'])) ? $bilancioData['AnalisiAdvanced']['Indici']['Costo_del_personale'] : null,
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Costo_del_personale']) && $bilancioData['AnalisiAdvanced']['Indici']['Costo_del_personale'] < 1000) ? number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['Costo_del_personale'], '2', ',', '.').'%' : ($bilancioData['AnalisiAdvanced']['Indici']['Costo_del_personale'] >= 1000 ? (number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['Costo_del_personale'], '2', ',', '.')."% Valore anomalo") : (null)),
 						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Costo del personale'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Costo del personale']['Scoring'] : null,
 						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Costo del personale'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Costo del personale']['Giudizio'] : null,
 					],
 					"CFAttivo" => [
-						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['CF_Attivo'])) ? $bilancioData['AnalisiAdvanced']['Indici']['CF_Attivo'] : null,
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['CF_Attivo']) && $bilancioData['AnalisiAdvanced']['Indici']['CF_Attivo'] < 1000) ? number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['CF_Attivo'], '2', ',', '.').'%' : ($bilancioData['AnalisiAdvanced']['Indici']['CF_Attivo'] >= 1000 ? (number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['CF_Attivo'], '2', ',', '.')."% Valore anomalo") : (null)),
 						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['CF Attivo'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['CF Attivo']['Scoring'] : null,
 						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['CF Attivo'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['CF Attivo']['Giudizio'] : null,
 					],
 					"IndiceDiIndebitamento" => [
-						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Indice_di_Indebitamento'])) ? $bilancioData['AnalisiAdvanced']['Indici']['Indice_di_Indebitamento'] : null,
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Indice_di_Indebitamento']) && $bilancioData['AnalisiAdvanced']['Indici']['Indice_di_Indebitamento'] < 1000) ? number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['Indice_di_Indebitamento'], '2', ',', '.').'%' : ($bilancioData['AnalisiAdvanced']['Indici']['Indice_di_Indebitamento'] >= 1000 ? (number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['Indice_di_Indebitamento'], '2', ',', '.')."% Valore anomalo") : (null)),
 						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Indice di Indebitamento'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Indice di Indebitamento']['Scoring'] : null,
 						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Indice di Indebitamento'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Indice di Indebitamento']['Giudizio'] : null,
 					],
 					"SaldoDeiDebitiVersoIlFisco" => [
-						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Saldo_dei_Debiti_verso_il_Fisco'])) ? $bilancioData['AnalisiAdvanced']['Indici']['Saldo_dei_Debiti_verso_il_Fisco'] : null,
+						'Valore' =>  (isset($bilancioData['AnalisiAdvanced']['Indici']['Saldo_dei_Debiti_verso_il_Fisco']) && $bilancioData['AnalisiAdvanced']['Indici']['Saldo_dei_Debiti_verso_il_Fisco'] < 1000) ? number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['Saldo_dei_Debiti_verso_il_Fisco'], '2', ',', '.').'%' : ($bilancioData['AnalisiAdvanced']['Indici']['Saldo_dei_Debiti_verso_il_Fisco'] >= 1000 ? (number_format((float)$bilancioData['AnalisiAdvanced']['Indici']['Saldo_dei_Debiti_verso_il_Fisco'], '2', ',', '.')."% Valore anomalo") : (null)),
 						'Score' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Saldo dei Debiti verso il Fisco'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Saldo dei Debiti verso il Fisco']['Scoring'] : null,
 						'Giudizio' => (isset($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Saldo dei Debiti verso il Fisco'])) ? $bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['Saldo dei Debiti verso il Fisco']['Giudizio'] : null,
+					],
+					'ResocontoAnomalie' => [
+						'ListaSconfiniEntroNovantaGiorni' => $sconfiniDivisi['SconfiniEntro90Giorni'],
+						'ListaSconfiniEntroCentoOttantaGiorni' => $sconfiniDivisi['SconfiniOltre90Giorni'],
+						'ListaSconfiniOltreCentoOttantaGiorni' => $sconfiniDivisi['SconfiniOltre180Giorni'],
+						'ListaAnomalie' => $anomalie,
 					],
 					"ASISfinalScore" => $ASISfinalScore,
 					"bilancioData" => $bilancioData,
