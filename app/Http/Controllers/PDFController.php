@@ -168,7 +168,7 @@ class PDFController extends Controller
                 $lastDate = $lastDate->modify('last day of this month')->format('Y-m-d');
 
                 $earlierDate = new DateTime(cr::select('date')->where('document_id', $crAndamentaleData['period'])->orderBy('date', 'desc')->first()->date);
-                $earlierDate = $earlierDate->modify('-11 months')->modify('first day of this month');
+                $earlierDate = $earlierDate->modify('-12 months')->modify('first day of this month');
             } else {
                 if (!is_numeric($crAndamentaleData['data_inizio']) || !is_numeric($crAndamentaleData['data_fine'])) {
                     return response()->json([
