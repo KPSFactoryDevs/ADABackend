@@ -20,7 +20,6 @@ use Carbon\Carbon;
 use DateTime;
 use Storage;
 use Exception;
-use Illuminate\Support\Facades\Log;
 
 class CentraleRischiController extends Controller
 {
@@ -102,7 +101,6 @@ class CentraleRischiController extends Controller
             $companyId = $crFileToElaborate->company_id;
             $CentraleRischiStoreDataHelper = new App\Helpers\CentraleRischi\CentraleRischiStoreDataHelper();
 
-            Log::info('Json data from document'.$codiceDocumento. ' #### '.$jsonArray);
 
             foreach ($dataToSave as $anno => $months) {
                 foreach ($months as $mese => $data) {
