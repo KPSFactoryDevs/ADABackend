@@ -1038,8 +1038,6 @@ class PDFController extends Controller
 					"GiudizioFinale" => $getScoreHelper,
 				];
 
-				dd($dataAllerta);
-
 				$printPDF = new printpdf;
 				$printPDF->currentPayload = $dataAllerta;
 				$documentId = $printPDF->generateDocument('allerta');
