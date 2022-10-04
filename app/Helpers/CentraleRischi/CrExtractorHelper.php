@@ -872,8 +872,8 @@ AND t.divisa = t2.divisa');
                 $query->where($queryPeriodArray);
                 $query->whereIn('nome_banca', $banks);
                 $query->where('stato_rapporto', 'Crediti impagati');
-                $query->where('document_id', $this->_documentId);
                 $query->whereIn('categoria', $categories);
+                $query->where('document_id', $this->_documentId);
             });
         }
         $impagati = $CentraleRischiModel
