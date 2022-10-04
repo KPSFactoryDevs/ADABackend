@@ -96,7 +96,6 @@ class BilanciHelper
         }
 
         foreach ($data as $label => $value) {
-
             $giudizio = '';
             if (str_contains((float)$value, '%') && isset($value)) {
                 $value = explode('%', (float)$value)[0];
@@ -105,7 +104,6 @@ class BilanciHelper
             $label = str_replace('_', ' ', $label);
             $value = (float)str_replace(',', '.', $value);
 
-            // dump(($value == 8.47) ? $value /= 100 : 0);
             if ($label == 'ROE') {
                 $tassoInflazione = (float)Roe::where('year', $currentYear)->get()->first()->value / 100;
                 $value /= 100;
@@ -128,17 +126,11 @@ class BilanciHelper
                 }
             } else if ($label == 'OF Fatturato') {
                 $label = 'Peso Oneri Finanziari';
-
-                // dd($label, $value);
             }
-            // dump($label, $value);
+
             $arrayIndici[$label] = $value / 100;
-            // dump($arrayIndici[$label]);
-            // dump($tipoAzienda);
-            // dump($arrayIndici);
 
             $arraySoglie[$label] = range::where([['range_min', '<', $arrayIndici[$label]], ['range_max', '>', $arrayIndici[$label]], ['indice', '=', $label], ['tipo_azienda', '=', $tipoAzienda]])->with('pesi')->get();
-
             // if ($label == 'Costo del personale') {
             //             dump($dataAnalisis);
             // (range::where([['range_min', '<', $arrayIndici[$label]], ['range_max', '>', $arrayIndici[$label]], ['indice', '=', $label], ['tipo_azienda', '=', $tipoAzienda]])->with('pesi')->getBindings());
@@ -152,6 +144,7 @@ class BilanciHelper
                 $scoringAreaBilancio += $arrayGiudizi[$label]['Scoring'];
             } else {
                 $arraySoglie[$label] = range::where([['range_min', '<', $arrayIndici[$label]], ['range_max', '>', $arrayIndici[$label]], ['indice', '=', $label], ['tipo_azienda', '=', 'Generica']])->with('pesi')->get();
+                // dump($arraySoglie);
                 // if ($label == 'PFN EBITDA') {
                 //     dd($label, $value, $tipoAzienda, count($arraySoglie['PFN EBITDA']));
                 // }
@@ -159,18 +152,19 @@ class BilanciHelper
                 //     dd(range::where([['range_min', '<', $arrayIndici[$label]], ['range_max', '>', $arrayIndici[$label]], ['indice', '=', $label], ['tipo_azienda', '=', 'Generica']])->with('pesi')->toSql(), $arrayIndici[$label], $label);
                 //     dd($label, $value, $arraySoglie[$label], $tipoAzienda, $arrayIndici[$label]);
                 // }
-
+                
                 if (count($arraySoglie[$label]) > 0) {
+
                     $arrayGiudizi[$label]['Scoring'] = ($arraySoglie[$label][0]->pesi->peso) * ($arraySoglie[$label][0]->score);
 
                     $arrayGiudizi[$label]['Giudizio'] = $arraySoglie[$label][0]->giudizio;
 
                     $scoringAreaBilancio += $arrayGiudizi[$label]['Scoring'];
                 }
+
             }
         }
 
-        // dd('');
         return array("Score" => $scoringAreaBilancio, "Giudizi" => $arrayGiudizi);
     }
 
@@ -607,7 +601,7 @@ class BilanciHelper
         $cleanArray = [
             'DSCRDate' => (isset($allData['DSCRdispLiquida'])) ? $allData['DSCRDate'] : "1970-01-01",
             'DSCR' => $allData['DSCR'],
-            'DSCRdispLiquida' => (empty($allData['DSCRdispLiquida']) || $allData['DSCRdispLiquida'] == 0) ? null : $allData['DSCRdispLiquida'],
+            'DSCRdispLiquida' => (empty($allData['DSCRdispLiquida']) || $allData['DSCRdispLiquida'] == 0) ? null : number_format($allData['DSCRdispLiquida'],),
             'entrataDSCRCFmese1' => (isset($allData['entrataDSCRCFmese1'])) ? $allData['entrataDSCRCFmese1'] : null,
             'entrataDSCRCFmese2' => (isset($allData['entrataDSCRCFmese2'])) ? $allData['entrataDSCRCFmese2'] : null,
             'entrataDSCRCFmese3' => (isset($allData['entrataDSCRCFmese3'])) ? $allData['entrataDSCRCFmese3'] : null,
@@ -763,7 +757,7 @@ class BilanciHelper
 
                 if (is_finite($allData['agenziaEntrate1'] / $allData['agenziaEntrate2'])) {
                     // dd((float)number_format((((float)$allData['agenziaEntrate1'] / (float)$allData['agenziaEntrate2'])), 2, ",", "."));
-                    $cleanData['agenziaEntrate4'] = number_format((($allData['agenziaEntrate1'] / $allData['agenziaEntrate2'])), 2, ".", ",");
+                    $cleanData['agenziaEntrate4'] = number_format((($allData['agenziaEntrate1'] / $allData['agenziaEntrate2'])), 2, ",", ".");
                 } else {
                     $cleanData['agenziaEntrate4'] = "0";
                 }
