@@ -867,13 +867,15 @@ AND t.divisa = t2.divisa');
 
         $CentraleRischiModel = DB::table('crs');
 
+        $documentId = $this->_documentId;
+
         foreach ($periods as $queryPeriodArray) {
-            $CentraleRischiModel->orWhere(function ($query) use ($queryPeriodArray, $categories, $banks) {
+            $CentraleRischiModel->orWhere(function ($query) use ($queryPeriodArray, $categories, $banks, $documentId) {
                 $query->where($queryPeriodArray);
                 $query->whereIn('nome_banca', $banks);
                 $query->where('stato_rapporto', 'Crediti impagati');
                 $query->whereIn('categoria', $categories);
-                $query->where('document_id', $this->_documentId);
+                $query->where('document_id', $documentId);
             });
         }
         $impagati = $CentraleRischiModel
