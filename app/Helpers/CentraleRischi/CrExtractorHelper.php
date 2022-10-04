@@ -883,7 +883,7 @@ AND t.divisa = t2.divisa');
             ->toArray();
 
         $this->_impagati = $impagati;
-dd($this->_impagati);
+
         return $this->_impagati;
     }
 
