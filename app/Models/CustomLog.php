@@ -33,6 +33,7 @@ class CustomLog extends Model
                   'document_id',
                   'user_id',
                   'type',
+                  'action'
               ];
 
 
@@ -48,20 +49,32 @@ class CustomLog extends Model
     }
 
 
-    function addToLogCR($logType, $message, $documentId, $userId)
+    function addToLogBilanci($logType, $action ,$message, $documentId)
     {
         $log = [];
         $log['log_type'] = $logType;
         $log['message'] = $message;
-        $log['document_id'] = $documentId ? $documentId : 0;
+        $log['action'] = $action;
+        $log['document_id'] = $documentId;
 
         static::create($log);
 
         return true;
     }
 
+    function addToLogBilanciWithoutDocumentId($logType, $action ,$message)
+    {
+        $log = [];
+        $log['log_type'] = $logType;
+        $log['message'] = $message;
+        $log['action'] = $action;
 
-    function addToLogBilanci($logType, $message)
+        static::create($log);
+
+        return true;
+    }
+
+    function addToLogAnalisiBilancioCalculation($logType ,$message)
     {
         $log = [];
         $log['log_type'] = $logType;
