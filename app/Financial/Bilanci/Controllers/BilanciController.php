@@ -19,7 +19,9 @@ use App\Helpers\Bilanci\BilanciHelper;
 use App\Models\Voci;
 use Storage;
 use App\Models\Document;
+use App\Models\CustomLog;
 use Carbon\Carbon;
+use Auth;
 
 class BilanciController extends Controller
 {
@@ -151,9 +153,11 @@ class BilanciController extends Controller
         $jsonData['currentYear'] = $years[2] . ' ' . $years[3];
         $jsonData['years'] = explode('-', $years[0])[0].'-'.explode('-', $years[2])[0];
 
-
+        CustomLog::addToLogBilanci('Bilanci Recap', 'Sono stati estratti gli anni '.$jsonData['years'].'.');
+ 
         $elements = $result->getElements();
         $elements = $elements->getElements();
+
 
         foreach ($elements as $key => $elemento) {
 
@@ -469,6 +473,13 @@ class BilanciController extends Controller
         foreach ($vociBilancioMancanti as $ext => $name) {
             $completeBranch[$name] = $this->getSonsFromFather($name, $extNames);
         }
+
+        if($vociBilancioMancanti) {
+            $encodeVociMancanti = json_encode($vociBilancioMancanti);
+
+            CustomLog::addToLogBilanci('Bilanci Recap', 'Le voci di bilancio mancanti sono le seguenti: '.$encodeVociMancanti.'');
+        }
+
         $request->session()->put('extNames', $extNames);
         $request->session()->put('mascheraOrdinata', $this->mascheraOrdinata());
         $request->session()->put('formaGiuridica', $formaGiuridica);
@@ -481,6 +492,8 @@ class BilanciController extends Controller
         $request->session()->put('gradi', $gradi);
         $request->session()->put('vociExt', $vociExt);
         $request->session()->put('account_id', $request->input('account_id'));
+
+        CustomLog::addToLogBilanci('Bilanci Recap', 'Tutti i dati sono stati estratti');
 
         return response()->json([
             'vociBilancioMancanti' => $vociBilancioMancanti,
@@ -534,7 +547,9 @@ class BilanciController extends Controller
                 'type' => 'bilancio'
             ];
 
-            Document::create($dataBilancio);
+            $document = Document::create($dataBilancio);
+
+            CustomLog::addToLogBilanci('Bilanci Store', 'File importato');
 
             return response()->json([
                 'error' => false,
@@ -641,6 +656,8 @@ class BilanciController extends Controller
             'company_id' => $companyId
         ]);
 
+        CustomLog::addToLogBilanci('Bilanci Store', 'Inserimento a Database');
+
         return response()->json([
             'bilancioImported' => true,
             'tipo_azienda' => $tipoAzienda,
@@ -688,6 +705,8 @@ class BilanciController extends Controller
         $jsonData['vociDiBilancioConValoriCurrent']  = $vociWithValuesCurrent;
         $jsonData['vociDiBilancioConValoriPrevious']  = $vociWithValuesPrevious;
 
+        CustomLog::addToLogBilanci('Bilanci Show', 'Visualizzato');
+
         return response()->json([
             'error' => false,
             'jsonData' => $jsonData,
@@ -698,6 +717,9 @@ class BilanciController extends Controller
     public function destroy($idBilancio)
     {
         if (!$idBilancio) {
+
+            CustomLog::addToLogBilanci('Bilanci destroy', 'ID non specificato');
+
             return response()->json([
                 'error' => true,
                 'message' => 'Specifica l\'Id del bilancio',
@@ -707,11 +729,16 @@ class BilanciController extends Controller
             $bilancio = Bilanci::findOrFail($idBilancio);
             $bilancio->delete();
 
+            CustomLog::addToLogBilanci('Bilanci destroy', 'Eliminato');
+
             return response()->json([
                 'error' => false,
                 'message' => 'Bilancio eliminato correttamente',
             ]);
         } catch (Excepton $e) {
+
+            CustomLog::addToLogBilanci('Bilanci destroy', 'Exception: '.$e.'.');
+
             return response()->json([
                 'error' => false,
                 'type' => 'Eccezione',

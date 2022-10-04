@@ -865,13 +865,14 @@ AND t.divisa = t2.divisa');
             'RISCHI AUTOLIQUIDANTI - CREDITI SCADUTI',
         );
 
-        $CentraleRischiModel = DB::table('crs')->where('document_id', $this->_documentId);
+        $CentraleRischiModel = DB::table('crs');
 
         foreach ($periods as $queryPeriodArray) {
             $CentraleRischiModel->orWhere(function ($query) use ($queryPeriodArray, $categories, $banks) {
                 $query->where($queryPeriodArray);
                 $query->whereIn('nome_banca', $banks);
                 $query->where('stato_rapporto', 'Crediti impagati');
+                $query->where('document_id', $this->_documentId);
                 $query->whereIn('categoria', $categories);
             });
         }
