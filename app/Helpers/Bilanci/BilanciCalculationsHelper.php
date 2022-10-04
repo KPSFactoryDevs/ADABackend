@@ -60,7 +60,7 @@ class BilanciCalculationsHelper
     {
         $TotalePatrimonioNetto = $this->getDataFromBilancio('TotalePatrimonioNetto');
 
-        CustomLog::addToLogBilanci('Bilanci Calculations', 'Patrimonio Netto: '.$TotalePatrimonioNetto.'');
+        CustomLog::addToLogAnalisiBilancioCalculation('Bilanci Calculations', 'Patrimonio Netto: '.$TotalePatrimonioNetto.'');
 
         return  $TotalePatrimonioNetto;
     }
@@ -72,7 +72,7 @@ class BilanciCalculationsHelper
 
         $PN_NEGATIVO = $TotalePatrimonioNetto - $TotaleCreditiVersoSociVersamentiAncoraDovuti;
 
-        CustomLog::addToLogBilanci('Bilanci Calculations', 'Patrimonio Netto Negativo: '.$PN_NEGATIVO.'');
+        CustomLog::addToLogAnalisiBilancioCalculation('Bilanci Calculations', 'Patrimonio Netto Negativo: '.$PN_NEGATIVO.'');
 
         return  $PN_NEGATIVO;
     }
@@ -87,16 +87,16 @@ class BilanciCalculationsHelper
             $OF_RICAVI = "NON CALCOLABILE";
         }
 
-        CustomLog::addToLogBilanci('Bilanci Calculations', 'OF RICAVI: '.$OF_RICAVI.'');
+        CustomLog::addToLogAnalisiBilancioCalculation('Bilanci Calculations', 'OF RICAVI: '.$OF_RICAVI.'');
 
-        return $OF_RICAVI . '%';
+        return $OF_RICAVI;
     }
 
     public function getTotaleDebiti()
     {
         $TotaleDebiti = $this->getDataFromBilancio('TotaleDebiti');
 
-        CustomLog::addToLogBilanci('Bilanci Calculations', 'Totale Debiti: '.$TotaleDebiti.'');
+        CustomLog::addToLogAnalisiBilancioCalculation('Bilanci Calculations', 'Totale Debiti: '.$TotaleDebiti.'');
 
         return $TotaleDebiti;
     }
@@ -109,9 +109,9 @@ class BilanciCalculationsHelper
 
         $ADEGUATEZZA_PATRIMONIALE = number_format(($PN_NEGATIVO / ($TotaleDebiti + $PassivoRateiRisconti)) * 100, 2, ',', '');
 
-        CustomLog::addToLogBilanci('Bilanci Calculations', 'Adeguatezza Patrimoniale: '.$ADEGUATEZZA_PATRIMONIALE.'');
+        CustomLog::addToLogAnalisiBilancioCalculation('Bilanci Calculations', 'Adeguatezza Patrimoniale: '.$ADEGUATEZZA_PATRIMONIALE.'');
 
-        return $ADEGUATEZZA_PATRIMONIALE . '%';
+        return $ADEGUATEZZA_PATRIMONIALE;
     }
 
     public function getTotaleCreditiEntroDodiciMesi()
@@ -124,7 +124,7 @@ class BilanciCalculationsHelper
         $CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo');
         $CreditiImposteAnticipateTotaleImposteAnticipate = $this->getDataFromBilancio('CreditiImposteAnticipateTotaleImposteAnticipate');
 
-        CustomLog::addToLogBilanci('Bilanci Calculations', 'Totale Crediti Entro Dodici Mesi: '.(float)$CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo + (float)$CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + (float)$CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + (float)$CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo + (float)$CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo + (float)$CreditiImposteAnticipateTotaleImposteAnticipate + (float)$CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo.'');
+        CustomLog::addToLogAnalisiBilancioCalculation('Bilanci Calculations', 'Totale Crediti Entro Dodici Mesi: '.(float)$CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo + (float)$CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + (float)$CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + (float)$CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo + (float)$CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo + (float)$CreditiImposteAnticipateTotaleImposteAnticipate + (float)$CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo.'');
 
         return (float)$CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo + (float)$CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + (float)$CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + (float)$CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo + (float)$CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo + (float)$CreditiImposteAnticipateTotaleImposteAnticipate + (float)$CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo;
     }
@@ -146,7 +146,7 @@ class BilanciCalculationsHelper
         $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo');
         $DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo = $this->getDataFromBilancio('DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo');
 
-        CustomLog::addToLogBilanci('Bilanci Calculations', 'Totale Debiti Entro Dodici Mesi: '.(float)$DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo + (float)$DebitiAccontiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo + (float)$DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo.'');
+        CustomLog::addToLogAnalisiBilancioCalculation('Bilanci Calculations', 'Totale Debiti Entro Dodici Mesi: '.(float)$DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo + (float)$DebitiAccontiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo + (float)$DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo.'');
 
         return (float)$DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo + (float)$DebitiAccontiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo + (float)$DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo;
     }
@@ -166,9 +166,9 @@ class BilanciCalculationsHelper
             $LIQUIDITA = number_format((($UtilePerditaEsercizio + $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni + (float)$CostiProduzioneAccantonamentiRischi + (float)$CostiProduzioneAltriAccantonamenti) / (float)$TotaleAttivo) * 100, 2, ',', '');
         }
 
-        CustomLog::addToLogBilanci('Bilanci Calculations', 'Liquidità: '.$LIQUIDITA.'');
+        CustomLog::addToLogAnalisiBilancioCalculation('Bilanci Calculations', 'Liquidità: '.$LIQUIDITA.'');
 
-        return $LIQUIDITA . '%';
+        return $LIQUIDITA;
     }
 
     public function getIndebitamentoPrevidenzialeTributario()
@@ -183,9 +183,9 @@ class BilanciCalculationsHelper
             $INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO = number_format((($DebitiDebitiTributariTotaleDebitiTributari + $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale) / $TotaleAttivo) * 100, 2, ',', '');
         }
 
-        CustomLog::addToLogBilanci('Bilanci Calculations', 'Indebitamento Previdenziale Tributario: '.$INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO.'');
+        CustomLog::addToLogAnalisiBilancioCalculation('Bilanci Calculations', 'Indebitamento Previdenziale Tributario: '.$INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO.'');
 
-        return $INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO . '%';
+        return $INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO;
     }
 
     public function getAndamentoDelFatturato()
@@ -198,9 +198,9 @@ class BilanciCalculationsHelper
             $AndamentoDelFatturato = number_format((- (1 - (($ValoreProduzioneRicaviVenditePrestazioniCurr) / ($ValoreProduzioneRicaviVenditePrestazioniPrev)))) * 100, 2, ',', '');
         }
 
-        CustomLog::addToLogBilanci('Bilanci Calculations', 'Andamento Del Fatturato: '.$AndamentoDelFatturato.'');
+        CustomLog::addToLogAnalisiBilancioCalculation('Bilanci Calculations', 'Andamento Del Fatturato: '.$AndamentoDelFatturato.'');
 
-        return $AndamentoDelFatturato . '%';
+        return $AndamentoDelFatturato;
     }
 
     public function getAndamentoDelMol()
@@ -232,11 +232,11 @@ class BilanciCalculationsHelper
             $AndamentoMOL = number_format(- (1 - ($MOLcurr / $MOLprev)) * 100, 2, ',', '');
         }
 
-        CustomLog::addToLogBilanci('Bilanci Calculations', 'Andamento Del Mol: '.$AndamentoMOL.'');
+        CustomLog::addToLogAnalisiBilancioCalculation('Bilanci Calculations', 'Andamento Del Mol: '.$AndamentoMOL.'');
 
         $data = [
             'MOLcurr' => $MOLcurr,
-            'AndamentoMOL' => $AndamentoMOL . '%',
+            'AndamentoMOL' => $AndamentoMOL,
         ];
 
         return $data;
@@ -253,9 +253,9 @@ class BilanciCalculationsHelper
             $ROI = number_format(($DifferenzaValoreCostiProduzione / $TotaleAttivo) * 100, 2, ',', '');
         }
 
-        CustomLog::addToLogBilanci('Bilanci Calculations', 'ROI: '.$ROI.'');
+        CustomLog::addToLogAnalisiBilancioCalculation('Bilanci Calculations', 'ROI: '.$ROI.'');
 
-        return $ROI . '%';
+        return $ROI;
     }
 
     public function getROS()
@@ -269,9 +269,9 @@ class BilanciCalculationsHelper
             $ROS = number_format(($DifferenzaValoreCostiProduzione / $ValoreProduzioneRicaviVenditePrestazioni) * 100, 2, ',', '');
         }
 
-        CustomLog::addToLogBilanci('Bilanci Calculations', 'ROS: '.$ROS.'');
+        CustomLog::addToLogAnalisiBilancioCalculation('Bilanci Calculations', 'ROS: '.$ROS.'');
 
-        return $ROS . '%';
+        return $ROS;
     }
 
     public function getROE()
@@ -285,9 +285,9 @@ class BilanciCalculationsHelper
             $ROE = number_format(($UtilePerditaEsercizio / $TotalePatrimonioNetto) * 100, 2, ',', '');
         }
 
-        CustomLog::addToLogBilanci('Bilanci Calculations', 'ROE: '.$ROE.'');
+        CustomLog::addToLogAnalisiBilancioCalculation('Bilanci Calculations', 'ROE: '.$ROE.'');
 
-        return $ROE . '%';
+        return $ROE;
     }
 
     public function getEbitdaFatturato()
@@ -307,9 +307,9 @@ class BilanciCalculationsHelper
             $EBITDA_FATTURATO = number_format((($TotaleValoreProduzione - $CostiProduzioneMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneServizi - $CostiProduzioneGodimentoBeniTerzi - $CostiProduzionePersonaleTotaleCostiPersonale - $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneOneriDiversiGestione) / $ValoreProduzioneRicaviVenditePrestazioni) * 100, 2, ',', '');
         }
 
-        CustomLog::addToLogBilanci('Bilanci Calculations', 'Ebitda Fatturato: '.$EBITDA_FATTURATO.'');
+        CustomLog::addToLogAnalisiBilancioCalculation('Bilanci Calculations', 'Ebitda Fatturato: '.$EBITDA_FATTURATO.'');
 
-        return $EBITDA_FATTURATO . '%';
+        return $EBITDA_FATTURATO;
     }
 
     public function getAndamentoDeiMezziPropri()
@@ -323,9 +323,9 @@ class BilanciCalculationsHelper
             $AndamentoDeiMezziPropri = number_format((($TotalePatrimonioNettoCurr / $TotalePatrimonioNettoPrev) - 1) * 100, 2, ',', '');
         }
 
-        CustomLog::addToLogBilanci('Bilanci Calculations', 'Andamento Dei Mezzi Propri: '.$AndamentoDeiMezziPropri.'');
+        CustomLog::addToLogAnalisiBilancioCalculation('Bilanci Calculations', 'Andamento Dei Mezzi Propri: '.$AndamentoDeiMezziPropri.'');
 
-        return $AndamentoDeiMezziPropri . '%';
+        return $AndamentoDeiMezziPropri;
     }
 
     public function getMargineStrutturaPrimario()
@@ -339,7 +339,7 @@ class BilanciCalculationsHelper
             $Margine_Struttura_Primario = number_format((float)($TotalePatrimonioNetto / $TotaleImmobilizzazioni) * 100, 2, ',', '');
         }
 
-        CustomLog::addToLogBilanci('Bilanci Calculations', 'Margine Struttura Primario: '.$Margine_Struttura_Primario.'');
+        CustomLog::addToLogAnalisiBilancioCalculation('Bilanci Calculations', 'Margine Struttura Primario: '.$Margine_Struttura_Primario.'');
 
         return $Margine_Struttura_Primario;
     }
@@ -370,7 +370,7 @@ class BilanciCalculationsHelper
             $Margine_Struttura_Secondario_Semplificato = number_format((($TotalePatrimonioNetto + $TrattamentoFineRapportoLavoroSubordinato + $DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo + $DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo + $DebitiAccontiEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoFornitoriEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiRappresentatiTitoliCreditoEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoImpreseControllateEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoImpreseCollegateEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoControllantiEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo + $DebitiAltriDebitiEsigibiliOltreEsercizioSuccessivo) / $TotaleImmobilizzazioni) * 100, 2, ',', '');
         }
 
-        CustomLog::addToLogBilanci('Bilanci Calculations', 'Margine Struttura Secondario Semplificato: '.$Margine_Struttura_Secondario_Semplificato.'');
+        CustomLog::addToLogAnalisiBilancioCalculation('Bilanci Calculations', 'Margine Struttura Secondario Semplificato: '.$Margine_Struttura_Secondario_Semplificato.'');
 
         return $Margine_Struttura_Secondario_Semplificato;
     }
@@ -394,9 +394,9 @@ class BilanciCalculationsHelper
 
         $RITORNO_LIQUIDO_ATTIVO = number_format($formula * 100, 2, ',', '.');
 
-        CustomLog::addToLogBilanci('Bilanci Calculations', 'Current Ratio: '.$RITORNO_LIQUIDO_ATTIVO.'');
+        CustomLog::addToLogAnalisiBilancioCalculation('Bilanci Calculations', 'Current Ratio: '.$RITORNO_LIQUIDO_ATTIVO.'');
 
-        return $RITORNO_LIQUIDO_ATTIVO . '%';
+        return $RITORNO_LIQUIDO_ATTIVO;
     }
 
     public function getAttivitaPassivitaABreve() 
@@ -438,12 +438,12 @@ class BilanciCalculationsHelper
         $Attivita_a_breve_Passivita_a_Breve_Ordinario_divisore = $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo + $DebitiAccontiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo + $DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo + $PassivoRateiRisconti;
 
         if ($Attivita_a_breve_Passivita_a_Breve_Ordinario_divisore > 0) {
-            $Attivita_a_breve_Passivita_a_Breve_Ordinario = number_format(((($TotaleDisponibilitaLiquide + $CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo + $CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo + $CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo + $CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo + $TotaleRimanenze + $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + $AttivoRateiRisconti) / ($Attivita_a_breve_Passivita_a_Breve_Ordinario_divisore))) * 100, 2, ',', '') . '%';
+            $Attivita_a_breve_Passivita_a_Breve_Ordinario = number_format(((($TotaleDisponibilitaLiquide + $CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo + $CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo + $CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo + $CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo + $TotaleRimanenze + $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + $AttivoRateiRisconti) / ($Attivita_a_breve_Passivita_a_Breve_Ordinario_divisore))) * 100, 2, ',', '');
         } else {
             $Attivita_a_breve_Passivita_a_Breve_Ordinario = "Non Calcolabile";
         }
 
-        CustomLog::addToLogBilanci('Bilanci Calculations', 'Attività Passività a Breve Ordinario: '.$Attivita_a_breve_Passivita_a_Breve_Ordinario.'');
+        CustomLog::addToLogAnalisiBilancioCalculation('Bilanci Calculations', 'Attività Passività a Breve Ordinario: '.$Attivita_a_breve_Passivita_a_Breve_Ordinario.'');
 
         $data = [
             'Attivita_a_breve_Passività_a_Breve_Ordinario' => $Attivita_a_breve_Passivita_a_Breve_Ordinario,
@@ -467,9 +467,9 @@ class BilanciCalculationsHelper
             $AcidTest = number_format((float)(((float)$TotaleCrediti + (float)$TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + (float)$TotaleDisponibilitaLiquide + (float)$AttivoRateiRisconti) / ((float)$DebitiEsigibiliEntroEsercizioSuccessivo + (float)$PassivoRateiRisconti)), 2, ',', '');
         } 
 
-        CustomLog::addToLogBilanci('Bilanci Calculations', 'Acid Test: '.$AcidTest.'');
+        CustomLog::addToLogAnalisiBilancioCalculation('Bilanci Calculations', 'Acid Test: '.$AcidTest.'');
 
-        return $AcidTest. '%';
+        return $AcidTest;
     }
 
     public function getAcidTestSemplificato() 
@@ -488,9 +488,9 @@ class BilanciCalculationsHelper
             $ACID_TEST_Semplificato = number_format((float)((((float)$TotaleDisponibilitaLiquide + (float)$TrentaCinque + (float)$TotaleRimanenze + (float)$TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + (float)$AttivoRateiRisconti - (float)$TotaleRimanenze) / ((float)$QuarantaNove + (float)$PassivoRateiRisconti))), 2, ',', '');
         } 
 
-        CustomLog::addToLogBilanci('Bilanci Calculations', 'Acid Test Semplificato: '.$ACID_TEST_Semplificato.'');
+        CustomLog::addToLogAnalisiBilancioCalculation('Bilanci Calculations', 'Acid Test Semplificato: '.$ACID_TEST_Semplificato.'');
 
-        return $ACID_TEST_Semplificato.'%';
+        return $ACID_TEST_Semplificato;
     }
 
     public function getAcidTestOrdinario() 
@@ -526,12 +526,12 @@ class BilanciCalculationsHelper
         $ACID_TEST_Ordinario_divisore = $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo + $DebitiAccontiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo + $DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo + $PassivoRateiRisconti;
 
         if ($ACID_TEST_Ordinario_divisore > 0) {
-            $ACID_TEST_Ordinario = number_format(((($TotaleDisponibilitaLiquide + $CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo + $CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo + $CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo + $CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo + $TotaleRimanenze + $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + $AttivoRateiRisconti - $TotaleRimanenze) / ($ACID_TEST_Ordinario_divisore))) * 100, 2, ',', '') . '%';
+            $ACID_TEST_Ordinario = number_format(((($TotaleDisponibilitaLiquide + $CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo + $CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo + $CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo + $CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo + $TotaleRimanenze + $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + $AttivoRateiRisconti - $TotaleRimanenze) / ($ACID_TEST_Ordinario_divisore))) * 100, 2, ',', '');
         } else {
             $ACID_TEST_Ordinario = "Non Calcolabile";
         }
 
-        CustomLog::addToLogBilanci('Bilanci Calculations', 'Acid Test Ordinario: '.$ACID_TEST_Ordinario.'');
+        CustomLog::addToLogAnalisiBilancioCalculation('Bilanci Calculations', 'Acid Test Ordinario: '.$ACID_TEST_Ordinario.'');
 
         return $ACID_TEST_Ordinario;
     }
@@ -547,9 +547,9 @@ class BilanciCalculationsHelper
             $AUTONOMIA_FINANZIARIA = number_format((float)(($TotalePatrimonioNetto / ($TotalePatrimonioNetto + $TotaleDebiti))) * 100, 2, ',', '');
         }
 
-        CustomLog::addToLogBilanci('Bilanci Calculations', 'Autonomia Finanziaria: '.$AUTONOMIA_FINANZIARIA.'');
+        CustomLog::addToLogAnalisiBilancioCalculation('Bilanci Calculations', 'Autonomia Finanziaria: '.$AUTONOMIA_FINANZIARIA.'');
 
-        return $AUTONOMIA_FINANZIARIA . '%'; 
+        return $AUTONOMIA_FINANZIARIA; 
     }
 
     public function getLivelloInvestimentiAziendali() 
@@ -563,9 +563,9 @@ class BilanciCalculationsHelper
             $LIVELLO_INVESTIMENTI_AZIENDALI = number_format((float)($TotalePatrimonioNetto / $TotaleAttivo) * 100, 2, ',', '');
         }
 
-        CustomLog::addToLogBilanci('Bilanci Calculations', 'Livello Investimento Aziendali: '.$LIVELLO_INVESTIMENTI_AZIENDALI.'');
+        CustomLog::addToLogAnalisiBilancioCalculation('Bilanci Calculations', 'Livello Investimento Aziendali: '.$LIVELLO_INVESTIMENTI_AZIENDALI.'');
 
-        return $LIVELLO_INVESTIMENTI_AZIENDALI . '%';
+        return $LIVELLO_INVESTIMENTI_AZIENDALI;
     }
 
     public function getPfnEbitda() 
@@ -595,7 +595,7 @@ class BilanciCalculationsHelper
 
         $PFN_EBITDA = $PFN_EBITDA * 100;
 
-        CustomLog::addToLogBilanci('Bilanci Calculations', 'PFN Ebitda: '.$PFN_EBITDA.'');
+        CustomLog::addToLogAnalisiBilancioCalculation('Bilanci Calculations', 'PFN Ebitda: '.$PFN_EBITDA.'');
 
         return $PFN_EBITDA;
     }
@@ -611,9 +611,9 @@ class BilanciCalculationsHelper
 
         $Peso_Oneri_Finanziari = number_format(($ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari / $ValoreProduzioneRicaviVenditePrestazioni) * 100,  2, ',', '');
 
-        CustomLog::addToLogBilanci('Bilanci Calculations', 'Peso Oneri Finanziari: '.$Peso_Oneri_Finanziari.'');
+        CustomLog::addToLogAnalisiBilancioCalculation('Bilanci Calculations', 'Peso Oneri Finanziari: '.$Peso_Oneri_Finanziari.'');
 
-        return $Peso_Oneri_Finanziari . '%';
+        return $Peso_Oneri_Finanziari;
     }
 
     public function getCoperturaLordaDegliOneriFinanziari() 
@@ -633,9 +633,9 @@ class BilanciCalculationsHelper
             $Copertura_Lorda_degli_Oneri_Finanziari = number_format((($TotaleValoreProduzione - $CostiProduzioneMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneServizi - $CostiProduzioneGodimentoBeniTerzi - $CostiProduzionePersonaleTotaleCostiPersonale - $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneOneriDiversiGestione) / $ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari), 2, '.', ',');
         }
 
-        $Copertura_Lorda_degli_Oneri_Finanziari = $Copertura_Lorda_degli_Oneri_Finanziari * 100;
+        $Copertura_Lorda_degli_Oneri_Finanziari = (float)$Copertura_Lorda_degli_Oneri_Finanziari * 100;
 
-        CustomLog::addToLogBilanci('Bilanci Calculations', 'Compertura Lorda Degli Oneri Finanziari: '.$Copertura_Lorda_degli_Oneri_Finanziari.'');
+        CustomLog::addToLogAnalisiBilancioCalculation('Bilanci Calculations', 'Compertura Lorda Degli Oneri Finanziari: '.$Copertura_Lorda_degli_Oneri_Finanziari.'');
 
         return $Copertura_Lorda_degli_Oneri_Finanziari;
     }
@@ -661,9 +661,9 @@ class BilanciCalculationsHelper
             $EBIT_OF = number_format((($TotaleValoreProduzione - $CostiProduzioneMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneServizi - $CostiProduzioneGodimentoBeniTerzi - $CostiProduzionePersonaleTotaleCostiPersonale - $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci - $CostiProduzioneOneriDiversiGestione - $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni - $CostiProduzioneAccantonamentiRischi - $CostiProduzioneAltriAccantonamenti) / $ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari), 2, '.', ',');
         }
 
-        $EBIT_OF = $EBIT_OF * 100;
+        $EBIT_OF = (float)$EBIT_OF * 100;
 
-        CustomLog::addToLogBilanci('Bilanci Calculations', 'Ebit Of: '.$EBIT_OF.'');
+        CustomLog::addToLogAnalisiBilancioCalculation('Bilanci Calculations', 'Ebit Of: '.$EBIT_OF.'');
 
         return $EBIT_OF;
     }
@@ -680,9 +680,9 @@ class BilanciCalculationsHelper
             $Costo_del_personale = number_format((float)($CostiProduzionePersonaleTotaleCostiPersonale / $ValoreProduzioneRicaviVenditePrestazioni) * 100, 2, ',', '');
         }
 
-        CustomLog::addToLogBilanci('Bilanci Calculations', 'Costo Del Personale: '.$Costo_del_personale.'');
+        CustomLog::addToLogAnalisiBilancioCalculation('Bilanci Calculations', 'Costo Del Personale: '.$Costo_del_personale.'');
 
-        return $Costo_del_personale . '%';
+        return $Costo_del_personale;
     }
 
     public function getCfAttivo() 
@@ -700,9 +700,9 @@ class BilanciCalculationsHelper
             $CF_ATTIVO = number_format((($UtilePerditaEsercizio + $CostiProduzioneAccantonamentiRischi + $CostiProduzioneAltriAccantonamenti + $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni - $imposteRedditoEsercizioImposteAnticipate) / $TotaleAttivo) * 100, 2, '.', ',');
         }
 
-        CustomLog::addToLogBilanci('Bilanci Calculations', 'CF Attivo: '.$CF_ATTIVO.'');
+        CustomLog::addToLogAnalisiBilancioCalculation('Bilanci Calculations', 'CF Attivo: '.$CF_ATTIVO.'');
 
-        return $CF_ATTIVO . '%';
+        return $CF_ATTIVO;
     }
 
     public function getIndiceDiIndebitamento() 
@@ -724,16 +724,16 @@ class BilanciCalculationsHelper
         if ($TotalePatrimonioNetto == 0) {
             $MOLannoCorrente = $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo + $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo;
             $Indice_di_Indebitamento = number_format((($MOLannoCorrente - $TotaleDisponibilitaLiquide - $ImmobilizzazioniFinanziarieCreditiTotaleCrediti) / 0.1) * 100, 2, ',', '');
-            $dataAnalisis['Indice_di_Indebitamento'] = $Indice_di_Indebitamento . '%';
+            $dataAnalisis['Indice_di_Indebitamento'] = $Indice_di_Indebitamento;
         } else {
             $MOLannoCorrente = $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo + $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo;
             $Indice_di_Indebitamento = number_format((($MOLannoCorrente - $TotaleDisponibilitaLiquide - $ImmobilizzazioniFinanziarieCreditiTotaleCrediti) / $TotalePatrimonioNetto) * 100, 2, ',', '');
-            $dataAnalisis['Indice_di_Indebitamento'] = $Indice_di_Indebitamento . '%';
+            $dataAnalisis['Indice_di_Indebitamento'] = $Indice_di_Indebitamento;
         }
 
-        CustomLog::addToLogBilanci('Bilanci Calculations', 'Indice Di Indebitamento: '.$Indice_di_Indebitamento.'');
+        CustomLog::addToLogAnalisiBilancioCalculation('Bilanci Calculations', 'Indice Di Indebitamento: '.$Indice_di_Indebitamento.'');
 
-        return $Indice_di_Indebitamento . '%';
+        return $Indice_di_Indebitamento;
     }
 
     public function getSaldoDebitiVsFisco() 
@@ -752,7 +752,7 @@ class BilanciCalculationsHelper
 
         $SaldoDebitiVSFisco = $SaldoDebitiVSFisco * 100;
 
-        CustomLog::addToLogBilanci('Bilanci Calculations', 'Saldo Debiti Verso Fisco: '.$SaldoDebitiVSFisco.'');
+        CustomLog::addToLogAnalisiBilancioCalculation('Bilanci Calculations', 'Saldo Debiti Verso Fisco: '.$SaldoDebitiVSFisco.'');
 
         return $SaldoDebitiVSFisco;
     }
