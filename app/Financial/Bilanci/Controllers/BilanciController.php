@@ -93,6 +93,9 @@ class BilanciController extends Controller
      */
     public function recap(Request $request)
     {
+        $getOriginalNameFile = $request->base64->getClientOriginalName();
+        CustomLog::addToLogBilanci('ExtractBilancio', 'InboundRequest' , json_encode($request->all()), $getOriginalNameFile);
+
         $tipo_azienda = $request->input('tipo_azienda');
         $formaGiuridica = $request->input('forma_giuridica');
 
@@ -105,8 +108,11 @@ class BilanciController extends Controller
         $instance = false;
 
         $result = XBRL_Instance::FromInstanceDocumentWithExtensionTaxonomy($file->getPathName(),  base_path() . "/taxonomies/2018-11-04/itcc-ci-2018-11-04.xsd", 'XBRL', $instance);
+        CustomLog::addToLogBilanci('ExtractBilancio', 'StartExtraction', json_encode($result), $getOriginalNameFile);
 
         $contexts = ($result->getContexts()->getContexts());
+        CustomLog::addToLogBilanci('ExtractBilancio', 'GetContexts', json_encode($contexts), $getOriginalNameFile);
+
         $years = array();
 
         foreach ($contexts as $cont) {
@@ -119,8 +125,8 @@ class BilanciController extends Controller
         });
 
         $years = array_values(array_unique($years));
+        CustomLog::addToLogBilanci('ExtractBilancio', 'GetPeriods', json_encode($years), $getOriginalNameFile);
 
-   
         ksort($contexts);
 
         foreach ($contexts as $data => $value) {
@@ -150,14 +156,17 @@ class BilanciController extends Controller
         sort($ordDate);
 
         $jsonData['prevYear'] = $years[0] . ' ' . $years[1];
+        CustomLog::addToLogBilanci('Bilanci Recap', 'GetPreviousYear', $jsonData['prevYear'], $getOriginalNameFile);
+
         $jsonData['currentYear'] = $years[2] . ' ' . $years[3];
+        CustomLog::addToLogBilanci('Bilanci Recap', 'GetCurrentYear', $jsonData['currentYear'], $getOriginalNameFile);
+
         $jsonData['years'] = explode('-', $years[0])[0].'-'.explode('-', $years[2])[0];
 
-        CustomLog::addToLogBilanci('Bilanci Recap', 'Sono stati estratti gli anni '.$jsonData['years'].'.');
  
         $elements = $result->getElements();
         $elements = $elements->getElements();
-
+        CustomLog::addToLogBilanci('ExtractBilancio', 'GetElements', json_encode($elements), $getOriginalNameFile);
 
         foreach ($elements as $key => $elemento) {
 
@@ -363,6 +372,8 @@ class BilanciController extends Controller
         }
 
         $voci = DB::table('vocis')->get();
+        CustomLog::addToLogBilanci('ExtractBilancio', 'GetVocis', json_encode($voci), $getOriginalNameFile);
+
         $gradi = array();
 
         foreach ($voci as $voce) {
@@ -418,11 +429,17 @@ class BilanciController extends Controller
         foreach ($voci as $voce) {
             $vociExt[$voce->name] = $voce->extended_name;
         }
+        CustomLog::addToLogBilanci('ExtractBilancio', 'GetVocisTree', json_encode($vociExt), $getOriginalNameFile);
+
 
         $currentYear = $jsonData['currentYear'];
         $prevYear = $jsonData['prevYear'];
         $support1 = $jsonData['current'];
+        CustomLog::addToLogBilanci('ExtractBilancio', 'CurrentData', json_encode($support1), $getOriginalNameFile);
+
         $support2 = $jsonData['prev'];
+        CustomLog::addToLogBilanci('ExtractBilancio', 'PreviousData', json_encode($support2), $getOriginalNameFile);
+
         $support3 = array();
         ksort($support1);
         ksort($support2);
@@ -455,6 +472,7 @@ class BilanciController extends Controller
         }
 
         $indiciImportanti = Voci::select('name', 'extended_name', 'voce_padre')->where('required', 1)->orderBy('name')->get()->toArray();
+        CustomLog::addToLogBilanci('ExtractBilancio', 'GetSignificantIndex', json_encode($indiciImportanti), $getOriginalNameFile);
 
         $vociBilancioMancanti = array();
 
@@ -474,11 +492,7 @@ class BilanciController extends Controller
             $completeBranch[$name] = $this->getSonsFromFather($name, $extNames);
         }
 
-        if($vociBilancioMancanti) {
-            $encodeVociMancanti = json_encode($vociBilancioMancanti);
-
-            CustomLog::addToLogBilanci('Bilanci Recap', 'Le voci di bilancio mancanti sono le seguenti: '.$encodeVociMancanti.'');
-        }
+        CustomLog::addToLogBilanci('ExtractBilancio', 'GetMissingVocis', json_encode($vociBilancioMancanti), $getOriginalNameFile);
 
         $request->session()->put('extNames', $extNames);
         $request->session()->put('mascheraOrdinata', $this->mascheraOrdinata());
@@ -493,9 +507,9 @@ class BilanciController extends Controller
         $request->session()->put('vociExt', $vociExt);
         $request->session()->put('account_id', $request->input('account_id'));
 
-        CustomLog::addToLogBilanci('Bilanci Recap', 'Tutti i dati sono stati estratti');
+        CustomLog::addToLogBilanci('ExtractBilancio', 'GetSessionData', json_encode($request->session()->all()), $getOriginalNameFile);
 
-        return response()->json([
+        $data = [
             'vociBilancioMancanti' => $vociBilancioMancanti,
             'extNames' => $extNames,
             'mascheraOrdinata' => $this->mascheraOrdinata(),
@@ -509,7 +523,11 @@ class BilanciController extends Controller
             'gradi' => $gradi,
             'vociExt' => $vociExt,
             'account_id' => $request->input('account_id')
-        ]);
+        ];
+        
+        CustomLog::addToLogBilanci('ExtractBilancio', 'GetJsonResult', json_encode($data), $getOriginalNameFile);
+
+        return $data;
     }
 
     public function getSonsFromFather($father, $extNames)
@@ -532,30 +550,7 @@ class BilanciController extends Controller
      */
     public function store(Request $request)
     {  
-        if (isset($request->base64)) {
-            $importBilancio = $request->base64;
-
-            $fileName = time() . '.xbrl';
-
-            Storage::disk('bilanci')->put($fileName, base64_decode($importBilancio));
-
-            //$importBilancio->move(asset('bilanci/'), $fileName, base64_decode($importBilancio));
-
-            $dataBilancio = [
-                'filename' => $fileName,
-                'path' => asset('bilanci') . '/' . $fileName,
-                'type' => 'bilancio'
-            ];
-
-            $document = Document::create($dataBilancio);
-
-            CustomLog::addToLogBilanci('Bilanci Store', 'File importato');
-
-            return response()->json([
-                'error' => false,
-                'data' => $dataBilancio,
-            ]);
-        }
+        CustomLog::addToLogBilanciWithoutDocumentId('StoreBilancio', 'InboundRequest', json_encode($request->all()));
 
         $jsonData = array();
         $jsonDataPrev = array();
@@ -578,6 +573,8 @@ class BilanciController extends Controller
                 }
             }
         }
+
+        CustomLog::addToLogBilanciWithoutDocumentId('StoreBilancio', 'GetDataBilancio', json_encode($request->input()));
 
         if ((float)$request->input('ignoreAlert') != 1) {
             foreach ($request->all() as $singleInput => $singleValue) {
@@ -620,7 +617,6 @@ class BilanciController extends Controller
                 $jsonDataAnag[str_replace('_anag', '', $singlereq)] = $singleValue;
             }
         }
-
         $tipoAzienda = $request->tipo_azienda;
         $formaGiuridica = $request->formaGiuridica;
 
@@ -630,12 +626,21 @@ class BilanciController extends Controller
         $jsonDataPrev['DebitiEsigibiliOltreEsercizioSuccessivo'] = str_replace('.', '', number_format($DebitiEsigibiliOltreEsercizioSuccessivo['prev'], 3, '.', ','));
 
         $jsonDB = json_encode($jsonData);
+        CustomLog::addToLogBilanciWithoutDocumentId('StoreBilancio', 'GetJsonDBCurrent', $jsonDB);
+
         $jsonPrevDB = json_encode($jsonDataPrev);
+        CustomLog::addToLogBilanciWithoutDocumentId('StoreBilancio', 'GetJsonDBPrevious', $jsonPrevDB);
+
         $jsonAnagDB = json_encode($jsonDataAnag);
+        CustomLog::addToLogBilanciWithoutDocumentId('StoreBilancio', 'GetJsonAnagrafica', $jsonAnagDB);
 
         $accountId = $request->input('account_id');
         $currentYear = $request->input('currYear');
+        CustomLog::addToLogBilanciWithoutDocumentId('StoreBilancio', 'GetCurrentYear', json_encode($currentYear));
+
         $prevYear = $request->input('prevYear');
+        CustomLog::addToLogBilanciWithoutDocumentId('StoreBilancio', 'GetPreviousYear', json_encode($prevYear));
+
         $years = $request->input('years');
 
         $companyId = 0;
@@ -656,7 +661,7 @@ class BilanciController extends Controller
             'company_id' => $companyId
         ]);
 
-        CustomLog::addToLogBilanci('Bilanci Store', 'Inserimento a Database');
+        // CustomLog::addToLogBilanci('Bilanci Store', 'Inserimento a Database');
 
         return response()->json([
             'bilancioImported' => true,
