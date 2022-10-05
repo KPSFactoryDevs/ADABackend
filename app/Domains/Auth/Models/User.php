@@ -159,9 +159,4 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return UserFactory::new();
     }
-
-    public function getId()
-    {
-    return $this->id;
-    }
 }

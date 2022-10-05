@@ -710,8 +710,6 @@ class BilanciController extends Controller
         $jsonData['vociDiBilancioConValoriCurrent']  = $vociWithValuesCurrent;
         $jsonData['vociDiBilancioConValoriPrevious']  = $vociWithValuesPrevious;
 
-        CustomLog::addToLogBilanci('Bilanci Show', 'Visualizzato');
-
         return response()->json([
             'error' => false,
             'jsonData' => $jsonData,
@@ -723,8 +721,6 @@ class BilanciController extends Controller
     {
         if (!$idBilancio) {
 
-            CustomLog::addToLogBilanci('Bilanci destroy', 'ID non specificato');
-
             return response()->json([
                 'error' => true,
                 'message' => 'Specifica l\'Id del bilancio',
@@ -734,15 +730,11 @@ class BilanciController extends Controller
             $bilancio = Bilanci::findOrFail($idBilancio);
             $bilancio->delete();
 
-            CustomLog::addToLogBilanci('Bilanci destroy', 'Eliminato');
-
             return response()->json([
                 'error' => false,
                 'message' => 'Bilancio eliminato correttamente',
             ]);
         } catch (Excepton $e) {
-
-            CustomLog::addToLogBilanci('Bilanci destroy', 'Exception: '.$e.'.');
 
             return response()->json([
                 'error' => false,
