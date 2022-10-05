@@ -601,7 +601,7 @@ class BilanciHelper
         $cleanArray = [
             'DSCRDate' => (isset($allData['DSCRdispLiquida'])) ? $allData['DSCRDate'] : "1970-01-01",
             'DSCR' => $allData['DSCR'],
-            'DSCRdispLiquida' => (empty($allData['DSCRdispLiquida']) || $allData['DSCRdispLiquida'] == 0) ? null : number_format($allData['DSCRdispLiquida'],),
+            'DSCRdispLiquida' => (empty($allData['DSCRdispLiquida']) || $allData['DSCRdispLiquida'] == 0) ? null : $allData['DSCRdispLiquida'],
             'entrataDSCRCFmese1' => (isset($allData['entrataDSCRCFmese1'])) ? $allData['entrataDSCRCFmese1'] : null,
             'entrataDSCRCFmese2' => (isset($allData['entrataDSCRCFmese2'])) ? $allData['entrataDSCRCFmese2'] : null,
             'entrataDSCRCFmese3' => (isset($allData['entrataDSCRCFmese3'])) ? $allData['entrataDSCRCFmese3'] : null,
