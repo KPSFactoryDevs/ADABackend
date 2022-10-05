@@ -171,7 +171,7 @@ class AllertaController extends Controller
         $arrayScoring = [
             'error' => false,
             'pageData' => [
-                'scoreCR' => $scoreCR,
+                'scoreCR' => number_format($scoreCR, 2, ',', '.'),
                 'crAlerts' => $alerts,
                 'arrayQuestionarioAsIs' => $arrayQuestionario,  // questionario per document id e bilancio id
                 'arrayForwardLookingToBe' => $arrayForwardLooking,
