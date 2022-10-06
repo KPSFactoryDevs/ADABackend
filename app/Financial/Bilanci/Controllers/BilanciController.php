@@ -93,7 +93,7 @@ class BilanciController extends Controller
      */
     public function recap(Request $request)
     {
-        $getOriginalNameFile = $request->base64->getClientOriginalName();
+        $getOriginalNameFile = $request->base64->getClientOriginalName().'_'.time();
         CustomLog::addToLogBilanci('ExtractBilancio', 'InboundRequest' , json_encode($request->all()), $getOriginalNameFile);
 
         $tipo_azienda = $request->input('tipo_azienda');
@@ -522,7 +522,7 @@ class BilanciController extends Controller
             'tipo_azienda' => $tipo_azienda,
             'gradi' => $gradi,
             'vociExt' => $vociExt,
-            'account_id' => $request->input('account_id')
+            'account_id' => $request->input('account_id'),
         ];
         
         CustomLog::addToLogBilanci('ExtractBilancio', 'GetJsonResult', json_encode($data), $getOriginalNameFile);
@@ -550,8 +550,10 @@ class BilanciController extends Controller
      */
     public function store(Request $request)
     {  
-        CustomLog::addToLogBilanciWithoutDocumentId('StoreBilancio', 'InboundRequest', json_encode($request->all()));
+        $getOriginalNameFile = $request->base64->getClientOriginalName().'_'.time();
 
+        CustomLog::addToLogBilanci('StoreBilancio', 'InboundRequest', json_encode($request->all()), $getOriginalNameFile);
+        
         $jsonData = array();
         $jsonDataPrev = array();
         $jsonDataAnag = array();
@@ -574,7 +576,7 @@ class BilanciController extends Controller
             }
         }
 
-        CustomLog::addToLogBilanciWithoutDocumentId('StoreBilancio', 'GetDataBilancio', json_encode($request->input()));
+        CustomLog::addToLogBilanci('StoreBilancio', 'GetDataBilancio', json_encode($request->input()), $getOriginalNameFile);
 
         if ((float)$request->input('ignoreAlert') != 1) {
             foreach ($request->all() as $singleInput => $singleValue) {
@@ -626,20 +628,20 @@ class BilanciController extends Controller
         $jsonDataPrev['DebitiEsigibiliOltreEsercizioSuccessivo'] = str_replace('.', '', number_format($DebitiEsigibiliOltreEsercizioSuccessivo['prev'], 3, '.', ','));
 
         $jsonDB = json_encode($jsonData);
-        CustomLog::addToLogBilanciWithoutDocumentId('StoreBilancio', 'GetJsonDBCurrent', $jsonDB);
+        CustomLog::addToLogBilanci('StoreBilancio', 'GetJsonDBCurrent', $jsonDB, $getOriginalNameFile);
 
         $jsonPrevDB = json_encode($jsonDataPrev);
-        CustomLog::addToLogBilanciWithoutDocumentId('StoreBilancio', 'GetJsonDBPrevious', $jsonPrevDB);
+        CustomLog::addToLogBilanci('StoreBilancio', 'GetJsonDBPrevious', $jsonPrevDB, $getOriginalNameFile);
 
         $jsonAnagDB = json_encode($jsonDataAnag);
-        CustomLog::addToLogBilanciWithoutDocumentId('StoreBilancio', 'GetJsonAnagrafica', $jsonAnagDB);
+        CustomLog::addToLogBilanci('StoreBilancio', 'GetJsonAnagrafica', $jsonAnagDB, $getOriginalNameFile);
 
         $accountId = $request->input('account_id');
         $currentYear = $request->input('currYear');
-        CustomLog::addToLogBilanciWithoutDocumentId('StoreBilancio', 'GetCurrentYear', json_encode($currentYear));
+        CustomLog::addToLogBilanci('StoreBilancio', 'GetCurrentYear', json_encode($currentYear), $getOriginalNameFile);
 
         $prevYear = $request->input('prevYear');
-        CustomLog::addToLogBilanciWithoutDocumentId('StoreBilancio', 'GetPreviousYear', json_encode($prevYear));
+        CustomLog::addToLogBilanci('StoreBilancio', 'GetPreviousYear', json_encode($prevYear), $getOriginalNameFile);
 
         $years = $request->input('years');
 
@@ -647,6 +649,8 @@ class BilanciController extends Controller
         if ($request->header('currentcompany') || $request->header('currentcompany') === 0) {
             $companyId = $request->header('currentcompany');
         }
+
+        CustomLog::addToLogBilanci('StoreBilancio', 'GetCompanyId', json_encode($companyId), $getOriginalNameFile);
 
         $bilancio = Bilanci::create([
             'json_data' => $jsonDB,
@@ -661,14 +665,20 @@ class BilanciController extends Controller
             'company_id' => $companyId
         ]);
 
-        // CustomLog::addToLogBilanci('Bilanci Store', 'Inserimento a Database');
+        CustomLog::addToLogBilanci('StoreBilancio', 'GetCreatedDocument', json_encode($bilancio), $getOriginalNameFile);
 
-        return response()->json([
+        CustomLog::addToLogBilanci('StoreBilancio', 'GetCreatedBilancio', json_encode($bilancio->id), $getOriginalNameFile);
+
+        $response = [
             'bilancioImported' => true,
             'tipo_azienda' => $tipoAzienda,
             'forma_giuridica' => $formaGiuridica,
             'idBilancio' => $bilancio->id
-        ]);
+        ];
+
+        CustomLog::addToLogBilanci('StoreBilancio', 'GetJsonResponse', json_encode($response), $getOriginalNameFile);
+
+        return $response;
     }
 
     /**
