@@ -261,9 +261,17 @@ class PDFController extends Controller
             // $totaleUtilizzatoGeneral = $crHelper->totAffidamentiConPesiPerBanca($totAffidamentiConPesiPerBanca);
             // $monthsList = array_keys($affidamentiPerMese);
 
-
             $lastAvailableDate = new DateTime($lastAvailableDate);
             $firstAvailableDate = new DateTime($firstAvailableDate);
+
+			// dd($totaleAffidamentiTable);
+			foreach($totaleAffidamentiTable as $key => $singleAffidamento) {
+					$totaleAffidamentiTable[$key]['totAccordatoOperativo'] = number_format($singleAffidamento['totAccordatoOperativo'], 2, ',', '.');
+					$totaleAffidamentiTable[$key]['totUtilizzato'] = number_format($singleAffidamento['totUtilizzato'], 2, ',', '.');
+					$totaleAffidamentiTable[$key]['PesoAccordatoOperativo'] = number_format($singleAffidamento['PesoAccordatoOperativo'], 2, ',', '.');
+					$totaleAffidamentiTable[$key]['PesoUtilizzato'] = number_format($singleAffidamento['PesoUtilizzato'], 2, ',', '.');
+			}
+			$scoreCR = number_format($scoreCR, 2, ',', '.');
 
             $generalDates = [
                 'periodoMinimoDisponibile' => $lastAvailableDate->format('U'),
@@ -301,7 +309,7 @@ class PDFController extends Controller
                         'Sofferenze' => (!empty($sofferenze)),
                         'CreditiPassatiPerdita' => (!empty($creditiPassatiPerdita)),
                     ],
-                ],
+                ], 
                 'ResocontoAnomalie' => [
                     'ListaSconfiniEntroNovantaGiorni' => $sconfiniDivisi['SconfiniEntro90Giorni'],
                     'ListaSconfiniEntroCentoOttantaGiorni' => $sconfiniDivisi['SconfiniOltre90Giorni'],
@@ -318,29 +326,29 @@ class PDFController extends Controller
                 'RischiGaranzie' => [
                     'PosizioniDiRischio' => [
                         'Gestibili' => [
-                            'TotaleCreditiScaduti' => $rischiGaranzie['CreditiScaduti'],
-                            'TotaleCreditiScadutiImpagati' => $rischiGaranzie['CreditiScadutiImpagati'],
+                            'TotaleCreditiScaduti' => number_format($rischiGaranzie['CreditiScaduti'], 2, ',', '.'),
+                            'TotaleCreditiScadutiImpagati' => number_format($rischiGaranzie['CreditiScadutiImpagati'], 2, ',', '.'),
                             'PercentualeIncidenzaImpagati' => $incidenzaImpagati,
                         ],
                         'QuasiPregiudizievoli' => [
-                            'TotaleScadutiSconfinatiEntroNovantaGiorni' => $rischiGaranzie['Entro90'],
-                            'TotaleScadutiSconfinatiEntroCentoOttantaGiorni' => $rischiGaranzie['Oltre90'],
-                            'TotaleScadutiSconfinatiOltreCentoOttantaGiorni' => $rischiGaranzie['Oltre180'],
+                            'TotaleScadutiSconfinatiEntroNovantaGiorni' => number_format($rischiGaranzie['Entro90'], 2, ',', '.'),
+                            'TotaleScadutiSconfinatiEntroCentoOttantaGiorni' => number_format($rischiGaranzie['Oltre90'], 2, ',', '.'),
+                            'TotaleScadutiSconfinatiOltreCentoOttantaGiorni' => number_format($rischiGaranzie['Oltre180'], 2, ',', '.'),
                         ],
                         'Pregiudizievoli' => [
-                            'TotaleSofferenze' => $rischiGaranzie['Sofferenze'],
-                            'TotaleCreditiPassatiPerdita' => $rischiGaranzie['CreditiPassatiPerdita'],
-                            'TotaleCreditiContestati' => $rischiGaranzie['CreditiContestati'],
+                            'TotaleSofferenze' => number_format($rischiGaranzie['Sofferenze'], 2, ',', '.'),
+                            'TotaleCreditiPassatiPerdita' => number_format($rischiGaranzie['CreditiPassatiPerdita'], 2, ',', '.'),
+                            'TotaleCreditiContestati' => number_format($rischiGaranzie['CreditiContestati'], 2, ',', '.'),
                         ],
                     ],
                     'Garanzie' => [
                         'InfoGaranti' => [
-                            'TotaleValore' => $informazioniGaranti['Tot. Valore Garanzia'],
-                            'TotaleImporto' => $informazioniGaranti['Tot. importo garantito'],
+                            'TotaleValore' => number_format($informazioniGaranti['Tot. Valore Garanzia'], 2, ',', '.'),
+                            'TotaleImporto' => number_format($informazioniGaranti['Tot. importo garantito'], 2, ',', '.'),
                         ],
                         'GaranzieRicevute' => [
-                            'TotaleValore' => $garanzieRicevute['Garantito'],
-                            'TotaleImporto' => $garanzieRicevute['Garanzia'],
+                            'TotaleValore' => number_format($garanzieRicevute['Garantito'], 2, ',', '.'),
+                            'TotaleImporto' => number_format($garanzieRicevute['Garanzia'], 2, ',', '.'),
                         ],
                     ]
                 ],
@@ -903,10 +911,11 @@ class PDFController extends Controller
         $getScoreHelper = $allertaHelper->getScores($punteggioCR, $bilancioData['AnalisiAdvanced'], $scoreASIS, $ASISfinalScore, $scoreFL);
 		$getGeneralScore = $allertaHelper->getGeneralScore($bilancioData['AnalisiAdvanced'], $scoreCR, $scoreASIS, $scoreFL);
 
-				// dd($bilancioData['AnalisiAdvanced']['Giudizi']['Giudizi']['ROS']['Scoring']);
-				// dd($bilancioData['AnalisiAdvanced']['Giudizi']['AnalisiAdvanced']['Giudizi']);
-				// dd($bilancioData['AnalisiAdvanced']['Giudizi']['AnalisiAdvanced']['Giudizi']['Andamento del fatturato']);
-// dd(number_format((float)str_replace(',', '.', $bilancioData['AnalisiAdvanced']['Indici']['ROS']), 2, ',', '.'));
+		$scoreASIS[1] = number_format($scoreASIS[1], 2, ',', '.');
+		$scoreASIS[2] = number_format($scoreASIS[2], 2, ',', '.');
+		$scoreASIS[3] = number_format($scoreASIS[3], 2, ',', '.');
+		$scoreASIS[4] = number_format($scoreASIS[4], 2, ',', '.');
+
 				$dataAllerta = [
 					"id" => $idBilancio,
 					"nomeAzienda" => $nomeAzienda,
@@ -1037,7 +1046,7 @@ class PDFController extends Controller
 					"generalScore" => $getGeneralScore['Giudizio'],
 					"GiudizioFinale" => $getScoreHelper,
 				];
-dd($dataAllerta);
+
 				$printPDF = new printpdf;
 				$printPDF->currentPayload = $dataAllerta;
 				$documentId = $printPDF->generateDocument('allerta');
