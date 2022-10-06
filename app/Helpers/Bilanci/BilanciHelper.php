@@ -579,8 +579,13 @@ class BilanciHelper
         }
 
 
-        $sistemaBasic = DB::table('basic')->where('bilancio_id', '=', $idBilancio)->get();
-        $sistemaBasic = $this->getAnalisiBasicWithNumberFormat($sistemaBasic);
+        $sistemaBasic = DB::table('basic')->where('bilancio_id', '=', $idBilancio)->get()->toArray();
+
+        
+
+        if(!empty($sistemaBasic)) {
+            $sistemaBasic = $this->getAnalisiBasicWithNumberFormat($sistemaBasic);
+        }
 
 
         if ($valutazioneAllertaBasic) {
@@ -598,42 +603,41 @@ class BilanciHelper
 
     public function getAnalisiBasicWithNumberFormat($sistemaBasic) 
     {
-        $sistemaBasic[0]->DSCRdispLiquida = number_format($sistemaBasic[0]->DSCRdispLiquida, 2, ',', '.');
-        $sistemaBasic[0]->entrataDSCRCFmese1 = number_format($sistemaBasic[0]->entrataDSCRCFmese1, 2, ',', '.');
-        $sistemaBasic[0]->entrataDSCRCFmese2 = number_format($sistemaBasic[0]->entrataDSCRCFmese2, 2, ',', '.');
-        $sistemaBasic[0]->entrataDSCRCFmese3 = number_format($sistemaBasic[0]->entrataDSCRCFmese3, 2, ',', '.');
-        $sistemaBasic[0]->entrataDSCRCFmese4 = number_format($sistemaBasic[0]->entrataDSCRCFmese4, 2, ',', '.');
-        $sistemaBasic[0]->entrataDSCRCFmese5 = number_format($sistemaBasic[0]->entrataDSCRCFmese5, 2, ',', '.');
-        $sistemaBasic[0]->entrataDSCRCFmese6 = number_format($sistemaBasic[0]->entrataDSCRCFmese6, 2, ',', '.');
-        $sistemaBasic[0]->uscitaDSCRCFmese1 = number_format($sistemaBasic[0]->uscitaDSCRCFmese1, 2, ',', '.');
-        $sistemaBasic[0]->uscitaDSCRCFmese2 = number_format($sistemaBasic[0]->uscitaDSCRCFmese2, 2, ',', '.');
-        $sistemaBasic[0]->uscitaDSCRCFmese3 = number_format($sistemaBasic[0]->uscitaDSCRCFmese3, 2, ',', '.');
-        $sistemaBasic[0]->uscitaDSCRCFmese4 = number_format($sistemaBasic[0]->uscitaDSCRCFmese4, 2, ',', '.');
-        $sistemaBasic[0]->uscitaDSCRCFmese5 = number_format($sistemaBasic[0]->uscitaDSCRCFmese5, 2, ',', '.');
-        $sistemaBasic[0]->uscitaDSCRCFmese6 = number_format($sistemaBasic[0]->uscitaDSCRCFmese6, 2, ',', '.');
-        $sistemaBasic[0]->rimborsoDSCRmese1 = number_format($sistemaBasic[0]->rimborsoDSCRmese1, 2, ',', '.');
-        $sistemaBasic[0]->rimborsoDSCRmese2 = number_format($sistemaBasic[0]->rimborsoDSCRmese2, 2, ',', '.');
-        $sistemaBasic[0]->rimborsoDSCRmese3 = number_format($sistemaBasic[0]->rimborsoDSCRmese3, 2, ',', '.');
-        $sistemaBasic[0]->rimborsoDSCRmese4 = number_format($sistemaBasic[0]->rimborsoDSCRmese4, 2, ',', '.');
-        $sistemaBasic[0]->rimborsoDSCRmese5 = number_format($sistemaBasic[0]->rimborsoDSCRmese5, 2, ',', '.');
-        $sistemaBasic[0]->rimborsoDSCRmese6 = number_format($sistemaBasic[0]->rimborsoDSCRmese6, 2, ',', '.');
-        $sistemaBasic[0]->agenziaEntrate1 = number_format($sistemaBasic[0]->agenziaEntrate1, 2, ',', '.');
-        $sistemaBasic[0]->agenziaEntrate3 = number_format($sistemaBasic[0]->agenziaEntrate3, 2, ',', '.');
-        $sistemaBasic[0]->agenziaEntrate2 = number_format($sistemaBasic[0]->agenziaEntrate2, 2, ',', '.');
-        $sistemaBasic[0]->agenziaEntrate4 = number_format($sistemaBasic[0]->agenziaEntrate4, 2, ',', '.');
-        $sistemaBasic[0]->INPS1 = number_format($sistemaBasic[0]->INPS1, 2, ',', '.');
-        $sistemaBasic[0]->INPS2 = number_format($sistemaBasic[0]->INPS2, 2, ',', '.');
-        $sistemaBasic[0]->INPS3 = number_format($sistemaBasic[0]->INPS3, 2, ',', '.');
-        $sistemaBasic[0]->riscossione = number_format($sistemaBasic[0]->riscossione, 2, ',', '.');
-        $sistemaBasic[0]->retribuzioni1 = number_format($sistemaBasic[0]->retribuzioni1, 2, ',', '.');
-        $sistemaBasic[0]->retribuzioni2 = number_format($sistemaBasic[0]->retribuzioni2, 2, ',', '.');
-        $sistemaBasic[0]->retribuzioni3 = number_format($sistemaBasic[0]->retribuzioni3, 2, ',', '.');
-        $sistemaBasic[0]->fornitori1 = number_format($sistemaBasic[0]->fornitori1, 2, ',', '.');
-        $sistemaBasic[0]->fornitori2 = number_format($sistemaBasic[0]->fornitori2, 2, ',', '.');
 
-        $sistemaBasic = [
-            0 => $sistemaBasic[0],
-        ];
+        foreach($sistemaBasic as $singleDataBasic) {
+            $sistemaBasic[0]->DSCRdispLiquida = number_format($singleDataBasic->DSCRdispLiquida, 2, ',', '.');
+            $sistemaBasic[0]->entrataDSCRCFmese1 = number_format($singleDataBasic->entrataDSCRCFmese1, 2, ',', '.');
+            $sistemaBasic[0]->entrataDSCRCFmese2 = number_format($singleDataBasic->entrataDSCRCFmese2, 2, ',', '.');
+            $sistemaBasic[0]->entrataDSCRCFmese3 = number_format($singleDataBasic->entrataDSCRCFmese3, 2, ',', '.');
+            $sistemaBasic[0]->entrataDSCRCFmese4 = number_format($singleDataBasic->entrataDSCRCFmese4, 2, ',', '.');
+            $sistemaBasic[0]->entrataDSCRCFmese5 = number_format($singleDataBasic->entrataDSCRCFmese5, 2, ',', '.');
+            $sistemaBasic[0]->entrataDSCRCFmese6 = number_format($singleDataBasic->entrataDSCRCFmese6, 2, ',', '.');
+            $sistemaBasic[0]->uscitaDSCRCFmese1 = number_format($singleDataBasic->uscitaDSCRCFmese1, 2, ',', '.');
+            $sistemaBasic[0]->uscitaDSCRCFmese2 = number_format($singleDataBasic->uscitaDSCRCFmese2, 2, ',', '.');
+            $sistemaBasic[0]->uscitaDSCRCFmese3 = number_format($singleDataBasic->uscitaDSCRCFmese3, 2, ',', '.');
+            $sistemaBasic[0]->uscitaDSCRCFmese4 = number_format($singleDataBasic->uscitaDSCRCFmese4, 2, ',', '.');
+            $sistemaBasic[0]->uscitaDSCRCFmese5 = number_format($singleDataBasic->uscitaDSCRCFmese5, 2, ',', '.');
+            $sistemaBasic[0]->uscitaDSCRCFmese6 = number_format($singleDataBasic->uscitaDSCRCFmese6, 2, ',', '.');
+            $sistemaBasic[0]->rimborsoDSCRmese1 = number_format($singleDataBasic->rimborsoDSCRmese1, 2, ',', '.');
+            $sistemaBasic[0]->rimborsoDSCRmese2 = number_format($singleDataBasic->rimborsoDSCRmese2, 2, ',', '.');
+            $sistemaBasic[0]->rimborsoDSCRmese3 = number_format($singleDataBasic->rimborsoDSCRmese3, 2, ',', '.');
+            $sistemaBasic[0]->rimborsoDSCRmese4 = number_format($singleDataBasic->rimborsoDSCRmese4, 2, ',', '.');
+            $sistemaBasic[0]->rimborsoDSCRmese5 = number_format($singleDataBasic->rimborsoDSCRmese5, 2, ',', '.');
+            $sistemaBasic[0]->rimborsoDSCRmese6 = number_format($singleDataBasic->rimborsoDSCRmese6, 2, ',', '.');
+            $sistemaBasic[0]->agenziaEntrate1 = number_format($singleDataBasic->agenziaEntrate1, 2, ',', '.');
+            $sistemaBasic[0]->agenziaEntrate3 = number_format($singleDataBasic->agenziaEntrate3, 2, ',', '.');
+            $sistemaBasic[0]->agenziaEntrate2 = number_format($singleDataBasic->agenziaEntrate2, 2, ',', '.');
+            $sistemaBasic[0]->agenziaEntrate4 = number_format($singleDataBasic->agenziaEntrate4, 2, ',', '.');
+            $sistemaBasic[0]->INPS1 = number_format($singleDataBasic->INPS1, 2, ',', '.');
+            $sistemaBasic[0]->INPS2 = number_format($singleDataBasic->INPS2, 2, ',', '.');
+            $sistemaBasic[0]->INPS3 = number_format($singleDataBasic->INPS3, 2, ',', '.');
+            $sistemaBasic[0]->riscossione = number_format($singleDataBasic->riscossione, 2, ',', '.');
+            $sistemaBasic[0]->retribuzioni1 = number_format($singleDataBasic->retribuzioni1, 2, ',', '.');
+            $sistemaBasic[0]->retribuzioni2 = number_format($singleDataBasic->retribuzioni2, 2, ',', '.');
+            $sistemaBasic[0]->retribuzioni3 = number_format($singleDataBasic->retribuzioni3, 2, ',', '.');
+            $sistemaBasic[0]->fornitori1 = number_format($singleDataBasic->fornitori1, 2, ',', '.');
+            $sistemaBasic[0]->fornitori2 = number_format($singleDataBasic->fornitori2, 2, ',', '.');
+        }
 
         return $sistemaBasic;
     }
