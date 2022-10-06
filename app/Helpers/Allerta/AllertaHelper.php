@@ -67,7 +67,8 @@ class AllertaHelper
         if (!$alerts['16']) {
             $scoreCR += 0.12;
         }
-        return $scoreCR;
+
+        return number_format($scoreCR, 2, ',', '.');
     }
 
     public function setPeriod($period)
@@ -1172,8 +1173,10 @@ class AllertaHelper
 
     public function getAsIsFinalScore($bilancioData, $scoreCR, $scoreASIS)
     {
+        $scoreBilacioData = (float)str_replace(',', '.', $bilancioData['Giudizi']['Score']);
 
-        $ASISfinalScore = array("Score" => ($bilancioData['Giudizi']['Score'] * 0.25) + ($scoreCR * 0.25) + ($scoreASIS['1'] * 0.1) + ($scoreASIS['2'] * 0.1) + ($scoreASIS['3'] * 0.15) + ($scoreASIS['4'] * 0.15));
+        $ASISfinalScore = array("Score" => ((float)$scoreBilacioData * 0.25) + ((float)$scoreCR * 0.25) + ((float)$scoreASIS['1'] * 0.1) + ((float)$scoreASIS['2'] * 0.1) + ((float)$scoreASIS['3'] * 0.15) + ((float)$scoreASIS['4'] * 0.15));
+
         $rangeGiudizi = array(
             0 => array("Min" => 0, "Max" => 0.14, "Giudizio" => "Default"),
             1 => array("Min" => 0.14, "Max" => 0.28, "Giudizio" => "Situazione Grave"),
@@ -1191,13 +1194,16 @@ class AllertaHelper
             }
         }
 
+        if(isset($ASISfinalScore["Score"])) {
+            $ASISfinalScore["Score"] = number_format($ASISfinalScore["Score"], 2, ',', '.');
+        }
+
         return $ASISfinalScore;
     }
 
 
     public function getGeneralScore($bilancioData, $scoreCR, $scoreASIS, $scoreFL)
     {
-
         $ASISfinalScore =  $this->getAsIsFinalScore($bilancioData, $scoreCR, $scoreASIS);
         $rangeGiudizi = array(
             0 => array("Min" => 0, "Max" => 0.14, "Giudizio" => "Default"),

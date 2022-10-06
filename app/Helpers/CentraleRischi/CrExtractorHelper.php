@@ -1386,6 +1386,7 @@ AND t.divisa = t2.divisa');
             } else {
                 $totAffidamentiConPesiPerBanca[$index]['PesoUtilizzato'] = 0;
             }
+            
         }
 
         return $totAffidamentiConPesiPerBanca;
@@ -1647,7 +1648,7 @@ AND t.divisa = t2.divisa');
 
     public function divideAnomalie($numeroSconfiniTotali, $banks)
     {
-
+ 
         $importiSconfini = array(
             'SconfiniEntro90Giorni' => [],
             'SconfiniOltre90Giorni' => [],
@@ -1669,8 +1670,8 @@ AND t.divisa = t2.divisa');
                     'banca' => $item->nome_banca,
                     'categoria' => $item->categoria,
                     'tipo_attivita' => $item->tipo_attivita,
-                    'importo_sconfinamento' => (float)$item->accordato_operativo - (float)$item->utilizzato,
-                    'utilizzo_posizione_sconfinata' => (float)$item->utilizzato,
+                    'importo_sconfinamento' => number_format((float)$item->accordato_operativo - (float)$item->utilizzato, 2, ',', '.'),
+                    'utilizzo_posizione_sconfinata' => number_format((float)$item->utilizzato, 2, ',', '.'),
                     'probabile_errata_segnalazione' => $probErrataSegnalazione
                 );
             } else if ($item->categoria == 'RISCHI A SCADENZA') {
@@ -1681,8 +1682,8 @@ AND t.divisa = t2.divisa');
                         'banca' => $item->nome_banca,
                         'categoria' => $item->categoria,
                         'tipo_attivita' => $item->tipo_attivita,
-                        'importo_sconfinamento' => (float)$item->accordato_operativo - (float)$item->utilizzato,
-                        'utilizzo_posizione_sconfinata' => (float)$item->utilizzato,
+                        'importo_sconfinamento' => number_format((float)$item->accordato_operativo - (float)$item->utilizzato, 2, ',', '.'),
+                        'utilizzo_posizione_sconfinata' => number_format((float)$item->utilizzato, 2, ',', '.'),
                         'probabile_errata_segnalazione' => $probErrataSegnalazione
                     );
                 } else if (((float)$item->utilizzato / (float)$item->accordato_operativo) > 1) {
@@ -1692,8 +1693,8 @@ AND t.divisa = t2.divisa');
                         'banca' => $item->nome_banca,
                         'categoria' => $item->categoria,
                         'tipo_attivita' => $item->tipo_attivita,
-                        'importo_sconfinamento' => (float)$item->accordato_operativo - (float)$item->utilizzato,
-                        'utilizzo_posizione_sconfinata' => (float)$item->utilizzato,
+                        'importo_sconfinamento' => number_format((float)$item->accordato_operativo - (float)$item->utilizzato, 2, ',', '.'),
+                        'utilizzo_posizione_sconfinata' => number_format((float)$item->utilizzato, 2, ',', '.'),
                         'probabile_errata_segnalazione' => $probErrataSegnalazione
                     );
                 }
@@ -1705,8 +1706,8 @@ AND t.divisa = t2.divisa');
                         'banca' => $item->nome_banca,
                         'categoria' => $item->categoria,
                         'tipo_attivita' => $item->tipo_attivita,
-                        'importo_sconfinamento' => (float)$item->accordato_operativo - (float)$item->utilizzato,
-                        'utilizzo_posizione_sconfinata' => (float)$item->utilizzato,
+                        'importo_sconfinamento' => number_format((float)$item->accordato_operativo - (float)$item->utilizzato, 2, ',', '.'),
+                        'utilizzo_posizione_sconfinata' => number_format((float)$item->utilizzato, 2, ',', '.'),
                         'probabile_errata_segnalazione' => $probErrataSegnalazione
                     );
                 }
@@ -1717,8 +1718,8 @@ AND t.divisa = t2.divisa');
                     'banca' => $item->nome_banca,
                     'categoria' => $item->categoria,
                     'tipo_attivita' => $item->tipo_attivita,
-                    'importo_sconfinamento' => (float)$item->accordato_operativo - (float)$item->utilizzato,
-                    'utilizzo_posizione_sconfinata' => (float)$item->utilizzato,
+                    'importo_sconfinamento' => number_format((float)$item->accordato_operativo - (float)$item->utilizzato, 2, ',', '.'),
+                    'utilizzo_posizione_sconfinata' => number_format((float)$item->utilizzato, 2, ',', '.'),
                     'probabile_errata_segnalazione' => $probErrataSegnalazione
                 );
             } else {
@@ -1727,8 +1728,8 @@ AND t.divisa = t2.divisa');
                     'banca' => $item->nome_banca,
                     'categoria' => $item->categoria,
                     'tipo_attivita' => $item->tipo_attivita,
-                    'importo_sconfinamento' => (float)$item->accordato_operativo - (float)$item->utilizzato,
-                    'utilizzo_posizione_sconfinata' => (float)$item->utilizzato,
+                    'importo_sconfinamento' => number_format((float)$item->accordato_operativo - (float)$item->utilizzato, 2, ',', '.'),
+                    'utilizzo_posizione_sconfinata' => number_format((float)$item->utilizzato, 2, ',', '.'),
                     'probabile_errata_segnalazione' => 'Sconfino da verificare'
                 );
             }
@@ -1746,8 +1747,8 @@ AND t.divisa = t2.divisa');
                     'banca' => $item->nome_banca,
                     'categoria' => $item->categoria,
                     'tipo_attivita' => $item->tipo_attivita,
-                    'importo_sconfinamento' => (float)$item->accordato_operativo - (float)$item->utilizzato,
-                    'utilizzo_posizione_sconfinata' => (float)$item->utilizzato,
+                    'importo_sconfinamento' => number_format((float)$item->accordato_operativo - (float)$item->utilizzato, 2, ',', '.'),
+                    'utilizzo_posizione_sconfinata' => number_format((float)$item->utilizzato, 2, ',', '.'),
                     'probabile_errata_segnalazione' => $probErrataSegnalazione
                 );
             } else if ($item->categoria == 'RISCHI A SCADENZA') {
@@ -1758,8 +1759,8 @@ AND t.divisa = t2.divisa');
                         'banca' => $item->nome_banca,
                         'categoria' => $item->categoria,
                         'tipo_attivita' => $item->tipo_attivita,
-                        'importo_sconfinamento' => (float)$item->accordato_operativo - (float)$item->utilizzato,
-                        'utilizzo_posizione_sconfinata' => (float)$item->utilizzato,
+                        'importo_sconfinamento' => number_format((float)$item->accordato_operativo - (float)$item->utilizzato, 2, ',', '.'),
+                        'utilizzo_posizione_sconfinata' => number_format((float)$item->utilizzato, 2, ',', '.'),
                         'probabile_errata_segnalazione' => $probErrataSegnalazione
                     );
                 } else if (((float)$item->utilizzato / (float)$item->accordato_operativo) > 1) {
@@ -1769,8 +1770,8 @@ AND t.divisa = t2.divisa');
                         'banca' => $item->nome_banca,
                         'categoria' => $item->categoria,
                         'tipo_attivita' => $item->tipo_attivita,
-                        'importo_sconfinamento' => (float)$item->accordato_operativo - (float)$item->utilizzato,
-                        'utilizzo_posizione_sconfinata' => (float)$item->utilizzato,
+                        'importo_sconfinamento' => number_format((float)$item->accordato_operativo - (float)$item->utilizzato, 2, ',', '.'),
+                        'utilizzo_posizione_sconfinata' => number_format((float)$item->utilizzato, 2, ',', '.'),
                         'probabile_errata_segnalazione' => $probErrataSegnalazione
                     );
                 }
@@ -1782,8 +1783,8 @@ AND t.divisa = t2.divisa');
                         'banca' => $item->nome_banca,
                         'categoria' => $item->categoria,
                         'tipo_attivita' => $item->tipo_attivita,
-                        'importo_sconfinamento' => (float)$item->accordato_operativo - (float)$item->utilizzato,
-                        'utilizzo_posizione_sconfinata' => (float)$item->utilizzato,
+                        'importo_sconfinamento' => number_format((float)$item->accordato_operativo - (float)$item->utilizzato, 2, ',', '.'),
+                        'utilizzo_posizione_sconfinata' => number_format((float)$item->utilizzato, 2, ',', '.'),
                         'probabile_errata_segnalazione' => $probErrataSegnalazione
                     );
                 }
@@ -1794,8 +1795,8 @@ AND t.divisa = t2.divisa');
                     'banca' => $item->nome_banca,
                     'categoria' => $item->categoria,
                     'tipo_attivita' => $item->tipo_attivita,
-                    'importo_sconfinamento' => (float)$item->accordato_operativo - (float)$item->utilizzato,
-                    'utilizzo_posizione_sconfinata' => (float)$item->utilizzato,
+                    'importo_sconfinamento' => number_format((float)$item->accordato_operativo - (float)$item->utilizzato, 2, ',', '.'),
+                    'utilizzo_posizione_sconfinata' => number_format((float)$item->utilizzato, 2, ',', '.'),
                     'probabile_errata_segnalazione' => $probErrataSegnalazione
                 );
             } else {
@@ -1804,8 +1805,8 @@ AND t.divisa = t2.divisa');
                     'banca' => $item->nome_banca,
                     'categoria' => $item->categoria,
                     'tipo_attivita' => $item->tipo_attivita,
-                    'importo_sconfinamento' => (float)$item->accordato_operativo - (float)$item->utilizzato,
-                    'utilizzo_posizione_sconfinata' => (float)$item->utilizzato,
+                    'importo_sconfinamento' => number_format((float)$item->accordato_operativo - (float)$item->utilizzato, 2, ',', '.'),
+                    'utilizzo_posizione_sconfinata' => number_format((float)$item->utilizzato, 2, ',', '.'),
                     'probabile_errata_segnalazione' => 'Sconfino da verificare'
                 );
             }
@@ -1823,8 +1824,8 @@ AND t.divisa = t2.divisa');
                     'banca' => $item->nome_banca,
                     'categoria' => $item->categoria,
                     'tipo_attivita' => $item->tipo_attivita,
-                    'importo_sconfinamento' => (float)$item->accordato_operativo - (float)$item->utilizzato,
-                    'utilizzo_posizione_sconfinata' => (float)$item->utilizzato,
+                    'importo_sconfinamento' => number_format((float)$item->accordato_operativo - (float)$item->utilizzato, 2, ',', '.'),
+                    'utilizzo_posizione_sconfinata' => number_format((float)$item->utilizzato, 2, ',', '.'),
                     'probabile_errata_segnalazione' => $probErrataSegnalazione
                 );
             } else if ($item->categoria == 'RISCHI A SCADENZA') {
@@ -1835,8 +1836,8 @@ AND t.divisa = t2.divisa');
                         'banca' => $item->nome_banca,
                         'categoria' => $item->categoria,
                         'tipo_attivita' => $item->tipo_attivita,
-                        'importo_sconfinamento' => (float)$item->accordato_operativo - (float)$item->utilizzato,
-                        'utilizzo_posizione_sconfinata' => (float)$item->utilizzato,
+                        'importo_sconfinamento' => number_format((float)$item->accordato_operativo - (float)$item->utilizzato, 2, ',', '.'),
+                        'utilizzo_posizione_sconfinata' => number_format((float)$item->utilizzato, 2, ',', '.'),
                         'probabile_errata_segnalazione' => $probErrataSegnalazione
                     );
                 } else if (((float)$item->utilizzato / (float)$item->accordato_operativo) > 1) {
@@ -1846,8 +1847,8 @@ AND t.divisa = t2.divisa');
                         'banca' => $item->nome_banca,
                         'categoria' => $item->categoria,
                         'tipo_attivita' => $item->tipo_attivita,
-                        'importo_sconfinamento' => (float)$item->accordato_operativo - (float)$item->utilizzato,
-                        'utilizzo_posizione_sconfinata' => (float)$item->utilizzato,
+                        'importo_sconfinamento' => number_format((float)$item->accordato_operativo - (float)$item->utilizzato, 2, ',', '.'),
+                        'utilizzo_posizione_sconfinata' => number_format((float)$item->utilizzato, 2, ',', '.'),
                         'probabile_errata_segnalazione' => $probErrataSegnalazione
                     );
                 }
@@ -1859,8 +1860,8 @@ AND t.divisa = t2.divisa');
                         'banca' => $item->nome_banca,
                         'categoria' => $item->categoria,
                         'tipo_attivita' => $item->tipo_attivita,
-                        'importo_sconfinamento' => (float)$item->accordato_operativo - (float)$item->utilizzato,
-                        'utilizzo_posizione_sconfinata' => (float)$item->utilizzato,
+                        'importo_sconfinamento' => number_format((float)$item->accordato_operativo - (float)$item->utilizzato, 2, ',', '.'),
+                        'utilizzo_posizione_sconfinata' => number_format((float)$item->utilizzato, 2, ',', '.'),
                         'probabile_errata_segnalazione' => $probErrataSegnalazione
                     );
                 }
@@ -1871,8 +1872,8 @@ AND t.divisa = t2.divisa');
                     'banca' => $item->nome_banca,
                     'categoria' => $item->categoria,
                     'tipo_attivita' => $item->tipo_attivita,
-                    'importo_sconfinamento' => (float)$item->accordato_operativo - (float)$item->utilizzato,
-                    'utilizzo_posizione_sconfinata' => (float)$item->utilizzato,
+                    'importo_sconfinamento' => number_format((float)$item->accordato_operativo - (float)$item->utilizzato, 2, ',', '.'),
+                    'utilizzo_posizione_sconfinata' => number_format((float)$item->utilizzato, 2, ',', '.'),
                     'probabile_errata_segnalazione' => $probErrataSegnalazione
                 );
             } else {
@@ -1881,8 +1882,8 @@ AND t.divisa = t2.divisa');
                     'banca' => $item->nome_banca,
                     'categoria' => $item->categoria,
                     'tipo_attivita' => $item->tipo_attivita,
-                    'importo_sconfinamento' => (float)$item->accordato_operativo - (float)$item->utilizzato,
-                    'utilizzo_posizione_sconfinata' => (float)$item->utilizzato,
+                    'importo_sconfinamento' => number_format((float)$item->accordato_operativo - (float)$item->utilizzato, 2, ',', '.'),
+                    'utilizzo_posizione_sconfinata' => number_format((float)$item->utilizzato, 2, ',', '.'),
                     'probabile_errata_segnalazione' => 'Sconfino da verificare'
                 );
             }

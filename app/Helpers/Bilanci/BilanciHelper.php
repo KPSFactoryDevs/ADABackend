@@ -163,9 +163,13 @@ class BilanciHelper
                 }
 
             }
+
+            if(isset($arrayGiudizi[$label]['Scoring'])) {
+                $arrayGiudizi[$label]['Scoring'] = number_format($arrayGiudizi[$label]['Scoring'], 2, ',', '.');
+            }
         }
 
-        return array("Score" => $scoringAreaBilancio, "Giudizi" => $arrayGiudizi);
+        return array("Score" => number_format($scoringAreaBilancio, 2, ',', '.'), "Giudizi" => $arrayGiudizi);
     }
 
     public function getVociTree()
@@ -469,12 +473,12 @@ class BilanciHelper
 
         $valutazioneBilancio = $this->valutazioneIndici($dataAnalisis, $tipoAzienda, $explodedDate);
 
-        $dataAnalisis["PFN_EBITDA"] = $dataAnalisis["PFN_EBITDA"] / 100;
-        $dataAnalisis["Copertura_Lorda_OF"] = $dataAnalisis["Copertura_Lorda_OF"] / 100;
-        $dataAnalisis["EBIT_OF"] = $dataAnalisis["EBIT_OF"] / 100;
-        $dataAnalisis["Saldo_dei_Debiti_verso_il_Fisco"] = $dataAnalisis["Saldo_dei_Debiti_verso_il_Fisco"] / 100;
-        $dataAnalisis["Margine_Struttura_Primario"] = (float)str_replace('.', '', $dataAnalisis["Margine_Struttura_Primario"]) / 100;
-        $dataAnalisis["Margine_Struttura_Secondario"] = (float)str_replace('.', '', $dataAnalisis["Margine_Struttura_Secondario"]) / 100;
+        $dataAnalisis["PFN_EBITDA"] = number_format($dataAnalisis["PFN_EBITDA"] / 100, 2, ',', '.');
+        $dataAnalisis["Copertura_Lorda_OF"] = number_format($dataAnalisis["Copertura_Lorda_OF"] / 100, 2, ',', '.');
+        $dataAnalisis["EBIT_OF"] = number_format($dataAnalisis["EBIT_OF"] / 100, 2, ',', '.');
+        $dataAnalisis["Saldo_dei_Debiti_verso_il_Fisco"] = number_format($dataAnalisis["Saldo_dei_Debiti_verso_il_Fisco"] / 100, 2, ',', '.');
+        $dataAnalisis["Margine_Struttura_Primario"] =  number_format((float)str_replace('.', '', $dataAnalisis["Margine_Struttura_Primario"]) / 100, 2, ',', '.');
+        $dataAnalisis["Margine_Struttura_Secondario"] =  number_format((float)str_replace('.', '', $dataAnalisis["Margine_Struttura_Secondario"]) / 100, 2, ',', '.');
 
         $response = array(
             'AnalisiBasic' => $this->getBasicAnalisi($tipoAzienda, $dataAnalisis, $dataAnalisis, $idBilancio),
@@ -492,7 +496,7 @@ class BilanciHelper
     {
         $basicData = array();
 
-        $dataAnalisisBasic['OF_Fatturato'] = str_replace(',', '.', $dataAnalisisBasic['OF_Fatturato']);
+        $dataAnalisisBasic['OF_Fatturato'] = $dataAnalisisBasic['OF_Fatturato'];
         if (isset($dataAnalisisBasic['Adeguatezza_Patrimoniale'])) {
             $dataAnalisisBasic['Adeguatezza_Patrimoniale'] = str_replace(',', '.', $dataAnalisisBasic['Adeguatezza_Patrimoniale']);
         } else {
@@ -521,38 +525,48 @@ class BilanciHelper
         if (DB::table('rangesBasic')->where('tipo_azienda', '=', $tipoAzienda)->where('indice', '=', 'Sostenibilità Oneri Finanziari')->where('soglia', '>', floatval($dataAnalisisBasic['OF_Fatturato']))->count()) {
             $soglieBasic['Sostenibilità Oneri Finanziari'] = true;
             $basicData['Sostenibilità Oneri Finanziari'] = floatval($dataAnalisisBasic['OF_Fatturato']);
+            $basicData['Sostenibilità Oneri Finanziari'] = number_format($basicData['Sostenibilità Oneri Finanziari'], 2, ',', '.');
         } else {
             $soglieBasic['Sostenibilità Oneri Finanziari'] = false;
             $basicData['Sostenibilità Oneri Finanziari'] = floatval($dataAnalisisBasic['OF_Fatturato']);
+            $basicData['Sostenibilità Oneri Finanziari'] = number_format($basicData['Sostenibilità Oneri Finanziari'], 2, ',', '.');
         }
         if (DB::table('rangesBasic')->where('tipo_azienda', '=', $tipoAzienda)->where('indice', '=', 'Adeguatezza Patrimoniale')->where('soglia', '<', floatval($dataAnalisisBasic['Adeguatezza_Patrimoniale']))->count()) {
             $soglieBasic['Adeguatezza Patrimoniale'] = true;
             $basicData['Adeguatezza Patrimoniale'] = floatval($dataAnalisisBasic['Adeguatezza_Patrimoniale']);
+            $basicData['Adeguatezza Patrimoniale'] = number_format($basicData['Adeguatezza Patrimoniale'], 2, ',', '.');
         } else {
             $soglieBasic['Adeguatezza Patrimoniale'] = false;
             $basicData['Adeguatezza Patrimoniale'] = floatval($dataAnalisisBasic['Adeguatezza_Patrimoniale']);
+            $basicData['Adeguatezza Patrimoniale'] = number_format($basicData['Adeguatezza Patrimoniale'], 2, ',', '.');
         }
 
         if (DB::table('rangesBasic')->where('tipo_azienda', '=', $tipoAzienda)->where('indice', '=', 'Liquidità')->where('soglia', '<', floatval($dataAnalisisBasic['Liquidità']))->count()) {
             $soglieBasic['Liquidità'] = true;
             $basicData['Liquidità'] = floatval($dataAnalisisBasic['Liquidità']);
+            $basicData['Liquidità'] = number_format($basicData['Liquidità'], 2, ',', '.');
         } else {
             $soglieBasic['Liquidità'] = false;
             $basicData['Liquidità'] = floatval($dataAnalisisBasic['Liquidità']);
+            $basicData['Liquidità'] = number_format($basicData['Liquidità'], 2, ',', '.');
         }
         if (DB::table('rangesBasic')->where('tipo_azienda', '=', $tipoAzienda)->where('indice', '=', 'Indebitamento Previdenziale Tributario')->where('soglia', '>', floatval($dataAnalisisBasic['Indebitamento_Previdenziale_Tributario']))->count()) {
             $soglieBasic['Indebitamento Previdenziale Tributario'] = true;
             $basicData['Indebitamento Previdenziale Tributario'] = floatval($dataAnalisisBasic['Indebitamento_Previdenziale_Tributario']);
+            $basicData['Indebitamento Previdenziale Tributario'] = number_format($basicData['Indebitamento Previdenziale Tributario'], 2, ',', '.');
         } else {
             $soglieBasic['Indebitamento Previdenziale Tributario'] = false;
             $basicData['Indebitamento Previdenziale Tributario'] = floatval($dataAnalisisBasic['Indebitamento_Previdenziale_Tributario']);
+            $basicData['Indebitamento Previdenziale Tributario'] = number_format($basicData['Indebitamento Previdenziale Tributario'], 2, ',', '.');
         }
         if (DB::table('rangesBasic')->where('tipo_azienda', '=', $tipoAzienda)->where('indice', '=', 'Ritorno Liquido Attivo')->where('soglia', '<', floatval($dataAnalisis['Current_Ratio']))->count()) {
             $soglieBasic['Ritorno Liquido Attivo'] = true;
             $basicData['Ritorno Liquido Attivo'] = floatval($dataAnalisis['Current_Ratio']);
+            $basicData['Ritorno Liquido Attivo'] = number_format($basicData['Ritorno Liquido Attivo'], 2, ',', '.');
         } else {
             $soglieBasic['Ritorno Liquido Attivo'] = false;
             $basicData['Ritorno Liquido Attivo'] = floatval($dataAnalisis['Current_Ratio']);
+            $basicData['Ritorno Liquido Attivo'] = number_format($basicData['Ritorno Liquido Attivo'], 2, ',', '.');
         }
         // dd(floatval($dataAnalisis['Current_Ratio']), floatval($dataAnalisisBasic['OF_Fatturato']), floatval($dataAnalisisBasic['Adeguatezza_Patrimoniale']), floatval($dataAnalisisBasic['Liquidità']), floatval($dataAnalisisBasic['Indebitamento_Previdenziale_Tributario']));
 
@@ -566,6 +580,8 @@ class BilanciHelper
 
 
         $sistemaBasic = DB::table('basic')->where('bilancio_id', '=', $idBilancio)->get();
+        $sistemaBasic = $this->getAnalisiBasicWithNumberFormat($sistemaBasic);
+
 
         if ($valutazioneAllertaBasic) {
             $soglieBasic['indiceCNDCEC'] = "Azienda a Rischio";
@@ -578,6 +594,48 @@ class BilanciHelper
             'Valori' => $basicData,
             'InputData' => $sistemaBasic,
         );
+    }
+
+    public function getAnalisiBasicWithNumberFormat($sistemaBasic) 
+    {
+        $sistemaBasic[0]->DSCRdispLiquida = number_format($sistemaBasic[0]->DSCRdispLiquida, 2, ',', '.');
+        $sistemaBasic[0]->entrataDSCRCFmese1 = number_format($sistemaBasic[0]->entrataDSCRCFmese1, 2, ',', '.');
+        $sistemaBasic[0]->entrataDSCRCFmese2 = number_format($sistemaBasic[0]->entrataDSCRCFmese2, 2, ',', '.');
+        $sistemaBasic[0]->entrataDSCRCFmese3 = number_format($sistemaBasic[0]->entrataDSCRCFmese3, 2, ',', '.');
+        $sistemaBasic[0]->entrataDSCRCFmese4 = number_format($sistemaBasic[0]->entrataDSCRCFmese4, 2, ',', '.');
+        $sistemaBasic[0]->entrataDSCRCFmese5 = number_format($sistemaBasic[0]->entrataDSCRCFmese5, 2, ',', '.');
+        $sistemaBasic[0]->entrataDSCRCFmese6 = number_format($sistemaBasic[0]->entrataDSCRCFmese6, 2, ',', '.');
+        $sistemaBasic[0]->uscitaDSCRCFmese1 = number_format($sistemaBasic[0]->uscitaDSCRCFmese1, 2, ',', '.');
+        $sistemaBasic[0]->uscitaDSCRCFmese2 = number_format($sistemaBasic[0]->uscitaDSCRCFmese2, 2, ',', '.');
+        $sistemaBasic[0]->uscitaDSCRCFmese3 = number_format($sistemaBasic[0]->uscitaDSCRCFmese3, 2, ',', '.');
+        $sistemaBasic[0]->uscitaDSCRCFmese4 = number_format($sistemaBasic[0]->uscitaDSCRCFmese4, 2, ',', '.');
+        $sistemaBasic[0]->uscitaDSCRCFmese5 = number_format($sistemaBasic[0]->uscitaDSCRCFmese5, 2, ',', '.');
+        $sistemaBasic[0]->uscitaDSCRCFmese6 = number_format($sistemaBasic[0]->uscitaDSCRCFmese6, 2, ',', '.');
+        $sistemaBasic[0]->rimborsoDSCRmese1 = number_format($sistemaBasic[0]->rimborsoDSCRmese1, 2, ',', '.');
+        $sistemaBasic[0]->rimborsoDSCRmese2 = number_format($sistemaBasic[0]->rimborsoDSCRmese2, 2, ',', '.');
+        $sistemaBasic[0]->rimborsoDSCRmese3 = number_format($sistemaBasic[0]->rimborsoDSCRmese3, 2, ',', '.');
+        $sistemaBasic[0]->rimborsoDSCRmese4 = number_format($sistemaBasic[0]->rimborsoDSCRmese4, 2, ',', '.');
+        $sistemaBasic[0]->rimborsoDSCRmese5 = number_format($sistemaBasic[0]->rimborsoDSCRmese5, 2, ',', '.');
+        $sistemaBasic[0]->rimborsoDSCRmese6 = number_format($sistemaBasic[0]->rimborsoDSCRmese6, 2, ',', '.');
+        $sistemaBasic[0]->agenziaEntrate1 = number_format($sistemaBasic[0]->agenziaEntrate1, 2, ',', '.');
+        $sistemaBasic[0]->agenziaEntrate3 = number_format($sistemaBasic[0]->agenziaEntrate3, 2, ',', '.');
+        $sistemaBasic[0]->agenziaEntrate2 = number_format($sistemaBasic[0]->agenziaEntrate2, 2, ',', '.');
+        $sistemaBasic[0]->agenziaEntrate4 = number_format($sistemaBasic[0]->agenziaEntrate4, 2, ',', '.');
+        $sistemaBasic[0]->INPS1 = number_format($sistemaBasic[0]->INPS1, 2, ',', '.');
+        $sistemaBasic[0]->INPS2 = number_format($sistemaBasic[0]->INPS2, 2, ',', '.');
+        $sistemaBasic[0]->INPS3 = number_format($sistemaBasic[0]->INPS3, 2, ',', '.');
+        $sistemaBasic[0]->riscossione = number_format($sistemaBasic[0]->riscossione, 2, ',', '.');
+        $sistemaBasic[0]->retribuzioni1 = number_format($sistemaBasic[0]->retribuzioni1, 2, ',', '.');
+        $sistemaBasic[0]->retribuzioni2 = number_format($sistemaBasic[0]->retribuzioni2, 2, ',', '.');
+        $sistemaBasic[0]->retribuzioni3 = number_format($sistemaBasic[0]->retribuzioni3, 2, ',', '.');
+        $sistemaBasic[0]->fornitori1 = number_format($sistemaBasic[0]->fornitori1, 2, ',', '.');
+        $sistemaBasic[0]->fornitori2 = number_format($sistemaBasic[0]->fornitori2, 2, ',', '.');
+
+        $sistemaBasic = [
+            0 => $sistemaBasic[0],
+        ];
+
+        return $sistemaBasic;
     }
 
     public function getNameCompany($id)
