@@ -841,7 +841,11 @@ class BilanciHelper
 
 
     public function saveAnalisiBasicToDB($allData, $idBilancio)
-    {
+    { 
+        if(str_contains($idBilancio, '"')) {
+            $idBilancio = str_replace('"', '', $idBilancio);
+        } 
+
         $calcoloDSCR = $this->getCalcoloDSCR($allData);
         $dscrData = $this->getAnalisisDataFull($allData);
 
@@ -906,6 +910,10 @@ class BilanciHelper
 
     public function calculateRiscossione($allData)
     {
+        if(str_contains($allData['idBilancio'], '"')) {
+            $allData['idBilancio'] = str_replace('"', '', $allData['idBilancio']);
+        } 
+
         $balance = Bilanci::findOrFail($allData['idBilancio']);
 
         $formaGiuridica = $balance->forma_giuridica;
