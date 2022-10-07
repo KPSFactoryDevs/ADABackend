@@ -550,8 +550,13 @@ class BilanciController extends Controller
      */
     public function store(Request $request)
     {          
-        if($request->base64 != null) {
+
+        if($request->file('base64')) {
             $getOriginalNameFile = $request->base64->getClientOriginalName().'_'.time();
+
+            CustomLog::addToLogBilanci('StoreBilancio', 'InboundRequest', json_encode($request->all()), $getOriginalNameFile);
+        } elseif (is_string($request->base64) == true) {
+            $getOriginalNameFile = $request->base64.'_'.time();
 
             CustomLog::addToLogBilanci('StoreBilancio', 'InboundRequest', json_encode($request->all()), $getOriginalNameFile);
         }
