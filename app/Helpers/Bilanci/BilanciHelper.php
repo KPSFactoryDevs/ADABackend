@@ -881,7 +881,11 @@ class BilanciHelper
         }
 
         if ($alert != "Dati Mancanti") {
-            $inps3 = ((str_replace(',', '.', $allData['INPS1']) / str_replace(',', '.', $allData['INPS2'])) * 100);
+            if(str_contains($allData['INPS1'], ',') && str_contains($allData['INPS2'], ',')) {
+                $inps3 = ((str_replace(',', '.', $allData['INPS1']) / str_replace(',', '.', $allData['INPS2'])) * 100);
+            } else {
+                $inps3 = (($allData['INPS1'] / $allData['INPS2']) * 100);
+            }
 
             if ($allData['INPS1'] > 50000) {
                 if ($inps3 > 50.50) {
