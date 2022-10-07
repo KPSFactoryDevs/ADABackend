@@ -16,6 +16,7 @@ use DateTime;
 use Exception;
 use App\Helpers\Bilanci\BilanciCalculationsHelper;
 use Illuminate\Support\Facades\Date;
+use App\Models\CustomLog;
 
 class BilanciHelper
 {
@@ -80,6 +81,10 @@ class BilanciHelper
 
     public function valutazioneIndici($data, $tipoAzienda, $currentYear)
     {
+        CustomLog::addToLogBilanciHelper('BilanciHelper', 'GetParametersData', json_encode($data));
+        CustomLog::addToLogBilanciHelper('BilanciHelper', 'GetParametersTipoAzienda', json_encode($tipoAzienda));
+        CustomLog::addToLogBilanciHelper('BilanciHelper', 'GetParametersCurrentYear', json_encode($currentYear));
+
         unset($data['Peso_Oneri_Finanziari']);
         $arraySettori = $this->getSettori();
         $arrayRange = $this->getRangeValutazioni();
@@ -152,7 +157,6 @@ class BilanciHelper
                 //     dd(range::where([['range_min', '<', $arrayIndici[$label]], ['range_max', '>', $arrayIndici[$label]], ['indice', '=', $label], ['tipo_azienda', '=', 'Generica']])->with('pesi')->toSql(), $arrayIndici[$label], $label);
                 //     dd($label, $value, $arraySoglie[$label], $tipoAzienda, $arrayIndici[$label]);
                 // }
-                
                 if (count($arraySoglie[$label]) > 0) {
 
                     $arrayGiudizi[$label]['Scoring'] = ($arraySoglie[$label][0]->pesi->peso) * ($arraySoglie[$label][0]->score);
@@ -167,7 +171,15 @@ class BilanciHelper
             if(isset($arrayGiudizi[$label]['Scoring'])) {
                 $arrayGiudizi[$label]['Scoring'] = number_format($arrayGiudizi[$label]['Scoring'], 2, ',', '.');
             }
+
+            $indiciName = str_replace(' ', '_', $label);
+
+            if(isset($arrayGiudizi[$label])) {
+                CustomLog::addToLogBilanciHelper('BilanciHelper', 'Get'.$indiciName.'', 'Scoring => '.json_decode(json_encode($arrayGiudizi[$label]['Scoring'])).' Giudizio => '.json_decode(json_encode($arrayGiudizi[$label]['Giudizio'])));
+            }
         }
+
+        CustomLog::addToLogBilanciHelper('BilanciHelper', 'GetGeneralScore', number_format($scoringAreaBilancio, 2, ',', '.'));
 
         return array("Score" => number_format($scoringAreaBilancio, 2, ',', '.'), "Giudizi" => $arrayGiudizi);
     }
