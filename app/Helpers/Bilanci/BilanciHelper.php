@@ -951,15 +951,28 @@ class BilanciHelper
         }
 
         if ($alert != "Dati Mancanti") {
-            if (($allData['retribuzioni1'] / $allData['retribuzioni2']) * 100 >= 50) {
-                $alert = "Si";
+            if(str_contains($allData['retribuzioni1'], ',') || str_contains($allData['retribuzioni2'], ',')) {
+                if ((str_replace(',', '.', $allData['retribuzioni1']) / str_replace(',', '.', $allData['retribuzioni2'])) * 100 >= 50) {
+                    $alert = "Si";
+                } else {
+                    $alert = "No";
+                }
+                if (is_finite(str_replace(',', '.', $allData['retribuzioni1']) / str_replace(',', '.', $allData['retribuzioni2']))) {
+                    $cleanData['retribuzioni3'] = number_format(((str_replace(',', '.', $allData['retribuzioni1']) / str_replace(',', '.', $allData['retribuzioni2'])) * 100), 2, ".", ",");
+                } else {
+                    $cleanData['retribuzioni3'] = "NON CALCOLABILE";
+                }
             } else {
-                $alert = "No";
-            }
-            if (is_finite($allData['retribuzioni1'] / $allData['retribuzioni2'])) {
-                $cleanData['retribuzioni3'] = number_format((($allData['retribuzioni1'] / $allData['retribuzioni2']) * 100), 2, ".", ",");
-            } else {
-                $cleanData['retribuzioni3'] = "NON CALCOLABILE";
+                if (($allData['retribuzioni1'] / $allData['retribuzioni2']) * 100 >= 50) {
+                    $alert = "Si";
+                } else {
+                    $alert = "No";
+                }
+                if (is_finite($allData['retribuzioni1'] / $allData['retribuzioni2'])) {
+                    $cleanData['retribuzioni3'] = number_format((($allData['retribuzioni1'] / $allData['retribuzioni2']) * 100), 2, ".", ",");
+                } else {
+                    $cleanData['retribuzioni3'] = "NON CALCOLABILE";
+                }
             }
         }
 
