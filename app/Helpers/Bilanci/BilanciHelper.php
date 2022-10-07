@@ -682,19 +682,19 @@ class BilanciHelper
             'rimborsoDSCRmese4' => (isset($allData['rimborsoDSCRmese4'])) ? $allData['rimborsoDSCRmese4'] : null,
             'rimborsoDSCRmese5' => (isset($allData['rimborsoDSCRmese5'])) ? $allData['rimborsoDSCRmese5'] : null,
             'rimborsoDSCRmese6' => (isset($allData['rimborsoDSCRmese6'])) ? $allData['rimborsoDSCRmese6'] : null,
-            'agenziaEntrate1' => (isset($allData['agenziaEntrate1'])) ? $allData["agenziaEntrate1"] : null,
-            'agenziaEntrate2' => (isset($allData['agenziaEntrate2'])) ? $allData["agenziaEntrate2"] : null,
-            'agenziaEntrate3' => (isset($allData['agenziaEntrate3'])) ? $allData["agenziaEntrate3"] : null,
-            'agenziaEntrate4' => (isset($allData['agenziaEntrate4'])) ? (float)$agenziaEntrate['agenziaEntrate4']['agenziaEntrate4'] : null,
-            'INPS1' => ($allData["INPS1"] != null) ? $allData["INPS1"] : null,
-            'INPS2' => ($allData["INPS2"] != null) ? $allData["INPS2"] : null,
+            'agenziaEntrate1' => (isset($allData['agenziaEntrate1'])) ? floatval(str_replace('"', '', $allData['agenziaEntrate1'])) : null,
+            'agenziaEntrate2' => (isset($allData['agenziaEntrate2'])) ? floatval(str_replace('"', '', $allData['agenziaEntrate2'])) : null,
+            'agenziaEntrate3' => (isset($allData['agenziaEntrate3'])) ? floatval(str_replace('"', '', $allData['agenziaEntrate3'])) : null,
+            'agenziaEntrate4' => (isset($agenziaEntrate['agenziaEntrate4'])) ? floatval(str_replace('"', '', $agenziaEntrate['agenziaEntrate4']['agenziaEntrate4']))  : null,
+            'INPS1' => ($allData["INPS1"] != null) ? floatval(str_replace('"', '', $allData['INPS1'])) : null,
+            'INPS2' => ($allData["INPS2"] != null) ? floatval(str_replace('"', '', $allData['INPS2'])) : null,
             'INPS3' => ($dataINPS['inps3'] != null) ? (float)$dataINPS['inps3'] : null,
-            'riscossione' => ($allData["riscossione"] != null) ? $allData["riscossione"] : null,
-            'retribuzioni1' => ($allData["retribuzioni1"] != null) ? $allData["retribuzioni1"] : null,
-            'retribuzioni2' => ($allData["retribuzioni2"] != null) ? $allData["retribuzioni2"] : null,
+            'riscossione' => ($allData["riscossione"] != null) ? floatval(str_replace('"', '', $allData['riscossione'])) : null,
+            'retribuzioni1' => ($allData["retribuzioni1"] != null) ? floatval(str_replace('"', '', $allData['retribuzioni1'])) : null,
+            'retribuzioni2' => ($allData["retribuzioni2"] != null) ? floatval(str_replace('"', '', $allData['retribuzioni2'])) : null,
             'retribuzioni3' => ($alertRetribuzioni["retribuzioni3"] != null) ? (float)$alertRetribuzioni["retribuzioni3"] : null,
-            'fornitori1' => ($allData["fornitori1"] != null) ? $allData["fornitori1"] : null,
-            'fornitori2' => ($allData["fornitori2"] != null) ? $allData["fornitori2"] : null,
+            'fornitori1' => ($allData["fornitori1"] != null) ? floatval(str_replace('"', '', $allData['fornitori1'])) : null,
+            'fornitori2' => ($allData["fornitori2"] != null) ? floatval(str_replace('"', '', $allData['fornitori2'])) : null,
             'resultDSCR' => $alertDSCR,
             'alertAgenziaEntrate' => (isset($agenziaEntrate['alert'])) ? $agenziaEntrate['alert'] : "Dati Mancanti",
             'alertINPS' => $dataINPS['alert'],
@@ -821,7 +821,7 @@ class BilanciHelper
                     // dd((float)number_format((((float)$allData['agenziaEntrate1'] / (float)$allData['agenziaEntrate2'])), 2, ",", "."));
                     $cleanData['agenziaEntrate4'] = number_format((($allData['agenziaEntrate1'] / $allData['agenziaEntrate2'])), 2, ",", ".");
                 } else {
-                    $cleanData['agenziaEntrate4'] = "0";
+                    $cleanData['agenziaEntrate4'] = "NON CALCOLABILE";
                 }
             }
 
@@ -881,7 +881,7 @@ class BilanciHelper
         }
 
         if ($alert != "Dati Mancanti") {
-            $inps3 = number_format((($allData['INPS1'] / $allData['INPS2']) * 100), 2, ".", ",");
+            $inps3 = (($allData['INPS1'] / $allData['INPS2']) * 100);
 
             if ($allData['INPS1'] > 50000) {
                 if ($inps3 > 50.50) {
@@ -889,7 +889,7 @@ class BilanciHelper
                 }
             }
         } else {
-            $inps3 = "Non Calcolabile";
+            $inps3 = "NON CALCOLABILE";
         }
 
         $data = [
@@ -947,13 +947,13 @@ class BilanciHelper
             if (is_finite($allData['retribuzioni1'] / $allData['retribuzioni2'])) {
                 $cleanData['retribuzioni3'] = number_format((($allData['retribuzioni1'] / $allData['retribuzioni2']) * 100), 2, ".", ",");
             } else {
-                $cleanData['retribuzioni3'] = "Non Calcolabile";
+                $cleanData['retribuzioni3'] = "NON CALCOLABILE";
             }
         }
 
         $data = [
             'alert' => $alert,
-            'retribuzioni3' => (isset($cleanData)) ? $cleanData['retribuzioni3'] : "Non Calcolabile"
+            'retribuzioni3' => (isset($cleanData)) ? $cleanData['retribuzioni3'] : "NON CALCOLABILE"
         ];
 
         return $data;
