@@ -736,6 +736,7 @@ class BilanciController extends Controller
         $jsonData['vociDiBilancioConValoriCurrent']  = $vociWithValuesCurrent;
         $jsonData['vociDiBilancioConValoriPrevious']  = $vociWithValuesPrevious;
 
+        
         return response()->json([
             'error' => false,
             'jsonData' => $jsonData,
