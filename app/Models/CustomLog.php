@@ -74,11 +74,37 @@ class CustomLog extends Model
         return true;
     }
 
-    function addToLogAnalisiBilancioCalculation($logType ,$message)
+    function addToLogAnalisiBilancioCalculation($logType , $action, $message)
     {
         $log = [];
         $log['log_type'] = $logType;
         $log['message'] = $message;
+        $log['action'] = $action;
+
+        static::create($log);
+
+        return true;
+    }
+
+    function addToLogBilanciHelper($logType , $action, $message)
+    {
+        $log = [];
+        $log['log_type'] = $logType;
+        $log['message'] = $message;
+        $log['action'] = $action;
+
+        static::create($log);
+
+        return true;
+    }
+
+    function addLogToCentraleRischi($logType, $action, $message, $idDocument) 
+    {
+        $log = [];
+        $log['log_type'] = $logType;
+        $log['message'] = $message;
+        $log['action'] = $action;
+        $log['document_id'] = $idDocument;
 
         static::create($log);
 
