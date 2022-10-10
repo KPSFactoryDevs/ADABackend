@@ -921,7 +921,7 @@ class BilanciHelper
 
         if ($alert != "Dati Mancanti") {
             if(str_contains($allData['INPS1'], ',') && str_contains($allData['INPS2'], ',')) {
-                $inps3 = ((str_replace(',', '.', $allData['INPS1']) / str_replace(',', '.', $allData['INPS2'])) * 100);
+                $inps3 = ((str_replace(',', '', str_replace('.', '', $allData['INPS1'])) / str_replace(',', '', str_replace('.', '', $allData['INPS2']))) * 100);
             } else {
                 $inps3 = (($allData['INPS1'] / $allData['INPS2']) * 100);
             }
@@ -987,24 +987,24 @@ class BilanciHelper
 
         if ($alert != "Dati Mancanti") {
             if(str_contains($allData['retribuzioni1'], ',') || str_contains($allData['retribuzioni2'], ',')) {
-                if ((str_replace(',', '.', $allData['retribuzioni1']) / str_replace(',', '.', $allData['retribuzioni2'])) * 100 >= 50) {
+                if ((str_replace(',', '.', str_replace('.', '', $allData['retribuzioni1'])) / str_replace(',', '.', str_replace('.', '', $allData['retribuzioni2']))) * 100 >= 50) {
                     $alert = "Si";
                 } else {
                     $alert = "No";
                 }
-                if (is_finite(str_replace(',', '.', $allData['retribuzioni1']) / str_replace(',', '.', $allData['retribuzioni2']))) {
-                    $cleanData['retribuzioni3'] = number_format(((str_replace(',', '.', $allData['retribuzioni1']) / str_replace(',', '.', $allData['retribuzioni2'])) * 100), 2, ".", ",");
+                if (is_finite(str_replace(',', '.', str_replace('.', '', $allData['retribuzioni1'])) / str_replace(',', '.', str_replace('.', '', $allData['retribuzioni2'])))) {
+                    $cleanData['retribuzioni3'] = number_format(((str_replace(',', '.', str_replace('.', '', $allData['retribuzioni1'])) / str_replace(',', '.', str_replace('.', '', $allData['retribuzioni2']))) * 100), 2, ".", ",");
                 } else {
                     $cleanData['retribuzioni3'] = "NON CALCOLABILE";
                 }
             } else {
-                if (($allData['retribuzioni1'] / $allData['retribuzioni2']) * 100 >= 50) {
+                if ((str_replace(',', '.', str_replace('.', '', $allData['retribuzioni1'])) / str_replace(',', '.', str_replace('.', '', $allData['retribuzioni2']))) * 100 >= 50) {
                     $alert = "Si";
                 } else {
                     $alert = "No";
                 }
-                if (is_finite($allData['retribuzioni1'] / $allData['retribuzioni2'])) {
-                    $cleanData['retribuzioni3'] = number_format((($allData['retribuzioni1'] / $allData['retribuzioni2']) * 100), 2, ".", ",");
+                if (is_finite(str_replace(',', '.', str_replace('.', '', $allData['retribuzioni1'])) / str_replace(',', '.', str_replace('.', '', $allData['retribuzioni2'])))) {
+                    $cleanData['retribuzioni3'] = number_format(((str_replace(',', '.', str_replace('.', '', $allData['retribuzioni1'])) / str_replace(',', '.', str_replace('.', '', $allData['retribuzioni2']))) * 100), 2, ".", ",");
                 } else {
                     $cleanData['retribuzioni3'] = "NON CALCOLABILE";
                 }
