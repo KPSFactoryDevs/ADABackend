@@ -93,7 +93,7 @@ class BilanciCalculationsHelper
             $OF_RICAVI = number_format(($ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari / $ValoreProduzioneRicaviVenditePrestazioni) * 100, 2, ',', '.');
             $calculation = $ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari.' / '.$ValoreProduzioneRicaviVenditePrestazioni.' * '. 100 .' = '.$OF_RICAVI;
         } else {
-            $OF_RICAVI = "NON CALCOLABILE";
+            $OF_RICAVI = "Non Calcolabile";
             $calculation = $OF_RICAVI;
         }
 
@@ -180,7 +180,7 @@ class BilanciCalculationsHelper
 
 
         if ($TotaleAttivo == 0) {
-            $LIQUIDITA = 'NON CALCOLABILE';
+            $LIQUIDITA = 'Non Calcolabile';
             $calculationLIQUIDITA = $LIQUIDITA;
         } else {
             $LIQUIDITA = number_format((($UtilePerditaEsercizio + $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni + (float)$CostiProduzioneAccantonamentiRischi + (float)$CostiProduzioneAltriAccantonamenti) / (float)$TotaleAttivo) * 100, 2, ',', '.');
@@ -372,10 +372,10 @@ class BilanciCalculationsHelper
 
         if ($TotaleImmobilizzazioni == 0) {
             $Margine_Struttura_Primario = number_format((float)($TotalePatrimonioNetto / 1) * 100, 2, ',', '.');
-            $calculation = '('.(float)$TotalePatrimonioNetto.' / '. 1 .') * '. 100;
+            $calculation = '('.(float)$TotalePatrimonioNetto.' / '. 1 .') * '. 100 .' = '. $Margine_Struttura_Primario;
         } else {
             $Margine_Struttura_Primario = number_format((float)($TotalePatrimonioNetto / $TotaleImmobilizzazioni) * 100, 2, ',', '.');
-            $calculation = '('.(float)$TotalePatrimonioNetto.' / '. $TotaleImmobilizzazioni .') * '. 100;
+            $calculation = '('.(float)$TotalePatrimonioNetto.' / '. $TotaleImmobilizzazioni .') * '. 100 .' = '. $Margine_Struttura_Primario;
         }
 
         CustomLog::addToLogAnalisiBilancioCalculation('BilanciCalculationsHelper', 'GetMargineStrutturaPrimario', $calculation);
@@ -483,7 +483,7 @@ class BilanciCalculationsHelper
             $Attivita_a_breve_Passivita_a_Breve_Ordinario = number_format(((($TotaleDisponibilitaLiquide + $CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo + $CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo + $CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo + $CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo + $TotaleRimanenze + $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + $AttivoRateiRisconti) / ($Attivita_a_breve_Passivita_a_Breve_Ordinario_divisore))) * 100, 2, ',', '.');
             $calculation = '((('.$TotaleDisponibilitaLiquide.' + '.$CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo.' + '.$CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo.' + '.$CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo.' + '.$CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo.' + '.$CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo.' + '.$CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo.' + '.$TotaleRimanenze.' + '.$TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni.' + '.$AttivoRateiRisconti.') / ('.$Attivita_a_breve_Passivita_a_Breve_Ordinario_divisore.'))) * '. 100 .' = '.$Attivita_a_breve_Passivita_a_Breve_Ordinario;
         } else {
-            $Attivita_a_breve_Passivita_a_Breve_Ordinario = "NON CALCOLABILE";
+            $Attivita_a_breve_Passivita_a_Breve_Ordinario = "Non Calcolabile";
             $calculation = $Attivita_a_breve_Passivita_a_Breve_Ordinario;
         }
 
@@ -511,7 +511,7 @@ class BilanciCalculationsHelper
             $AcidTest = number_format((((float)$TotaleCrediti + (float)$TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + (float)$TotaleDisponibilitaLiquide + (float)$AttivoRateiRisconti) / ((float)$DebitiEsigibiliEntroEsercizioSuccessivo + (float)$PassivoRateiRisconti)), 2, ',', '.');
             $calculation = '(('.(float)$TotaleCrediti.' + '.(float)$TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni.' + '.(float)$TotaleDisponibilitaLiquide.' + '.(float)$AttivoRateiRisconti.') / ('.(float)$DebitiEsigibiliEntroEsercizioSuccessivo.' + '.(float)$PassivoRateiRisconti.')) = '.$AcidTest;
         } else {
-            $AcidTest = 'NON CALCOLABILE';
+            $AcidTest = 'Non Calcolabile';
             $calculation = $AcidTest;
         }
 
@@ -536,7 +536,7 @@ class BilanciCalculationsHelper
             $ACID_TEST_Semplificato = number_format(((((float)$TotaleDisponibilitaLiquide + (float)$TrentaCinque + (float)$TotaleRimanenze + (float)$TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + (float)$AttivoRateiRisconti - (float)$TotaleRimanenze) / ((float)$QuarantaNove + (float)$PassivoRateiRisconti))), 2, ',', '.');
             $calculation = '((('.(float)$TotaleDisponibilitaLiquide.' + '.(float)$TrentaCinque.' + '.(float)$TotaleRimanenze.' + '.(float)$TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni.' + '.(float)$AttivoRateiRisconti.' - '.(float)$TotaleRimanenze.') / ('.(float)$QuarantaNove.' + '.(float)$PassivoRateiRisconti.'))) = '.$ACID_TEST_Semplificato;
         } else {
-            $ACID_TEST_Semplificato = 'NON CALCOLABILE';
+            $ACID_TEST_Semplificato = 'Non Calcolabile';
             $calculation = $ACID_TEST_Semplificato;
         }
 
@@ -672,7 +672,6 @@ class BilanciCalculationsHelper
         if ($ValoreProduzioneRicaviVenditePrestazioni == 0) {
             $ValoreProduzioneRicaviVenditePrestazioni = 1;
         }
-
         $Peso_Oneri_Finanziari = number_format(($ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari / $ValoreProduzioneRicaviVenditePrestazioni) * 100,  2, ',', '');
         $calculation = '('.$ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari.' / '.$ValoreProduzioneRicaviVenditePrestazioni.') * '. 100 .' = '.$Peso_Oneri_Finanziari;
 

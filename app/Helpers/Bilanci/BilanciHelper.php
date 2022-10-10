@@ -20,8 +20,7 @@ use App\Models\CustomLog;
 
 class BilanciHelper
 {
-
-    public function getRangeValutazioni()
+   public function getRangeValutazioni()
     {
         return array(
             "Rischio Elevato" => 0.1,
@@ -435,7 +434,6 @@ class BilanciHelper
 
         // PFN / EBITDA
         $getPfnEbitda = $bilancioCalculationHelper->getPfnEbitda();
-
         $dataAnalisis['PFN_EBITDA'] = $getPfnEbitda;
         $arrayConVoci['PFN_EBITDA'] = array('DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo', 'DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo', 'DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo', 'DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo', 'DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo', 'DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo', 'DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo', 'DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo', 'TotaleDisponibilitaLiquide', 'ImmobilizzazioniFinanziarieCreditiTotaleCrediti', 'TotaleValoreProduzione', 'CostiProduzioneMateriePrimeSussidiarieConsumoMerci', 'CostiProduzioneGodimentoBeniTerzi', 'CostiProduzioneServizi', 'CostiProduzionePersonaleTotaleCostiPersonale', 'CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci', 'CostiProduzioneOneriDiversiGestione');
 
@@ -489,8 +487,15 @@ class BilanciHelper
         $dataAnalisis["Copertura_Lorda_OF"] = number_format($dataAnalisis["Copertura_Lorda_OF"] / 100, 2, ',', '.');
         $dataAnalisis["EBIT_OF"] = number_format($dataAnalisis["EBIT_OF"] / 100, 2, ',', '.');
         $dataAnalisis["Saldo_dei_Debiti_verso_il_Fisco"] = number_format($dataAnalisis["Saldo_dei_Debiti_verso_il_Fisco"] / 100, 2, ',', '.');
-        $dataAnalisis["Margine_Struttura_Primario"] =  number_format((float)str_replace('.', '', $dataAnalisis["Margine_Struttura_Primario"]) / 100, 2, ',', '.');
-        $dataAnalisis["Margine_Struttura_Secondario"] =  number_format((float)str_replace('.', '', $dataAnalisis["Margine_Struttura_Secondario"]) / 100, 2, ',', '.');
+
+		foreach($dataAnalisis as $key => $singleData) {
+			$singleData = str_replace('.', '', $singleData);
+			if($singleData >= 1000) {
+				$dataAnalisis[$key] = 'Non Calcolabile';
+			}
+		}
+        // $dataAnalisis["Margine_Struttura_Primario"] =  number_format((float)str_replace('.', '', $dataAnalisis["Margine_Struttura_Primario"]) / 100, 2, ',', '.');
+        // $dataAnalisis["Margine_Struttura_Secondario"] =  number_format((float)str_replace('.', '', $dataAnalisis["Margine_Struttura_Secondario"]) / 100, 2, ',', '.');
 
         $response = array(
             'AnalisiBasic' => $this->getBasicAnalisi($tipoAzienda, $dataAnalisis, $dataAnalisis, $idBilancio),
@@ -666,11 +671,22 @@ class BilanciHelper
     private function getAnalisisDataFull($allData)
     {
         $agenziaEntrate = $this->calculateAgenziaEntrate($allData);
+        CustomLog::addToLogBilanciHelper('BilanciHelper', 'GetAgenziaEntrate', json_encode($agenziaEntrate));
+
         $dataINPS = $this->calcoloINPS($allData);
+        CustomLog::addToLogBilanciHelper('BilanciHelper', 'GetINPS', json_encode($dataINPS));
+
         $riscossioneAlert = $this->calculateRiscossione($allData);
+        CustomLog::addToLogBilanciHelper('BilanciHelper', 'GetAlertRiscossione', json_encode($riscossioneAlert));
+
         $alertRetribuzioni = $this->calculateRetribuzione($allData);
+        CustomLog::addToLogBilanciHelper('BilanciHelper', 'GetRetribuzione', json_encode($alertRetribuzioni));
+
         $alertFornitori = $this->calculateFornitori($allData);
+        CustomLog::addToLogBilanciHelper('BilanciHelper', 'GetAlertFornitori', json_encode($alertFornitori));
+
         $alertDSCR = $this->getCalcoloDSCR($allData);
+        // CustomLog::addToLogBilanciHelper('BilanciHelper', 'GetAlertDSCR', json_encode($alertDSCR));
 
         $cleanArray = [
             'DSCRDate' => (isset($allData['DSCRdispLiquida'])) ? $allData['DSCRDate'] : "1970-01-01",
@@ -714,6 +730,8 @@ class BilanciHelper
             'alertRetribuzioni' => $alertRetribuzioni['alert'],
             'alertFornitori' => $alertFornitori,
         ];
+
+        CustomLog::addToLogBilanciHelper('BilanciHelper', 'GetBasicCleanArray', json_encode($cleanArray));
 
         return $cleanArray;
     }
@@ -775,9 +793,12 @@ class BilanciHelper
 
         try {
             $result = $sum / $divisore;
+            CustomLog::addToLogBilanciHelper('BilanciHelper', 'GetResultCalculateDSCR', $sum.' / '.$divisore.' = '.$result);
 
             return number_format($result, 2, ",", ".");
         } catch (Exception $e) {
+            CustomLog::addToLogBilanciHelper('BilanciHelper', 'getExceptionCalculateDSCR', json_encode($e->getMessage()));
+
             return [
                 'error' => true,
                 'message' => $e->getMessage()
@@ -795,6 +816,7 @@ class BilanciHelper
         }
 
         if (empty($dscrData['uscitaDSCRCFmese6']) || $dscrData['uscitaDSCRCFmese6'] == 0 || empty($dscrData['rimborsoDSCRmese1']) || $dscrData['rimborsoDSCRmese1'] == 0) {
+            CustomLog::addToLogBilanciHelper('BilanciHelper', 'GetEmptyCalculateDSCR', json_encode(["uscitaDSCRCFmese6" => $dscrData['uscitaDSCRCFmese6'], "rimborsoDSCRmese1" => $dscrData['rimborsoDSCRmese1']]));
             return ['error' => true];
         }
 
@@ -844,6 +866,7 @@ class BilanciHelper
 
             return $data;
         } catch (Exception $e) {
+            CustomLog::addToLogBilanciHelper('BilanciHelper', 'GetExceptionAgenziaEntrate', json_encode($e->getMessage()));
             return [
                 'error' => true,
                 'message' => $e->getMessage()

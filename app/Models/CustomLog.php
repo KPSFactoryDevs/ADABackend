@@ -98,4 +98,17 @@ class CustomLog extends Model
         return true;
     }
 
+    function addLogToCentraleRischi($logType, $action, $message, $idDocument) 
+    {
+        $log = [];
+        $log['log_type'] = $logType;
+        $log['message'] = $message;
+        $log['action'] = $action;
+        $log['document_id'] = $idDocument;
+
+        static::create($log);
+
+        return true;
+    }
+
 }
