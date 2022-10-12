@@ -477,7 +477,7 @@ AND t.divisa = t2.divisa');
                 } else if ($allMonthsCount > 24) {
                     if ($singleSconfino->sconfiniTotali >= 8) {
                         $this->_tensioni[$singleSconfino->categoria] = true;
-                    }
+                    }x
                 }
             } else if ($countBanks > 1) {
                 if ($allMonthsCount <= 12) {
@@ -550,7 +550,7 @@ AND t.divisa = t2.divisa');
                     ->whereIn('categoria', $categories)
                     ->whereRaw('CAST(t.accordato_operativo as SIGNED) < CAST(t.utilizzato as SIGNED)')
                     ->where('stato_rapporto', 'not like', "Rapporti non contestati-crediti" . '%')
-                    ->where('stato_rapporto', 'not like', "Rapp non contestati" . '%');
+                    ->where('stato_rapporto', 'not like', "Rapp non contestati - cred scad" . '%');
             });
         }
 
@@ -570,7 +570,7 @@ AND t.divisa = t2.divisa');
                     ->where('t.document_id', $this->_documentId)
                     ->whereIn('categoria', $categories)
                     ->whereRaw('CAST(t.accordato_operativo as SIGNED) < CAST(t.utilizzato as SIGNED)')
-                    ->where('stato_rapporto', 'like', "Rapp non contestati" . '%');
+                    ->where('stato_rapporto', 'like', "Rapp non contestati - cred scad" . '%');
             });
         }
         $sconfiniOltre90Giorni = $CentraleRischiModel
@@ -1386,7 +1386,7 @@ AND t.divisa = t2.divisa');
             } else {
                 $totAffidamentiConPesiPerBanca[$index]['PesoUtilizzato'] = 0;
             }
-            
+
         }
 
         return $totAffidamentiConPesiPerBanca;
@@ -1648,7 +1648,7 @@ AND t.divisa = t2.divisa');
 
     public function divideAnomalie($numeroSconfiniTotali, $banks)
     {
- 
+
         $importiSconfini = array(
             'SconfiniEntro90Giorni' => [],
             'SconfiniOltre90Giorni' => [],
