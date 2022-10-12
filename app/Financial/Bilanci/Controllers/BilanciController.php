@@ -162,7 +162,7 @@ class BilanciController extends Controller
         $jsonData['currentYear'] = $years[2] . ' ' . $years[3];
         $jsonData['years'] = explode('-', $years[0])[0].'-'.explode('-', $years[2])[0];
 
-        CustomLog::addToLogBilanci('Bilanci Recap', 'Sono stati estratti gli anni '.$jsonData['years'].'.');
+       // CustomLog::addToLogBilanci('Bilanci Recap', 'Sono stati estratti gli anni '.$jsonData['years'].'.');
 
         $elements = $result->getElements();
         $elements = $elements->getElements();
