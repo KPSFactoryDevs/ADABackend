@@ -477,7 +477,7 @@ AND t.divisa = t2.divisa');
                 } else if ($allMonthsCount > 24) {
                     if ($singleSconfino->sconfiniTotali >= 8) {
                         $this->_tensioni[$singleSconfino->categoria] = true;
-                    }x
+                    }
                 }
             } else if ($countBanks > 1) {
                 if ($allMonthsCount <= 12) {
