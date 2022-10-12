@@ -112,7 +112,7 @@ class BilanciController extends Controller
             return response()->json([
                 'exception' => true,
                 'message' => $e->getMessage()
-            ]);
+            ], 400);
         }
 
         $contexts = ($result->getContexts()->getContexts());
