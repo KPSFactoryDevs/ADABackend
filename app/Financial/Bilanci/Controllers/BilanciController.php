@@ -486,7 +486,7 @@ class BilanciController extends Controller
         if($vociBilancioMancanti) {
             $encodeVociMancanti = json_encode($vociBilancioMancanti);
 
-            CustomLog::addToLogBilanci('Bilanci Recap', 'Le voci di bilancio mancanti sono le seguenti: '.$encodeVociMancanti.'');
+          //  CustomLog::addToLogBilanci('Bilanci Recap', 'Le voci di bilancio mancanti sono le seguenti: '.$encodeVociMancanti.'');
         }
 
         $request->session()->put('extNames', $extNames);
@@ -502,7 +502,7 @@ class BilanciController extends Controller
         $request->session()->put('vociExt', $vociExt);
         $request->session()->put('account_id', $request->input('account_id'));
 
-        CustomLog::addToLogBilanci('Bilanci Recap', 'Tutti i dati sono stati estratti');
+      //  CustomLog::addToLogBilanci('Bilanci Recap', 'Tutti i dati sono stati estratti');
 
         return response()->json([
             'vociBilancioMancanti' => $vociBilancioMancanti,
