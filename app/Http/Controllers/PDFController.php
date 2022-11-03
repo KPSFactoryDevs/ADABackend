@@ -272,6 +272,7 @@ class PDFController extends Controller
 					$totaleAffidamentiTable[$key]['PesoUtilizzato'] = number_format($singleAffidamento['PesoUtilizzato'], 2, ',', '.');
 			}
 			$scoreCR = number_format($scoreCR, 2, ',', '.');
+			$finalScoreMoltiplied = (float)str_replace(',', '.', $scoreCR)*10;
 
             $generalDates = [
                 'periodoMinimoDisponibile' => $lastAvailableDate->format('U'),
@@ -287,7 +288,7 @@ class PDFController extends Controller
                         ],
                         'NumeroIntermediari' => $intermediari,
                         'NumeroPosizioniContestate' => $numeroRapportiContestati,
-                        'FinalScore' => (float)str_replace(',', '.', $scoreCR)*10
+                        'FinalScore' => number_format($finalScoreMoltiplied, 2, ',', '.')
                     ],
                     'AnomalieUtilizzi' => [
                         'TensioneAutoliquidanti' => $numeroSconfiniTotali['Tensioni']['RISCHI AUTOLIQUIDANTI'],
