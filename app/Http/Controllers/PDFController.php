@@ -287,7 +287,7 @@ class PDFController extends Controller
                         ],
                         'NumeroIntermediari' => $intermediari,
                         'NumeroPosizioniContestate' => $numeroRapportiContestati,
-                        'FinalScore' => $scoreCR
+                        'FinalScore' => (float)str_replace(',', '.', $scoreCR)*10
                     ],
                     'AnomalieUtilizzi' => [
                         'TensioneAutoliquidanti' => $numeroSconfiniTotali['Tensioni']['RISCHI AUTOLIQUIDANTI'],
@@ -355,6 +355,7 @@ class PDFController extends Controller
                 'generalDates' => $generalDates
             ];
 
+			dd($response);
 			$printPDF = new printpdf;
 
 			$printPDF->currentPayload = $response;
