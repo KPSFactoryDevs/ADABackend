@@ -355,7 +355,6 @@ class PDFController extends Controller
                 'generalDates' => $generalDates
             ];
 
-			dd($response);
 			$printPDF = new printpdf;
 
 			$printPDF->currentPayload = $response;
