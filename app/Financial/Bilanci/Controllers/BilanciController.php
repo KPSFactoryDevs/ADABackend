@@ -107,6 +107,8 @@ class BilanciController extends Controller
 
         try {
             $result = XBRL_Instance::FromInstanceDocumentWithExtensionTaxonomy($file->getPathName(), base_path() . "/taxonomies/2018-11-04/itcc-ci-2018-11-04.xsd", 'XBRL', $instance);
+            $debitiTotaliNotaIntegrativaHTML = (array_shift($result->getElements()->ElementsByName('IntroduzioneDebiti')->getElements()['IntroduzioneDebiti'])['value']);
+            $debitiTotaliNotaIntegrativa = strip_tags(htmlspecialchars_decode(array_shift($result->getElements()->ElementsByName('IntroduzioneDebiti')->getElements()['IntroduzioneDebiti'])['value']));
         } catch(Exception $e) {
 
             return response()->json([
@@ -490,6 +492,8 @@ class BilanciController extends Controller
         }
 
         $request->session()->put('extNames', $extNames);
+        $request->session()->put('notaIntegrativaDebitiHTML', $debitiTotaliNotaIntegrativaHTML);
+        $request->session()->put('notaIntegrativaDebiti', $debitiTotaliNotaIntegrativa);
         $request->session()->put('mascheraOrdinata', $this->mascheraOrdinata());
         $request->session()->put('formaGiuridica', $formaGiuridica);
         $request->session()->put('vociBilancioMancanti', $vociBilancioMancanti);
@@ -517,6 +521,8 @@ class BilanciController extends Controller
             'tipo_azienda' => $tipo_azienda,
             'gradi' => $gradi,
             'vociExt' => $vociExt,
+            'notaIntegrativaDebitiHTML' => $debitiTotaliNotaIntegrativaHTML,
+            'notaIntegrativaDebiti' => $debitiTotaliNotaIntegrativa,
             'account_id' => $request->input('account_id')
         ]);
     }
