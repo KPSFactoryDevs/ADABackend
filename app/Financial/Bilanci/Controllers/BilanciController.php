@@ -97,38 +97,36 @@ class BilanciController extends Controller
      */
     public function recap(Request $request)
     {
-        $tipo_azienda = $request->input('tipo_azienda');
-        $formaGiuridica = $request->input('forma_giuridica');
-
-        $bilanciHelper = new BilanciHelper();
         global $use_xbrl_functions;
         $use_xbrl_functions = true;
 
-        $jsonData = array();
+        $bilanciHelper = new BilanciHelper();
 
         $file = $request->base64;
-        $instance = false;
+        $filePath = $file->getPathName();
+        $taxonomyName = $bilanciHelper->getInstanceTaxonomyHRef($filePath);
+        $taxonomyPath = base_path()."/taxonomies/2018-11-04/".$taxonomyName;
 
         try {
-            $result = XBRL_Instance::FromInstanceDocument($file->getPathName(), base_path() . "/taxonomies/2018-11-04/itcc-ci-2018-11-04.xsd", $instance);
 
-            $bilancioJSON = $result->toJSON();
-          //  $jsonAIData = $bilanciHelper->getDataFromNotaIntegrativa($result);
-
-            $render = $bilanciHelper->generateHTMLRender($file->getPathName(), base_path() . "/taxonomies/2018-11-04/itcc-ci-2018-11-04.xsd");
+            $emptyInstance = false;
+            $readXBRL = XBRL_Instance::FromInstanceDocument($filePath, $taxonomyPath, $emptyInstance);
+            $bilancioJSON = $readXBRL->toJSON();
+            $renderHTML = $bilanciHelper->generateHTMLRender($filePath, $taxonomyPath);
 
 
             return response()->json([
                 'exception' => false,
-                'renderHTML' => $render,
+                'renderHTML' => $renderHTML,
                 'bilancioJSON' => $bilancioJSON
-            ], 202);
+            ], 200);
+
         } catch(Exception $e) {
 
             return response()->json([
                 'exception' => true,
                 'message' => $e->getMessage()
-            ], 202);
+            ], 500);
         }
 /*
         $contexts = ($result->getContexts()->getContexts());

@@ -1307,7 +1307,7 @@ class BilanciHelper
 public function getInstanceTaxonomyHRef( $filename )
     {
 
-        return "itcc-ci-abb-2018-11-04.xsd";
+       // return "itcc-ci-abb-2018-11-04.xsd";
         $dom = new \DOMDocument();
 
         $dom->load( html_entity_decode($filename, ENT_COMPAT, "UTF-8"));

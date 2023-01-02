@@ -299,7 +299,7 @@
   <element id="itcc-ci_DebitiVersoIstitutiPrevidenzaSicurezzaSocialeDebitiAreaGeografica" name="DebitiVersoIstitutiPrevidenzaSicurezzaSocialeDebitiAreaGeografica" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="credit" abstract="false"/>
   <element id="itcc-ci_AltriDebitiDebitiAreaGeografica" name="AltriDebitiDebitiAreaGeografica" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="credit" abstract="false"/>
   <element id="itcc-ci_DebitiDebitiAreaGeografica" name="DebitiDebitiAreaGeografica" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="credit" abstract="false"/>
-  <element id="itcc-ci_DebitiAreaGeografica" name="DebitiAreaGeografica" substitutionGroup="xbrli:tuple" nillable="true"> 
+  <element id="itcc-ci_DebitiAreaGeografica" name="DebitiAreaGeografica" substitutionGroup="xbrli:tuple" nillable="true">
     <complexType>
       <complexContent>
         <restriction base="anyType">
@@ -499,7 +499,7 @@
   <element id="itcc-ci_CommentoSuddivisioneRicaviVenditePrestazioniAreaGeografica" name="CommentoSuddivisioneRicaviVenditePrestazioniAreaGeografica" type="nonnum:textBlockItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" abstract="false"/>
   <element id="itcc-ci_AreaGeograficaRicaviVenditePrestazioniAreaGeografica" name="AreaGeograficaRicaviVenditePrestazioniAreaGeografica" type="xbrli:stringItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="duration" abstract="false"/>
   <element id="itcc-ci_ValoreEsercizioCorrenteRicaviVenditePrestazioniAreaGeografica" name="ValoreEsercizioCorrenteRicaviVenditePrestazioniAreaGeografica" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="duration" xbrli:balance="credit" abstract="false"/>
-  <element id="itcc-ci_RicaviVenditePrestazioniAreaGeografica" name="RicaviVenditePrestazioniAreaGeografica" substitutionGroup="xbrli:tuple" nillable="true"> 
+  <element id="itcc-ci_RicaviVenditePrestazioniAreaGeografica" name="RicaviVenditePrestazioniAreaGeografica" substitutionGroup="xbrli:tuple" nillable="true">
     <complexType>
       <complexContent>
         <restriction base="anyType">
@@ -515,7 +515,7 @@
   <element id="itcc-ci_CommentoSuddivisioneRicaviVenditePrestazioniCategoriaAttivita" name="CommentoSuddivisioneRicaviVenditePrestazioniCategoriaAttivita" type="nonnum:textBlockItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" abstract="false"/>
   <element id="itcc-ci_CategoriaAttivitaRicaviVenditePrestazioniCategoriaAttivita" name="CategoriaAttivitaRicaviVenditePrestazioniCategoriaAttivita" type="xbrli:stringItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="duration" abstract="false"/>
   <element id="itcc-ci_ValoreEsercizioCorrenteRicaviVenditePrestazioniCategoriaAttivita" name="ValoreEsercizioCorrenteRicaviVenditePrestazioniCategoriaAttivita" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="duration" xbrli:balance="credit" abstract="false"/>
-  <element id="itcc-ci_RicaviVenditePrestazioniCategoriaAttivita" name="RicaviVenditePrestazioniCategoriaAttivita" substitutionGroup="xbrli:tuple" nillable="true"> 
+  <element id="itcc-ci_RicaviVenditePrestazioniCategoriaAttivita" name="RicaviVenditePrestazioniCategoriaAttivita" substitutionGroup="xbrli:tuple" nillable="true">
     <complexType>
       <complexContent>
         <restriction base="anyType">
@@ -986,7 +986,7 @@
   <element id="itcc-ci_ValoreFineEsercizioTotaleImmobilizzazioniMateriali" name="ValoreFineEsercizioTotaleImmobilizzazioniMateriali" type="xbrli:stringItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" abstract="true"/>
   <element id="itcc-ci_VarieAltreRiserveDescrizione" name="VarieAltreRiserveDescrizione" type="xbrli:stringItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" abstract="false"/>
   <element id="itcc-ci_VarieAltreRiserveImporto" name="VarieAltreRiserveImporto" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="credit" abstract="false"/>
-  <element id="itcc-ci_VarieAltreRiserve" name="VarieAltreRiserve" substitutionGroup="xbrli:tuple" nillable="true"> 
+  <element id="itcc-ci_VarieAltreRiserve" name="VarieAltreRiserve" substitutionGroup="xbrli:tuple" nillable="true">
     <complexType>
       <complexContent>
         <restriction base="anyType">
@@ -1144,7 +1144,7 @@
   <element id="itcc-ci_QuotaPossedutaPctImpresaControllata" name="QuotaPossedutaPctImpresaControllata" type="num:percentItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" abstract="false"/>
   <element id="itcc-ci_ValoreBilancioCorrispondenteCreditoImpresaControllata" name="ValoreBilancioCorrispondenteCreditoImpresaControllata" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" abstract="false"/>
   <element id="itcc-ci_ValoreBilancioCorrispondenteCreditoTotalePartecipazioniImpreseControllatePosseduteDirettamenteTramiteSocietaFiduciariaInterpostaPersona" name="ValoreBilancioCorrispondenteCreditoTotalePartecipazioniImpreseControllatePosseduteDirettamenteTramiteSocietaFiduciariaInterpostaPersona" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" abstract="false"/>
-  <element id="itcc-ci_PartecipazioneImpresaControllata" name="PartecipazioneImpresaControllata" substitutionGroup="xbrli:tuple" nillable="true"> 
+  <element id="itcc-ci_PartecipazioneImpresaControllata" name="PartecipazioneImpresaControllata" substitutionGroup="xbrli:tuple" nillable="true">
     <complexType>
       <complexContent>
         <restriction base="anyType">
@@ -1175,7 +1175,7 @@
   <element id="itcc-ci_QuotaPossedutaPctImpresaCollegata" name="QuotaPossedutaPctImpresaCollegata" type="num:percentItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" abstract="false"/>
   <element id="itcc-ci_ValoreBilancioCorrispondenteCreditoImpresaCollegata" name="ValoreBilancioCorrispondenteCreditoImpresaCollegata" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" abstract="false"/>
   <element id="itcc-ci_ValoreBilancioCorrispondenteCreditoTotaleTotalePartecipazioniImpreseCollegatePosseduteDirettamenteTramiteSocietaFiduciariaInterpostaPersona" name="ValoreBilancioCorrispondenteCreditoTotaleTotalePartecipazioniImpreseCollegatePosseduteDirettamenteTramiteSocietaFiduciariaInterpostaPersona" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" abstract="false"/>
-  <element id="itcc-ci_PartecipazioneImpresaCollegata" name="PartecipazioneImpresaCollegata" substitutionGroup="xbrli:tuple" nillable="true"> 
+  <element id="itcc-ci_PartecipazioneImpresaCollegata" name="PartecipazioneImpresaCollegata" substitutionGroup="xbrli:tuple" nillable="true">
     <complexType>
       <complexContent>
         <restriction base="anyType">
@@ -1203,7 +1203,7 @@
   <element id="itcc-ci_CreditiImmobilizzatiVersoImpreseSottoposteControlloControllantiCreditiImmobilizzatiAreaGeografica" name="CreditiImmobilizzatiVersoImpreseSottoposteControlloControllantiCreditiImmobilizzatiAreaGeografica" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
   <element id="itcc-ci_CreditiImmobilizzatiVersoAltriCreditiImmobilizzatiAreaGeografica" name="CreditiImmobilizzatiVersoAltriCreditiImmobilizzatiAreaGeografica" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
   <element id="itcc-ci_TotaleCreditiImmobilizzatiCreditiImmobilizzatiAreaGeografica" name="TotaleCreditiImmobilizzatiCreditiImmobilizzatiAreaGeografica" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
-  <element id="itcc-ci_CreditiImmobilizzatiAreaGeografica" name="CreditiImmobilizzatiAreaGeografica" substitutionGroup="xbrli:tuple" nillable="true"> 
+  <element id="itcc-ci_CreditiImmobilizzatiAreaGeografica" name="CreditiImmobilizzatiAreaGeografica" substitutionGroup="xbrli:tuple" nillable="true">
     <complexType>
       <complexContent>
         <restriction base="anyType">
@@ -1241,7 +1241,7 @@
   <element id="itcc-ci_TotaleAzioniSottoscritteEsercizioValoreNominaleAzioniEmesseSocietaCategorie" name="TotaleAzioniSottoscritteEsercizioValoreNominaleAzioniEmesseSocietaCategorie" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="duration" abstract="false"/>
   <element id="itcc-ci_TotaleConsistenzaFinaleNumeroAzioniEmesseSocietaCategorie" name="TotaleConsistenzaFinaleNumeroAzioniEmesseSocietaCategorie" type="xbrli:sharesItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" abstract="false"/>
   <element id="itcc-ci_TotaleConsistenzaFinaleValoreNominaleAzioniEmesseSocietaCategorie" name="TotaleConsistenzaFinaleValoreNominaleAzioniEmesseSocietaCategorie" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" abstract="false"/>
-  <element id="itcc-ci_AzioniEmesseSocietaCategorie" name="AzioniEmesseSocietaCategorie" substitutionGroup="xbrli:tuple" nillable="true"> 
+  <element id="itcc-ci_AzioniEmesseSocietaCategorie" name="AzioniEmesseSocietaCategorie" substitutionGroup="xbrli:tuple" nillable="true">
     <complexType>
       <complexContent>
         <restriction base="anyType">
@@ -1280,7 +1280,7 @@
   <element id="itcc-ci_DirittiPatrimonialiConcessiAltriStrumentiFinanziariEmessiSocieta" name="DirittiPatrimonialiConcessiAltriStrumentiFinanziariEmessiSocieta" type="xbrli:stringItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="duration" abstract="false"/>
   <element id="itcc-ci_DirittiPartecipativiConcessiAltriStrumentiFinanziariEmessiSocieta" name="DirittiPartecipativiConcessiAltriStrumentiFinanziariEmessiSocieta" type="xbrli:stringItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="duration" abstract="false"/>
   <element id="itcc-ci_PrincipaliCaratteristicheOperazioniRelativeAltriStrumentiFinanziariEmessiSocieta" name="PrincipaliCaratteristicheOperazioniRelativeAltriStrumentiFinanziariEmessiSocieta" type="xbrli:stringItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="duration" abstract="false"/>
-  <element id="itcc-ci_AltriStrumentiFinanziariEmessiSocieta" name="AltriStrumentiFinanziariEmessiSocieta" substitutionGroup="xbrli:tuple" nillable="true"> 
+  <element id="itcc-ci_AltriStrumentiFinanziariEmessiSocieta" name="AltriStrumentiFinanziariEmessiSocieta" substitutionGroup="xbrli:tuple" nillable="true">
     <complexType>
       <complexContent>
         <restriction base="anyType">
@@ -1302,7 +1302,7 @@
   <element id="itcc-ci_QuotaScadenzaQuotaFinanziamentoEffettuatoSoci" name="QuotaScadenzaQuotaFinanziamentoEffettuatoSoci" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="credit" abstract="false"/>
   <element id="itcc-ci_QuotaClausolaPostergazioneScadenzaQuotaFinanziamentoEffettuatoSoci" name="QuotaClausolaPostergazioneScadenzaQuotaFinanziamentoEffettuatoSoci" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="credit" abstract="false"/>
   <element id="itcc-ci_TotaleQuotaClausolaPostergazioneScadenza" name="TotaleQuotaClausolaPostergazioneScadenza" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="credit" abstract="false"/>
-  <element id="itcc-ci_QuotaFinanziamentoEffettuatoSoci" name="QuotaFinanziamentoEffettuatoSoci" substitutionGroup="xbrli:tuple" nillable="true"> 
+  <element id="itcc-ci_QuotaFinanziamentoEffettuatoSoci" name="QuotaFinanziamentoEffettuatoSoci" substitutionGroup="xbrli:tuple" nillable="true">
     <complexType>
       <complexContent>
         <restriction base="anyType">
@@ -1578,7 +1578,7 @@
   <element id="itcc-ci_FairValueDettaglioPartecipazioniAltreImprese" name="FairValueDettaglioPartecipazioniAltreImprese" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
   <element id="itcc-ci_ValoreContabileDettaglioPartecipazioniAltreImpreseTotale" name="ValoreContabileDettaglioPartecipazioniAltreImpreseTotale" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
   <element id="itcc-ci_FairValueDettaglioPartecipazioniAltreImpreseTotale" name="FairValueDettaglioPartecipazioniAltreImpreseTotale" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
-  <element id="itcc-ci_DettaglioPartecipazioniAltreImprese" name="DettaglioPartecipazioniAltreImprese" substitutionGroup="xbrli:tuple" nillable="true"> 
+  <element id="itcc-ci_DettaglioPartecipazioniAltreImprese" name="DettaglioPartecipazioniAltreImprese" substitutionGroup="xbrli:tuple" nillable="true">
     <complexType>
       <complexContent>
         <restriction base="anyType">
@@ -1597,7 +1597,7 @@
   <element id="itcc-ci_FairValueDettaglioCreditiVersoImpreseControllate" name="FairValueDettaglioCreditiVersoImpreseControllate" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
   <element id="itcc-ci_ValoreContabileDettaglioCreditiVersoImpreseControllateTotale" name="ValoreContabileDettaglioCreditiVersoImpreseControllateTotale" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
   <element id="itcc-ci_FairValueDettaglioCreditiVersoImpreseControllateTotale" name="FairValueDettaglioCreditiVersoImpreseControllateTotale" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
-  <element id="itcc-ci_DettaglioCreditiVersoImpreseControllate" name="DettaglioCreditiVersoImpreseControllate" substitutionGroup="xbrli:tuple" nillable="true"> 
+  <element id="itcc-ci_DettaglioCreditiVersoImpreseControllate" name="DettaglioCreditiVersoImpreseControllate" substitutionGroup="xbrli:tuple" nillable="true">
     <complexType>
       <complexContent>
         <restriction base="anyType">
@@ -1616,7 +1616,7 @@
   <element id="itcc-ci_FairValueDettaglioCreditiVersoImpreseCollegate" name="FairValueDettaglioCreditiVersoImpreseCollegate" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
   <element id="itcc-ci_ValoreContabileDettaglioCreditiVersoImpreseCollegateTotale" name="ValoreContabileDettaglioCreditiVersoImpreseCollegateTotale" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
   <element id="itcc-ci_FairValueDettaglioCreditiVersoImpreseCollegateTotale" name="FairValueDettaglioCreditiVersoImpreseCollegateTotale" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
-  <element id="itcc-ci_DettaglioCreditiVersoImpreseCollegate" name="DettaglioCreditiVersoImpreseCollegate" substitutionGroup="xbrli:tuple" nillable="true"> 
+  <element id="itcc-ci_DettaglioCreditiVersoImpreseCollegate" name="DettaglioCreditiVersoImpreseCollegate" substitutionGroup="xbrli:tuple" nillable="true">
     <complexType>
       <complexContent>
         <restriction base="anyType">
@@ -1635,7 +1635,7 @@
   <element id="itcc-ci_FairValueDettaglioCreditiVersoAltri" name="FairValueDettaglioCreditiVersoAltri" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
   <element id="itcc-ci_ValoreContabileDettaglioCreditiVersoAltriTotale" name="ValoreContabileDettaglioCreditiVersoAltriTotale" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
   <element id="itcc-ci_FairValueDettaglioCreditiVersoAltriTotale" name="FairValueDettaglioCreditiVersoAltriTotale" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
-  <element id="itcc-ci_DettaglioCreditiVersoAltri" name="DettaglioCreditiVersoAltri" substitutionGroup="xbrli:tuple" nillable="true"> 
+  <element id="itcc-ci_DettaglioCreditiVersoAltri" name="DettaglioCreditiVersoAltri" substitutionGroup="xbrli:tuple" nillable="true">
     <complexType>
       <complexContent>
         <restriction base="anyType">
@@ -1654,7 +1654,7 @@
   <element id="itcc-ci_FairValueDettaglioAltriTitoli" name="FairValueDettaglioAltriTitoli" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
   <element id="itcc-ci_ValoreContabileDettaglioAltriTitoliTotale" name="ValoreContabileDettaglioAltriTitoliTotale" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
   <element id="itcc-ci_FairValueDettaglioAltriTitoliTotale" name="FairValueDettaglioAltriTitoliTotale" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
-  <element id="itcc-ci_DettaglioAltriTitoli" name="DettaglioAltriTitoli" substitutionGroup="xbrli:tuple" nillable="true"> 
+  <element id="itcc-ci_DettaglioAltriTitoli" name="DettaglioAltriTitoli" substitutionGroup="xbrli:tuple" nillable="true">
     <complexType>
       <complexContent>
         <restriction base="anyType">
@@ -1675,7 +1675,7 @@
   <element id="itcc-ci_QuotaDisponibileDisponibilitaVarieAltreRiserve" name="QuotaDisponibileDisponibilitaVarieAltreRiserve" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="credit" abstract="false"/>
   <element id="itcc-ci_RiepilogoUtilizzazioniEffettuateTrePrecedentiEserciziCoperturaPerditeDisponibilitaVarieAltreRiserve" name="RiepilogoUtilizzazioniEffettuateTrePrecedentiEserciziCoperturaPerditeDisponibilitaVarieAltreRiserve" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="credit" abstract="false"/>
   <element id="itcc-ci_RiepilogoUtilizzazioniEffettuateTrePrecedentiEserciziAltreRagioniDisponibilitaVarieAltreRiserve" name="RiepilogoUtilizzazioniEffettuateTrePrecedentiEserciziAltreRagioniDisponibilitaVarieAltreRiserve" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="credit" abstract="false"/>
-  <element id="itcc-ci_DisponibilitaVarieAltreRiserve" name="DisponibilitaVarieAltreRiserve" substitutionGroup="xbrli:tuple" nillable="true"> 
+  <element id="itcc-ci_DisponibilitaVarieAltreRiserve" name="DisponibilitaVarieAltreRiserve" substitutionGroup="xbrli:tuple" nillable="true">
     <complexType>
       <complexContent>
         <restriction base="anyType">
@@ -1795,7 +1795,7 @@
   <element id="itcc-ci_ImmobilizzazioniFinanziarieCreditiVersoAltri" name="ImmobilizzazioniFinanziarieCreditiVersoAltri" type="xbrli:stringItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" abstract="true"/>
   <element id="itcc-ci_ImmobilizzazioniFinanziarieCreditiVersoAltriEsigibiliEntroEsercizioSuccessivo" name="ImmobilizzazioniFinanziarieCreditiVersoAltriEsigibiliEntroEsercizioSuccessivo" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
   <element id="itcc-ci_ImmobilizzazioniFinanziarieCreditiVersoAltriEsigibiliOltreEsercizioSuccessivo" name="ImmobilizzazioniFinanziarieCreditiVersoAltriEsigibiliOltreEsercizioSuccessivo" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
-  <element id="itcc-ci_ImmobilizzazioniFinanziarieCreditiVersoAltriTotaleCreditiVersoAltri" name="ImmobislizzazioniFinanziarieCreditiVersoAltriTotaleCreditiVersoAltri" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
+  <element id="itcc-ci_ImmobilizzazioniFinanziarieCreditiVersoAltriTotaleCreditiVersoAltri" name="ImmobilizzazioniFinanziarieCreditiVersoAltriTotaleCreditiVersoAltri" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
   <element id="itcc-ci_ImmobilizzazioniFinanziarieCreditiTotaleCrediti" name="ImmobilizzazioniFinanziarieCreditiTotaleCrediti" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
   <element id="itcc-ci_ImmobilizzazioniFinanziarieAltriTitoli" name="ImmobilizzazioniFinanziarieAltriTitoli" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
   <element id="itcc-ci_ImmobilizzazioniFinanziarieStrumentiFinanziariDerivatiAttivi" name="ImmobilizzazioniFinanziarieStrumentiFinanziariDerivatiAttivi" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
@@ -2095,7 +2095,7 @@
   <element id="itcc-ci_FairValueDettaglioPartecipazioniImpreseControllanti" name="FairValueDettaglioPartecipazioniImpreseControllanti" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
   <element id="itcc-ci_ValoreContabileDettaglioPartecipazioniImpreseControllantiTotale" name="ValoreContabileDettaglioPartecipazioniImpreseControllantiTotale" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
   <element id="itcc-ci_FairValueDettaglioPartecipazioniImpreseControllantiTotale" name="FairValueDettaglioPartecipazioniImpreseControllantiTotale" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
-  <element id="itcc-ci_DettaglioPartecipazioniImpreseControllanti" name="DettaglioPartecipazioniImpreseControllanti" substitutionGroup="xbrli:tuple" nillable="true"> 
+  <element id="itcc-ci_DettaglioPartecipazioniImpreseControllanti" name="DettaglioPartecipazioniImpreseControllanti" substitutionGroup="xbrli:tuple" nillable="true">
     <complexType>
       <complexContent>
         <restriction base="anyType">
@@ -2114,7 +2114,7 @@
   <element id="itcc-ci_FairValueDettaglioCreditiVersoImpreseControllanti" name="FairValueDettaglioCreditiVersoImpreseControllanti" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
   <element id="itcc-ci_ValoreContabileDettaglioCreditiVersoImpreseControllantiTotale" name="ValoreContabileDettaglioCreditiVersoImpreseControllantiTotale" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
   <element id="itcc-ci_FairValueDettaglioCreditiVersoImpreseControllantiTotale" name="FairValueDettaglioCreditiVersoImpreseControllantiTotale" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
-  <element id="itcc-ci_DettaglioCreditiVersoImpreseControllanti" name="DettaglioCreditiVersoImpreseControllanti" substitutionGroup="xbrli:tuple" nillable="true"> 
+  <element id="itcc-ci_DettaglioCreditiVersoImpreseControllanti" name="DettaglioCreditiVersoImpreseControllanti" substitutionGroup="xbrli:tuple" nillable="true">
     <complexType>
       <complexContent>
         <restriction base="anyType">
@@ -2145,7 +2145,7 @@
   <element id="itcc-ci_EffettoFiscaleIRESDifferenzeTemporaneeDeducibili" name="EffettoFiscaleIRESDifferenzeTemporaneeDeducibili" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="duration" abstract="false"/>
   <element id="itcc-ci_AliquotaIRAPDifferenzeTemporaneeDeducibili" name="AliquotaIRAPDifferenzeTemporaneeDeducibili" type="num:percentItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="duration" abstract="false"/>
   <element id="itcc-ci_EffettoFiscaleIRAPDifferenzeTemporaneeDeducibili" name="EffettoFiscaleIRAPDifferenzeTemporaneeDeducibili" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="duration" abstract="false"/>
-  <element id="itcc-ci_DifferenzeTemporaneeDeducibili" name="DifferenzeTemporaneeDeducibili" substitutionGroup="xbrli:tuple" nillable="true"> 
+  <element id="itcc-ci_DifferenzeTemporaneeDeducibili" name="DifferenzeTemporaneeDeducibili" substitutionGroup="xbrli:tuple" nillable="true">
     <complexType>
       <complexContent>
         <restriction base="anyType">
@@ -2172,7 +2172,7 @@
   <element id="itcc-ci_EffettoFiscaleIRESDifferenzeTemporaneeImponibili" name="EffettoFiscaleIRESDifferenzeTemporaneeImponibili" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="duration" abstract="false"/>
   <element id="itcc-ci_AliquotaIRAPDifferenzeTemporaneeImponibili" name="AliquotaIRAPDifferenzeTemporaneeImponibili" type="num:percentItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="duration" abstract="false"/>
   <element id="itcc-ci_EffettoFiscaleIRAPDifferenzeTemporaneeImponibili" name="EffettoFiscaleIRAPDifferenzeTemporaneeImponibili" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="duration" abstract="false"/>
-  <element id="itcc-ci_DifferenzeTemporaneeImponibili" name="DifferenzeTemporaneeImponibili" substitutionGroup="xbrli:tuple" nillable="true"> 
+  <element id="itcc-ci_DifferenzeTemporaneeImponibili" name="DifferenzeTemporaneeImponibili" substitutionGroup="xbrli:tuple" nillable="true">
     <complexType>
       <complexContent>
         <restriction base="anyType">
@@ -2367,7 +2367,7 @@
   <element id="itcc-ci_AttivitaImposteAnticipateIscritteAttivoCircolanteCreditiIscrittiAttivoCircolanteAreaGeografica" name="AttivitaImposteAnticipateIscritteAttivoCircolanteCreditiIscrittiAttivoCircolanteAreaGeografica" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
   <element id="itcc-ci_CreditiVersoAltriIscrittiAttivoCircolanteCreditiIscrittiAttivoCircolanteAreaGeografica" name="CreditiVersoAltriIscrittiAttivoCircolanteCreditiIscrittiAttivoCircolanteAreaGeografica" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
   <element id="itcc-ci_TotaleCreditiIscrittiAttivoCircolanteCreditiIscrittiAttivoCircolanteAreaGeografica" name="TotaleCreditiIscrittiAttivoCircolanteCreditiIscrittiAttivoCircolanteAreaGeografica" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
-  <element id="itcc-ci_CreditiIscrittiAttivoCircolanteAreaGeografica" name="CreditiIscrittiAttivoCircolanteAreaGeografica" substitutionGroup="xbrli:tuple" nillable="true"> 
+  <element id="itcc-ci_CreditiIscrittiAttivoCircolanteAreaGeografica" name="CreditiIscrittiAttivoCircolanteAreaGeografica" substitutionGroup="xbrli:tuple" nillable="true">
     <complexType>
       <complexContent>
         <restriction base="anyType">
@@ -2412,7 +2412,7 @@
   <element id="itcc-ci_EffettoFiscaleIRESDifferenzeTemporaneeEscluse" name="EffettoFiscaleIRESDifferenzeTemporaneeEscluse" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="duration" abstract="false"/>
   <element id="itcc-ci_AliquotaIRAPDifferenzeTemporaneeEscluse" name="AliquotaIRAPDifferenzeTemporaneeEscluse" type="num:percentItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="duration" abstract="false"/>
   <element id="itcc-ci_EffettoFiscaleIRAPDifferenzeTemporaneeEscluse" name="EffettoFiscaleIRAPDifferenzeTemporaneeEscluse" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="duration" abstract="false"/>
-  <element id="itcc-ci_DifferenzeTemporaneeEscluse" name="DifferenzeTemporaneeEscluse" substitutionGroup="xbrli:tuple" nillable="true"> 
+  <element id="itcc-ci_DifferenzeTemporaneeEscluse" name="DifferenzeTemporaneeEscluse" substitutionGroup="xbrli:tuple" nillable="true">
     <complexType>
       <complexContent>
         <restriction base="anyType">
@@ -2530,7 +2530,7 @@
   <element id="itcc-ci_FairValueDettaglioPartecipazioniImpreseSottoposteControlloControllanti" name="FairValueDettaglioPartecipazioniImpreseSottoposteControlloControllanti" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
   <element id="itcc-ci_ValoreContabileDettaglioPartecipazioniImpreseSottoposteControlloControllantiTotale" name="ValoreContabileDettaglioPartecipazioniImpreseSottoposteControlloControllantiTotale" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
   <element id="itcc-ci_FairValueDettaglioPartecipazioniImpreseSottoposteControlloControllantiTotale" name="FairValueDettaglioPartecipazioniImpreseSottoposteControlloControllantiTotale" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
-  <element id="itcc-ci_DettaglioPartecipazioniImpreseSottoposteControlloControllanti" name="DettaglioPartecipazioniImpreseSottoposteControlloControllanti" substitutionGroup="xbrli:tuple" nillable="true"> 
+  <element id="itcc-ci_DettaglioPartecipazioniImpreseSottoposteControlloControllanti" name="DettaglioPartecipazioniImpreseSottoposteControlloControllanti" substitutionGroup="xbrli:tuple" nillable="true">
     <complexType>
       <complexContent>
         <restriction base="anyType">
@@ -2549,7 +2549,7 @@
   <element id="itcc-ci_FairValueDettaglioCreditiVersoImpreseSottoposteControlloControllanti" name="FairValueDettaglioCreditiVersoImpreseSottoposteControlloControllanti" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
   <element id="itcc-ci_ValoreContabileDettaglioCreditiVersoImpreseSottoposteControlloControllantiTotale" name="ValoreContabileDettaglioCreditiVersoImpreseSottoposteControlloControllantiTotale" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
   <element id="itcc-ci_FairValueDettaglioCreditiVersoImpreseSottoposteControlloControllantiTotale" name="FairValueDettaglioCreditiVersoImpreseSottoposteControlloControllantiTotale" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" xbrli:balance="debit" abstract="false"/>
-  <element id="itcc-ci_DettaglioCreditiVersoImpreseSottoposteControlloControllanti" name="DettaglioCreditiVersoImpreseSottoposteControlloControllanti" substitutionGroup="xbrli:tuple" nillable="true"> 
+  <element id="itcc-ci_DettaglioCreditiVersoImpreseSottoposteControlloControllanti" name="DettaglioCreditiVersoImpreseSottoposteControlloControllanti" substitutionGroup="xbrli:tuple" nillable="true">
     <complexType>
       <complexContent>
         <restriction base="anyType">
@@ -2574,7 +2574,7 @@
   <element id="itcc-ci_QuotaPossedutaPctPartecipazioneIscrittaAttivoCircolanteImpresaControllata" name="QuotaPossedutaPctPartecipazioneIscrittaAttivoCircolanteImpresaControllata" type="num:percentItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" abstract="false"/>
   <element id="itcc-ci_ValoreBilancioCorrispondenteCreditoPartecipazioneIscrittaAttivoCircolanteImpresaControllata" name="ValoreBilancioCorrispondenteCreditoPartecipazioneIscrittaAttivoCircolanteImpresaControllata" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" abstract="false"/>
   <element id="itcc-ci_ValoreBilancioCorrispondenteCreditoTotalePartecipazioniIscritteAttivoCircolanteImpreseControllatePosseduteDirettamenteTramiteSocietaFiduciariaInterpostaPersona" name="ValoreBilancioCorrispondenteCreditoTotalePartecipazioniIscritteAttivoCircolanteImpreseControllatePosseduteDirettamenteTramiteSocietaFiduciariaInterpostaPersona" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" abstract="false"/>
-  <element id="itcc-ci_PartecipazioneIscrittaAttivoCircolanteImpresaControllata" name="PartecipazioneIscrittaAttivoCircolanteImpresaControllata" substitutionGroup="xbrli:tuple" nillable="true"> 
+  <element id="itcc-ci_PartecipazioneIscrittaAttivoCircolanteImpresaControllata" name="PartecipazioneIscrittaAttivoCircolanteImpresaControllata" substitutionGroup="xbrli:tuple" nillable="true">
     <complexType>
       <complexContent>
         <restriction base="anyType">
@@ -2606,7 +2606,7 @@
   <element id="itcc-ci_QuotaPossedutaPctPartecipazioneIscrittaAttivoCircolanteImpresaCollegata" name="QuotaPossedutaPctPartecipazioneIscrittaAttivoCircolanteImpresaCollegata" type="num:percentItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" abstract="false"/>
   <element id="itcc-ci_ValoreBilancioCorrispondenteCreditoPartecipazioneIscrittaAttivoCircolanteImpresaCollegata" name="ValoreBilancioCorrispondenteCreditoPartecipazioneIscrittaAttivoCircolanteImpresaCollegata" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" abstract="false"/>
   <element id="itcc-ci_ValoreBilancioCorrispondenteCreditoTotaleTotalePartecipazioniIscritteAttivoCircolanteImpreseCollegatePosseduteDirettamenteTramiteSocietaFiduciariaInterpostaPersona" name="ValoreBilancioCorrispondenteCreditoTotaleTotalePartecipazioniIscritteAttivoCircolanteImpreseCollegatePosseduteDirettamenteTramiteSocietaFiduciariaInterpostaPersona" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="instant" abstract="false"/>
-  <element id="itcc-ci_PartecipazioneIscrittaAttivoCircolanteImpresaCollegata" name="PartecipazioneIscrittaAttivoCircolanteImpresaCollegata" substitutionGroup="xbrli:tuple" nillable="true"> 
+  <element id="itcc-ci_PartecipazioneIscrittaAttivoCircolanteImpresaCollegata" name="PartecipazioneIscrittaAttivoCircolanteImpresaCollegata" substitutionGroup="xbrli:tuple" nillable="true">
     <complexType>
       <complexContent>
         <restriction base="anyType">
@@ -2674,7 +2674,7 @@
   <element id="itcc-ci_ElementiRicavoEntitaIncidenzaEccezionaliImporto" name="ElementiRicavoEntitaIncidenzaEccezionaliImporto" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="duration" xbrli:balance="credit" abstract="false"/>
   <element id="itcc-ci_ElementiRicavoEntitaIncidenzaEccezionaliNatura" name="ElementiRicavoEntitaIncidenzaEccezionaliNatura" type="xbrli:stringItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="duration" abstract="false"/>
   <element id="itcc-ci_TotaleImportoElementiRicavoEntitaIncidenzaEccezionali" name="TotaleImportoElementiRicavoEntitaIncidenzaEccezionali" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="duration" xbrli:balance="credit" abstract="false"/>
-  <element id="itcc-ci_ElementiRicavoEntitaIncidenzaEccezionali" name="ElementiRicavoEntitaIncidenzaEccezionali" substitutionGroup="xbrli:tuple" nillable="true"> 
+  <element id="itcc-ci_ElementiRicavoEntitaIncidenzaEccezionali" name="ElementiRicavoEntitaIncidenzaEccezionali" substitutionGroup="xbrli:tuple" nillable="true">
     <complexType>
       <complexContent>
         <restriction base="anyType">
@@ -2694,7 +2694,7 @@
   <element id="itcc-ci_ElementiCostoEntitaIncidenzaEccezionaliImporto" name="ElementiCostoEntitaIncidenzaEccezionaliImporto" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="duration" xbrli:balance="debit" abstract="false"/>
   <element id="itcc-ci_ElementiCostoEntitaIncidenzaEccezionaliNatura" name="ElementiCostoEntitaIncidenzaEccezionaliNatura" type="xbrli:stringItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="duration" abstract="false"/>
   <element id="itcc-ci_TotaleImportoElementiCostoEntitaIncidenzaEccezionali" name="TotaleImportoElementiCostoEntitaIncidenzaEccezionali" type="xbrli:monetaryItemType" substitutionGroup="xbrli:item" nillable="true" xbrli:periodType="duration" xbrli:balance="debit" abstract="false"/>
-  <element id="itcc-ci_ElementiCostoEntitaIncidenzaEccezionali" name="ElementiCostoEntitaIncidenzaEccezionali" substitutionGroup="xbrli:tuple" nillable="true"> 
+  <element id="itcc-ci_ElementiCostoEntitaIncidenzaEccezionali" name="ElementiCostoEntitaIncidenzaEccezionali" substitutionGroup="xbrli:tuple" nillable="true">
     <complexType>
       <complexContent>
         <restriction base="anyType">
