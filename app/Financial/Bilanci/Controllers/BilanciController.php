@@ -11,6 +11,8 @@ use App;
 use lyquidity\xml\QName;
 use lyquidity\XPath2\XPath2Exception;
 use XBRL\XBRL_Instance;
+use XBRL\XBRL_Report;
+use XBRL\XBRL_DFR;
 use App\Models\Bilanci;
 use App\Models\Account;
 use function Livewire\str;
@@ -23,6 +25,7 @@ use App\Models\CustomLog;
 use Carbon\Carbon;
 use Auth;
 use Exception;
+use Illuminate\Support\Facades\Http;
 
 class BilanciController extends Controller
 {
@@ -41,14 +44,14 @@ class BilanciController extends Controller
         $bilancis = $bilancis->paginate(25);
 
         foreach ($bilancis as $singleBilancio) {
-                $year = explode(' ', $singleBilancio->year);
-                $year = $year[0];
-                $singleBilancio->company_name = json_decode($singleBilancio->json_data_anag)->DatiAnagraficiDenominazione;
-                $singleBilancio->annoFormatted = date('Y', strtotime($year));
+            $year = explode(' ', $singleBilancio->year);
+            $year = $year[0];
+            $singleBilancio->company_name = json_decode($singleBilancio->json_data_anag)->DatiAnagraficiDenominazione;
+            $singleBilancio->annoFormatted = date('Y', strtotime($year));
 
-                if(isset($singleBilancio->year)) {
-                    $singleBilancio->annoFormatted = $singleBilancio->year;
-                }
+            if(isset($singleBilancio->year)) {
+                $singleBilancio->annoFormatted = $singleBilancio->year;
+            }
         }
 
         return response()->json([
@@ -97,6 +100,7 @@ class BilanciController extends Controller
         $tipo_azienda = $request->input('tipo_azienda');
         $formaGiuridica = $request->input('forma_giuridica');
 
+        $bilanciHelper = new BilanciHelper();
         global $use_xbrl_functions;
         $use_xbrl_functions = true;
 
@@ -106,11 +110,21 @@ class BilanciController extends Controller
         $instance = false;
 
         try {
-            $result = XBRL_Instance::FromInstanceDocumentWithExtensionTaxonomy($file->getPathName(), base_path() . "/taxonomies/2018-11-04/itcc-ci-2018-11-04.xsd", 'XBRL', $instance);
-            $debitiTotaliNotaIntegrativaHTML = (array_shift($result->getElements()->ElementsByName('IntroduzioneDebiti')->getElements()['IntroduzioneDebiti'])['value']);
-            $debitiTotaliNotaIntegrativa = strip_tags(htmlspecialchars_decode(array_shift($result->getElements()->ElementsByName('IntroduzioneDebiti')->getElements()['IntroduzioneDebiti'])['value']));
-        } catch(Exception $e) {
+            $result = XBRL_Instance::FromInstanceDocument($file->getPathName(), base_path() . "/taxonomies/2018-11-04/itcc-ci-2018-11-04.xsd", $instance);
 
+            $bilancioJSON = $result->toJSON();
+          //  $jsonAIData = $bilanciHelper->getDataFromNotaIntegrativa($result);
+
+            $render = $bilanciHelper->generateHTMLRender($file->getPathName(), base_path() . "/taxonomies/2018-11-04/itcc-ci-2018-11-04.xsd");
+
+
+            return response()->json([
+                'exception' => false,
+                'renderHTML' => $render,
+                'bilancioJSON' => $bilancioJSON
+            ], 202);
+        } catch(Exception $e) {
+            dd($e);
             return response()->json([
                 'exception' => true,
                 'message' => $e->getMessage()
@@ -164,7 +178,7 @@ class BilanciController extends Controller
         $jsonData['currentYear'] = $years[2] . ' ' . $years[3];
         $jsonData['years'] = explode('-', $years[0])[0].'-'.explode('-', $years[2])[0];
 
-       // CustomLog::addToLogBilanci('Bilanci Recap', 'Sono stati estratti gli anni '.$jsonData['years'].'.');
+        // CustomLog::addToLogBilanci('Bilanci Recap', 'Sono stati estratti gli anni '.$jsonData['years'].'.');
 
         $elements = $result->getElements();
         $elements = $elements->getElements();
@@ -488,12 +502,10 @@ class BilanciController extends Controller
         if($vociBilancioMancanti) {
             $encodeVociMancanti = json_encode($vociBilancioMancanti);
 
-          //  CustomLog::addToLogBilanci('Bilanci Recap', 'Le voci di bilancio mancanti sono le seguenti: '.$encodeVociMancanti.'');
+            //  CustomLog::addToLogBilanci('Bilanci Recap', 'Le voci di bilancio mancanti sono le seguenti: '.$encodeVociMancanti.'');
         }
 
         $request->session()->put('extNames', $extNames);
-        $request->session()->put('notaIntegrativaDebitiHTML', $debitiTotaliNotaIntegrativaHTML);
-        $request->session()->put('notaIntegrativaDebiti', $debitiTotaliNotaIntegrativa);
         $request->session()->put('mascheraOrdinata', $this->mascheraOrdinata());
         $request->session()->put('formaGiuridica', $formaGiuridica);
         $request->session()->put('vociBilancioMancanti', $vociBilancioMancanti);
@@ -506,7 +518,7 @@ class BilanciController extends Controller
         $request->session()->put('vociExt', $vociExt);
         $request->session()->put('account_id', $request->input('account_id'));
 
-      //  CustomLog::addToLogBilanci('Bilanci Recap', 'Tutti i dati sono stati estratti');
+        //  CustomLog::addToLogBilanci('Bilanci Recap', 'Tutti i dati sono stati estratti');
 
         return response()->json([
             'vociBilancioMancanti' => $vociBilancioMancanti,
@@ -521,8 +533,6 @@ class BilanciController extends Controller
             'tipo_azienda' => $tipo_azienda,
             'gradi' => $gradi,
             'vociExt' => $vociExt,
-            'notaIntegrativaDebitiHTML' => $debitiTotaliNotaIntegrativaHTML,
-            'notaIntegrativaDebiti' => $debitiTotaliNotaIntegrativa,
             'account_id' => $request->input('account_id')
         ]);
     }

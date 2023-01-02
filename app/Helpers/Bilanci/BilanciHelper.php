@@ -17,7 +17,13 @@ use Exception;
 use App\Helpers\Bilanci\BilanciCalculationsHelper;
 use Illuminate\Support\Facades\Date;
 use App\Models\CustomLog;
-
+use Illuminate\Support\Facades\Http;
+use XBRL\XBRL_DFR;
+use XBRL\XBRL_Report;
+use XBRL\XBRL_Global;
+use XBRL\XBRL_Types;
+use XBRL\XBRL_Constants;
+use XBRL\XBRL_Instance;
 class BilanciHelper
 {
    public function getRangeValutazioni()
@@ -598,7 +604,7 @@ class BilanciHelper
 
         $sistemaBasic = DB::table('basic')->where('bilancio_id', '=', $idBilancio)->get()->toArray();
 
-        
+
 
         if(!empty($sistemaBasic)) {
             $sistemaBasic = $this->getAnalisiBasicWithNumberFormat($sistemaBasic);
@@ -618,7 +624,7 @@ class BilanciHelper
         );
     }
 
-    public function getAnalisiBasicWithNumberFormat($sistemaBasic) 
+    public function getAnalisiBasicWithNumberFormat($sistemaBasic)
     {
 
         foreach($sistemaBasic as $singleDataBasic) {
@@ -876,10 +882,10 @@ class BilanciHelper
 
 
     public function saveAnalisiBasicToDB($allData, $idBilancio)
-    { 
+    {
         if(str_contains($idBilancio, '"')) {
             $idBilancio = str_replace('"', '', $idBilancio);
-        } 
+        }
 
         $calcoloDSCR = $this->getCalcoloDSCR($allData);
         $dscrData = $this->getAnalisisDataFull($allData);
@@ -947,7 +953,7 @@ class BilanciHelper
     {
         if(str_contains($allData['idBilancio'], '"')) {
             $allData['idBilancio'] = str_replace('"', '', $allData['idBilancio']);
-        } 
+        }
 
         $balance = Bilanci::findOrFail($allData['idBilancio']);
 
@@ -1032,5 +1038,369 @@ class BilanciHelper
         }
 
         return $alert;
+    }
+
+
+    public function getDataFromNotaIntegrativa($instance) {
+
+        // METTERE IN HELPER
+        $jsonData = false;
+        $NotaIntro = $instance->getElements()->ElementsByName('IntroduzioneDebiti');
+        $debitiTotaliNotaIntegrativa = 0;
+        $debitiTotaliNotaIntegrativaHTML = '';
+        if(count($NotaIntro->getElements()) > 0) {
+            $debitiTotaliNotaIntegrativaHTML = (array_shift($instance->getElements()->ElementsByName('IntroduzioneDebiti')->getElements()['IntroduzioneDebiti'])['value']);
+            $debitiTotaliNotaIntegrativa = strip_tags(htmlspecialchars_decode(array_shift($instance->getElements()->ElementsByName('IntroduzioneDebiti')->getElements()['IntroduzioneDebiti'])['value']));
+
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiZTVkNmZhZDY4ZDhjMjMwNWNiZjlkMTgxODJmY2VmZjNmN2E4MGI0MWFlMWNmMWU2MTA3NzdmMjI0MTc3Mjc2NWM1ODE4NTdhOTVhNzYzZGQiLCJpYXQiOjE2NzE3MjU3ODguNDk4OTA0LCJuYmYiOjE2NzE3MjU3ODguNDk4OTA1LCJleHAiOjE3MDMyNjE3ODguNDY2ODgzLCJzdWIiOiIxIiwic2NvcGVzIjpbXX0.BhOjRh10a-FyN7kpLv85ALu_a46kKCt4l1FM6ey-bBgcr-yNsmYNE_MzESX2xFPYpM5Gmca4Gpi2GgZzfobiBaNcYrdvgpg5bSuStmW-uRRy8n_qjlwbP94ZuMgJ0NV_8uq3X_PSBy6IF4oAiYj0PHArQUr75n2a6RrhJccTHFtwBiE3z018xrWuLt-Pql8ysASeNIG_ol2O2ZRTX7nqo7zSc_6yGm24bnuJjmfLMV8vvWYkVn6IEO-TxS85ZBAwpJhULjD3Djjc58oRpviC5VQIIqBjxrk6dI4xv_q1mteaiAgLLbdHPYxEuho8FFVPB1Gu8wM43KqWI2c-e4a7X5xnT6tZ-GXhH8hOcrPvRkU-gL-mYZeWvhxmC4AAE4Ulx8-hL-sTDSGie2ZKkET6DRs_rAM2zN2znX1Ie2SsWkgA6oc_4-C85kTdG19VkGxsRlmY6xOXF-TqjhaKFfUuVmrJpCQkYhkTO5qCmjcU-XO3OeFR2EPlvphoD5P_DlrTg_ni6W55C1qWcmcmJ2dGa3qbdTm8uX3v2WlLdJe1-purMwwjadOO08cwcKtG-6TMA-TbN7DKMS7yiSS6bnn1zN7ZmrK1-Cycbb-sMW1WRHgIhVQz3JAj6vrxX45iRrgQrXTdX3zpc8-DSpGbniLpavi5AewYqYGJIXFka0HlE6U',
+                'Content-Type' => 'application/json'
+            ])->post('http://laravelopenai.test/api/playground', [
+                'input' => $debitiTotaliNotaIntegrativa
+            ]);
+
+            $notaIntegrativaDebitiTotaliETributari = json_decode($response->getBody()->getContents());
+            if(isset($notaIntegrativaDebitiTotaliETributari->debiti_tributari, $notaIntegrativaDebitiTotaliETributari->debiti_tributari)) {
+                $jsonData['current']['DebitiDebitiTributari'] = (float)$notaIntegrativaDebitiTotaliETributari->debiti_tributari;
+                $jsonData['current']['Debiti'] = (float)$notaIntegrativaDebitiTotaliETributari->debiti_totali;
+            }
+
+
+        }
+
+
+
+        return $jsonData;
+    }
+
+
+    public function generateHTMLRender($instance, $taxonomy) {
+      /*  $results = array();
+        $indent = 0;
+        $lang = null;
+
+        $instanceTaxonomy = $instance->getInstanceTaxonomy();
+        $instanceTaxonomy->generateAllDRSs();
+        $instance->validate();
+        $dfr = new XBRL_DFR( $instanceTaxonomy );
+        XBRL_DFR::Initialize( '/cache/' );
+        $formulaSummaries = $dfr->validateFormulas( $results, $instance, $indent );
+
+
+        $presentationNetworks = $dfr->validateDFR( $formulaSummaries );
+        $results['renders'] = $dfr->renderPresentationNetworks( $presentationNetworks, $instance, $formulaSummaries, false, $lang, true );
+       // $results['tax'] = $dfr->renderTaxonomy( $presentationNetworks, false, 'it', true );
+
+        return $results['renders'];*/
+// This is a local location used to store the expanded taxonomy files because they come in a taxonomy package (zip) file.
+        $cacheLocation = __DIR__ . "/cache"; // !!! Change this
+
+// This is a local location where the compiled version of the taxonomy will be stored.
+        $compiledLocation = $taxonomy; // !!! Change this
+
+// The location of the instances to be reported.  It could be a non-local location such as a web site.
+        $instancesLocation = __DIR__ . "/instances"; // !!! Change this
+
+// The location to store generated HTML renderings
+        $htmlLocation = __DIR__ . "/Users/federicomegna/Projects/KPS/kpsfintechBackend/public/reportBilanci"; // !!! Change this
+
+// The location of HTMLK JS and CSS assets
+        $htmlAssetsLocation = '/Users/federicomegna/Projects/KPS/kpsfintechBackend/public/';
+
+// Use null for the default language
+        $languageCode = 'it';
+// $languageCode = null;
+
+// Allow formulas to be evaluated
+        global $use_xbrl_functions;
+        $use_xbrl_functions = true;
+
+        /* ------------------------------------------------------------
+         *  Taxonomies and instances
+         * ------------------------------------------------------------ */
+
+// The set of instance documents to report
+// There needs to be some mechanism to generate sets of company files.
+        $instanceGroupss = array( // !!! Change this
+            'aarsrapport' => array(
+                '10403782.2016.AARSRAPPORT.xml',
+                // '15505281.2015.AARSRAPPORT.xml',
+                // '49260016.2017.AARSRAPPORT.xml',
+                // '81822514.2017.AARSRAPPORT.xml',
+            ),
+            'andco' => array(
+                'and co 2014.xml',
+                'and co 2015.xml',
+                'and co 2016.xml',
+                'and co 2017.xml'
+            )
+        );
+
+        $instances = $instanceGroupss['andco'];
+
+        try
+        {
+            if ( ! file_exists( "$compiledLocation" ) )
+            {
+                //$observer->addItem( "error", "The compiled folder location does not exist" );
+                return;
+            }
+
+            global $reportModelStructureRuleViolations;
+            $reportModelStructureRuleViolations = false;
+
+            XBRL_Global::reset();
+            XBRL_Types::reset();
+
+            new \XBRL_IFRS();
+
+            $instanceFilename = $instances[0];
+
+            //$observer->addItem( "action", "processing instance '$instanceFilename'" );
+
+            // Initialize the cache
+            $context = XBRL_Global::getInstance();
+            if ( ! $context->useCache )
+            {
+                $context->useCache = true;
+                $context->cacheLocation = $cacheLocation;
+                $context->initializeCache();
+            }
+
+            $document = $instance;
+
+            if ( ! file_exists( $document ) )
+            {
+
+                //$observer->addItem( "error", "Unable to locate the instance document '$instanceFilename'" );
+                return;
+            }
+
+            $schemaHRef = $this->getInstanceTaxonomyHRef( $document, $context );
+            if ( ! $schemaHRef )
+            {
+                $log->warning("Unable to find schemaRef");
+                return;
+            }
+
+
+            // Look to see if there is an existing cached file from a previous report
+            $instanceBasename = basename( $instanceFilename, '.xml' );
+            if ( file_exists( "$compiledLocation/$instanceBasename.json" ) && file_exists( "$compiledLocation/$instanceBasename.meta" ) )
+            {
+
+                // Load the JSON file which contains the name of the taxonomy to use
+                $json = file_get_contents( "$compiledLocation/$instanceBasename.meta" );
+                $meta = json_decode( $json, true );
+                $instance = \XBRL_Instance::FromInstanceCache( $compiledLocation, "{$meta['instance']}.json", $meta['namespace'], "$compiledLocation/{$meta['taxonomy']}" );
+            }
+            else
+            {
+                $schemaHRef = $this->getInstanceTaxonomyHRef( $document );
+
+                $pattern = '/^http:\/\/archprod\.service\.eogs\.dk\/taxonomy\/(?<version>\d{8})\/.*\.xsd$/';
+            /*    dd($pattern);
+                if ( ! preg_match( $pattern, $schemaHRef, $matches ) )
+                {
+
+                    //$observer->addItem("error", "The schema ref of '$instanceBasename.xml' is not valid: '$schemaHRef'");
+                    return;
+                }*/
+
+             //   $version = $matches['version'];
+
+                // Use the version year to choose the correct compiled taxonomy
+                //$compiledTaxonomyFilename = "/Users/federicomegna/Projects/KPS/kpsfintechBackend/taxonomies/2018-11-04/itcc-ci-2018-11-04.xsd";
+                //$compiledTaxonomyFilename = "/Users/federicomegna/Projects/KPS/kpsfintechBackend/taxonomies/2018-11-04/itcc-ci-part-2018-11-04.xsd";
+                //$compiledTaxonomyFilename = "/Users/federicomegna/Projects/KPS/kpsfintechBackend/taxonomies/2018-11-04/itcc-ci-micr-2018-11-04.xsd";
+                //$compiledTaxonomyFilename = "/Users/federicomegna/Projects/KPS/kpsfintechBackend/taxonomies/2018-11-04/itcc-ci-cons-2018-11-04.xsd";
+                //$compiledTaxonomyFilename = "/Users/federicomegna/Projects/KPS/kpsfintechBackend/taxonomies/2018-11-04/itcc-ci-abb-2018-11-04.xsd";
+                $compiledTaxonomyFilename = "/Users/federicomegna/Projects/KPS/kpsfintechBackend/taxonomies/2018-11-04/".$schemaHRef;
+
+
+                // Pass $compiledTaxonmyFilename which will reference the compiled taxonomy
+                $instance = XBRL_Instance::FromInstanceDocumentWithExtensionTaxonomy( $document, $compiledTaxonomyFilename );
+            }
+
+
+            $formulas = null;
+            $results = array();
+
+            $instanceTaxonomy = $instance->getInstanceTaxonomy();
+            $dfr = new XBRL_DFR( $instanceTaxonomy );
+            $presentationNetworks = $dfr->validateDFR( $formulas, true, $languageCode );
+
+            // $presentationNetworks = array_slice( $presentationNetworks, 0, 1 );
+            $dfr->includeCheckboxControls = false;
+            $dfr->includeComponent = false;
+            $dfr->includeSlicers = false;
+            $dfr->includeFactsTable = false;
+            $dfr->includeWidthcontrols = false;
+            $dfr->includeBusinessRules = false;
+            $renders = $dfr->renderPresentationNetworks( $presentationNetworks, $instance, $formulas, false, $languageCode, false, $results );
+
+
+            $indexHTML =
+                "<html>\n" .
+                "	<head>\n" .
+                "		<title>XBRL Rendered Views Index</title>\n" .
+                "		<link rel='stylesheet' id='bootstrap_style-css' href='http://www.xbrlquery.com/wp-content/themes/zerif-pro/css/bootstrap.min.css?ver=4.9.10' type='text/css' media='all'>\n" .
+                "		<link rel='stylesheet' id='font-awesome_style-css' href='http://www.xbrlquery.com/wp-content/themes/zerif-pro/assets/css/font-awesome.min.css?ver=v1' type='text/css' media='all'>\n" .
+                "		<link href='https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css' rel='stylesheet' integrity='sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T' crossorigin='anonymous'>\n" .
+                "		<link rel='stylesheet' id='render-report-css' href='https://piratebuy.it/xbrl-render-report.css'>\n" .
+                "		<script src='https://kit.fontawesome.com/d5b3603aa0.js'></script>\n" .
+                "		<script type='text/javascript' src='https://code.jquery.com/jquery-1.12.4.min.js'></script>\n" .
+
+                "		<style>\n" .
+                "			body { margin-left: 20px; margin-right: 20px; }\n" .
+                "		</style>\n" .
+
+                "	</head>\n" .
+                "	<body>\n" .
+
+                "";
+
+            $indexContent = "";
+            $count = 0;
+
+
+            foreach ( $renders as $role => $render )
+            {
+                $count++;
+
+                if ( isset( $render['hasReport'] ) && ! $render['hasReport'] ) continue;
+
+                // Generate an index file and a file for each of the networks
+                foreach ( $render['entities'] as $entity => $networkHTML )
+                {
+
+                    $indexHTML .=
+                        "		<div id='primary'>\n" . $networkHTML .
+                        "		</div>\n" ;
+
+
+
+
+                }
+
+            }
+
+      $indexHTML .=  "</html>";
+
+            return $indexHTML;
+
+
+
+        }
+        catch( \Exception $ex )
+        {
+            echo $ex->getMessage();
+            return;
+        }
+
+        return;
+
+    }
+
+
+
+public function getInstanceTaxonomyHRef( $filename )
+    {
+
+        return "itcc-ci-abb-2018-11-04.xsd";
+        $dom = new \DOMDocument();
+
+        $dom->load( html_entity_decode($filename, ENT_COMPAT, "UTF-8"));
+
+        $domXPath = new \DOMXPath( $dom );
+        $domXPath->registerNamespace( 'xbrli', XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_XBRLI ] );
+        $domXPath->registerNamespace( 'link', XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_LINK ] );
+        $nodes = $domXPath->query("/xbrli:xbrl/link:schemaRef");
+        /** @var $domElement DOMElement */
+        $domElement = $nodes[0];
+        return $domElement->getAttribute('xlink:href');
+
+    }
+
+    /**
+     * Handler for 'set_error_handler' function
+     * @param int $error_level Contains the level of the error raised, as an integer.
+     * @param string $error_message Contains the error message, as a string.
+     * @param string $error_file Contains the filename that the error was raised in, as a string.
+     * @param int $error_line Contains the line number the error was raised at, as an integer.
+     * @param array $error_context An array that points to the active symbol table at the point the error occurred
+     */
+public function errorHandler( $error_level, $error_message, $error_file, $error_line, $error_context )
+    {
+        $error = array(
+            "level" => $error_level,
+            "message" => $error_message,
+            "file" => $error_file,
+            "line" => $error_line,
+        );
+
+        switch ( $error_level )
+        {
+            case E_ERROR:
+            case E_CORE_ERROR:
+            case E_COMPILE_ERROR:
+            case E_PARSE:
+                $error['class'] = "fatal";
+                break;
+
+            case E_USER_ERROR:
+            case E_RECOVERABLE_ERROR:
+                $error['class'] = "error";
+                break;
+
+            case E_WARNING:
+            case E_CORE_WARNING:
+            case E_COMPILE_WARNING:
+            case E_USER_WARNING:
+                $error['class'] = "warn";
+                break;
+
+            case E_NOTICE:
+                return true; // Ignore notices
+
+            case E_USER_NOTICE:
+                $error['class'] = "info";
+                break;
+
+            case E_STRICT:
+                $error['class'] = "debug";
+                break;
+
+            default:
+                $error['class'] = "warn";
+        }
+
+        print_r( $error );
+        error_log( print_r( $error, true ) );
+    }
+
+    /**
+     * register_shutdown_function
+     */
+    public function shutdownHandler() //will be called when php script ends.
+    {
+        $lasterror = error_get_last();
+
+        if ( ! $lasterror ) return;
+
+        switch ( $lasterror['type'] )
+        {
+            case E_ERROR:
+            case E_CORE_ERROR:
+            case E_COMPILE_ERROR:
+            case E_USER_ERROR:
+            case E_RECOVERABLE_ERROR:
+            case E_CORE_WARNING:
+            case E_COMPILE_WARNING:
+            case E_PARSE:
+                print_r( $lasterror );
+                error_log( print_r( $lasterror, true ) );
+                break;
+        }
     }
 }
