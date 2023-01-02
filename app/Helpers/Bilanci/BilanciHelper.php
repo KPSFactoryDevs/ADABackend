@@ -1075,37 +1075,11 @@ class BilanciHelper
 
 
     public function generateHTMLRender($instance, $taxonomy) {
-      /*  $results = array();
-        $indent = 0;
-        $lang = null;
 
-        $instanceTaxonomy = $instance->getInstanceTaxonomy();
-        $instanceTaxonomy->generateAllDRSs();
-        $instance->validate();
-        $dfr = new XBRL_DFR( $instanceTaxonomy );
-        XBRL_DFR::Initialize( '/cache/' );
-        $formulaSummaries = $dfr->validateFormulas( $results, $instance, $indent );
-
-
-        $presentationNetworks = $dfr->validateDFR( $formulaSummaries );
-        $results['renders'] = $dfr->renderPresentationNetworks( $presentationNetworks, $instance, $formulaSummaries, false, $lang, true );
-       // $results['tax'] = $dfr->renderTaxonomy( $presentationNetworks, false, 'it', true );
-
-        return $results['renders'];*/
-// This is a local location used to store the expanded taxonomy files because they come in a taxonomy package (zip) file.
         $cacheLocation = __DIR__ . "/cache"; // !!! Change this
 
 // This is a local location where the compiled version of the taxonomy will be stored.
         $compiledLocation = $taxonomy; // !!! Change this
-
-// The location of the instances to be reported.  It could be a non-local location such as a web site.
-        $instancesLocation = __DIR__ . "/instances"; // !!! Change this
-
-// The location to store generated HTML renderings
-        $htmlLocation = __DIR__ . "/Users/federicomegna/Projects/KPS/kpsfintechBackend/public/reportBilanci"; // !!! Change this
-
-// The location of HTMLK JS and CSS assets
-        $htmlAssetsLocation = '/Users/federicomegna/Projects/KPS/kpsfintechBackend/public/';
 
 // Use null for the default language
         $languageCode = 'it';
@@ -1119,24 +1093,6 @@ class BilanciHelper
          *  Taxonomies and instances
          * ------------------------------------------------------------ */
 
-// The set of instance documents to report
-// There needs to be some mechanism to generate sets of company files.
-        $instanceGroupss = array( // !!! Change this
-            'aarsrapport' => array(
-                '10403782.2016.AARSRAPPORT.xml',
-                // '15505281.2015.AARSRAPPORT.xml',
-                // '49260016.2017.AARSRAPPORT.xml',
-                // '81822514.2017.AARSRAPPORT.xml',
-            ),
-            'andco' => array(
-                'and co 2014.xml',
-                'and co 2015.xml',
-                'and co 2016.xml',
-                'and co 2017.xml'
-            )
-        );
-
-        $instances = $instanceGroupss['andco'];
 
         try
         {
@@ -1154,9 +1110,8 @@ class BilanciHelper
 
             new \XBRL_IFRS();
 
-            $instanceFilename = $instances[0];
 
-            //$observer->addItem( "action", "processing instance '$instanceFilename'" );
+
 
             // Initialize the cache
             $context = XBRL_Global::getInstance();
@@ -1179,48 +1134,18 @@ class BilanciHelper
             $schemaHRef = $this->getInstanceTaxonomyHRef( $document, $context );
             if ( ! $schemaHRef )
             {
-                $log->warning("Unable to find schemaRef");
+
                 return;
             }
 
 
-            // Look to see if there is an existing cached file from a previous report
-            $instanceBasename = basename( $instanceFilename, '.xml' );
-            if ( file_exists( "$compiledLocation/$instanceBasename.json" ) && file_exists( "$compiledLocation/$instanceBasename.meta" ) )
-            {
 
-                // Load the JSON file which contains the name of the taxonomy to use
-                $json = file_get_contents( "$compiledLocation/$instanceBasename.meta" );
-                $meta = json_decode( $json, true );
-                $instance = \XBRL_Instance::FromInstanceCache( $compiledLocation, "{$meta['instance']}.json", $meta['namespace'], "$compiledLocation/{$meta['taxonomy']}" );
-            }
-            else
-            {
                 $schemaHRef = $this->getInstanceTaxonomyHRef( $document );
-
-                $pattern = '/^http:\/\/archprod\.service\.eogs\.dk\/taxonomy\/(?<version>\d{8})\/.*\.xsd$/';
-            /*    dd($pattern);
-                if ( ! preg_match( $pattern, $schemaHRef, $matches ) )
-                {
-
-                    //$observer->addItem("error", "The schema ref of '$instanceBasename.xml' is not valid: '$schemaHRef'");
-                    return;
-                }*/
-
-             //   $version = $matches['version'];
-
-                // Use the version year to choose the correct compiled taxonomy
-                //$compiledTaxonomyFilename = "/Users/federicomegna/Projects/KPS/kpsfintechBackend/taxonomies/2018-11-04/itcc-ci-2018-11-04.xsd";
-                //$compiledTaxonomyFilename = "/Users/federicomegna/Projects/KPS/kpsfintechBackend/taxonomies/2018-11-04/itcc-ci-part-2018-11-04.xsd";
-                //$compiledTaxonomyFilename = "/Users/federicomegna/Projects/KPS/kpsfintechBackend/taxonomies/2018-11-04/itcc-ci-micr-2018-11-04.xsd";
-                //$compiledTaxonomyFilename = "/Users/federicomegna/Projects/KPS/kpsfintechBackend/taxonomies/2018-11-04/itcc-ci-cons-2018-11-04.xsd";
-                //$compiledTaxonomyFilename = "/Users/federicomegna/Projects/KPS/kpsfintechBackend/taxonomies/2018-11-04/itcc-ci-abb-2018-11-04.xsd";
-                $compiledTaxonomyFilename = "/Users/federicomegna/Projects/KPS/kpsfintechBackend/taxonomies/2018-11-04/".$schemaHRef;
+                $compiledTaxonomyFilename = "/var/www/html/staging/taxonomies/2018-11-04/".$schemaHRef;
 
 
                 // Pass $compiledTaxonmyFilename which will reference the compiled taxonomy
                 $instance = XBRL_Instance::FromInstanceDocumentWithExtensionTaxonomy( $document, $compiledTaxonomyFilename );
-            }
 
 
             $formulas = null;
