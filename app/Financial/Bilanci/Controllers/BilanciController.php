@@ -11,7 +11,6 @@ use App;
 use lyquidity\xml\QName;
 use lyquidity\XPath2\XPath2Exception;
 use XBRL\XBRL_Instance;
-use XBRL\XBRL_Constants;
 use XBRL\XBRL_Report;
 use XBRL\XBRL_DFR;
 use App\Models\Bilanci;
