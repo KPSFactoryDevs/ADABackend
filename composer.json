@@ -18,6 +18,8 @@
         "guzzlehttp/guzzle": "^7.0.1",
         "inertiajs/inertia-laravel": "^0.3.4",
         "intervention/image": "^2.7",
+        "kpsfactory/utilities": "master",
+        "kpsfactory/xbrl": "^1.0",
         "lab404/laravel-impersonate": "^1.6",
         "langleyfoxall/laravel-nist-password-rules": "^4.1",
         "laravel/framework": "^8.12",
@@ -31,9 +33,7 @@
         "spatie/laravel-activitylog": "^3.14",
         "spatie/laravel-permission": "^3.11",
         "symfony/process": "^5.2",
-        "symfony/symfony": "5.4.x",
-        "kpsfactory/xbrl": "master",
-        "kpsfactory/utilities": "master"
+        "symfony/symfony": "5.4.x"
     },
     "repositories":
     [
@@ -121,4 +121,3 @@
         "format": "vendor/bin/php-cs-fixer fix --allow-risky=yes"
     }
 }
-

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6453bb6529101f01090752b798147d3c",
+    "content-hash": "2049cad76854d1a251eaf9314840a11a",
     "packages": [
         {
             "name": "arcanedev/log-viewer",
@@ -2131,49 +2131,24 @@
         },
         {
             "name": "kpsfactory/xbrl",
-            "version": "dev-master",
+            "version": "v1.0.0",
             "source": {
                 "type": "git",
                 "url": "git@bitbucket.org:kpsfactory-admin/liquidity-xbrl.git",
-                "reference": "2106aaccc7aa0798e0bb3b720b321968dd998a48"
-            },
-            "require": {
-                "ext-hash": "*",
-                "ext-json": "*",
-                "ext-libxml": "*",
-                "ext-simplexml": "*",
-                "ext-xml": "*",
-                "kpsfactory/utilities": "master",
-                "lib-libxml": "*",
-                "lyquidity/xml": "dev-master",
-                "lyquidity/xpath2": "dev-master",
-                "pear/log": ">1.13",
-                "php": ">=7.0"
+                "reference": "e58c00c86030bf7361059abdcdc20328fca0dbc2"
             },
             "type": "library",
-            "autoload": {
-                "files": [
-                    "./XBRL.php"
-                ]
-            },
             "license": [
                 "GPL-3.0-only"
             ],
             "authors": [
                 {
-                    "name": "Bill Seddon",
-                    "homepage": "https://github.com/bseddon"
+                    "name": "Federico Megna",
+                    "email": "f.megna@kpsfactoey.com"
                 }
             ],
-            "description": "Classes that implement the XBRL 2.1, XDT, Formulas, Generics and XFI specifications",
-            "homepage": "https://github.com/lyquidity/XBRL",
-            "keywords": [
-                "Dimensions",
-                "Formulas",
-                "XBRL",
-                "lyquidity"
-            ],
-            "time": "2022-08-22T23:20:48+00:00"
+            "description": "Library Lyquidity Edited",
+            "time": "2022-08-22T15:10:12+00:00"
         },
         {
             "name": "lab404/laravel-impersonate",
@@ -3871,68 +3846,6 @@
                 "xml"
             ],
             "time": "2021-11-29T14:48:04+00:00"
-        },
-        {
-            "name": "lyquidity/xpath2",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/bseddon/XPath20.git",
-                "reference": "b00ae2c39ad563fd05a1b110e9b7700c6680d154"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/bseddon/XPath20/zipball/b00ae2c39ad563fd05a1b110e9b7700c6680d154",
-                "reference": "b00ae2c39ad563fd05a1b110e9b7700c6680d154",
-                "shasum": ""
-            },
-            "require": {
-                "ext-bcmath": "*",
-                "ext-calendar": "*",
-                "ext-date": "*",
-                "ext-dom": "*",
-                "ext-hash": "*",
-                "ext-iconv": "*",
-                "ext-intl": "*",
-                "ext-json": "*",
-                "ext-libxml": "*",
-                "ext-mbstring": "*",
-                "ext-pcre": "*",
-                "ext-simplexml": "*",
-                "ext-spl": "*",
-                "ext-xml": "*",
-                "lib-iconv": "*",
-                "lib-icu": "*",
-                "lib-libxml": "*",
-                "lib-pcre": "*",
-                "lyquidity/xml": "dev-master",
-                "pear/log": ">1.13",
-                "php": "^7.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "lyquidity\\XPath2\\": "./"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "GPL-3.0-only"
-            ],
-            "authors": [
-                {
-                    "name": "Bill Seddon",
-                    "homepage": "https://github.com/bseddon"
-                }
-            ],
-            "description": "Provides XPath 2.0 statement execution library for PHP",
-            "homepage": "https://github.com/bseddon/XPath20",
-            "keywords": [
-                "XPath 2.0",
-                "lyquidity",
-                "xml"
-            ],
-            "time": "2021-05-04T18:03:10+00:00"
         },
         {
             "name": "mobiledetect/mobiledetectlib",
@@ -10378,5 +10291,5 @@
     "platform-overrides": {
         "php": "7.4.30"
     },
-    "plugin-api-version": "1.1.0"
+    "plugin-api-version": "2.2.0"
 }
