@@ -124,13 +124,13 @@ class BilanciController extends Controller
                 'bilancioJSON' => $bilancioJSON
             ], 202);
         } catch(Exception $e) {
-            dd($e);
+
             return response()->json([
                 'exception' => true,
                 'message' => $e->getMessage()
             ], 202);
         }
-
+/*
         $contexts = ($result->getContexts()->getContexts());
         $years = array();
 
@@ -535,6 +535,7 @@ class BilanciController extends Controller
             'vociExt' => $vociExt,
             'account_id' => $request->input('account_id')
         ]);
+*/
     }
 
     public function getSonsFromFather($father, $extNames)
