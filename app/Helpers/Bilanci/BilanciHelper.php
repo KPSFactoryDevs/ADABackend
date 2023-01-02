@@ -22,8 +22,7 @@ use XBRL\XBRL_DFR;
 use XBRL\XBRL_Report;
 use XBRL\XBRL_Global;
 use XBRL\XBRL_Types;
-//use XBRL\XBRL_Constants;
-use XBRL_Constants;
+use XBRL\XBRL_Constants;
 use XBRL\XBRL_Instance;
 class BilanciHelper
 {
