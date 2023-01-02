@@ -1313,8 +1313,8 @@ public function getInstanceTaxonomyHRef( $filename )
         $dom->load( html_entity_decode($filename, ENT_COMPAT, "UTF-8"));
 
         $domXPath = new \DOMXPath( $dom );
-        $domXPath->registerNamespace( 'xbrli', XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_XBRLI ] );
-        $domXPath->registerNamespace( 'link', XBRL_Constants::$standardPrefixes[ STANDARD_PREFIX_LINK ] );
+        $domXPath->registerNamespace( 'xbrli', XBRL_Constants::$standardPrefixes[ 'xbrli' ] );
+        $domXPath->registerNamespace( 'link', XBRL_Constants::$standardPrefixes[ 'link' ] );
         $nodes = $domXPath->query("/xbrli:xbrl/link:schemaRef");
         /** @var $domElement DOMElement */
         $domElement = $nodes[0];
