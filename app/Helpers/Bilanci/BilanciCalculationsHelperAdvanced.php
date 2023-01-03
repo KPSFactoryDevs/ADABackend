@@ -18,14 +18,20 @@ class BilanciCalculationsHelperAdvanced
 
     public function getElementFromBalance($elementName, $period)
     {
+        $value = false;
         $elements = $this->_currentInstance->getElements();
         $elements = $elements->getElements();
 
-        if($period == 1) {
-            return array_first($elements[$elementName])['value'];
-        } else if($period == 2) {
-            return array_last($elements[$elementName])['value'];
+        if(isset($elements[$elementName])) {
+            if($period == 1) {
+                $value = array_first($elements[$elementName])['value'];
+            } else if($period == 2) {
+                $value = array_last($elements[$elementName])['value'];
+            }
+        } else {
+            $value = 0;
         }
+
 
         return false;
     }
