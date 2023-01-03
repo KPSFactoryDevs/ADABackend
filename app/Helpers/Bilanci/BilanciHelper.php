@@ -11,6 +11,7 @@ use App\Models\cr;
 use App\Models\soglie;
 use App\Models\range;
 use App\Models\Roe;
+use App\Models\Document;
 use Illuminate\Support\Facades\DB;
 use DateTime;
 use Exception;
@@ -1229,7 +1230,7 @@ public function getInstanceTaxonomyHRef( $filename )
        // return "itcc-ci-abb-2018-11-04.xsd";
         $dom = new \DOMDocument();
 
-        $dom->load( html_entity_decode($filename, ENT_COMPAT, "UTF-8"));
+        $dom->load(html_entity_decode($filename, ENT_COMPAT, "UTF-8"));
 
         $domXPath = new \DOMXPath( $dom );
         $domXPath->registerNamespace( 'xbrli', "http://www.xbrl.org/2003/instance" );
@@ -1324,31 +1325,48 @@ public function errorHandler( $error_level, $error_message, $error_file, $error_
     }
 
 
-    public function getIndexesForBalanceTaxonomy($idBilancio) {
+    public function getIndexesForBalanceTaxonomy($idBilancio, $instance = false) {
 
         $bilancio = Document::findOrFail($idBilancio);
         $calculationHelper = new BilanciCalculationsHelperAdvanced;
+        if($instance) {
+            $calculationHelper->setCurrentInstance($instance);
+        } else {
+            // query che recupera path bilancio e funzione che lo legge come viene fatto nel controller
+        }
+        
         $taxonomy = $bilancio->taxonomy;
 
         if($taxonomy == "itcc-ci-abb-2018-11-04.xsd") {
             return array(
+                'PatrimonioNetto' => $calculationHelper->getTotalePatrimonioNetto(),
                 'PatrimonioNettoNegativo' => $calculationHelper->getPatrimonioNettoNegativo(),
-                'PatrimonioNettoNegativo' => $calculationHelper->getPatrimonioNettoNegativo(),
-                'PatrimonioNettoNegativo' => $calculationHelper->getPatrimonioNettoNegativo(),
-                'PatrimonioNettoNegativo' => $calculationHelper->getPatrimonioNettoNegativo(),
-                'PatrimonioNettoNegativo' => $calculationHelper->getPatrimonioNettoNegativo(),
-                'PatrimonioNettoNegativo' => $calculationHelper->getPatrimonioNettoNegativo(),
+                'OF_Ricavi' => $calculationHelper->getOfRicavi(),
+                'TotaleDebiti' => $calculationHelper->getTotaleDebiti(),
+               // 'AdeguatezzaPatrimoniale' => $calculationHelper->getAdeguatezzaPatrimoniale(), Errore: Undefined index: PassivoRateiRisconti
+                'TotaleCreditiEntroDodiciMesi' => $calculationHelper->getTotaleCreditiEntroDodiciMesi(), 
+                'TotaleDebitiEntroDodiciMesi' => $calculationHelper->getTotaleDebitiEntroDodiciMesi(),
+               // 'Liqudità' => $calculationHelper->getLiquidita(), Errore: Undefined index: CostiProduzioneAccantonamentiRischi
+                'IndebitamentoPrevidenzialeTributario' => $calculationHelper->getIndebitamentoPrevidenzialeTributario(),
+                'AndamentoDelFatturato' => $calculationHelper->getAndamentoDelFatturato(),
+                'AndamentoDelMol' => $calculationHelper->getAndamentoDelMol(),
+                'ROI' => $calculationHelper->getROI(),
+                'ROS' => $calculationHelper->getROS(),
+                'ROE' => $calculationHelper->getROE(),
+                'EbitdaFatturato' => $calculationHelper->getEbitdaFatturato(),
+                'AndamentoDeiMezziPropri' => $calculationHelper->getAndamentoDeiMezziPropri(),
+                'MargineStrutturaPrimario' => $calculationHelper->getMargineStrutturaPrimario(),
+
             );
         } else if($taxonomy == "itcc-ci-2018-11-04.xsd") {
             return array(
-                'PatrimonioNettoNegativo' => $calculationHelper->getPatrimonioNettoNegativo(),
-                'PatrimonioNettoNegativo' => $calculationHelper->getPatrimonioNettoNegativo(),
-                'PatrimonioNettoNegativo' => $calculationHelper->getPatrimonioNettoNegativo(),
-                'PatrimonioNettoNegativo' => $calculationHelper->getPatrimonioNettoNegativo(),
-                'PatrimonioNettoNegativo' => $calculationHelper->getPatrimonioNettoNegativo(),
-                'PatrimonioNettoNegativo' => $calculationHelper->getPatrimonioNettoNegativo(),
+                'PatrimonioNetto' => $calculationHelper->getTotalePatrimonioNetto(),
             );
         }
+
+    }
+
+    public function readXBRLInstance() {
 
     }
 }
