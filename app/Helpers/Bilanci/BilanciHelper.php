@@ -24,6 +24,8 @@ use XBRL\XBRL_Global;
 use XBRL\XBRL_Types;
 use XBRL\XBRL_Constants;
 use XBRL\XBRL_Instance;
+use App\Helpers\Bilanci\BilanciCalculationsHelperAdvanced;
+
 class BilanciHelper
 {
    public function getRangeValutazioni()
@@ -1131,18 +1133,10 @@ class BilanciHelper
                 return;
             }
 
-            $schemaHRef = $this->getInstanceTaxonomyHRef( $document, $context );
-            if ( ! $schemaHRef )
-            {
-
-                return;
-            }
-
 
 
                 $schemaHRef = $this->getInstanceTaxonomyHRef( $document );
-                $compiledTaxonomyFilename = "/var/www/html/staging/taxonomies/2018-11-04/".$schemaHRef;
-
+                $compiledTaxonomyFilename = base_path()."/taxonomies/2018-11-04/".$schemaHRef;
 
                 // Pass $compiledTaxonmyFilename which will reference the compiled taxonomy
                 $instance = XBRL_Instance::FromInstanceDocumentWithExtensionTaxonomy( $document, $compiledTaxonomyFilename );
@@ -1327,5 +1321,34 @@ public function errorHandler( $error_level, $error_message, $error_file, $error_
                 error_log( print_r( $lasterror, true ) );
                 break;
         }
+    }
+
+
+    public function getIndexesForBalanceTaxonomy($idBilancio) {
+
+        $bilancio = Document::findOrFail($idBilancio);
+        $calculationHelper = new BilanciCalculationsHelperAdvanced;
+        $taxonomy = $bilancio->taxonomy;
+
+        if($taxonomy == "itcc-ci-abb-2018-11-04.xsd") {
+            return array(
+                'PatrimonioNettoNegativo' => $calculationHelper->getPatrimonioNettoNegativo(),
+                'PatrimonioNettoNegativo' => $calculationHelper->getPatrimonioNettoNegativo(),
+                'PatrimonioNettoNegativo' => $calculationHelper->getPatrimonioNettoNegativo(),
+                'PatrimonioNettoNegativo' => $calculationHelper->getPatrimonioNettoNegativo(),
+                'PatrimonioNettoNegativo' => $calculationHelper->getPatrimonioNettoNegativo(),
+                'PatrimonioNettoNegativo' => $calculationHelper->getPatrimonioNettoNegativo(),
+            );
+        } else if($taxonomy == "itcc-ci-2018-11-04.xsd") {
+            return array(
+                'PatrimonioNettoNegativo' => $calculationHelper->getPatrimonioNettoNegativo(),
+                'PatrimonioNettoNegativo' => $calculationHelper->getPatrimonioNettoNegativo(),
+                'PatrimonioNettoNegativo' => $calculationHelper->getPatrimonioNettoNegativo(),
+                'PatrimonioNettoNegativo' => $calculationHelper->getPatrimonioNettoNegativo(),
+                'PatrimonioNettoNegativo' => $calculationHelper->getPatrimonioNettoNegativo(),
+                'PatrimonioNettoNegativo' => $calculationHelper->getPatrimonioNettoNegativo(),
+            );
+        }
+
     }
 }
