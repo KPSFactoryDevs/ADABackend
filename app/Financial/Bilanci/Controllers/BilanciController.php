@@ -90,7 +90,7 @@ class BilanciController extends Controller
                 'path' => asset('bilanci') . '/' . $fileName,
                 'type' => 'bilancio',
                 'taxonomy' => $taxonomyName,
-                'codice_documento' => $request->codice_documento
+                'codice_documento' => rand(1, 999999999)
             ]);
 
             return response()->json([

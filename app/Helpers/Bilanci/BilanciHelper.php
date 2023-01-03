@@ -1336,7 +1336,6 @@ public function errorHandler( $error_level, $error_message, $error_file, $error_
         }
         
         $taxonomy = $bilancio->taxonomy;
-
         if($taxonomy == "itcc-ci-abb-2018-11-04.xsd") {
             return array(
                 'PatrimonioNetto' => $calculationHelper->getTotalePatrimonioNetto(),
@@ -1349,7 +1348,7 @@ public function errorHandler( $error_level, $error_message, $error_file, $error_
                // 'Liqudità' => $calculationHelper->getLiquidita(), Errore: Undefined index: CostiProduzioneAccantonamentiRischi
                 'IndebitamentoPrevidenzialeTributario' => $calculationHelper->getIndebitamentoPrevidenzialeTributario(),
                 'AndamentoDelFatturato' => $calculationHelper->getAndamentoDelFatturato(),
-                'AndamentoDelMol' => $calculationHelper->getAndamentoDelMol(),
+                'AndamentoDelMol' => $calculationHelper->getAndamentoDelMol()['AndamentoMOL'],
                 'ROI' => $calculationHelper->getROI(),
                 'ROS' => $calculationHelper->getROS(),
                 'ROE' => $calculationHelper->getROE(),
