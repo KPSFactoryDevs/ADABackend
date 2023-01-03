@@ -32,8 +32,7 @@ class BilanciCalculationsHelperAdvanced
             $value = 0;
         }
 
-
-        return false;
+        return $value;
     }
 
 
