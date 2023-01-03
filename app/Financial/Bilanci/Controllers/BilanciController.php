@@ -82,12 +82,7 @@ class BilanciController extends Controller
             $readXBRL = XBRL_Instance::FromInstanceDocument($filePath, $taxonomyPath, $emptyInstance);
             $bilancioJSON = $readXBRL->toJSON();
             $renderHTML = $bilanciHelper->generateHTMLRender($filePath, $taxonomyPath);
-
-            $bilancioCalculationHelper = new BilanciCalculationsHelperAdvanced();
-            $bilancioCalculationHelper->setCurrentInstance($readXBRL);
-            $debitiTest = $bilancioCalculationHelper->getElementFromBalance('DebitiEsigibiliEntroEsercizioSuccessivo');
-
-dd($debitiTest);
+      
             $fileName = "Bilancio_" . time() . '.xbrl';
             Storage::disk('bilanci')->put($fileName, base64_decode($file));
             $document = Document::create([
@@ -95,14 +90,14 @@ dd($debitiTest);
                 'path' => asset('bilanci') . '/' . $fileName,
                 'type' => 'bilancio',
                 'taxonomy' => $taxonomyName,
+                'codice_documento' => $request->codice_documento
             ]);
-
 
             return response()->json([
                 'exception' => false,
                 'renderHTML' => $renderHTML,
                 'bilancioJSON' => $bilancioJSON,
-                'bilancioAnalisi' => $bilanciHelper->getIndexesForBalanceTaxonomy($document->id),
+                'bilancioAnalisi' => $bilanciHelper->getIndexesForBalanceTaxonomy($document->id, $readXBRL),
             ], 200);
 
         } catch(Exception $e) {

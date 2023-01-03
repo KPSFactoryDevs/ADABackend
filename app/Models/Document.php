@@ -34,6 +34,7 @@ class Document extends Model
                   'filename',
                   'type',
 		          'company_id',
+                  'taxonomy'
               ];
 
 
