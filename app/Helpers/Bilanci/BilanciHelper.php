@@ -1226,20 +1226,22 @@ class BilanciHelper
 
 public function getInstanceTaxonomyHRef( $filename )
     {
+        try {
+            // return "itcc-ci-abb-2018-11-04.xsd";
+            $dom = new \DOMDocument();
+        
+            $dom->load(html_entity_decode($filename, ENT_COMPAT, "UTF-8"));
 
-       // return "itcc-ci-abb-2018-11-04.xsd";
-        $dom = new \DOMDocument();
-
-        $dom->load(html_entity_decode($filename, ENT_COMPAT, "UTF-8"));
-
-        $domXPath = new \DOMXPath( $dom );
-        $domXPath->registerNamespace( 'xbrli', "http://www.xbrl.org/2003/instance" );
-        $domXPath->registerNamespace( 'link', "http://www.w3.org/1999/xlink" );
-        $nodes = $domXPath->query("/xbrli:xbrl/link:schemaRef");
-        /** @var $domElement DOMElement */
-        $domElement = $nodes[0];
-        return $domElement->getAttribute('xlink:href');
-
+            $domXPath = new \DOMXPath( $dom );
+            $domXPath->registerNamespace( 'xbrli', "http://www.xbrl.org/2003/instance" );
+            $domXPath->registerNamespace( 'link', "http://www.w3.org/1999/xlink" );
+            $nodes = $domXPath->query("/xbrli:xbrl/link:schemaRef");
+            /** @var $domElement DOMElement */
+            $domElement = $nodes[0];
+            return $domElement->getAttribute('xlink:href');
+        } catch(Exception $e) {
+            return "itcc-ci-abb-2018-11-04.xsd";
+        }
     }
 
     /**
@@ -1355,7 +1357,21 @@ public function errorHandler( $error_level, $error_message, $error_file, $error_
                 'EbitdaFatturato' => $calculationHelper->getEbitdaFatturato(),
                 'AndamentoDeiMezziPropri' => $calculationHelper->getAndamentoDeiMezziPropri(),
                 'MargineStrutturaPrimario' => $calculationHelper->getMargineStrutturaPrimario(),
-
+                'MargineStrutturaSecondario' => $calculationHelper->getMargineStrutturaSecondario(),
+                'CurrentRatio' => $calculationHelper->getCurrentRatio(),
+                'AttivitaPassivitaABreve' => $calculationHelper->getAttivitaPassivitaABreve()['Attivita_a_breve_Passività_a_Breve_Ordinario'],
+                'AcidTest' => $calculationHelper->getAcidTest(),
+                'AcidTestOrdinario' => $calculationHelper->getAcidTestOrdinario(), 
+                'AutonomiaFinanziaria' => $calculationHelper->getAutonomiaFinanziaria(),
+                'LivelloInvestimentiAziendali' => $calculationHelper->getLivelloInvestimentiAziendali(),
+                'PfnEbitda' => $calculationHelper->getPfnEbitda(),
+                'PesoOneriFinanziari' => $calculationHelper->getPesoOneriFinanziari(),
+                'CoperturaLordaDegliOneriFinanziari' => $calculationHelper->getCoperturaLordaDegliOneriFinanziari(),
+                'EbitOf' => $calculationHelper->getEbitOf(),
+                'CostoDelPersonale' => $calculationHelper->getCostoDelPersonale(),
+                'CfAttivo' => $calculationHelper->getCfAttivo(),
+                'IndiceDiIndebitamento' => $calculationHelper->getIndiceDiIndebitamento(),
+                'SaldoDebitiVsFisco' => $calculationHelper->getSaldoDebitiVsFisco()
             );
         } else if($taxonomy == "itcc-ci-2018-11-04.xsd") {
             return array(
