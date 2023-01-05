@@ -1350,7 +1350,7 @@ public function errorHandler( $error_level, $error_message, $error_file, $error_
                // 'Liqudità' => $calculationHelper->getLiquidita(), Errore: Undefined index: CostiProduzioneAccantonamentiRischi
                 //'IndebitamentoPrevidenzialeTributario' => $calculationHelper->getIndebitamentoPrevidenzialeTributario(),
                 'Andamento Del Fatturato' => $calculationHelper->getAndamentoDelFatturato(),
-                'Andamento Del Mol' => $calculationHelper->getAndamentoDelMol(),
+                'Andamento Del Mol' => $calculationHelper->getAndamentoDelMol()['AndamentoMOL'],
                 'ROI' => $calculationHelper->getROI(),
                 'ROS' => $calculationHelper->getROS(),
                 'ROE' => $calculationHelper->getROE(),
@@ -1383,7 +1383,7 @@ public function errorHandler( $error_level, $error_message, $error_file, $error_
             return array(
                 'OF_Ricavi' => $calculationHelper->getOfRicavi(),
                 'AndamentoDelFatturato' => $calculationHelper->getAndamentoDelFatturato(),
-                'AndamentoDelMol' => $calculationHelper->getAndamentoDelMol(),
+                'AndamentoDelMol' => $calculationHelper->getAndamentoDelMol()['AndamentoMOL'],
                 'ROI' => $calculationHelper->getROI(),
                 'ROS' => $calculationHelper->getROS(),
                 'ROE' => $calculationHelper->getROE(),
