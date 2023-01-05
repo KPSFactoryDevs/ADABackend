@@ -1327,7 +1327,7 @@ public function errorHandler( $error_level, $error_message, $error_file, $error_
     }
 
 
-    public function getIndexesForBalanceTaxonomy($idBilancio, $instance = false) {
+    public function getIndexesForBalanceTaxonomy($idBilancio, $filePath, $instance = false) {
 
         $bilancio = Document::findOrFail($idBilancio);
         $calculationHelper = new BilanciCalculationsHelperAdvanced;
@@ -1335,82 +1335,74 @@ public function errorHandler( $error_level, $error_message, $error_file, $error_
             $calculationHelper->setCurrentInstance($instance);
         } else {
             // query che recupera path bilancio e funzione che lo legge come viene fatto nel controller
+            $taxonomyName = $this->getInstanceTaxonomyHRef($filePath);
+            $taxonomyPath = base_path()."/taxonomies/2018-11-04/".$taxonomyName;
         }
         
         $taxonomy = $bilancio->taxonomy;
         if($taxonomy == "itcc-ci-abb-2018-11-04.xsd") {
             return array(
-                //'PatrimonioNetto' => $calculationHelper->getTotalePatrimonioNetto(),
-                //'PatrimonioNettoNegativo' => $calculationHelper->getPatrimonioNettoNegativo(),
-                'OF Ricavi' => $calculationHelper->getOfRicavi(),
-                //'TotaleDebiti' => $calculationHelper->getTotaleDebiti(),
-               // 'AdeguatezzaPatrimoniale' => $calculationHelper->getAdeguatezzaPatrimoniale(), Errore: Undefined index: PassivoRateiRisconti
-                //'TotaleCreditiEntroDodiciMesi' => $calculationHelper->getTotaleCreditiEntroDodiciMesi(), 
-                //'TotaleDebitiEntroDodiciMesi' => $calculationHelper->getTotaleDebitiEntroDodiciMesi(),
-               // 'Liqudità' => $calculationHelper->getLiquidita(), Errore: Undefined index: CostiProduzioneAccantonamentiRischi
-                //'IndebitamentoPrevidenzialeTributario' => $calculationHelper->getIndebitamentoPrevidenzialeTributario(),
-                'Andamento Del Fatturato' => $calculationHelper->getAndamentoDelFatturato(),
-                'Andamento Del Mol' => $calculationHelper->getAndamentoDelMol()['AndamentoMOL'],
-                'ROI' => $calculationHelper->getROI(),
-                'ROS' => $calculationHelper->getROS(),
-                'ROE' => $calculationHelper->getROE(),
-                'Ebitda Fatturato' => $calculationHelper->getEbitdaFatturato(),
-                'Andamento Dei Mezzi Propri' => $calculationHelper->getAndamentoDeiMezziPropri(),
-                'Margine Struttura Primario' => $calculationHelper->getMargineStrutturaPrimario(),
-                'Margine Struttura Secondario' => $calculationHelper->getMargineStrutturaSecondario(),
-                'Current Ratio' => $calculationHelper->getCurrentRatio(),
-                'Attivita Passivita ABreve' => $calculationHelper->getAttivitaPassivitaABreve()['Attivita_a_breve_Passività_a_Breve_Ordinario'],
-                'Acid Test' => $calculationHelper->getAcidTest(),
-                'Acid Test Ordinario' => $calculationHelper->getAcidTestOrdinario(), 
-                'Autonomia Finanziaria' => $calculationHelper->getAutonomiaFinanziaria(),
-                'Livello Investimenti Aziendali' => $calculationHelper->getLivelloInvestimentiAziendali(),
-                'Pfn Ebitda' => $calculationHelper->getPfnEbitda(),
-                'Peso Oneri Finanziari' => $calculationHelper->getPesoOneriFinanziari(),
-                'Copertura Lorda Degli Oneri Finanziari' => $calculationHelper->getCoperturaLordaDegliOneriFinanziari(),
-                'Ebit Of' => $calculationHelper->getEbitOf(),
-                'Costo Del Personale' => $calculationHelper->getCostoDelPersonale(),
-                'Cf Attivo' => $calculationHelper->getCfAttivo(),
-                'Indice Di Indebitamento' => $calculationHelper->getIndiceDiIndebitamento(),
-                'Saldo Debiti Vs Fisco' => $calculationHelper->getSaldoDebitiVsFisco(),
-                'indiceVociMancanti' => [
-                    "missingVoice" => [
-                        "Debiti Totali" => "DebitiTotali",
-                        "Debiti Tributari" => "DebitiTributari",
-                    ]
-                ]
+                "Indici" => [
+                    'OF Ricavi' => $calculationHelper->getOfRicavi(),
+                    'AdeguatezzaPatrimoniale' => $calculationHelper->getAdeguatezzaPatrimoniale(), 
+                    'Liqudità' => $calculationHelper->getLiquidita(), 
+                    'Andamento Del Fatturato' => $calculationHelper->getAndamentoDelFatturato(),
+                    'Andamento Del Mol' => $calculationHelper->getAndamentoDelMol()['AndamentoMOL'],
+                    'ROI' => $calculationHelper->getROI(),
+                    'ROS' => $calculationHelper->getROS(),
+                    'ROE' => $calculationHelper->getROE(),
+                    'Ebitda Fatturato' => $calculationHelper->getEbitdaFatturato(),
+                    'Andamento Dei Mezzi Propri' => $calculationHelper->getAndamentoDeiMezziPropri(),
+                    'Margine Struttura Primario' => $calculationHelper->getMargineStrutturaPrimario(),
+                    'Margine Struttura Secondario' => $calculationHelper->getMargineStrutturaSecondario(),
+                    'Current Ratio' => $calculationHelper->getCurrentRatio(),
+                    'Attivita Passivita ABreve' => $calculationHelper->getAttivitaPassivitaABreve()['Attivita_a_breve_Passività_a_Breve_Ordinario'],
+                    'Acid Test' => $calculationHelper->getAcidTest(),
+                    'Acid Test Ordinario' => $calculationHelper->getAcidTestOrdinario(), 
+                    'Autonomia Finanziaria' => $calculationHelper->getAutonomiaFinanziaria(),
+                    'Livello Investimenti Aziendali' => $calculationHelper->getLivelloInvestimentiAziendali(),
+                    'Pfn Ebitda' => $calculationHelper->getPfnEbitda(),
+                    'Peso Oneri Finanziari' => $calculationHelper->getPesoOneriFinanziari(),
+                    'Copertura Lorda Degli Oneri Finanziari' => $calculationHelper->getCoperturaLordaDegliOneriFinanziari(),
+                    'Ebit Of' => $calculationHelper->getEbitOf(),
+                    'Costo Del Personale' => $calculationHelper->getCostoDelPersonale(),
+                    'Cf Attivo' => $calculationHelper->getCfAttivo(),
+                    'Indice Di Indebitamento' => $calculationHelper->getIndiceDiIndebitamento(),
+                    'Saldo Debiti Vs Fisco' => $calculationHelper->getSaldoDebitiVsFisco(),
+                ],
+                'indiceVociMancanti' => $calculationHelper->_missingVoicesArray,
             );
         } else if($taxonomy == "itcc-ci-2018-11-04.xsd") {
             return array(
-                'OF_Ricavi' => $calculationHelper->getOfRicavi(),
-                'AndamentoDelFatturato' => $calculationHelper->getAndamentoDelFatturato(),
-                'AndamentoDelMol' => $calculationHelper->getAndamentoDelMol()['AndamentoMOL'],
-                'ROI' => $calculationHelper->getROI(),
-                'ROS' => $calculationHelper->getROS(),
-                'ROE' => $calculationHelper->getROE(),
-                'EbitdaFatturato' => $calculationHelper->getEbitdaFatturato(),
-                'AndamentoDeiMezziPropri' => $calculationHelper->getAndamentoDeiMezziPropri(),
-                'MargineStrutturaPrimario' => $calculationHelper->getMargineStrutturaPrimario(),
-                'MargineStrutturaSecondario' => $calculationHelper->getMargineStrutturaSecondario(),
-                'CurrentRatio' => $calculationHelper->getCurrentRatio(),
-                'AttivitaPassivitaABreve' => $calculationHelper->getAttivitaPassivitaABreve()['Attivita_a_breve_Passività_a_Breve_Ordinario'],
-                'AcidTest' => $calculationHelper->getAcidTest(),
-                'AcidTestOrdinario' => $calculationHelper->getAcidTestOrdinario(), 
-                'AutonomiaFinanziaria' => $calculationHelper->getAutonomiaFinanziaria(),
-                'LivelloInvestimentiAziendali' => $calculationHelper->getLivelloInvestimentiAziendali(),
-                'PfnEbitda' => $calculationHelper->getPfnEbitda(),
-                'PesoOneriFinanziari' => $calculationHelper->getPesoOneriFinanziari(),
-                'CoperturaLordaDegliOneriFinanziari' => $calculationHelper->getCoperturaLordaDegliOneriFinanziari(),
-                'EbitOf' => $calculationHelper->getEbitOf(),
-                'CostoDelPersonale' => $calculationHelper->getCostoDelPersonale(),
-                'CfAttivo' => $calculationHelper->getCfAttivo(),
-                'IndiceDiIndebitamento' => $calculationHelper->getIndiceDiIndebitamento(),
-                'SaldoDebitiVsFisco' => $calculationHelper->getSaldoDebitiVsFisco(),    
-                'indiceVociMancanti' => [
-                    "missingVoice" => [
-                        "Debiti Totali" => "DebitiTotali",
-                        "Debiti Tributari" => "DebitiTributari",
-                    ]
-                ]       
+                "Indici" => [
+                    'OF Ricavi' => $calculationHelper->getOfRicavi(),
+                    'AdeguatezzaPatrimoniale' => $calculationHelper->getAdeguatezzaPatrimoniale(), 
+                    'Liqudità' => $calculationHelper->getLiquidita(), 
+                    'Andamento Del Fatturato' => $calculationHelper->getAndamentoDelFatturato(),
+                    'Andamento Del Mol' => $calculationHelper->getAndamentoDelMol()['AndamentoMOL'],
+                    'ROI' => $calculationHelper->getROI(),
+                    'ROS' => $calculationHelper->getROS(),
+                    'ROE' => $calculationHelper->getROE(),
+                    'Ebitda Fatturato' => $calculationHelper->getEbitdaFatturato(),
+                    'Andamento Dei Mezzi Propri' => $calculationHelper->getAndamentoDeiMezziPropri(),
+                    'Margine Struttura Primario' => $calculationHelper->getMargineStrutturaPrimario(),
+                    'Margine Struttura Secondario' => $calculationHelper->getMargineStrutturaSecondario(),
+                    'Current Ratio' => $calculationHelper->getCurrentRatio(),
+                    'Attivita Passivita ABreve' => $calculationHelper->getAttivitaPassivitaABreve()['Attivita_a_breve_Passività_a_Breve_Ordinario'],
+                    'Acid Test' => $calculationHelper->getAcidTest(),
+                    'Acid Test Ordinario' => $calculationHelper->getAcidTestOrdinario(), 
+                    'Autonomia Finanziaria' => $calculationHelper->getAutonomiaFinanziaria(),
+                    'Livello Investimenti Aziendali' => $calculationHelper->getLivelloInvestimentiAziendali(),
+                    'Pfn Ebitda' => $calculationHelper->getPfnEbitda(),
+                    'Peso Oneri Finanziari' => $calculationHelper->getPesoOneriFinanziari(),
+                    'Copertura Lorda Degli Oneri Finanziari' => $calculationHelper->getCoperturaLordaDegliOneriFinanziari(),
+                    'Ebit Of' => $calculationHelper->getEbitOf(),
+                    'Costo Del Personale' => $calculationHelper->getCostoDelPersonale(),
+                    'Cf Attivo' => $calculationHelper->getCfAttivo(),
+                    'Indice Di Indebitamento' => $calculationHelper->getIndiceDiIndebitamento(),
+                    'Saldo Debiti Vs Fisco' => $calculationHelper->getSaldoDebitiVsFisco(),
+                ],
+                'indiceVociMancanti' => $calculationHelper->_missingVoicesArray,
              );
         }
 

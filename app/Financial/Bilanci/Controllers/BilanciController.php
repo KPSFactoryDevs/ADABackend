@@ -97,9 +97,10 @@ class BilanciController extends Controller
 
                 return response()->json([
                     'exception' => false,
+                    'idDocumento' => $document->id,
                     'renderHTML' => $renderHTML,
                     'bilancioJSON' => $bilancioJSON,
-                    'bilancioAnalisi' => $bilanciHelper->getIndexesForBalanceTaxonomy($document->id, $readXBRL),
+                    'bilancioAnalisi' => $bilanciHelper->getIndexesForBalanceTaxonomy($document->id, $filePath, $readXBRL),
                 ], 200);
             } else {
                 return response()->json([
