@@ -1338,7 +1338,7 @@ public function errorHandler( $error_level, $error_message, $error_file, $error_
             $taxonomyName = $this->getInstanceTaxonomyHRef($filePath);
             $taxonomyPath = base_path()."/taxonomies/2018-11-04/".$taxonomyName;
         }
-        
+
         $taxonomy = $bilancio->taxonomy;
         if($taxonomy == "itcc-ci-abb-2018-11-04.xsd") {
             return array(
@@ -1347,7 +1347,7 @@ public function errorHandler( $error_level, $error_message, $error_file, $error_
                     'AdeguatezzaPatrimoniale' => $calculationHelper->getAdeguatezzaPatrimoniale(), 
                     'Liqudità' => $calculationHelper->getLiquidita(), 
                     'Andamento Del Fatturato' => $calculationHelper->getAndamentoDelFatturato(),
-                    'Andamento Del Mol' => $calculationHelper->getAndamentoDelMol()['AndamentoMOL'],
+                    'Andamento Del Mol' => $calculationHelper->getAndamentoDelMol('Andamento Del Mol')['AndamentoMOL'],
                     'ROI' => $calculationHelper->getROI(),
                     'ROS' => $calculationHelper->getROS(),
                     'ROE' => $calculationHelper->getROE(),
@@ -1356,7 +1356,7 @@ public function errorHandler( $error_level, $error_message, $error_file, $error_
                     'Margine Struttura Primario' => $calculationHelper->getMargineStrutturaPrimario(),
                     'Margine Struttura Secondario' => $calculationHelper->getMargineStrutturaSecondario(),
                     'Current Ratio' => $calculationHelper->getCurrentRatio(),
-                    'Attivita Passivita ABreve' => $calculationHelper->getAttivitaPassivitaABreve()['Attivita_a_breve_Passività_a_Breve_Ordinario'],
+                    'Attivita Passivita A Breve' => $calculationHelper->getAttivitaPassivitaABreve('Attivita Passivita A Breve')['Attivita_a_breve_Passività_a_Breve_Ordinario'],
                     'Acid Test' => $calculationHelper->getAcidTest(),
                     'Acid Test Ordinario' => $calculationHelper->getAcidTestOrdinario(), 
                     'Autonomia Finanziaria' => $calculationHelper->getAutonomiaFinanziaria(),
@@ -1379,7 +1379,7 @@ public function errorHandler( $error_level, $error_message, $error_file, $error_
                     'AdeguatezzaPatrimoniale' => $calculationHelper->getAdeguatezzaPatrimoniale(), 
                     'Liqudità' => $calculationHelper->getLiquidita(), 
                     'Andamento Del Fatturato' => $calculationHelper->getAndamentoDelFatturato(),
-                    'Andamento Del Mol' => $calculationHelper->getAndamentoDelMol()['AndamentoMOL'],
+                    'Andamento Del Mol' => $calculationHelper->getAndamentoDelMol('Andamento Del Mol')['AndamentoMOL'],
                     'ROI' => $calculationHelper->getROI(),
                     'ROS' => $calculationHelper->getROS(),
                     'ROE' => $calculationHelper->getROE(),
@@ -1388,7 +1388,7 @@ public function errorHandler( $error_level, $error_message, $error_file, $error_
                     'Margine Struttura Primario' => $calculationHelper->getMargineStrutturaPrimario(),
                     'Margine Struttura Secondario' => $calculationHelper->getMargineStrutturaSecondario(),
                     'Current Ratio' => $calculationHelper->getCurrentRatio(),
-                    'Attivita Passivita ABreve' => $calculationHelper->getAttivitaPassivitaABreve()['Attivita_a_breve_Passività_a_Breve_Ordinario'],
+                    'Attivita Passivita A Breve' => $calculationHelper->getAttivitaPassivitaABreve('Attivita Passivita A Breve')['Attivita_a_breve_Passività_a_Breve_Ordinario'],
                     'Acid Test' => $calculationHelper->getAcidTest(),
                     'Acid Test Ordinario' => $calculationHelper->getAcidTestOrdinario(), 
                     'Autonomia Finanziaria' => $calculationHelper->getAutonomiaFinanziaria(),

@@ -38,6 +38,8 @@ Route::group(['middleware' => ['cors', 'json.response']], function () {
     Route::get('/getLatestYears', 'App\Financial\Bilanci\Controllers\BilanciController@getLatestYears');
     Route::delete('/bilancio/{idBilancio}', 'App\Financial\Bilanci\Controllers\BilanciController@destroy');
 
+    Route::post('/missingVoices', 'App\Financial\Bilanci\Controllers\BilanciController@missingVoices');
+
 
 
 
