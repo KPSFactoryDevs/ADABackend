@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Financial\Bilanci\Controllers;
+use Vtiful\Kernel\Excel;
 
 ini_set('max_input_vars', 5000);
 
@@ -27,6 +28,7 @@ use Carbon\Carbon;
 use Auth;
 use Exception;
 use Illuminate\Support\Facades\Http;
+use App\Models\MissingVoice;
 
 class BilanciController extends Controller
 {
@@ -118,6 +120,30 @@ class BilanciController extends Controller
             ], 500);
         }
 
+    }
+
+    public function missingVoices(Request $request) 
+    {
+        try {
+
+            MissingVoice::create([
+                'documentId' => $request->documentId,
+                'voiceFullName' => $request->voiceFullName,
+                'voiceLabel' => $request->voiceLabel,
+                'voiceValue' => $request->voiceValue,
+                'period' => $request->period
+            ]);
+
+            return response()->json([
+                'error' => false,
+                'data' => "Voci mancanti salvate"
+            ]);
+        } catch(Exception $e) {
+            return response()->json([
+                'error' => true,
+                'data' => $e->getMessage()
+            ]);
+        }
     }
 
 
