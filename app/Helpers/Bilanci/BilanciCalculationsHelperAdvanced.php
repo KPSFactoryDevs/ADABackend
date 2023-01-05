@@ -214,10 +214,7 @@ class BilanciCalculationsHelperAdvanced
 
         CustomLog::addToLogAnalisiBilancioCalculation('BilanciCalculationsHelper', 'GetAndamentoDelMol', $calculation);
 
-        $data = [
-            'MOLcurr' => $MOLcurr,
-            'AndamentoMOL' => $AndamentoMOL,
-        ];
+        $data = $AndamentoMOL;
 
         return $data;
     }
