@@ -22,7 +22,7 @@ class BilanciCalculationsHelperAdvanced
         $value = false;
         $elements = $this->_currentInstance->getElements();
         $elements = $elements->getElements();
-    
+
         if(isset($elements[$elementName])) {
             if($period == 1) {
                 $value = array_first($elements[$elementName])['value'];
@@ -389,11 +389,6 @@ class BilanciCalculationsHelperAdvanced
         $TotaleCreditiEntroDodiciMesi = $this->getElementFromBalance('TotaleCreditiEntroDodiciMesi', 1);
         $TotaleDebitiEntroDodiciMesi = $this->getElementFromBalance('TotaleDebitiEntroDodiciMesi', 1);
         $PassivoRateiRisconti = $this->getElementFromBalance('PassivoRateiRisconti', 1);
-
-        $denominatoreRitornoLiquidoAttivo = 0;
-        if (($TotaleDebitiEntroDodiciMesi + $PassivoRateiRisconti) == 0) {
-            $denominatoreRitornoLiquidoAttivo = 1;
-        }
 
         $formula = ($TotaleDisponibilitaLiquide + $AttivoRateiRisconti + $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + $TotaleRimanenze + $TotaleCreditiEntroDodiciMesi) / ($TotaleDebitiEntroDodiciMesi + $PassivoRateiRisconti + $denominatoreRitornoLiquidoAttivo);
         $calculation = '('.$TotaleDisponibilitaLiquide.' + '.$AttivoRateiRisconti.' + '.$TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni.' + '.$TotaleRimanenze.' + '.$TotaleCreditiEntroDodiciMesi.') / ('.$TotaleDebitiEntroDodiciMesi.' + '.$PassivoRateiRisconti.' + '.$denominatoreRitornoLiquidoAttivo.') = '.$formula;
