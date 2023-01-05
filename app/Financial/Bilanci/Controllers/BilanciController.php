@@ -80,25 +80,34 @@ class BilanciController extends Controller
 
             $emptyInstance = false;
             $readXBRL = XBRL_Instance::FromInstanceDocument($filePath, $taxonomyPath, $emptyInstance);
-            $bilancioJSON = $readXBRL->toJSON();
-            $renderHTML = $bilanciHelper->generateHTMLRender($filePath, $taxonomyPath);
-      
-            $fileName = "Bilancio_" . time() . '.xbrl';
-            Storage::disk('bilanci')->put($fileName, base64_decode($file));
-            $document = Document::create([
-                'filename' => $fileName,
-                'path' => asset('bilanci') . '/' . $fileName,
-                'type' => 'bilancio',
-                'taxonomy' => $taxonomyName,
-                'codice_documento' => $request->codice_documento
-            ]);
 
-            return response()->json([
-                'exception' => false,
-                'renderHTML' => $renderHTML,
-                'bilancioJSON' => $bilancioJSON,
-                'bilancioAnalisi' => $bilanciHelper->getIndexesForBalanceTaxonomy($document->id, $readXBRL),
-            ], 200);
+            if($readXBRL) {
+                $bilancioJSON = $readXBRL->toJSON();
+                $renderHTML = $bilanciHelper->generateHTMLRender($filePath, $taxonomyPath);
+        
+                $fileName = "Bilancio_" . time() . '.xbrl';
+                Storage::disk('bilanci')->put($fileName, base64_decode($file));
+                $document = Document::create([
+                    'filename' => $fileName,
+                    'path' => asset('bilanci') . '/' . $fileName,
+                    'type' => 'bilancio',
+                    'taxonomy' => $taxonomyName,
+                    'codice_documento' => rand(1, 999999999)
+                ]);
+
+                return response()->json([
+                    'exception' => false,
+                    'renderHTML' => $renderHTML,
+                    'bilancioJSON' => $bilancioJSON,
+                    'bilancioAnalisi' => $bilanciHelper->getIndexesForBalanceTaxonomy($document->id, $readXBRL),
+                ], 200);
+            } else {
+                return response()->json([
+                    'exception' => true,
+                    'message' => 'Il file è danneggiato'
+                ], 202);
+            }
+            
 
         } catch(Exception $e) {
 
