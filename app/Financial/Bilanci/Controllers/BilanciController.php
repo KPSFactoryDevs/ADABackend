@@ -72,11 +72,30 @@ class BilanciController extends Controller
         $use_xbrl_functions = true;
 
         $bilanciHelper = new BilanciHelper();
+        if($request->documentId) {
+            $document = Document::findOrFail($request->documentId);
 
-        $file = $request->base64;
-        $filePath = $file->getPathName();
-        $taxonomyName = $bilanciHelper->getInstanceTaxonomyHRef($filePath);
-        $taxonomyPath = base_path()."/taxonomies/2018-11-04/".$taxonomyName;
+            $filePath = base_path() . '/public/bilanci/' . $document->filename;
+            $taxonomyName = $document->taxonomy;
+        } else {
+
+            $file = $request->base64;
+            $filePath = $file->getPathName();
+            $taxonomyName = $bilanciHelper->getInstanceTaxonomyHRef($filePath);
+            $fileName = "Bilancio_" . time() . '.xbrl';
+            $storeFile = Storage::disk('bilanci')->putFileAs('', $file, $fileName);
+
+            $document = Document::create([
+                'filename' => $fileName,
+                'path' => asset('bilanci') . '/' . $fileName,
+                'type' => 'bilancio',
+                'taxonomy' => $taxonomyName,
+                'codice_documento' => rand(1, 999999999)
+            ]);
+        }
+
+            $taxonomyPath = base_path()."/taxonomies/2018-11-04/".$taxonomyName;
+
 
         try {
 
@@ -87,15 +106,6 @@ class BilanciController extends Controller
                 $bilancioJSON = $readXBRL->toJSON();
                 $renderHTML = $bilanciHelper->generateHTMLRender($filePath, $taxonomyPath);
         
-                $fileName = "Bilancio_" . time() . '.xbrl';
-                Storage::disk('bilanci')->put($fileName, base64_decode($file));
-                $document = Document::create([
-                    'filename' => $fileName,
-                    'path' => asset('bilanci') . '/' . $fileName,
-                    'type' => 'bilancio',
-                    'taxonomy' => $taxonomyName,
-                    'codice_documento' => rand(1, 999999999)
-                ]);
 
                 return response()->json([
                     'exception' => false,
@@ -126,14 +136,18 @@ class BilanciController extends Controller
     {
         try {
 
-            MissingVoice::create([
-                'documentId' => $request->documentId,
-                'voiceFullName' => $request->voiceFullName,
-                'voiceLabel' => $request->voiceLabel,
-                'voiceValue' => $request->voiceValue,
-                'period' => $request->period
-            ]);
+            foreach($request->missingVoices as $key => $singleVoice) {
+                $voci = Voci::where('extended_name', $key)->get()->first();
 
+                MissingVoice::create([
+                    'documentId' => $request->idDocumento,
+                    'voiceFullName' => $key,
+                    'voiceLabel' => $voci->name,
+                    'voiceValue' => $singleVoice['value'],
+                    'period' => $singleVoice['period']
+                ]);
+            }
+            
             return response()->json([
                 'error' => false,
                 'data' => "Voci mancanti salvate"
