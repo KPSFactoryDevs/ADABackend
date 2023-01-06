@@ -789,7 +789,16 @@ class BilanciCalculationsHelperAdvanced
         return $SaldoDebitiVSFisco;
     }
 
-    public function getLabelsForVoices() {
-        $voci = DB::table('vocis')->get();
+
+    public function getMissingVoicesFromDb()
+    {
+        $elementoFromQuery = MissingVoice::select('voiceFullName', 'period', 'voiceValue')
+            ->where('documentId', $this->documentId)
+            ->get()
+            ->groupBy(['voiceFullName', 'period', 'voiceValue'])
+            ->toArray();
+
+        return $elementoFromQuery;
     }
+
 }
