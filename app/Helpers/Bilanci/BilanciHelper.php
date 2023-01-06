@@ -6,6 +6,7 @@ use App\Http\Requests;
 use App;
 use App\Models\Bilanci;
 use App\Models\Basic;
+use App\Models\Voci;
 use App\Models\Account;
 use App\Models\cr;
 use App\Models\soglie;
@@ -1330,6 +1331,7 @@ public function errorHandler( $error_level, $error_message, $error_file, $error_
     public function getIndexesForBalanceTaxonomy($idBilancio, $filePath, $instance = false) {
 
         $bilancio = Document::findOrFail($idBilancio);
+        $vocis = Voci::pluck('name', 'extended_name')->all();
         $calculationHelper = new BilanciCalculationsHelperAdvanced;
         $calculationHelper->documentId = $idBilancio;
 
@@ -1372,6 +1374,7 @@ public function errorHandler( $error_level, $error_message, $error_file, $error_
                     'ValuesFromDb' => $calculationHelper->getMissingVoicesFromDb()
                 ],
                 'indiceVociMancanti' => $calculationHelper->_missingVoicesArray,
+                'voci' => $vocis
             );
         } else if($taxonomy == "itcc-ci-2018-11-04.xsd") {
             return array(
@@ -1405,6 +1408,7 @@ public function errorHandler( $error_level, $error_message, $error_file, $error_
                     'ValuesFromDb' => $calculationHelper->getMissingVoicesFromDb()
                 ],
                 'indiceVociMancanti' => $calculationHelper->_missingVoicesArray,
+                'voci' => $vocis
              );
         }
 
