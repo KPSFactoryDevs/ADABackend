@@ -1331,12 +1331,12 @@ public function errorHandler( $error_level, $error_message, $error_file, $error_
 
         $bilancio = Document::findOrFail($idBilancio);
         $calculationHelper = new BilanciCalculationsHelperAdvanced;
+        $calculationHelper->documentId = $idBilancio;
+
         if($instance) {
             $calculationHelper->setCurrentInstance($instance);
         } else {
-            // query che recupera path bilancio e funzione che lo legge come viene fatto nel controller
-            $taxonomyName = $this->getInstanceTaxonomyHRef($filePath);
-            $taxonomyPath = base_path()."/taxonomies/2018-11-04/".$taxonomyName;
+            return false;
         }
 
         $taxonomy = $bilancio->taxonomy;
@@ -1347,7 +1347,7 @@ public function errorHandler( $error_level, $error_message, $error_file, $error_
                     'AdeguatezzaPatrimoniale' => $calculationHelper->getAdeguatezzaPatrimoniale(), 
                     'Liqudità' => $calculationHelper->getLiquidita(), 
                     'Andamento Del Fatturato' => $calculationHelper->getAndamentoDelFatturato(),
-                    'Andamento Del Mol' => $calculationHelper->getAndamentoDelMol('Andamento Del Mol')['AndamentoMOL'],
+                    'Andamento Del Mol' => ($calculationHelper->getAndamentoDelMol('Andamento Del Mol')) ? $calculationHelper->getAndamentoDelMol('Andamento Del Mol')['AndamentoMOL'] : false,
                     'ROI' => $calculationHelper->getROI(),
                     'ROS' => $calculationHelper->getROS(),
                     'ROE' => $calculationHelper->getROE(),
@@ -1356,7 +1356,7 @@ public function errorHandler( $error_level, $error_message, $error_file, $error_
                     'Margine Struttura Primario' => $calculationHelper->getMargineStrutturaPrimario(),
                     'Margine Struttura Secondario' => $calculationHelper->getMargineStrutturaSecondario(),
                     'Current Ratio' => $calculationHelper->getCurrentRatio(),
-                    'Attivita Passivita A Breve' => $calculationHelper->getAttivitaPassivitaABreve('Attivita Passivita A Breve')['Attivita_a_breve_Passività_a_Breve_Ordinario'],
+                    'Attivita Passivita A Breve' => ($calculationHelper->getAttivitaPassivitaABreve('Attivita Passivita A Breve')) ? $calculationHelper->getAttivitaPassivitaABreve('Attivita Passivita A Breve')['Attivita_a_breve_Passività_a_Breve_Ordinario'] : false,
                     'Acid Test' => $calculationHelper->getAcidTest(),
                     'Acid Test Ordinario' => $calculationHelper->getAcidTestOrdinario(), 
                     'Autonomia Finanziaria' => $calculationHelper->getAutonomiaFinanziaria(),
@@ -1369,6 +1369,7 @@ public function errorHandler( $error_level, $error_message, $error_file, $error_
                     'Cf Attivo' => $calculationHelper->getCfAttivo(),
                     'Indice Di Indebitamento' => $calculationHelper->getIndiceDiIndebitamento(),
                     'Saldo Debiti Vs Fisco' => $calculationHelper->getSaldoDebitiVsFisco(),
+                    'ValuesFromDb' => $calculationHelper->getMissingVoicesFromDb()
                 ],
                 'indiceVociMancanti' => $calculationHelper->_missingVoicesArray,
             );
@@ -1379,7 +1380,7 @@ public function errorHandler( $error_level, $error_message, $error_file, $error_
                     'AdeguatezzaPatrimoniale' => $calculationHelper->getAdeguatezzaPatrimoniale(), 
                     'Liqudità' => $calculationHelper->getLiquidita(), 
                     'Andamento Del Fatturato' => $calculationHelper->getAndamentoDelFatturato(),
-                    'Andamento Del Mol' => $calculationHelper->getAndamentoDelMol('Andamento Del Mol')['AndamentoMOL'],
+                    'Andamento Del Mol' => ($calculationHelper->getAndamentoDelMol('Andamento Del Mol')) ? $calculationHelper->getAndamentoDelMol('Andamento Del Mol')['AndamentoMOL'] : false,
                     'ROI' => $calculationHelper->getROI(),
                     'ROS' => $calculationHelper->getROS(),
                     'ROE' => $calculationHelper->getROE(),
@@ -1388,7 +1389,7 @@ public function errorHandler( $error_level, $error_message, $error_file, $error_
                     'Margine Struttura Primario' => $calculationHelper->getMargineStrutturaPrimario(),
                     'Margine Struttura Secondario' => $calculationHelper->getMargineStrutturaSecondario(),
                     'Current Ratio' => $calculationHelper->getCurrentRatio(),
-                    'Attivita Passivita A Breve' => $calculationHelper->getAttivitaPassivitaABreve('Attivita Passivita A Breve')['Attivita_a_breve_Passività_a_Breve_Ordinario'],
+                    'Attivita Passivita A Breve' => ($calculationHelper->getAttivitaPassivitaABreve('Attivita Passivita A Breve')) ? $calculationHelper->getAttivitaPassivitaABreve('Attivita Passivita A Breve')['Attivita_a_breve_Passività_a_Breve_Ordinario'] : false,
                     'Acid Test' => $calculationHelper->getAcidTest(),
                     'Acid Test Ordinario' => $calculationHelper->getAcidTestOrdinario(), 
                     'Autonomia Finanziaria' => $calculationHelper->getAutonomiaFinanziaria(),
@@ -1401,6 +1402,7 @@ public function errorHandler( $error_level, $error_message, $error_file, $error_
                     'Cf Attivo' => $calculationHelper->getCfAttivo(),
                     'Indice Di Indebitamento' => $calculationHelper->getIndiceDiIndebitamento(),
                     'Saldo Debiti Vs Fisco' => $calculationHelper->getSaldoDebitiVsFisco(),
+                    'ValuesFromDb' => $calculationHelper->getMissingVoicesFromDb()
                 ],
                 'indiceVociMancanti' => $calculationHelper->_missingVoicesArray,
              );
