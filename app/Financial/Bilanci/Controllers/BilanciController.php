@@ -78,7 +78,6 @@ class BilanciController extends Controller
             $filePath = base_path() . '/public/bilanci/' . $document->filename;
             $taxonomyName = $document->taxonomy;
         } else {
-
             $file = $request->base64;
             $filePath = $file->getPathName();
             $taxonomyName = $bilanciHelper->getInstanceTaxonomyHRef($filePath);
@@ -142,7 +141,7 @@ class BilanciController extends Controller
                 MissingVoice::create([
                     'documentId' => $request->idDocumento,
                     'voiceFullName' => $key,
-                    'voiceLabel' => $voci->name,
+                    'voiceLabel' => ($voci) ? $voci->name : false,
                     'voiceValue' => $singleVoice['value'],
                     'period' => $singleVoice['period']
                 ]);
@@ -159,7 +158,6 @@ class BilanciController extends Controller
             ]);
         }
     }
-
 
 
     public function destroy($idBilancio)
