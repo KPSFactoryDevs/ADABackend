@@ -104,7 +104,6 @@ class BilanciController extends Controller
             if($readXBRL) {
                 $bilancioJSON = $readXBRL->toJSON();
                 $renderHTML = $bilanciHelper->generateHTMLRender($filePath, $taxonomyPath);
-        
 
                 return response()->json([
                     'exception' => false,
@@ -133,24 +132,33 @@ class BilanciController extends Controller
 
     public function missingVoices(Request $request) 
     {
+        $documentId = $request->documentId;
+
+        if (!$documentId)
+            return false;
+
+
         try {
 
-            foreach($request->missingVoices as $key => $singleVoice) {
-                $voci = Voci::where('extended_name', $key)->get()->first();
+            foreach($request->voci as $key => $singleVoice) {
+
 
                 MissingVoice::create([
                     'documentId' => $request->idDocumento,
                     'voiceFullName' => $key,
-                    'voiceLabel' => ($voci) ? $voci->name : false,
+                    'voiceLabel' => false,
                     'voiceValue' => $singleVoice['value'],
                     'period' => $singleVoice['period']
                 ]);
             }
-            
+
+    
+ 
             return response()->json([
                 'error' => false,
                 'data' => "Voci mancanti salvate"
             ]);
+
         } catch(Exception $e) {
             return response()->json([
                 'error' => true,
