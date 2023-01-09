@@ -49,7 +49,7 @@ class BilanciCalculationsHelperAdvanced
                 $this->_missingVoicesArray[$indexName] = array(
                     $period => [],
                 );
-              
+
                 array_push($this->_missingVoicesArray[$indexName][$period], $elementName);
             } else {
                 if (!isset($this->_missingVoicesArray[$indexName][$period])) {
