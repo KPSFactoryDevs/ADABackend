@@ -61,7 +61,7 @@ class AnalisisController extends Controller
     {
         $bilancioHelper = new BilanciHelper;
 
-        $saveDscrData = $bilancioHelper->saveDscrAnalisi($dscrReq->idBilancio, $dscrReq->all());
+        $saveDscrData = $bilancioHelper->saveDscrAnalisi($dscrReq->all());
 
         if($saveDscrData === 'Dati DSCR salvati correttamente') {
             $calcoloDSCR = $bilancioHelper->getCalcoloDSCR($dscrReq->all());
@@ -85,9 +85,9 @@ class AnalisisController extends Controller
     public function getAgenziaEntrateAlert(Request $agenziaEntrateReq)
     {
         $bilancioHelper = new BilanciHelper;
-        $checkAgenziaEntrateData = $bilancioHelper->checkAgenziaEntrateData($agenziaEntrateReq->all());
-       
-        if($checkAgenziaEntrateData === null) {
+        $saveAgenziaEntrate = $bilancioHelper->saveAgenziaEntrate($agenziaEntrateReq->all());
+ 
+       if($saveAgenziaEntrate === 'Dati AgenziaEntrate salvati correttamente') {
             $agenziaEntrate = $bilancioHelper->calculateAgenziaEntrate($agenziaEntrateReq->all());
 
             return response()->json([
@@ -96,16 +96,16 @@ class AnalisisController extends Controller
                 'alert' => $agenziaEntrate['alert']
             ]);
         } else {
-            return $checkAgenziaEntrateData;
+            return $saveAgenziaEntrate;
         }
     }
 
     public function getInpsAlert(Request $inpsReq)
     {
         $bilancioHelper = new BilanciHelper;
-        $checkInpsData = $bilancioHelper->checkInpsData($inpsReq->all());
+        $checkInpsData = $bilancioHelper->saveInps($inpsReq->all());
        
-        if($checkInpsData === null) {
+        if($checkInpsData === 'Dati Inps salvati correttamente') {
             $inps = $bilancioHelper->calcoloINPS($inpsReq->all());
 
             return response()->json([
@@ -121,9 +121,9 @@ class AnalisisController extends Controller
     public function getRetribuzioniAlert(Request $retribuzioniReq)
     {
         $bilancioHelper = new BilanciHelper;
-        $checkRetribuzioniData = $bilancioHelper->checkRetribuzioniData($retribuzioniReq->all());
-       
-        if($checkRetribuzioniData === null) {
+        $checkRetribuzioniData = $bilancioHelper->saveRetribuzione($retribuzioniReq->all());
+
+        if($checkRetribuzioniData === 'Dati retribuzioni salvati correttamente') {
             $retribuzioni = $bilancioHelper->calculateRetribuzione($retribuzioniReq->all());
 
             return response()->json([
@@ -139,9 +139,9 @@ class AnalisisController extends Controller
     public function getFornitoriAlert(Request $fornitoriReq)
     {
         $bilancioHelper = new BilanciHelper;
-        $checkFornitoriData = $bilancioHelper->checkFornitoriData($fornitoriReq->all());
+        $checkFornitoriData = $bilancioHelper->saveFornitori($fornitoriReq->all());
        
-        if($checkFornitoriData === null) {
+        if($checkFornitoriData === 'Dati fornitori salvati correttamente') {
             $fornitori = $bilancioHelper->calculateFornitori($fornitoriReq->all());
 
             return response()->json([
@@ -156,9 +156,9 @@ class AnalisisController extends Controller
     public function getRiscossione(Request $riscossioneReq)
     {
         $bilancioHelper = new BilanciHelper;
-        $checkRiscossioneData = $bilancioHelper->checkRiscossioneData($riscossioneReq->all());
+        $checkRiscossioneData = $bilancioHelper->saveRiscossione($riscossioneReq->all());
        
-        if($checkRiscossioneData === null) { 
+        if($checkRiscossioneData === 'Dati riscossione salvati correttamente') { 
             $riscossione = $bilancioHelper->calculateRiscossione($riscossioneReq->all());
 
             return response()->json([
