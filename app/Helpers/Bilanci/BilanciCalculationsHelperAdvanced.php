@@ -956,4 +956,30 @@ class BilanciCalculationsHelperAdvanced
 
         return $returnData;
     }
+
+    public function getIndiceCNDCECEvaluation() {
+        if($getSostenibilitaOneriFinanziari = $this->getSostenibilitaOneriFinanziari()) {
+            if($getSostenibilitaOneriFinanziari['fuoriSoglia']) return true;
+        }
+        if($getAdeguatezzaPatrimonialeEvaluation = $this->getAdeguatezzaPatrimonialeEvaluation()) {
+            if($getAdeguatezzaPatrimonialeEvaluation['fuoriSoglia']) return true;
+        }
+        if($getLiquiditaEvaluation = $this->getLiquiditaEvaluation()) {
+            if($getLiquiditaEvaluation['fuoriSoglia']) return true;
+        }
+        if($getIndebitamentoPrevidenziale = $this->getIndebitamentoPrevidenziale()) {
+            if($getIndebitamentoPrevidenziale['fuoriSoglia']) return true;
+        }
+        if($getRitornoLiquidoAttivo = $this->getRitornoLiquidoAttivo()) {
+            if($getRitornoLiquidoAttivo['fuoriSoglia']) return true;
+        }
+
+        return false;
+    }
+
+    public function getIndiceCNDCEC() {
+        if($this->getIndiceCNDCECEvaluation()) return "Azienda a Rischio";
+
+        return "Azienda NON a Rischio";
+    }
 }

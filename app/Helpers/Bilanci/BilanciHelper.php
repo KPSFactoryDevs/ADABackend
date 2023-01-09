@@ -1349,6 +1349,7 @@ public function errorHandler( $error_level, $error_message, $error_file, $error_
                         "Liquidità" => $calculationHelper->getLiquiditaEvaluation(),
                         "Indebitamento Previdenziale Tributario" => $calculationHelper->getIndebitamentoPrevidenziale(),
                         "Ritorno Liquido Attivo" => $calculationHelper->getRitornoLiquidoAttivo(),
+                        "IndiceCNDCEC" => $calculationHelper->getIndiceCNDCEC(),
                     ],
                     "Advanced" => [
                         'OF Ricavi' => $calculationHelper->getOfRicavi(),
