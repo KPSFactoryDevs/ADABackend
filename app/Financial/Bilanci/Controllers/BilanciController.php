@@ -144,7 +144,7 @@ class BilanciController extends Controller
 
 
                 MissingVoice::create([
-                    'documentId' => $request->idDocumento,
+                    'documentId' => $documentId,
                     'voiceFullName' => $key,
                     'voiceLabel' => false,
                     'voiceValue' => $singleVoice['value'],
