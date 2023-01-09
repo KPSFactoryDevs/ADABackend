@@ -828,6 +828,9 @@ class BilanciCalculationsHelperAdvanced
         $tipoAzienda = false;
         $of_fatturato = $this->getOfRicavi('SostenibilitaOneriFinanziari');
 
+        if(!$of_fatturato)
+            return false;
+
         $sostenibilitaOneriFinanziari = DB::table('rangesBasic')
           //  ->where('tipo_azienda', '=', $tipoAzienda)
             ->where('indice', '=', 'Sostenibilità Oneri Finanziari')
