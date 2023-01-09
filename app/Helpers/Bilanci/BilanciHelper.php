@@ -1437,7 +1437,7 @@ public function getInstanceTaxonomyHRef( $filename )
         try {
             // return "itcc-ci-abb-2018-11-04.xsd";
             $dom = new \DOMDocument();
-        
+
             $dom->load(html_entity_decode($filename, ENT_COMPAT, "UTF-8"));
 
             $domXPath = new \DOMXPath( $dom );
@@ -1552,8 +1552,9 @@ public function errorHandler( $error_level, $error_message, $error_file, $error_
             return array(
                 "Indici" => [
                     'OF Ricavi' => $calculationHelper->getOfRicavi(),
-                    'AdeguatezzaPatrimoniale' => $calculationHelper->getAdeguatezzaPatrimoniale(), 
-                    'Liqudità' => $calculationHelper->getLiquidita(), 
+                    "Sostenibilità Oneri Finanziari" => $calculationHelper->getSostenibilitaOneriFinanziari(),
+                    'AdeguatezzaPatrimoniale' => $calculationHelper->getAdeguatezzaPatrimoniale(),
+                    'Liqudità' => $calculationHelper->getLiquidita(),
                     'Andamento Del Fatturato' => $calculationHelper->getAndamentoDelFatturato(),
                     'Andamento Del Mol' => ($calculationHelper->getAndamentoDelMol('Andamento Del Mol')) ? $calculationHelper->getAndamentoDelMol('Andamento Del Mol')['AndamentoMOL'] : false,
                     'ROI' => $calculationHelper->getROI(),
@@ -1566,7 +1567,7 @@ public function errorHandler( $error_level, $error_message, $error_file, $error_
                     'Current Ratio' => $calculationHelper->getCurrentRatio(),
                     'Attivita Passivita A Breve' => ($calculationHelper->getAttivitaPassivitaABreve('Attivita Passivita A Breve')) ? $calculationHelper->getAttivitaPassivitaABreve('Attivita Passivita A Breve')['Attivita_a_breve_Passività_a_Breve_Ordinario'] : false,
                     'Acid Test' => $calculationHelper->getAcidTest(),
-                    'Acid Test Ordinario' => $calculationHelper->getAcidTestOrdinario(), 
+                    'Acid Test Ordinario' => $calculationHelper->getAcidTestOrdinario(),
                     'Autonomia Finanziaria' => $calculationHelper->getAutonomiaFinanziaria(),
                     'Livello Investimenti Aziendali' => $calculationHelper->getLivelloInvestimentiAziendali(),
                     'Pfn Ebitda' => $calculationHelper->getPfnEbitda(),
