@@ -2,6 +2,7 @@
 
 namespace App\Helpers\Bilanci;
 
+use Illuminate\Support\Facades\DB;
 use stdClass;
 use App\Models\CustomLog;
 use App\Models\MissingVoice;
@@ -103,10 +104,10 @@ class BilanciCalculationsHelperAdvanced
         return $PN_NEGATIVO;
     }
 
-    public function getOfRicavi()
+    public function getOfRicavi($indexName = "OF Ricavi")
     {
-        $ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari = $this->getElementFromBalance('ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari', 1, 'OF Ricavi');
-        $ValoreProduzioneRicaviVenditePrestazioni = $this->getElementFromBalance('ValoreProduzioneRicaviVenditePrestazioni', 1, 'OF Ricavi');
+        $ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari = $this->getElementFromBalance('ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari', 1, $indexName);
+        $ValoreProduzioneRicaviVenditePrestazioni = $this->getElementFromBalance('ValoreProduzioneRicaviVenditePrestazioni', 1, $indexName);
 
         if (!$ValoreProduzioneRicaviVenditePrestazioni || !$ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari) {
             return false;
@@ -815,5 +816,29 @@ class BilanciCalculationsHelperAdvanced
         CustomLog::addToLogAnalisiBilancioCalculation('BilanciCalculationsHelper', 'GetSaldoDebitiVsFisco', $calculation);
 
         return $SaldoDebitiVSFisco;
+    }
+
+
+    public function getSostenibilitaOneriFinanziari() {
+
+        $returnData = array(
+            'fuoriSoglia' => true,
+            'value' => false
+        );
+        $tipoAzienda = false;
+        $of_fatturato = $this->getOfRicavi('SostenibilitaOneriFinanziari');
+
+        $sostenibilitaOneriFinanziari = DB::table('rangesBasic')
+          //  ->where('tipo_azienda', '=', $tipoAzienda)
+            ->where('indice', '=', 'Sostenibilità Oneri Finanziari')
+            ->where('soglia', '>', $of_fatturato)
+            ->count();
+
+        if($sostenibilitaOneriFinanziari) {
+            $returnData['fuoriSoglia'] = false;
+            $returnData['value'] = $of_fatturato;
+        }
+
+        return $returnData;
     }
 }
