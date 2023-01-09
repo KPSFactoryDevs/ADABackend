@@ -1164,10 +1164,8 @@ class BilanciHelper
                 "<html>\n" .
                 "	<head>\n" .
                 "		<title>XBRL Rendered Views Index</title>\n" .
-                "		<link rel='stylesheet' id='bootstrap_style-css' href='https://www.xbrlquery.com/wp-content/themes/zerif-pro/css/bootstrap.min.css?ver=4.9.10' type='text/css' media='all'>\n" .
-                "		<link rel='stylesheet' id='font-awesome_style-css' href='https://www.xbrlquery.com/wp-content/themes/zerif-pro/assets/css/font-awesome.min.css?ver=v1' type='text/css' media='all'>\n" .
-                "		<link href='https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css' rel='stylesheet' integrity='sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T' crossorigin='anonymous'>\n" .
-                "		<link rel='stylesheet' id='render-report-css' href='https://piratebuy.it/xbrl-render-report.css'>\n" .
+               "		<link rel='stylesheet' id='font-awesome_style-css' href='https://www.xbrlquery.com/wp-content/themes/zerif-pro/assets/css/font-awesome.min.css?ver=v1' type='text/css' media='all'>\n" .
+              "		<link rel='stylesheet' id='render-report-css' href='https://piratebuy.it/xbrl-render-report.css'>\n" .
                 "		<script src='https://kit.fontawesome.com/d5b3603aa0.js'></script>\n" .
                 "		<script type='text/javascript' src='https://code.jquery.com/jquery-1.12.4.min.js'></script>\n" .
 
