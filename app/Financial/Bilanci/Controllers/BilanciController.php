@@ -142,13 +142,12 @@ class BilanciController extends Controller
 
             foreach($request->voci as $key => $singleVoice) {
 
-
                 MissingVoice::create([
                     'documentId' => $documentId,
-                    'voiceFullName' => $key,
+                    'voiceFullName' => explode('_', $key)[0],
                     'voiceLabel' => false,
-                    'voiceValue' => $singleVoice['value'],
-                    'period' => $singleVoice['period']
+                    'voiceValue' => $singleVoice,
+                    'period' => explode('_', $key)[1]
                 ]);
             }
 
