@@ -1341,8 +1341,6 @@ public function errorHandler( $error_level, $error_message, $error_file, $error_
             return false;
         }
 
-        $taxonomy = $bilancio->taxonomy;
-        if($taxonomy == "itcc-ci-abb-2018-11-04.xsd") {
             return array(
                 "Indici" => [
                     'OF Ricavi' => $calculationHelper->getOfRicavi(),
@@ -1376,42 +1374,6 @@ public function errorHandler( $error_level, $error_message, $error_file, $error_
                 'indiceVociMancanti' => $calculationHelper->_missingVoicesArray,
                 'voci' => $vocis
             );
-        } else if($taxonomy == "itcc-ci-2018-11-04.xsd") {
-            return array(
-                "Indici" => [
-                    'OF Ricavi' => $calculationHelper->getOfRicavi(),
-                    'AdeguatezzaPatrimoniale' => $calculationHelper->getAdeguatezzaPatrimoniale(), 
-                    'Liqudità' => $calculationHelper->getLiquidita(), 
-                    'Andamento Del Fatturato' => $calculationHelper->getAndamentoDelFatturato(),
-                    'Andamento Del Mol' => ($calculationHelper->getAndamentoDelMol('Andamento Del Mol')) ? $calculationHelper->getAndamentoDelMol('Andamento Del Mol')['AndamentoMOL'] : false,
-                    'ROI' => $calculationHelper->getROI(),
-                    'ROS' => $calculationHelper->getROS(),
-                    'ROE' => $calculationHelper->getROE(),
-                    'Ebitda Fatturato' => $calculationHelper->getEbitdaFatturato(),
-                    'Andamento Dei Mezzi Propri' => $calculationHelper->getAndamentoDeiMezziPropri(),
-                    'Margine Struttura Primario' => $calculationHelper->getMargineStrutturaPrimario(),
-                    'Margine Struttura Secondario' => $calculationHelper->getMargineStrutturaSecondario(),
-                    'Current Ratio' => $calculationHelper->getCurrentRatio(),
-                    'Attivita Passivita A Breve' => ($calculationHelper->getAttivitaPassivitaABreve('Attivita Passivita A Breve')) ? $calculationHelper->getAttivitaPassivitaABreve('Attivita Passivita A Breve')['Attivita_a_breve_Passività_a_Breve_Ordinario'] : false,
-                    'Acid Test' => $calculationHelper->getAcidTest(),
-                    'Acid Test Ordinario' => $calculationHelper->getAcidTestOrdinario(), 
-                    'Autonomia Finanziaria' => $calculationHelper->getAutonomiaFinanziaria(),
-                    'Livello Investimenti Aziendali' => $calculationHelper->getLivelloInvestimentiAziendali(),
-                    'Pfn Ebitda' => $calculationHelper->getPfnEbitda(),
-                    'Peso Oneri Finanziari' => $calculationHelper->getPesoOneriFinanziari(),
-                    'Copertura Lorda Degli Oneri Finanziari' => $calculationHelper->getCoperturaLordaDegliOneriFinanziari(),
-                    'Ebit Of' => $calculationHelper->getEbitOf(),
-                    'Costo Del Personale' => $calculationHelper->getCostoDelPersonale(),
-                    'Cf Attivo' => $calculationHelper->getCfAttivo(),
-                    'Indice Di Indebitamento' => $calculationHelper->getIndiceDiIndebitamento(),
-                    'Saldo Debiti Vs Fisco' => $calculationHelper->getSaldoDebitiVsFisco(),
-                    'ValuesFromDb' => $calculationHelper->getMissingVoicesFromDb()
-                ],
-                'indiceVociMancanti' => $calculationHelper->_missingVoicesArray,
-                'voci' => $vocis
-             );
-        }
-
     }
 
     public function readXBRLInstance() {
