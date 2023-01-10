@@ -1500,10 +1500,8 @@ class BilanciHelper
                 "<html>\n" .
                 "	<head>\n" .
                 "		<title>XBRL Rendered Views Index</title>\n" .
-                "		<link rel='stylesheet' id='bootstrap_style-css' href='https://www.xbrlquery.com/wp-content/themes/zerif-pro/css/bootstrap.min.css?ver=4.9.10' type='text/css' media='all'>\n" .
-                "		<link rel='stylesheet' id='font-awesome_style-css' href='https://www.xbrlquery.com/wp-content/themes/zerif-pro/assets/css/font-awesome.min.css?ver=v1' type='text/css' media='all'>\n" .
-                "		<link href='https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css' rel='stylesheet' integrity='sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T' crossorigin='anonymous'>\n" .
-                "		<link rel='stylesheet' id='render-report-css' href='https://piratebuy.it/xbrl-render-report.css'>\n" .
+               "		<link rel='stylesheet' id='font-awesome_style-css' href='https://www.xbrlquery.com/wp-content/themes/zerif-pro/assets/css/font-awesome.min.css?ver=v1' type='text/css' media='all'>\n" .
+              "		<link rel='stylesheet' id='render-report-css' href='https://piratebuy.it/xbrl-render-report.css'>\n" .
                 "		<script src='https://kit.fontawesome.com/d5b3603aa0.js'></script>\n" .
                 "		<script type='text/javascript' src='https://code.jquery.com/jquery-1.12.4.min.js'></script>\n" .
 
@@ -1679,37 +1677,46 @@ public function errorHandler( $error_level, $error_message, $error_file, $error_
 
             return array(
                 "Indici" => [
-                    'OF Ricavi' => $calculationHelper->getOfRicavi(),
-                    'Sostenibilità Oneri Finanziari' => $calculationHelper->getSostenibilitaOneriFinanziari(),
-                    'AdeguatezzaPatrimoniale' => $calculationHelper->getAdeguatezzaPatrimoniale(),
-                    'Liqudità' => $calculationHelper->getLiquidita(),
-                    'Andamento Del Fatturato' => $calculationHelper->getAndamentoDelFatturato(),
-                    'Andamento Del Mol' => ($calculationHelper->getAndamentoDelMol('Andamento Del Mol')) ? $calculationHelper->getAndamentoDelMol('Andamento Del Mol')['AndamentoMOL'] : false,
-                    'ROI' => $calculationHelper->getROI(),
-                    'ROS' => $calculationHelper->getROS(),
-                    'ROE' => $calculationHelper->getROE(),
-                    'Ebitda Fatturato' => $calculationHelper->getEbitdaFatturato(),
-                    'Andamento Dei Mezzi Propri' => $calculationHelper->getAndamentoDeiMezziPropri(),
-                    'Margine Struttura Primario' => $calculationHelper->getMargineStrutturaPrimario(),
-                    'Margine Struttura Secondario' => $calculationHelper->getMargineStrutturaSecondario(),
-                    'Current Ratio' => $calculationHelper->getCurrentRatio(),
-                    'Attivita Passivita A Breve' => ($calculationHelper->getAttivitaPassivitaABreve('Attivita Passivita A Breve')) ? $calculationHelper->getAttivitaPassivitaABreve('Attivita Passivita A Breve')['Attivita_a_breve_Passività_a_Breve_Ordinario'] : false,
-                    'Acid Test' => $calculationHelper->getAcidTest(),
-                    'Acid Test Ordinario' => $calculationHelper->getAcidTestOrdinario(),
-                    'Autonomia Finanziaria' => $calculationHelper->getAutonomiaFinanziaria(),
-                    'Livello Investimenti Aziendali' => $calculationHelper->getLivelloInvestimentiAziendali(),
-                    'Pfn Ebitda' => $calculationHelper->getPfnEbitda(),
-                    'Peso Oneri Finanziari' => $calculationHelper->getPesoOneriFinanziari(),
-                    'Copertura Lorda Degli Oneri Finanziari' => $calculationHelper->getCoperturaLordaDegliOneriFinanziari(),
-                    'Ebit Of' => $calculationHelper->getEbitOf(),
-                    'Costo Del Personale' => $calculationHelper->getCostoDelPersonale(),
-                    'Cf Attivo' => $calculationHelper->getCfAttivo(),
-                    'Indice Di Indebitamento' => $calculationHelper->getIndiceDiIndebitamento(),
-                    'Saldo Debiti Vs Fisco' => $calculationHelper->getSaldoDebitiVsFisco(),
-                    'ValuesFromDb' => $calculationHelper->getMissingVoicesFromDb()
+                    "Basic" => [
+                        "Sostenibilità Oneri Finanziari" => $calculationHelper->getSostenibilitaOneriFinanziari(),
+                        "Adeguatezza Patrimoniale" => $calculationHelper->getAdeguatezzaPatrimonialeEvaluation(),
+                        "Liquidità" => $calculationHelper->getLiquiditaEvaluation(),
+                        "Indebitamento Previdenziale Tributario" => $calculationHelper->getIndebitamentoPrevidenziale(),
+                        "Ritorno Liquido Attivo" => $calculationHelper->getRitornoLiquidoAttivo(),
+                        "IndiceCNDCEC" => $calculationHelper->getIndiceCNDCEC(),
+                    ],
+                    "Advanced" => [
+                        'OF Ricavi' => $calculationHelper->getOfRicavi(),
+                        'Adeguatezza Patrimoniale' => $calculationHelper->getAdeguatezzaPatrimoniale(),
+                        'Liqudità' => $calculationHelper->getLiquidita(),
+                        'Andamento Del Fatturato' => $calculationHelper->getAndamentoDelFatturato(),
+                        'Andamento Del Mol' => ($calculationHelper->getAndamentoDelMol('Andamento Del Mol')) ? $calculationHelper->getAndamentoDelMol('Andamento Del Mol')['AndamentoMOL'] : false,
+                        'ROI' => $calculationHelper->getROI(),
+                        'ROS' => $calculationHelper->getROS(),
+                        'ROE' => $calculationHelper->getROE(),
+                        'Ebitda Fatturato' => $calculationHelper->getEbitdaFatturato(),
+                        'Andamento Dei Mezzi Propri' => $calculationHelper->getAndamentoDeiMezziPropri(),
+                        'Margine Struttura Primario' => $calculationHelper->getMargineStrutturaPrimario(),
+                        'Margine Struttura Secondario' => $calculationHelper->getMargineStrutturaSecondario(),
+                        'Current Ratio' => $calculationHelper->getCurrentRatio(),
+                        'Attivita Passivita A Breve' => ($calculationHelper->getAttivitaPassivitaABreve('Attivita Passivita A Breve')) ? $calculationHelper->getAttivitaPassivitaABreve('Attivita Passivita A Breve')['Attivita_a_breve_Passività_a_Breve_Ordinario'] : false,
+                        'Acid Test' => $calculationHelper->getAcidTest(),
+                        'Acid Test Ordinario' => $calculationHelper->getAcidTestOrdinario(),
+                        'Autonomia Finanziaria' => $calculationHelper->getAutonomiaFinanziaria(),
+                        'Livello Investimenti Aziendali' => $calculationHelper->getLivelloInvestimentiAziendali(),
+                        'Pfn Ebitda' => $calculationHelper->getPfnEbitda(),
+                        'Peso Oneri Finanziari' => $calculationHelper->getPesoOneriFinanziari(),
+                        'Copertura Lorda Degli Oneri Finanziari' => $calculationHelper->getCoperturaLordaDegliOneriFinanziari(),
+                        'Ebit Of' => $calculationHelper->getEbitOf(),
+                        'Costo Del Personale' => $calculationHelper->getCostoDelPersonale(),
+                        'Cf Attivo' => $calculationHelper->getCfAttivo(),
+                        'Indice Di Indebitamento' => $calculationHelper->getIndiceDiIndebitamento(),
+                        'Saldo Debiti Vs Fisco' => $calculationHelper->getSaldoDebitiVsFisco(),
+                    ]
                 ],
+                'ValuesFromDb' => $calculationHelper->getMissingVoicesFromDb(),
                 'indiceVociMancanti' => $calculationHelper->_missingVoicesArray,
-                'voci' => $vocis
+                'labels' => $vocis
             );
     }
 

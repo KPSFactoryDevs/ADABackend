@@ -133,11 +133,11 @@ class BilanciCalculationsHelperAdvanced
         return $TotaleDebiti;
     }
 
-    public function getAdeguatezzaPatrimoniale()
+    public function getAdeguatezzaPatrimoniale($indexName = "Adeguatezza Patrimoniale")
     {
-        $PN_NEGATIVO = $this->getPatrimonioNettoNegativo('Adeguatezza Patrimoniale');
-        $TotaleDebiti = $this->getTotaleDebiti('Adeguatezza Patrimoniale');
-        $PassivoRateiRisconti = $this->getElementFromBalance('PassivoRateiRisconti', 1, 'Adeguatezza Patrimoniale');
+        $PN_NEGATIVO = $this->getPatrimonioNettoNegativo($indexName);
+        $TotaleDebiti = $this->getTotaleDebiti($indexName);
+        $PassivoRateiRisconti = $this->getElementFromBalance('PassivoRateiRisconti', 1, $indexName);
 
         if (!$PN_NEGATIVO || !$TotaleDebiti || !$PassivoRateiRisconti) {
             return false;
@@ -818,30 +818,168 @@ class BilanciCalculationsHelperAdvanced
         return $SaldoDebitiVSFisco;
     }
 
+    public function getTipoAzienda() {
+            return "FORN. ACQUA E RETI FOGNARIE RIFIUTI, TRASM. ENERGIA/GAS";
+    }
 
     public function getSostenibilitaOneriFinanziari() {
 
         $returnData = array(
-            'fuoriSoglia' => true,
+            'fuoriSoglia' => false,
             'value' => false
         );
-        $tipoAzienda = false;
+        $tipoAzienda =  $this->getTipoAzienda();
         $of_fatturato = $this->getOfRicavi('SostenibilitaOneriFinanziari');
 
         if(!$of_fatturato)
             return false;
 
+        $returnData['value'] = $of_fatturato;
+
         $sostenibilitaOneriFinanziari = DB::table('rangesBasic')
-          //  ->where('tipo_azienda', '=', $tipoAzienda)
+            ->where('tipo_azienda', '=', $tipoAzienda)
             ->where('indice', '=', 'Sostenibilità Oneri Finanziari')
             ->where('soglia', '>', $of_fatturato)
             ->count();
 
         if($sostenibilitaOneriFinanziari) {
-            $returnData['fuoriSoglia'] = false;
-            $returnData['value'] = $of_fatturato;
+            $returnData['fuoriSoglia'] = true;
         }
 
         return $returnData;
+    }
+
+    public function getAdeguatezzaPatrimonialeEvaluation() {
+
+        $returnData = array(
+            'fuoriSoglia' => false,
+            'value' => false
+        );
+        $tipoAzienda =  $this->getTipoAzienda();
+        $adeguatezza_patrimoniale = $this->getAdeguatezzaPatrimoniale('AdeguatezzaPatrimoniale');
+
+        if(!$adeguatezza_patrimoniale)
+            return false;
+
+        $returnData['value'] = $adeguatezza_patrimoniale;
+
+        $evaluation = DB::table('rangesBasic')
+            ->where('tipo_azienda', '=', $tipoAzienda)
+            ->where('indice', '=', 'Adeguatezza Patrimoniale')
+            ->where('soglia', '>', $adeguatezza_patrimoniale)
+            ->count();
+
+        if($evaluation) {
+            $returnData['fuoriSoglia'] = true;
+        }
+
+        return $returnData;
+    }
+
+    public function getLiquiditaEvaluation() {
+
+        $returnData = array(
+            'fuoriSoglia' => false,
+            'value' => false
+        );
+        $tipoAzienda =  $this->getTipoAzienda();
+        $liquidita = $this->getLiquidita();
+
+        if(!$liquidita)
+            return false;
+
+        $returnData['value'] = $liquidita;
+
+        $evaluation = DB::table('rangesBasic')
+            ->where('tipo_azienda', '=', $tipoAzienda)
+            ->where('indice', '=', 'Liquidità')
+            ->where('soglia', '>', $liquidita)
+            ->count();
+
+        if($evaluation) {
+            $returnData['fuoriSoglia'] = true;
+        }
+
+        return $returnData;
+    }
+
+    public function getIndebitamentoPrevidenziale() {
+
+        $returnData = array(
+            'fuoriSoglia' => false,
+            'value' => false
+        );
+        $tipoAzienda =  $this->getTipoAzienda();
+        $indebitamentoTributario = $this->getIndebitamentoPrevidenzialeTributario();
+
+        if(!$indebitamentoTributario)
+            return false;
+
+        $returnData['value'] = $indebitamentoTributario;
+
+        $evaluation = DB::table('rangesBasic')
+            ->where('tipo_azienda', '=', $tipoAzienda)
+            ->where('indice', '=', 'Liquidità')
+            ->where('soglia', '>', $indebitamentoTributario)
+            ->count();
+
+        if($evaluation) {
+            $returnData['fuoriSoglia'] = true;
+        }
+
+        return $returnData;
+    }
+
+    public function getRitornoLiquidoAttivo() {
+
+        $returnData = array(
+            'fuoriSoglia' => false,
+            'value' => false
+        );
+        $tipoAzienda =  $this->getTipoAzienda();
+        $currentRatio = $this->getCurrentRatio();
+
+        if(!$currentRatio)
+            return false;
+
+        $returnData['value'] = $currentRatio;
+
+        $evaluation = DB::table('rangesBasic')
+            ->where('tipo_azienda', '=', $tipoAzienda)
+            ->where('indice', '=', 'Ritorno Liquido Attivo')
+            ->where('soglia', '>', $currentRatio)
+            ->count();
+
+        if($evaluation) {
+            $returnData['fuoriSoglia'] = true;
+        }
+
+        return $returnData;
+    }
+
+    public function getIndiceCNDCECEvaluation() {
+        if($getSostenibilitaOneriFinanziari = $this->getSostenibilitaOneriFinanziari()) {
+            if($getSostenibilitaOneriFinanziari['fuoriSoglia']) return true;
+        }
+        if($getAdeguatezzaPatrimonialeEvaluation = $this->getAdeguatezzaPatrimonialeEvaluation()) {
+            if($getAdeguatezzaPatrimonialeEvaluation['fuoriSoglia']) return true;
+        }
+        if($getLiquiditaEvaluation = $this->getLiquiditaEvaluation()) {
+            if($getLiquiditaEvaluation['fuoriSoglia']) return true;
+        }
+        if($getIndebitamentoPrevidenziale = $this->getIndebitamentoPrevidenziale()) {
+            if($getIndebitamentoPrevidenziale['fuoriSoglia']) return true;
+        }
+        if($getRitornoLiquidoAttivo = $this->getRitornoLiquidoAttivo()) {
+            if($getRitornoLiquidoAttivo['fuoriSoglia']) return true;
+        }
+
+        return false;
+    }
+
+    public function getIndiceCNDCEC() {
+        if($this->getIndiceCNDCECEvaluation()) return "Azienda a Rischio";
+
+        return "Azienda NON a Rischio";
     }
 }
