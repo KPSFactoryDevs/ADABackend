@@ -6,6 +6,12 @@ use App\Http\Requests;
 use App;
 use App\Models\Bilanci;
 use App\Models\Basic;
+use App\Models\AnalisiDscr;
+use App\Models\AnalisiAgenziaEntrate;
+use App\Models\AnalisiInps;
+use App\Models\AnalisiRetribuzioni;
+use App\Models\AnalisiFornitori;
+use App\Models\AnalisiRiscossione;
 use App\Models\Voci;
 use App\Models\Account;
 use App\Models\cr;
@@ -775,6 +781,79 @@ class BilanciHelper
         return $cleanArray;
     }
 
+    public function checkDSCRData($dscrData)
+    {
+        $response = null;
+        if (!isset($dscrData['DSCRDate'])) {
+            $response = [
+                'error' => true,
+                'message' => "DSCRDate mancante"
+            ];
+        } elseif(!isset($dscrData["DSCRdispLiquida"])) {
+            $response = [
+                'error' => true,
+                'message' => "DSCRdispLiquida mancante"
+            ];
+        } elseif(!isset($dscrData["rimborsoDSCRmese1"])) {
+            $response = [
+                'error' => true,
+                'message' => "rimborsoDSCRmese1 mancante"
+            ];
+        } elseif($dscrData["rimborsoDSCRmese1"] == 0) {
+            $response = [
+                'error' => true,
+                'message' => "rimborsoDSCRmese1 è settato a 0, risultato non calcolabile"
+            ];
+        } elseif(!isset($dscrData["uscitaDSCRCFmese6"])) {
+            $response = [
+                'error' => true,
+                'message' => "uscitaDSCRCFmese6 mancante"
+            ];
+        } elseif($dscrData["uscitaDSCRCFmese6"] == 0) {
+            $response = [
+                'error' => true,
+                'message' => "uscitaDSCRCFmese6 è settato a 0, risultato non calcolabile"
+            ];
+        } elseif(!isset($dscrData["uscitaDSCRCFmese6"]) && !isset($dscrData["rimborsoDSCRmese1"])) {
+            $response = [
+                'error' => true,
+                'message' => "uscitaDSCRCFmese6 e rimborsoDSCRmese1 mancanti"
+            ];
+        } elseif($dscrData["uscitaDSCRCFmese6"] == 0 && $dscrData["rimborsoDSCRmese1"] == 0) {
+            $response = [
+                'error' => true,
+                'message' => "uscitaDSCRCFmese6 e rimborsoDSCRmese1 sono settati a 0, risultato non calcolabile"
+            ];
+        } else {
+            $response = $dscrData;
+        }
+
+        return $response;
+    }
+
+    public function saveDscrAnalisi($dscrData)
+    {
+        $cleanData = $this->checkDSCRData($dscrData);
+
+        if (!isset($cleanData['error'])) {
+            $calcoloDSCR = $this->getCalcoloDSCR($dscrData);
+
+            if ($calcoloDSCR > 1) {
+                $cleanData['alertDSCR'] = 'Azienda non a rischio';
+            } else {
+                $cleanData['alertDSCR'] = 'Azienda a rischio';
+            }
+
+            $cleanData['resultDSCR'] = $calcoloDSCR;
+
+            AnalisiDscr::create($cleanData);
+
+            return "Dati DSCR salvati correttamente";
+        } else {
+            return $cleanData;
+        }
+    }
+
     private function calculateDSCR($inboundData)
     {
 
@@ -832,6 +911,76 @@ class BilanciHelper
 
 
         return $this->calculateDSCR($dscrData);
+    }
+
+    public function checkAgenziaEntrateData($agenziaEntrateData)
+    {
+        $response = null;
+        if (!isset($agenziaEntrateData["agenziaEntrate1"])) {
+            $response = [
+                'error' => true,
+                'message' => "agenziaEntrate1 mancante"
+            ];
+        } elseif ($agenziaEntrateData["agenziaEntrate1"] == 0) {
+            $response = [
+                'error' => true,
+                'message' => "agenziaEntrate1 è settato a 0, risultato non calcolabile"
+            ];
+        } elseif (!isset($agenziaEntrateData["agenziaEntrate2"])) {
+            $response = [
+                'error' => true,
+                'message' => "agenziaEntrate2 mancante"
+            ];
+        } elseif ($agenziaEntrateData["agenziaEntrate2"] == 0) {
+            $response = [
+                'error' => true,
+                'message' => "agenziaEntrate2 è settato a 0, risultato non calcolabile"
+            ];
+        } elseif (!isset($agenziaEntrateData["agenziaEntrate3"])) {
+            $response = [
+                'error' => true,
+                'message' => "agenziaEntrate3 mancante"
+            ];
+        } elseif ($agenziaEntrateData["agenziaEntrate3"] == 0) {
+            $response = [
+                'error' => true,
+                'message' => "agenziaEntrate3 è settato a 0, risultato non calcolabile"
+            ];
+        } elseif (!isset($agenziaEntrateData["agenziaEntrate1"]) && !isset($agenziaEntrateData["agenziaEntrate2"])) {
+            $response = [
+                'error' => true,
+                'message' => "agenziaEntrate1 e agenziaEntrate2 mancanti"
+            ];
+        } else {
+            $response = $agenziaEntrateData;
+        }
+
+        return $response;
+    }
+
+    public function saveAgenziaEntrate($agenziaEntrateData)
+    {
+        $checkAgenziaEntrateData = $this->checkAgenziaEntrateData($agenziaEntrateData);
+
+        if (!isset($checkAgenziaEntrateData['error'])) {
+            $dataFloat = [
+                'document_id' => $checkAgenziaEntrateData['document_id'],
+                'agenziaEntrate1' => (float)$checkAgenziaEntrateData['agenziaEntrate1'],
+                'agenziaEntrate2' => (float)$checkAgenziaEntrateData['agenziaEntrate2'],
+                'agenziaEntrate3' => (float)$checkAgenziaEntrateData['agenziaEntrate3'],
+            ];
+
+            $calcoloAgenziaEntrate = $this->calculateAgenziaEntrate($dataFloat);
+
+            $dataFloat['alertAgenziaEntrate'] = $calcoloAgenziaEntrate['alert'];
+            $dataFloat['agenziaEntrate4'] = (float)$calcoloAgenziaEntrate['agenziaEntrate4']['agenziaEntrate4'];
+
+            AnalisiAgenziaEntrate::create($dataFloat);
+
+            return "Dati AgenziaEntrate salvati correttamente";
+        } else {
+            return $checkAgenziaEntrateData;
+        }
     }
 
     public function calculateAgenziaEntrate($allData)
@@ -921,6 +1070,54 @@ class BilanciHelper
         ];
     }
 
+    public function checkInpsData($inpsData)
+    {
+        $response = null;
+        if (!isset($inpsData["INPS1"])) {
+            $response = [
+                'error' => true,
+                'message' => "INPS1 mancante"
+            ];
+        } elseif ($inpsData["INPS1"] == 0) {
+            $response = [
+                'error' => true,
+                'message' => "INPS1 è settato a 0, risultato non calcolabile"
+            ];
+        } elseif (!isset($inpsData["INPS2"])) {
+            $response = [
+                'error' => true,
+                'message' => "INPS2 mancante"
+            ];
+        } elseif ($inpsData["INPS2"] == 0) {
+            $response = [
+                'error' => true,
+                'message' => "INPS2 è settato a 0, risultato non calcolabile"
+            ];
+        } else {
+            $response = $inpsData;
+        }
+
+        return $response;
+    }
+
+    public function saveInps($dataInps) {
+        $checkInpsData = $this->checkInpsData($dataInps);
+
+        if (!isset($checkInpsData['error'])) {
+
+            $calcoloInps = $this->calcoloINPS($checkInpsData);
+
+            $checkInpsData['INPS3'] = $calcoloInps['inps3'];
+            $checkInpsData['alertINPS'] = $calcoloInps['alert'];
+
+            AnalisiInps::create($checkInpsData);
+
+            return "Dati Inps salvati correttamente";
+        } else {
+            return $checkInpsData;
+        }
+    }
+
     public function calcoloINPS($allData)
     {
         if (empty($allData['INPS1']) || $allData['INPS1'] == 0 || empty($allData['INPS2']) || $allData['INPS2'] == 0) {
@@ -953,13 +1150,56 @@ class BilanciHelper
         return $data;
     }
 
-    public function calculateRiscossione($allData)
+    public function checkRiscossioneData($riscossioneData)
     {
-        if(str_contains($allData['idBilancio'], '"')) {
-            $allData['idBilancio'] = str_replace('"', '', $allData['idBilancio']);
+        $response = null;
+
+        if (!isset($riscossioneData["document_id"])) {
+            $response = [
+                'error' => true,
+                'message' => "document_id mancante"
+            ];
+        } elseif (!isset($riscossioneData["riscossione"])) {
+            $response = [
+                'error' => true,
+                'message' => "riscossione mancante"
+            ];
+        } elseif ($riscossioneData["riscossione"] == 0) {
+            $response = [
+                'error' => true,
+                'message' => "riscossione è settato a 0, risultato non calcolabile"
+            ];
+        } else {
+            $response = $riscossioneData;
         }
 
-        $balance = Bilanci::findOrFail($allData['idBilancio']);
+        return $response;
+    }
+
+    public function saveRiscossione($dataRiscossione)
+    {
+        $checkRiscossioneData = $this->checkRiscossioneData($dataRiscossione);
+
+        if (!isset($checkRiscossioneData['error'])) {
+            $calcoloRiscossione = $this->calculateRiscossione($checkRiscossioneData);
+
+            $checkRiscossioneData['alertRiscossione'] = $calcoloRiscossione; 
+
+            AnalisiRiscossione::create($checkRiscossioneData);
+
+            return "Dati riscossione salvati correttamente";
+        } else {
+            return $checkRiscossioneData;
+        }
+    }
+
+    public function calculateRiscossione($allData)
+    {
+        if(str_contains($allData['document_id'], '"')) {
+            $allData['document_id'] = str_replace('"', '', $allData['document_id']);
+        }
+
+        $balance = Bilanci::findOrFail($allData['document_id']);
 
         $formaGiuridica = $balance->forma_giuridica;
 
@@ -984,6 +1224,55 @@ class BilanciHelper
         }
 
         return $alert;
+    }
+
+    public function checkRetribuzioniData($retribuzioniData)
+    {
+        $response = null;
+        if (!isset($retribuzioniData["retribuzioni1"])) {
+            $response = [
+                'error' => true,
+                'message' => "retribuzioni1 mancante"
+            ];
+        } elseif ($retribuzioniData["retribuzioni1"] == 0) {
+            $response = [
+                'error' => true,
+                'message' => "retribuzioni1 è settato a 0, risultato non calcolabile"
+            ];
+        } elseif (!isset($retribuzioniData["retribuzioni2"])) {
+            $response = [
+                'error' => true,
+                'message' => "retribuzioni2 mancante"
+            ];
+        } elseif ($retribuzioniData["retribuzioni2"] == 0) {
+            $response = [
+                'error' => true,
+                'message' => "retribuzioni2 è settato a 0, risultato non calcolabile"
+            ];
+        } else {
+            $response = $retribuzioniData;
+        }
+
+        return $response;
+    }
+
+    public function saveRetribuzione($dataRetribuzione) 
+    {
+        $checkRetribuzioniData = $this->checkRetribuzioniData($dataRetribuzione);
+
+        if (!isset($checkRetribuzioniData['error'])) {
+            $calcoloRetribuzioni = $this->calculateRetribuzione($checkRetribuzioniData);            
+
+            $checkRetribuzioniData['retribuzioni3'] = $calcoloRetribuzioni['retribuzioni3'];
+            $checkRetribuzioniData['alertRetribuzioni'] = $calcoloRetribuzioni['alert']; 
+
+            AnalisiRetribuzioni::create($checkRetribuzioniData);
+
+            return "Dati retribuzioni salvati correttamente";
+        } else {
+            return $checkRetribuzioniData;
+        }
+
     }
 
     public function calculateRetribuzione($allData)
@@ -1027,6 +1316,53 @@ class BilanciHelper
         ];
 
         return $data;
+    }
+
+    public function checkFornitoriData($fornitoriData)
+    {
+        $response = null;
+        if (!isset($fornitoriData["fornitori1"])) {
+            $response = [
+                'error' => true,
+                'message' => "fornitori1 mancante"
+            ];
+        } elseif ($fornitoriData["fornitori1"] == 0) {
+            $response = [
+                'error' => true,
+                'message' => "fornitori1 è settato a 0, alert non calcolabile"
+            ];
+        } elseif (!isset($fornitoriData["fornitori2"])) {
+            $response = [
+                'error' => true,
+                'message' => "fornitori2 mancante"
+            ];
+        } elseif ($fornitoriData["fornitori2"] == 0) {
+            $response = [
+                'error' => true,
+                'message' => "fornitori2 è settato a 0, alert non calcolabile"
+            ];
+        } else {
+            $response = $fornitoriData;
+        }
+
+        return $response;
+    }
+
+    public function saveFornitori($dataFornitori)
+    {
+        $checkFornitoriData = $this->checkFornitoriData($dataFornitori);
+   
+        if (!isset($checkFornitoriData['error'])) {
+            $calcoloFornitori = $this->calculateFornitori($checkFornitoriData);
+
+            $checkFornitoriData['alertFornitori'] = $calcoloFornitori;
+
+            AnalisiFornitori::create($checkFornitoriData);
+
+            return "Dati fornitori salvati correttamente";
+        } else {
+            return $checkFornitoriData;
+        }
     }
 
     public function calculateFornitori($allData)

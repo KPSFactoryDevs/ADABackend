@@ -39,7 +39,12 @@ Route::group(['middleware' => ['cors', 'json.response']], function () {
     Route::delete('/bilancio/{idBilancio}', 'App\Financial\Bilanci\Controllers\BilanciController@destroy');
 
     Route::post('/missingVoices', 'App\Financial\Bilanci\Controllers\BilanciController@missingVoices');
-
+    Route::post('/getDSCRAnalisi', 'App\Http\Controllers\AnalisisController@getDSCRAnalisi');
+    Route::post('/getAgenziaEntrateAlert', 'App\Http\Controllers\AnalisisController@getAgenziaEntrateAlert');
+    Route::post('/getInpsAlert', 'App\Http\Controllers\AnalisisController@getInpsAlert');
+    Route::post('/getRetribuzioniAlert', 'App\Http\Controllers\AnalisisController@getRetribuzioniAlert');
+    Route::post('/getFornitoriAlert', 'App\Http\Controllers\AnalisisController@getFornitoriAlert');
+    Route::post('/getRiscossione', 'App\Http\Controllers\AnalisisController@getRiscossione');
 
 
 
