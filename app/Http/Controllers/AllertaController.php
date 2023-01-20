@@ -84,7 +84,7 @@ class AllertaController extends Controller
             ], 400);
         }
 
-        if (!Bilanci::findOrFail($id) || !isset($id)) {
+        if (ilanci::where('id', $id)->get()->count() == 0 || !isset($id)) {
             return response()->json([
                 'error' => true,
                 'message' => 'Non è stato trovato nessun Bilancio'
