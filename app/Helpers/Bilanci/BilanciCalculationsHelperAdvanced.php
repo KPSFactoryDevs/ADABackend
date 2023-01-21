@@ -35,7 +35,7 @@ class BilanciCalculationsHelperAdvanced
             ->where('voiceFullName', $elementName)
             ->get();
 if($elementName = "CostiProduzioneAccantonamentiRischi") {
-    dump($elementoFromQuery);
+    echo ($elementoFromQuery);
 }
         if (isset($elements[$elementName])) {
             if ($period == 1) {
@@ -47,7 +47,7 @@ if($elementName = "CostiProduzioneAccantonamentiRischi") {
             return $value;
         } elseif (count($elementoFromQuery) > 0) {
             if($elementName = "CostiProduzioneAccantonamentiRischi") {
-                dump($elementoFromQuery->first()->value);
+                echo ($elementoFromQuery->first()->value);
             }
             return $elementoFromQuery->first()->value;
         } else {
