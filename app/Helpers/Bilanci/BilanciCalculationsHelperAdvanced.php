@@ -214,12 +214,14 @@ class BilanciCalculationsHelperAdvanced
         $CostiProduzioneAltriAccantonamenti = $this->getElementFromBalance('CostiProduzioneAltriAccantonamenti', 1, $indexName);
 
         if (!$CostiProduzioneAccantonamentiRischi || !$TotaleAttivo || !$UtilePerditaEsercizio || !$CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni || !$CostiProduzioneAltriAccantonamenti) {
-           return array($CostiProduzioneAccantonamentiRischi,
+           /*return array($CostiProduzioneAccantonamentiRischi,
                $TotaleAttivo,
                $UtilePerditaEsercizio,
                $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni,
                $CostiProduzioneAltriAccantonamenti
-           );
+           );*/
+
+            return false;
         }
 
 
