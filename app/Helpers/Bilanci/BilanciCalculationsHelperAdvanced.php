@@ -79,14 +79,17 @@ class BilanciCalculationsHelperAdvanced
     }
 
 
-    public function getTotalePatrimonioNetto($indexName)
+    public function getTotalePatrimonioNetto($indexName = "TotalePatrimonioNetto")
     {
         $TotalePatrimonioNetto = $this->getElementFromBalance('TotalePatrimonioNetto', 1, $indexName);
+
+        if (!$TotalePatrimonioNetto)
+            return false;
 
         return $TotalePatrimonioNetto;
     }
 
-    public function getPatrimonioNettoNegativo($indexName)
+    public function getPatrimonioNettoNegativo($indexName = "PatrimonioNettoNegativo")
     {
         $TotalePatrimonioNetto = $this->getTotalePatrimonioNetto($indexName);
         $TotaleCreditiVersoSociVersamentiAncoraDovuti = $this->getElementFromBalance('TotaleCreditiVersoSociVersamentiAncoraDovuti', 1, $indexName);
@@ -121,7 +124,7 @@ class BilanciCalculationsHelperAdvanced
         return $OF_RICAVI;
     }
 
-    public function getTotaleDebiti($indexName)
+    public function getTotaleDebiti($indexName = "TotaleDebiti")
     {
         $TotaleDebiti = $this->getElementFromBalance('TotaleDebiti', 1, $indexName);
 
@@ -150,15 +153,15 @@ class BilanciCalculationsHelperAdvanced
         return $ADEGUATEZZA_PATRIMONIALE;
     }
 
-    public function getTotaleCreditiEntroDodiciMesi()
+    public function getTotaleCreditiEntroDodiciMesi($indexName = "Totale Crediti Entro Dodici Mesi")
     {
-        $CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo', 1, 'Totale Crediti Entro Dodici Mesi');
-        $CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo', 1, 'Totale Crediti Entro Dodici Mesi');
-        $CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo', 1, 'Totale Crediti Entro Dodici Mesi');
-        $CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo', 1, 'Totale Crediti Entro Dodici Mesi');
-        $CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo', 1, 'Totale Crediti Entro Dodici Mesi');
-        $CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo', 1, 'Totale Crediti Entro Dodici Mesi');
-        $CreditiImposteAnticipateTotaleImposteAnticipate = $this->getElementFromBalance('CreditiImposteAnticipateTotaleImposteAnticipate', 1, 'Totale Crediti Entro Dodici Mesi');
+        $CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
+        $CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
+        $CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
+        $CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
+        $CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
+        $CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
+        $CreditiImposteAnticipateTotaleImposteAnticipate = $this->getElementFromBalance('CreditiImposteAnticipateTotaleImposteAnticipate', 1, $indexName);
 
         if (!$CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo || !$CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo || !$CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo || !$CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo || !$CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo || !$CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo || !$CreditiImposteAnticipateTotaleImposteAnticipate) {
             return false;
@@ -172,22 +175,22 @@ class BilanciCalculationsHelperAdvanced
         return $TotaleDebitiEntroDodiciMesi;
     }
 
-    public function getTotaleDebitiEntroDodiciMesi()
+    public function getTotaleDebitiEntroDodiciMesi($indexName = "Totale Debiti Entro Dodici Mesi")
     {
-        $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo', 1, 'Totale Debiti Entro Dodici Mesi');
-        $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo', 1, 'Totale Debiti Entro Dodici Mesi');
-        $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo', 1, 'Totale Debiti Entro Dodici Mesi');
-        $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo', 1, 'Totale Debiti Entro Dodici Mesi');
-        $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo', 1, 'Totale Debiti Entro Dodici Mesi');
-        $DebitiAccontiEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiAccontiEsigibiliEntroEsercizioSuccessivo', 1, 'Totale Debiti Entro Dodici Mesi');
-        $DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo', 1, 'Totale Debiti Entro Dodici Mesi');
-        $DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo', 1, 'Totale Debiti Entro Dodici Mesi');
-        $DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo', 1, 'Totale Debiti Entro Dodici Mesi');
-        $DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo', 1, 'Totale Debiti Entro Dodici Mesi');
-        $DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo', 1, 'Totale Debiti Entro Dodici Mesi');
-        $DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo', 1, 'Totale Debiti Entro Dodici Mesi');
-        $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo', 1, 'Totale Debiti Entro Dodici Mesi');
-        $DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo', 1, 'Totale Debiti Entro Dodici Mesi');
+        $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
+        $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
+        $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
+        $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
+        $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
+        $DebitiAccontiEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiAccontiEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
+        $DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
+        $DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
+        $DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
+        $DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo', 1,$indexName);
+        $DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
+        $DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
+        $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
+        $DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
 
         if (!$DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo || !$DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo || !$DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo || !$DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo || !$DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo || !$DebitiAccontiEsigibiliEntroEsercizioSuccessivo || !$DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo || !$DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo || !$DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo || !$DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo || !$DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo || !$DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo || !$DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo || !$DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo) {
             return false;
@@ -202,13 +205,18 @@ class BilanciCalculationsHelperAdvanced
         return $TotaleDebitiEntroDodiciMesi;
     }
 
-    public function getLiquidita()
+    public function getLiquidita($indexName = "Liquidità")
     {
-        $CostiProduzioneAccantonamentiRischi = $this->getElementFromBalance('CostiProduzioneAccantonamentiRischi', 1, 'LiquiditÃ ');
-        $TotaleAttivo = $this->getElementFromBalance('TotaleAttivo', 1, 'LiquiditÃ ');
-        $UtilePerditaEsercizio = $this->getElementFromBalance('UtilePerditaEsercizio', 1, 'LiquiditÃ ');
-        $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni = $this->getElementFromBalance('CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni', 1, 'LiquiditÃ ');
-        $CostiProduzioneAltriAccantonamenti = $this->getElementFromBalance('CostiProduzioneAltriAccantonamenti', 1, 'LiquiditÃ ');
+        $CostiProduzioneAccantonamentiRischi = $this->getElementFromBalance('CostiProduzioneAccantonamentiRischi', 1, $indexName);
+        $TotaleAttivo = $this->getElementFromBalance('TotaleAttivo', 1, $indexName);
+        $UtilePerditaEsercizio = $this->getElementFromBalance('UtilePerditaEsercizio', 1, $indexName);
+        $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni = $this->getElementFromBalance('CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni', 1, $indexName);
+        $CostiProduzioneAltriAccantonamenti = $this->getElementFromBalance('CostiProduzioneAltriAccantonamenti', 1, $indexName);
+
+        if (!$CostiProduzioneAccantonamentiRischi || !$TotaleAttivo || !$UtilePerditaEsercizio || !$CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni || !$CostiProduzioneAltriAccantonamenti) {
+            return false;
+        }
+
 
         $LIQUIDITA = (($UtilePerditaEsercizio + $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni + (float)$CostiProduzioneAccantonamentiRischi + (float)$CostiProduzioneAltriAccantonamenti) / (float)$TotaleAttivo) * 100;
         $calculationLIQUIDITA = '((' . $UtilePerditaEsercizio . ' + ' . $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni . ' + ' . (float)$CostiProduzioneAccantonamentiRischi . ' + ' . (float)$CostiProduzioneAltriAccantonamenti . ') / ' . (float)$TotaleAttivo . ') * ' . 100;
@@ -218,11 +226,11 @@ class BilanciCalculationsHelperAdvanced
         return $LIQUIDITA;
     }
 
-    public function getIndebitamentoPrevidenzialeTributario()
+    public function getIndebitamentoPrevidenzialeTributario($indexName = "Indebitamento Previdenziale Tributario")
     {
-        $DebitiDebitiTributariTotaleDebitiTributari = $this->getElementFromBalance('DebitiDebitiTributariTotaleDebitiTributari', 1, 'Indebitamento Previdenziale Tributario');
-        $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale = $this->getElementFromBalance('DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale', 1, 'Indebitamento Previdenziale Tributario');
-        $TotaleAttivo = $this->getElementFromBalance('TotaleAttivo', 1, 'Indebitamento Previdenziale Tributario');
+        $DebitiDebitiTributariTotaleDebitiTributari = $this->getElementFromBalance('DebitiDebitiTributariTotaleDebitiTributari', 1, $indexName);
+        $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale = $this->getElementFromBalance('DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale', 1, $indexName);
+        $TotaleAttivo = $this->getElementFromBalance('TotaleAttivo', 1, $indexName);
 
         if (!$DebitiDebitiTributariTotaleDebitiTributari || !$DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale || !$TotaleAttivo)
             return false;
@@ -235,10 +243,10 @@ class BilanciCalculationsHelperAdvanced
         return $INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO;
     }
 
-    public function getAndamentoDelFatturato()
+    public function getAndamentoDelFatturato($indexName = "Andamento Del Fatturato")
     {
-        $ValoreProduzioneRicaviVenditePrestazioniCurr = $this->getElementFromBalance('ValoreProduzioneRicaviVenditePrestazioni', 1, 'Andamento Del Fatturato');
-        $ValoreProduzioneRicaviVenditePrestazioniPrev = $this->getElementFromBalance('ValoreProduzioneRicaviVenditePrestazioni', 2, 'Andamento Del Fatturato');
+        $ValoreProduzioneRicaviVenditePrestazioniCurr = $this->getElementFromBalance('ValoreProduzioneRicaviVenditePrestazioni', 1,  $indexName);
+        $ValoreProduzioneRicaviVenditePrestazioniPrev = $this->getElementFromBalance('ValoreProduzioneRicaviVenditePrestazioni', 2,  $indexName);
 
         if (!$ValoreProduzioneRicaviVenditePrestazioniCurr || !$ValoreProduzioneRicaviVenditePrestazioniPrev)
             return false;
@@ -251,25 +259,25 @@ class BilanciCalculationsHelperAdvanced
         return $AndamentoDelFatturato;
     }
 
-    public function getAndamentoDelMol($indexName)
+    public function getAndamentoDelMol($indexName = "Andamento Del Mol")
     {
         // Curr
-        $TotaleValoreProduzione = $this->getElementFromBalance('TotaleValoreProduzione', 1, 'Andamento Del Mol');
-        $CostiProduzioneMateriePrimeSussidiarieConsumoMerci = $this->getElementFromBalance('CostiProduzioneMateriePrimeSussidiarieConsumoMerci', 1, 'Andamento Del Mol');
-        $CostiProduzioneGodimentoBeniTerzi = $this->getElementFromBalance('CostiProduzioneGodimentoBeniTerzi', 1, 'Andamento Del Mol');
-        $CostiProduzioneServizi = $this->getElementFromBalance('CostiProduzioneServizi', 1, 'Andamento Del Mol');
-        $CostiProduzionePersonaleTotaleCostiPersonale = $this->getElementFromBalance('CostiProduzionePersonaleTotaleCostiPersonale', 1, 'Andamento Del Mol');
-        $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci = $this->getElementFromBalance('CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci', 1, 'Andamento Del Mol');
-        $CostiProduzioneOneriDiversiGestione = $this->getElementFromBalance('CostiProduzioneOneriDiversiGestione', 1, 'Andamento Del Mol');
+        $TotaleValoreProduzione = $this->getElementFromBalance('TotaleValoreProduzione', 1,   $indexName);
+        $CostiProduzioneMateriePrimeSussidiarieConsumoMerci = $this->getElementFromBalance('CostiProduzioneMateriePrimeSussidiarieConsumoMerci', 1,   $indexName);
+        $CostiProduzioneGodimentoBeniTerzi = $this->getElementFromBalance('CostiProduzioneGodimentoBeniTerzi', 1,   $indexName);
+        $CostiProduzioneServizi = $this->getElementFromBalance('CostiProduzioneServizi', 1,   $indexName);
+        $CostiProduzionePersonaleTotaleCostiPersonale = $this->getElementFromBalance('CostiProduzionePersonaleTotaleCostiPersonale', 1,   $indexName);
+        $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci = $this->getElementFromBalance('CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci', 1,   $indexName);
+        $CostiProduzioneOneriDiversiGestione = $this->getElementFromBalance('CostiProduzioneOneriDiversiGestione', 1,   $indexName);
 
         // Prev
-        $TotaleValoreProduzionePrecedente = $this->getElementFromBalance('TotaleValoreProduzione', 2, 'Andamento Del Mol');
-        $CostiProduzioneMateriePrimeSussidiarieConsumoMerciPrecedente = $this->getElementFromBalance('CostiProduzioneMateriePrimeSussidiarieConsumoMerci', 2, 'Andamento Del Mol');
-        $CostiProduzioneGodimentoBeniTerziPrecedente = $this->getElementFromBalance('CostiProduzioneGodimentoBeniTerzi', 2, 'Andamento Del Mol');
-        $CostiProduzioneServiziPrecedente = $this->getElementFromBalance('CostiProduzioneServizi', 2, 'Andamento Del Mol');
-        $CostiProduzionePersonaleTotaleCostiPersonalePrecedente = $this->getElementFromBalance('CostiProduzionePersonaleTotaleCostiPersonale', 2, 'Andamento Del Mol');
-        $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerciPrecedente = $this->getElementFromBalance('CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci', 2, 'Andamento Del Mol');
-        $CostiProduzioneOneriDiversiGestionePrecedente = $this->getElementFromBalance('CostiProduzioneOneriDiversiGestione', 2, 'Andamento Del Mol');
+        $TotaleValoreProduzionePrecedente = $this->getElementFromBalance('TotaleValoreProduzione', 2,   $indexName);
+        $CostiProduzioneMateriePrimeSussidiarieConsumoMerciPrecedente = $this->getElementFromBalance('CostiProduzioneMateriePrimeSussidiarieConsumoMerci', 2,   $indexName);
+        $CostiProduzioneGodimentoBeniTerziPrecedente = $this->getElementFromBalance('CostiProduzioneGodimentoBeniTerzi', 2,   $indexName);
+        $CostiProduzioneServiziPrecedente = $this->getElementFromBalance('CostiProduzioneServizi', 2,   $indexName);
+        $CostiProduzionePersonaleTotaleCostiPersonalePrecedente = $this->getElementFromBalance('CostiProduzionePersonaleTotaleCostiPersonale', 2,   $indexName);
+        $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerciPrecedente = $this->getElementFromBalance('CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci', 2,   $indexName);
+        $CostiProduzioneOneriDiversiGestionePrecedente = $this->getElementFromBalance('CostiProduzioneOneriDiversiGestione', 2,   $indexName);
 
         if (!$TotaleValoreProduzione || !$CostiProduzioneMateriePrimeSussidiarieConsumoMerci || !$CostiProduzioneGodimentoBeniTerzi || !$CostiProduzioneServizi || !$CostiProduzionePersonaleTotaleCostiPersonale || !$CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci || !$CostiProduzioneOneriDiversiGestione || !$TotaleValoreProduzionePrecedente || !$CostiProduzioneMateriePrimeSussidiarieConsumoMerciPrecedente || !$CostiProduzioneGodimentoBeniTerziPrecedente || !$CostiProduzioneServiziPrecedente || !$CostiProduzionePersonaleTotaleCostiPersonalePrecedente || !$CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerciPrecedente || !$CostiProduzioneOneriDiversiGestionePrecedente) {
             return false;
@@ -292,10 +300,10 @@ class BilanciCalculationsHelperAdvanced
         return $data;
     }
 
-    public function getROI()
+    public function getROI($indexName = "ROI")
     {
-        $DifferenzaValoreCostiProduzione = $this->getElementFromBalance('DifferenzaValoreCostiProduzione', 1, 'ROI');
-        $TotaleAttivo = $this->getElementFromBalance('TotaleAttivo', 1, 'ROI');
+        $DifferenzaValoreCostiProduzione = $this->getElementFromBalance('DifferenzaValoreCostiProduzione', 1,  $indexName);
+        $TotaleAttivo = $this->getElementFromBalance('TotaleAttivo', 1,  $indexName);
 
         if (!$DifferenzaValoreCostiProduzione || !$TotaleAttivo)
             return false;
@@ -308,10 +316,10 @@ class BilanciCalculationsHelperAdvanced
         return $ROI;
     }
 
-    public function getROS()
+    public function getROS($indexName = "ROS")
     {
-        $DifferenzaValoreCostiProduzione = $this->getElementFromBalance('DifferenzaValoreCostiProduzione', 1, 'ROS');
-        $ValoreProduzioneRicaviVenditePrestazioni = $this->getElementFromBalance('ValoreProduzioneRicaviVenditePrestazioni', 1, 'ROS');
+        $DifferenzaValoreCostiProduzione = $this->getElementFromBalance('DifferenzaValoreCostiProduzione', 1,  $indexName);
+        $ValoreProduzioneRicaviVenditePrestazioni = $this->getElementFromBalance('ValoreProduzioneRicaviVenditePrestazioni', 1,  $indexName);
 
         if (!$DifferenzaValoreCostiProduzione || !$ValoreProduzioneRicaviVenditePrestazioni)
             return false;
@@ -324,10 +332,10 @@ class BilanciCalculationsHelperAdvanced
         return $ROS;
     }
 
-    public function getROE()
+    public function getROE($indexName = "ROE")
     {
-        $TotalePatrimonioNetto = $this->getElementFromBalance('TotalePatrimonioNetto', 1, 'ROE');
-        $UtilePerditaEsercizio = $this->getElementFromBalance('UtilePerditaEsercizio', 1, 'ROE');
+        $TotalePatrimonioNetto = $this->getElementFromBalance('TotalePatrimonioNetto', 1, $indexName);
+        $UtilePerditaEsercizio = $this->getElementFromBalance('UtilePerditaEsercizio', 1, $indexName);
 
         if (!$TotalePatrimonioNetto || !$UtilePerditaEsercizio)
             return false;
@@ -340,16 +348,16 @@ class BilanciCalculationsHelperAdvanced
         return $ROE;
     }
 
-    public function getEbitdaFatturato()
+    public function getEbitdaFatturato($indexName = "Ebitda Fatturato")
     {
-        $ValoreProduzioneRicaviVenditePrestazioni = $this->getElementFromBalance('ValoreProduzioneRicaviVenditePrestazioni', 1, 'Ebitda Fatturato');
+        $ValoreProduzioneRicaviVenditePrestazioni = $this->getElementFromBalance('ValoreProduzioneRicaviVenditePrestazioni', 1,  $indexName);
         $TotaleValoreProduzione = $this->getElementFromBalance('TotaleValoreProduzione', 1, 'Ebitda Fatturato');
-        $CostiProduzioneMateriePrimeSussidiarieConsumoMerci = $this->getElementFromBalance('CostiProduzioneMateriePrimeSussidiarieConsumoMerci', 1, 'Ebitda Fatturato');
-        $CostiProduzioneServizi = $this->getElementFromBalance('CostiProduzioneServizi', 1, 'Ebitda Fatturato');
-        $CostiProduzioneGodimentoBeniTerzi = $this->getElementFromBalance('CostiProduzioneGodimentoBeniTerzi', 1, 'Ebitda Fatturato');
-        $CostiProduzionePersonaleTotaleCostiPersonale = $this->getElementFromBalance('CostiProduzionePersonaleTotaleCostiPersonale', 1, 'Ebitda Fatturato');
-        $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci = $this->getElementFromBalance('CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci', 1, 'Ebitda Fatturato');
-        $CostiProduzioneOneriDiversiGestione = $this->getElementFromBalance('CostiProduzioneOneriDiversiGestione', 1, 'Ebitda Fatturato');
+        $CostiProduzioneMateriePrimeSussidiarieConsumoMerci = $this->getElementFromBalance('CostiProduzioneMateriePrimeSussidiarieConsumoMerci', 1,  $indexName);
+        $CostiProduzioneServizi = $this->getElementFromBalance('CostiProduzioneServizi', 1,  $indexName);
+        $CostiProduzioneGodimentoBeniTerzi = $this->getElementFromBalance('CostiProduzioneGodimentoBeniTerzi', 1,  $indexName);
+        $CostiProduzionePersonaleTotaleCostiPersonale = $this->getElementFromBalance('CostiProduzionePersonaleTotaleCostiPersonale', 1,  $indexName);
+        $CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci = $this->getElementFromBalance('CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci', 1,  $indexName);
+        $CostiProduzioneOneriDiversiGestione = $this->getElementFromBalance('CostiProduzioneOneriDiversiGestione', 1,  $indexName);
 
         if (!$ValoreProduzioneRicaviVenditePrestazioni || !$TotaleValoreProduzione || !$CostiProduzioneMateriePrimeSussidiarieConsumoMerci || !$CostiProduzioneServizi || !$CostiProduzioneGodimentoBeniTerzi || !$CostiProduzionePersonaleTotaleCostiPersonale || !$CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci || !$CostiProduzioneOneriDiversiGestione)
             return false;
@@ -362,10 +370,10 @@ class BilanciCalculationsHelperAdvanced
         return $EBITDA_FATTURATO;
     }
 
-    public function getAndamentoDeiMezziPropri()
+    public function getAndamentoDeiMezziPropri($indexName = "Andamento Dei Mezzi Propri")
     {
-        $TotalePatrimonioNettoCurr = $this->getElementFromBalance('TotalePatrimonioNetto', 1, 'Andamento Dei Mezzi Propri');
-        $TotalePatrimonioNettoPrev = $this->getElementFromBalance('TotalePatrimonioNetto', 2, 'Andamento Dei Mezzi Propri');
+        $TotalePatrimonioNettoCurr = $this->getElementFromBalance('TotalePatrimonioNetto', 1, $indexName);
+        $TotalePatrimonioNettoPrev = $this->getElementFromBalance('TotalePatrimonioNetto', 2, $indexName);
 
         if (!$TotalePatrimonioNettoCurr || !$TotalePatrimonioNettoPrev)
             return false;
@@ -378,10 +386,10 @@ class BilanciCalculationsHelperAdvanced
         return $AndamentoDeiMezziPropri;
     }
 
-    public function getMargineStrutturaPrimario()
+    public function getMargineStrutturaPrimario($indexName = "Margine Struttura Primario")
     {
-        $TotaleImmobilizzazioni = $this->getElementFromBalance('TotaleImmobilizzazioni', 1, 'Margine Struttura Primario');
-        $TotalePatrimonioNetto = $this->getElementFromBalance('TotalePatrimonioNetto', 1, 'Margine Struttura Primario');
+        $TotaleImmobilizzazioni = $this->getElementFromBalance('TotaleImmobilizzazioni', 1, $indexName);
+        $TotalePatrimonioNetto = $this->getElementFromBalance('TotalePatrimonioNetto', 1, $indexName);
 
         if (!$TotaleImmobilizzazioni || !$TotalePatrimonioNetto)
             return false;
@@ -394,25 +402,25 @@ class BilanciCalculationsHelperAdvanced
         return $Margine_Struttura_Primario;
     }
 
-    public function getMargineStrutturaSecondario()
+    public function getMargineStrutturaSecondario($indexName = "Margine Struttura Secondario")
     {
-        $TrattamentoFineRapportoLavoroSubordinato = $this->getElementFromBalance('TrattamentoFineRapportoLavoroSubordinato', 1, 'Margine Struttura Secondario');
-        $DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo = $this->getElementFromBalance('DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo', 1, 'Margine Struttura Secondario');
-        $DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo = $this->getElementFromBalance('DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo', 1, 'Margine Struttura Secondario');
-        $DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo = ($this->getElementFromBalance('DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo', 1, 'Margine Struttura Secondario') != 0 ? $this->getElementFromBalance('DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo', 1, 'Margine Struttura Secondario') : $this->getElementFromBalance('DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo', 2, 'Margine Struttura Secondario'));
-        $DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo', 1, 'Margine Struttura Secondario');
-        $DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo', 1, 'Margine Struttura Secondario');
-        $DebitiAccontiEsigibiliOltreEsercizioSuccessivo = $this->getElementFromBalance('DebitiAccontiEsigibiliOltreEsercizioSuccessivo', 1, 'Margine Struttura Secondario');
-        $DebitiDebitiVersoFornitoriEsigibiliOltreEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoFornitoriEsigibiliOltreEsercizioSuccessivo', 1, 'Margine Struttura Secondario');
-        $DebitiDebitiRappresentatiTitoliCreditoEsigibiliOltreEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiRappresentatiTitoliCreditoEsigibiliOltreEsercizioSuccessivo', 1, 'Margine Struttura Secondario');
-        $DebitiDebitiVersoImpreseControllateEsigibiliOltreEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoImpreseControllateEsigibiliOltreEsercizioSuccessivo', 1, 'Margine Struttura Secondario');
-        $DebitiDebitiVersoImpreseCollegateEsigibiliOltreEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoImpreseCollegateEsigibiliOltreEsercizioSuccessivo', 1, 'Margine Struttura Secondario');
-        $DebitiDebitiVersoControllantiEsigibiliOltreEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoControllantiEsigibiliOltreEsercizioSuccessivo', 1, 'Margine Struttura Secondario');
-        $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliOltreEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliOltreEsercizioSuccessivo', 1, 'Margine Struttura Secondario');
-        $DebitiAltriDebitiEsigibiliOltreEsercizioSuccessivo = ($this->getElementFromBalance('DebitiAltriDebitiEsigibiliOltreEsercizioSuccessivo', 1, 'Margine Struttura Secondario') != 0 ? $this->getElementFromBalance('DebitiAltriDebitiEsigibiliOltreEsercizioSuccessivo', 1, 'Margine Struttura Secondario') : $this->getElementFromBalance('DebitiAltriDebitiEsigibiliOltreEsercizioSuccessivo', 2, 'Margine Struttura Secondario'));
-        $DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo = ($this->getElementFromBalance('DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo', 1, 'Margine Struttura Secondario') != 0 ? $this->getElementFromBalance('DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo', 1, 'Margine Struttura Secondario') : $this->getElementFromBalance('DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo', 2, 'Margine Struttura Secondario'));
-        $TotalePatrimonioNetto = $this->getElementFromBalance('TotalePatrimonioNetto', 1, 'Margine Struttura Secondario');
-        $TotaleImmobilizzazioni = $this->getElementFromBalance('TotaleImmobilizzazioni', 1, 'Margine Struttura Secondario');
+        $TrattamentoFineRapportoLavoroSubordinato = $this->getElementFromBalance('TrattamentoFineRapportoLavoroSubordinato', 1,  $indexName);
+        $DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo = $this->getElementFromBalance('DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo', 1,  $indexName);
+        $DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo = $this->getElementFromBalance('DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo', 1,  $indexName);
+        $DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo = ($this->getElementFromBalance('DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo', 1,  $indexName) != 0 ? $this->getElementFromBalance('DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo', 1,  $indexName) : $this->getElementFromBalance('DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo', 2,  $indexName));
+        $DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo', 1,  $indexName);
+        $DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo', 1,  $indexName);
+        $DebitiAccontiEsigibiliOltreEsercizioSuccessivo = $this->getElementFromBalance('DebitiAccontiEsigibiliOltreEsercizioSuccessivo', 1,  $indexName);
+        $DebitiDebitiVersoFornitoriEsigibiliOltreEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoFornitoriEsigibiliOltreEsercizioSuccessivo', 1,  $indexName);
+        $DebitiDebitiRappresentatiTitoliCreditoEsigibiliOltreEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiRappresentatiTitoliCreditoEsigibiliOltreEsercizioSuccessivo', 1,  $indexName);
+        $DebitiDebitiVersoImpreseControllateEsigibiliOltreEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoImpreseControllateEsigibiliOltreEsercizioSuccessivo', 1,  $indexName);
+        $DebitiDebitiVersoImpreseCollegateEsigibiliOltreEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoImpreseCollegateEsigibiliOltreEsercizioSuccessivo', 1,  $indexName);
+        $DebitiDebitiVersoControllantiEsigibiliOltreEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoControllantiEsigibiliOltreEsercizioSuccessivo', 1,  $indexName);
+        $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliOltreEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliOltreEsercizioSuccessivo', 1,  $indexName);
+        $DebitiAltriDebitiEsigibiliOltreEsercizioSuccessivo = ($this->getElementFromBalance('DebitiAltriDebitiEsigibiliOltreEsercizioSuccessivo', 1,  $indexName) != 0 ? $this->getElementFromBalance('DebitiAltriDebitiEsigibiliOltreEsercizioSuccessivo', 1,  $indexName) : $this->getElementFromBalance('DebitiAltriDebitiEsigibiliOltreEsercizioSuccessivo', 2,  $indexName));
+        $DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo = ($this->getElementFromBalance('DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo', 1,  $indexName) != 0 ? $this->getElementFromBalance('DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo', 1,  $indexName) : $this->getElementFromBalance('DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo', 2,  $indexName));
+        $TotalePatrimonioNetto = $this->getElementFromBalance('TotalePatrimonioNetto', 1,  $indexName);
+        $TotaleImmobilizzazioni = $this->getElementFromBalance('TotaleImmobilizzazioni', 1,  $indexName);
 
         if (!$TrattamentoFineRapportoLavoroSubordinato || !$DebitiObbligazioniEsigibiliOltreEsercizioSuccessivo || !$DebitiObbligazioniConvertibiliEsigibiliOltreEsercizioSuccessivo || !$DebitiDebitiVersoSociFinanziamentiEsigibiliOltreEsercizioSuccessivo || !$DebitiDebitiVersoBancheEsigibiliOltreEsercizioSuccessivo || !$DebitiDebitiVersoAltriFinanziatoriEsigibiliOltreEsercizioSuccessivo || !$DebitiAccontiEsigibiliOltreEsercizioSuccessivo || !$DebitiDebitiVersoFornitoriEsigibiliOltreEsercizioSuccessivo || !$DebitiDebitiRappresentatiTitoliCreditoEsigibiliOltreEsercizioSuccessivo || !$DebitiDebitiVersoImpreseControllateEsigibiliOltreEsercizioSuccessivo || !$DebitiDebitiVersoImpreseCollegateEsigibiliOltreEsercizioSuccessivo || !$DebitiDebitiVersoControllantiEsigibiliOltreEsercizioSuccessivo || !$DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliOltreEsercizioSuccessivo || !$DebitiAltriDebitiEsigibiliOltreEsercizioSuccessivo || !$DebitiDebitiTributariEsigibiliOltreEsercizioSuccessivo || !$TotalePatrimonioNetto || !$TotaleImmobilizzazioni)
             return false;
@@ -425,15 +433,15 @@ class BilanciCalculationsHelperAdvanced
         return $Margine_Struttura_Secondario_Semplificato;
     }
 
-    public function getCurrentRatio()
+    public function getCurrentRatio($indexName = "Current Ratio")
     {
-        $TotaleDisponibilitaLiquide = $this->getElementFromBalance('TotaleDisponibilitaLiquide', 1, 'Current Ratio');
-        $AttivoRateiRisconti = $this->getElementFromBalance('AttivoRateiRisconti', 1, 'Current Ratio');
-        $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni = $this->getElementFromBalance('TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni', 1, 'Current Ratio');
-        $TotaleRimanenze = $this->getElementFromBalance('TotaleRimanenze', 1, 'Current Ratio');
-        $TotaleCreditiEntroDodiciMesi = $this->getElementFromBalance('TotaleCreditiEntroDodiciMesi', 1, 'Current Ratio');
-        $TotaleDebitiEntroDodiciMesi = $this->getElementFromBalance('TotaleDebitiEntroDodiciMesi', 1, 'Current Ratio');
-        $PassivoRateiRisconti = $this->getElementFromBalance('PassivoRateiRisconti', 1, 'Current Ratio');
+        $TotaleDisponibilitaLiquide = $this->getElementFromBalance('TotaleDisponibilitaLiquide', 1, $indexName);
+        $AttivoRateiRisconti = $this->getElementFromBalance('AttivoRateiRisconti', 1, $indexName);
+        $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni = $this->getElementFromBalance('TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni', 1, $indexName);
+        $TotaleRimanenze = $this->getElementFromBalance('TotaleRimanenze', 1, $indexName);
+        $TotaleCreditiEntroDodiciMesi = $this->getElementFromBalance('TotaleCreditiEntroDodiciMesi', 1, $indexName);
+        $TotaleDebitiEntroDodiciMesi = $this->getElementFromBalance('TotaleDebitiEntroDodiciMesi', 1, $indexName);
+        $PassivoRateiRisconti = $this->getElementFromBalance('PassivoRateiRisconti', 1, $indexName);
 
         if (!$TotaleDisponibilitaLiquide || !$AttivoRateiRisconti || !$TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni || !$TotaleRimanenze || !$TotaleCreditiEntroDodiciMesi || !$TotaleDebitiEntroDodiciMesi || !$PassivoRateiRisconti)
             return false;
@@ -448,41 +456,41 @@ class BilanciCalculationsHelperAdvanced
         return $RITORNO_LIQUIDO_ATTIVO;
     }
 
-    public function getAttivitaPassivitaABreve($indexName)
+    public function getAttivitaPassivitaABreve($indexName = "Attivita Passivita a Breve")
     {
         // TRENTACINQUE
-        $CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo', 1, 'Attivita Passivita a Breve');
-        $CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo', 1, 'Attivita Passivita a Breve');
-        $CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo', 1, 'Attivita Passivita a Breve');
-        $CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo = ($this->getElementFromBalance('CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo', 1, 'Attivita Passivita a Breve') ? $this->getElementFromBalance('CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo', 1, 'Attivita Passivita a Breve') : $this->getElementFromBalance('CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo', 2, 'Attivita Passivita a Breve'));
-        $CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo = ($this->getElementFromBalance('CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo', 1, 'Attivita Passivita a Breve') ? $this->getElementFromBalance('CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo', 1, 'Attivita Passivita a Breve') : $this->getElementFromBalance('CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo', 2, 'Attivita Passivita a Breve'));
+        $CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
+        $CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
+        $CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
+        $CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo = ($this->getElementFromBalance('CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo', 1, $indexName) ? $this->getElementFromBalance('CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo', 1, $indexName) : $this->getElementFromBalance('CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo', 2, $indexName));
+        $CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo = ($this->getElementFromBalance('CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo', 1, $indexName) ? $this->getElementFromBalance('CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo', 1, $indexName): $this->getElementFromBalance('CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo', 2, $indexName));
         $TrentaCinque = $CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + $CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo + $CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo + $CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo;
 
 
         // QUARANTANOVE
-        $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo', 1, 'Attivita Passivita a Breve');
-        $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo', 1, 'Attivita Passivita a Breve');
-        $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo = ($this->getElementFromBalance('DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo', 1, 'Attivita Passivita a Breve') ? $this->getElementFromBalance('DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo', 1, 'Attivita Passivita a Breve') : $this->getElementFromBalance('DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo', 2, 'Attivita Passivita a Breve'));
-        $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo', 1, 'Attivita Passivita a Breve');
-        $DebitiAccontiEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiAccontiEsigibiliEntroEsercizioSuccessivo', 1, 'Attivita Passivita a Breve');
-        $DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo = ($this->getElementFromBalance('DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo', 1, 'Attivita Passivita a Breve') ? $this->getElementFromBalance('DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo', 1, 'Attivita Passivita a Breve') : $this->getElementFromBalance('DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo', 2, 'Attivita Passivita a Breve'));
-        $DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo', 1, 'Attivita Passivita a Breve');
-        $DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo', 1, 'Attivita Passivita a Breve');
-        $DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo', 1, 'Attivita Passivita a Breve');
-        $DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo', 1, 'Attivita Passivita a Breve');
-        $DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo = ($this->getElementFromBalance('DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo', 1, 'Attivita Passivita a Breve') ? $this->getElementFromBalance('DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo', 1, 'Attivita Passivita a Breve') : $this->getElementFromBalance('DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo', 2, 'Attivita Passivita a Breve'));
-        $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo = ($this->getElementFromBalance('DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo', 1, 'Attivita Passivita a Breve') ? $this->getElementFromBalance('DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo', 1, 'Attivita Passivita a Breve') : $this->getElementFromBalance('DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo', 2, 'Attivita Passivita a Breve'));
-        $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo', 1, 'Attivita Passivita a Breve');
-        $DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo', 1, 'Attivita Passivita a Breve');
+        $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
+        $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
+        $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo = ($this->getElementFromBalance('DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo', 1, $indexName) ? $this->getElementFromBalance('DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo', 1, $indexName) : $this->getElementFromBalance('DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo', 2, $indexName));
+        $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
+        $DebitiAccontiEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiAccontiEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
+        $DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo = ($this->getElementFromBalance('DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo', 1, $indexName) ? $this->getElementFromBalance('DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo', 1, $indexName) : $this->getElementFromBalance('DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo', 2, $indexName));
+        $DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
+        $DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
+        $DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
+        $DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
+        $DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo = ($this->getElementFromBalance('DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo', 1, $indexName) ? $this->getElementFromBalance('DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo', 1, $indexName): $this->getElementFromBalance('DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo', 2, $indexName));
+        $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo = ($this->getElementFromBalance('DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo', 1, $indexName) ? $this->getElementFromBalance('DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo', 1, $indexName) : $this->getElementFromBalance('DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo', 2, $indexName));
+        $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
+        $DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
 
-        $PassivoRateiRisconti = $this->getElementFromBalance('PassivoRateiRisconti', 1, 'Attivita Passivita a Breve');
-        $TotaleDisponibilitaLiquide = $this->getElementFromBalance('TotaleDisponibilitaLiquide', 1, 'Attivita Passivita a Breve');
-        $TotaleRimanenze = $this->getElementFromBalance('TotaleRimanenze', 1, 'Attivita Passivita a Breve');
-        $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni = $this->getElementFromBalance('TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni', 1, 'Attivita Passivita a Breve');
-        $AttivoRateiRisconti = $this->getElementFromBalance('AttivoRateiRisconti', 1, 'Attivita Passivita a Breve');
+        $PassivoRateiRisconti = $this->getElementFromBalance('PassivoRateiRisconti', 1, $indexName);
+        $TotaleDisponibilitaLiquide = $this->getElementFromBalance('TotaleDisponibilitaLiquide', 1, $indexName);
+        $TotaleRimanenze = $this->getElementFromBalance('TotaleRimanenze', 1, $indexName);
+        $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni = $this->getElementFromBalance('TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni', 1, $indexName);
+        $AttivoRateiRisconti = $this->getElementFromBalance('AttivoRateiRisconti', 1, $indexName);
 
         $QuarantaNove = $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo + $DebitiAccontiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo + $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo + $DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo + $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo;
-        $CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo', 1, 'Attivita Passivita a Breve');
+        $CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
 
         if (!$CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo || !$CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo || !$CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo || !$CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo || !$CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo || !$DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo || !$DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo || !$DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo || !$DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo || !$DebitiAccontiEsigibiliEntroEsercizioSuccessivo || !$DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo || !$DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo || !$DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo || !$DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo || !$DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo || !$DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo || !$DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo || !$DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo || !$DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo || !$PassivoRateiRisconti || !$TotaleDisponibilitaLiquide || !$TotaleRimanenze || !$TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni || !$AttivoRateiRisconti || !$CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo)
             return false;
@@ -982,4 +990,238 @@ class BilanciCalculationsHelperAdvanced
 
         return "Azienda NON a Rischio";
     }
+
+
+    public function calcoloINPS($allData)
+    {
+        if (empty($allData['INPS1']) || $allData['INPS1'] == 0 || empty($allData['INPS2']) || $allData['INPS2'] == 0) {
+            $alert = "Dati Mancanti";
+        } else {
+            $alert = "No";
+        }
+
+        if ($alert != "Dati Mancanti") {
+            if(str_contains($allData['INPS1'], ',') && str_contains($allData['INPS2'], ',')) {
+                $inps3 = ((str_replace(',', '', str_replace('.', '', $allData['INPS1'])) / str_replace(',', '', str_replace('.', '', $allData['INPS2']))) * 100);
+            } else {
+                $inps3 = (($allData['INPS1'] / $allData['INPS2']) * 100);
+            }
+
+            if ($allData['INPS1'] > 50000) {
+                if ($inps3 > 50.50) {
+                    $alert = "Si";
+                }
+            }
+        } else {
+            $inps3 = "NON CALCOLABILE";
+        }
+
+        $data = [
+            'alert' => $alert,
+            'inps3' => $inps3
+        ];
+
+        return $data;
+    }
+
+    public function calculateRiscossione($allData)
+    {
+        if(str_contains($allData['idBilancio'], '"')) {
+            $allData['idBilancio'] = str_replace('"', '', $allData['idBilancio']);
+        }
+
+        $balance = Bilanci::findOrFail($allData['idBilancio']);
+
+        $formaGiuridica = $balance->forma_giuridica;
+
+        if (empty($allData['riscossione']) || $allData['riscossione'] == 0) {
+            $alert = "Dati Mancanti";
+        } else {
+            $alert = "No";
+        }
+
+        if ($formaGiuridica == "DITTA INDIVIDUALE") {
+            if ($allData['riscossione'] > 500000) {
+                $alert = "Si";
+            } else {
+                $alert = "No";
+            }
+        } else {
+            if ($allData['riscossione'] > 1000000) {
+                $alert = "Si";
+            } else {
+                $alert = "No";
+            }
+        }
+
+        return $alert;
+    }
+
+    public function calculateRetribuzione($allData)
+    {
+
+        if (empty($allData['retribuzioni1']) || $allData['retribuzioni1'] == 0 || empty($allData['retribuzioni2']) || $allData['retribuzioni2'] == 0) {
+            $alert = "Dati Mancanti";
+        } else {
+            $alert = "No";
+        }
+
+        if ($alert != "Dati Mancanti") {
+            if(str_contains($allData['retribuzioni1'], ',') || str_contains($allData['retribuzioni2'], ',')) {
+                if ((str_replace(',', '.', str_replace('.', '', $allData['retribuzioni1'])) / str_replace(',', '.', str_replace('.', '', $allData['retribuzioni2']))) * 100 >= 50) {
+                    $alert = "Si";
+                } else {
+                    $alert = "No";
+                }
+                if (is_finite(str_replace(',', '.', str_replace('.', '', $allData['retribuzioni1'])) / str_replace(',', '.', str_replace('.', '', $allData['retribuzioni2'])))) {
+                    $cleanData['retribuzioni3'] = number_format(((str_replace(',', '.', str_replace('.', '', $allData['retribuzioni1'])) / str_replace(',', '.', str_replace('.', '', $allData['retribuzioni2']))) * 100), 2, ".", ",");
+                } else {
+                    $cleanData['retribuzioni3'] = "NON CALCOLABILE";
+                }
+            } else {
+                if ((str_replace(',', '.', str_replace('.', '', $allData['retribuzioni1'])) / str_replace(',', '.', str_replace('.', '', $allData['retribuzioni2']))) * 100 >= 50) {
+                    $alert = "Si";
+                } else {
+                    $alert = "No";
+                }
+                if (is_finite(str_replace(',', '.', str_replace('.', '', $allData['retribuzioni1'])) / str_replace(',', '.', str_replace('.', '', $allData['retribuzioni2'])))) {
+                    $cleanData['retribuzioni3'] = number_format(((str_replace(',', '.', str_replace('.', '', $allData['retribuzioni1'])) / str_replace(',', '.', str_replace('.', '', $allData['retribuzioni2']))) * 100), 2, ".", ",");
+                } else {
+                    $cleanData['retribuzioni3'] = "NON CALCOLABILE";
+                }
+            }
+        }
+
+        $data = [
+            'alert' => $alert,
+            'retribuzioni3' => (isset($cleanData)) ? $cleanData['retribuzioni3'] : "NON CALCOLABILE"
+        ];
+
+        return $data;
+    }
+
+    public function calculateFornitori($allData)
+    {
+        if (empty($allData['fornitori1']) || $allData['fornitori1'] == 0 || empty($allData['fornitori2']) || $allData['fornitori2'] == 0) {
+            $alert = "Dati Mancanti";
+        } else {
+            $alert = "No";
+        }
+
+        if ($allData['fornitori1'] > $allData['fornitori2']) {
+            $alert = "Si";
+        }
+
+        return $alert;
+    }
+
+    public function calculateAgenziaEntrate($allData)
+    {
+
+        if (empty($allData['agenziaEntrate1']) || $allData['agenziaEntrate1'] == 0 || empty($allData['agenziaEntrate2']) || $allData['agenziaEntrate2'] == 0) {
+            $alert = "Dati Mancanti";
+        } else {
+            $alert = "No";
+        }
+
+        try {
+            if ($alert != "Dati Mancanti") {
+                if ($allData['agenziaEntrate1'] >= (($allData['agenziaEntrate2'] / 100) * 30)) {
+                    if ($allData['agenziaEntrate3'] >= 0 && $allData['agenziaEntrate3'] < 2000000) {
+                        if ($allData['agenziaEntrate1'] >= 25000) {
+                            $alert = "Si";
+                        }
+                    } else if ($allData['agenziaEntrate3'] >= 2000000 && $allData['agenziaEntrate3'] < 10000000) {
+                        if ($allData['agenziaEntrate1'] >= 50000) {
+                            $alert = "Si";
+                        }
+                    } else if ($allData['agenziaEntrate3'] > 10000000) {
+                        if ($allData['agenziaEntrate1'] > 100000) {
+                            $alert = "Si";
+                        }
+                    }
+                }
+
+                if (is_finite($allData['agenziaEntrate1'] / $allData['agenziaEntrate2'])) {
+                    // dd((float)number_format((((float)$allData['agenziaEntrate1'] / (float)$allData['agenziaEntrate2'])), 2, ",", "."));
+                    $cleanData['agenziaEntrate4'] = number_format((($allData['agenziaEntrate1'] / $allData['agenziaEntrate2'])), 2, ",", ".");
+                } else {
+                    $cleanData['agenziaEntrate4'] = "NON CALCOLABILE";
+                }
+            }
+
+            $data = [
+                'alert' => $alert,
+                'agenziaEntrate4' => $cleanData
+            ];
+
+            return $data;
+        } catch (Exception $e) {
+            CustomLog::addToLogBilanciHelper('BilanciHelper', 'GetExceptionAgenziaEntrate', json_encode($e->getMessage()));
+            return [
+                'error' => true,
+                'message' => $e->getMessage()
+            ];
+        }
+    }
+
+    private function calculateDSCR($inboundData)
+    {
+
+        $sum = ($inboundData['DSCRdispLiquida'] +
+            $inboundData['entrataDSCRCFmese1'] +
+            $inboundData['entrataDSCRCFmese2'] +
+            $inboundData['entrataDSCRCFmese3'] +
+            $inboundData['entrataDSCRCFmese4'] +
+            $inboundData['entrataDSCRCFmese5'] +
+            $inboundData['entrataDSCRCFmese6'] +
+            $inboundData['uscitaDSCRCFmese1'] -
+            $inboundData['uscitaDSCRCFmese2'] -
+            $inboundData['uscitaDSCRCFmese3'] -
+            $inboundData['uscitaDSCRCFmese4'] -
+            $inboundData['uscitaDSCRCFmese5'] -
+            $inboundData['uscitaDSCRCFmese6']
+        );
+
+        $divisore = ($inboundData['rimborsoDSCRmese1'] +
+            $inboundData['rimborsoDSCRmese2'] +
+            $inboundData['rimborsoDSCRmese3'] +
+            $inboundData['rimborsoDSCRmese4'] +
+            $inboundData['rimborsoDSCRmese5'] +
+            $inboundData['rimborsoDSCRmese6']
+        );
+
+        try {
+            $result = $sum / $divisore;
+            CustomLog::addToLogBilanciHelper('BilanciHelper', 'GetResultCalculateDSCR', $sum.' / '.$divisore.' = '.$result);
+
+            return number_format($result, 2, ",", ".");
+        } catch (Exception $e) {
+            CustomLog::addToLogBilanciHelper('BilanciHelper', 'getExceptionCalculateDSCR', json_encode($e->getMessage()));
+
+            return [
+                'error' => true,
+                'message' => $e->getMessage()
+            ];
+        }
+    }
+
+    public function getCalcoloDSCR($allData)
+    {
+
+        $dscrData = $this->getDSCRArrayData($allData);
+
+        if ($dscrData['DSCR'] != 1) {
+            return "DSCR da non calcolare";
+        }
+
+        if (empty($dscrData['uscitaDSCRCFmese6']) || $dscrData['uscitaDSCRCFmese6'] == 0 || empty($dscrData['rimborsoDSCRmese1']) || $dscrData['rimborsoDSCRmese1'] == 0) {
+            CustomLog::addToLogBilanciHelper('BilanciHelper', 'GetEmptyCalculateDSCR', json_encode(["uscitaDSCRCFmese6" => $dscrData['uscitaDSCRCFmese6'], "rimborsoDSCRmese1" => $dscrData['rimborsoDSCRmese1']]));
+            return ['error' => true];
+        }
+
+
+        return $this->calculateDSCR($dscrData);
+    }
+
 }
