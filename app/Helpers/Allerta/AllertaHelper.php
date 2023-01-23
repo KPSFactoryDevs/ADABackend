@@ -1222,6 +1222,9 @@ class AllertaHelper
         );
         $generalScore = array();
 
+
+        $scoreASIS['4'] = (float)str_replace(',', '.', $scoreASIS['4'] );
+
         if ($scoreASIS['4'] < 0.75) {
             $generalScore["Giudizio"] = $rangeGiudizi[$ASISfinalScore["Index"] - 1]['Giudizio'];
             $generalScore["Index"] = $ASISfinalScore["Index"] - 1;
