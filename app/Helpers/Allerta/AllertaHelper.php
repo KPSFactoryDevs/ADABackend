@@ -1052,19 +1052,19 @@ class AllertaHelper
 
         $resultAnalisiBilancio = "N/A";
 
-        if ($bilancioData['Giudizi']['Score'] >= 0 && $bilancioData['Giudizi']['Score'] < 0.14) {
+        if ($bilancioData['Score'] >= 0 && $bilancioData['Score'] < 0.14) {
             $resultAnalisiBilancio = "Default";
-        } else if ($bilancioData['Giudizi']['Score'] >= 0.14 && $bilancioData['Giudizi']['Score'] < 0.28) {
+        } else if ($bilancioData['Score'] >= 0.14 && $bilancioData['Score'] < 0.28) {
             $resultAnalisiBilancio = "Situazione Grave";
-        } else if ($bilancioData['Giudizi']['Score'] >= 0.28 && $bilancioData['Giudizi']['Score'] < 0.42) {
+        } else if ($bilancioData['Score'] >= 0.28 && $bilancioData['Score'] < 0.42) {
             $resultAnalisiBilancio = "Alert";
-        } else if ($bilancioData['Giudizi']['Score'] >= 0.42 && $bilancioData['Giudizi']['Score'] < 0.56) {
+        } else if ($bilancioData['Score'] >= 0.42 && $bilancioData['Score'] < 0.56) {
             $resultAnalisiBilancio = "Rischio alert";
-        } else if ($bilancioData['Giudizi']['Score'] >= 0.56 && $bilancioData['Giudizi']['Score'] < 0.70) {
+        } else if ($bilancioData['Score'] >= 0.56 && $bilancioData['Score'] < 0.70) {
             $resultAnalisiBilancio = "Fragilità elevata";
-        } else if ($bilancioData['Giudizi']['Score'] >= 0.70 && $bilancioData['Giudizi']['Score'] < 0.85) {
+        } else if ($bilancioData['Score'] >= 0.70 && $bilancioData['Score'] < 0.85) {
             $resultAnalisiBilancio = "Fragilità";
-        } else if ($bilancioData['Giudizi']['Score'] >= 0.85 && $bilancioData['Giudizi']['Score'] <= 1) {
+        } else if ($bilancioData['Score'] >= 0.85 && $bilancioData['Score'] <= 1) {
             $resultAnalisiBilancio = "Solidità";
         }
 
