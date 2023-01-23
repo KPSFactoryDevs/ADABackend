@@ -1051,6 +1051,7 @@ class AllertaHelper
         }
 
         $resultAnalisiBilancio = "N/A";
+        $bilancioData['Score'] = (float)str_replace(',', '.', $bilancioData['Score']);
 
         if ($bilancioData['Score'] >= 0 && $bilancioData['Score'] < 0.14) {
             $resultAnalisiBilancio = "Default";
