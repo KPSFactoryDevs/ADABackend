@@ -90,7 +90,7 @@ class BilanciCalculationsHelperAdvanced
     {
         $TotalePatrimonioNetto = $this->getElementFromBalance('TotalePatrimonioNetto', 1, $indexName);
 
-        if (!$TotalePatrimonioNetto)
+        if (is_bool($TotalePatrimonioNetto) && !$TotalePatrimonioNetto)
             return false;
 
         return $TotalePatrimonioNetto;
@@ -102,7 +102,10 @@ class BilanciCalculationsHelperAdvanced
         $TotaleCreditiVersoSociVersamentiAncoraDovuti = $this->getElementFromBalance('TotaleCreditiVersoSociVersamentiAncoraDovuti', 1, $indexName);
         //  $TotalePatrimonioNetto = str_replace(',', '.', str_replace('.', '', $TotalePatrimonioNetto));
 
-        if (!$TotalePatrimonioNetto || !$TotaleCreditiVersoSociVersamentiAncoraDovuti)
+        if (
+            (is_bool($TotalePatrimonioNetto) && !$TotalePatrimonioNetto) ||
+            (is_bool($TotaleCreditiVersoSociVersamentiAncoraDovuti) && !$TotaleCreditiVersoSociVersamentiAncoraDovuti)
+        )
             return false;
 
         $PN_NEGATIVO = $TotalePatrimonioNetto - $TotaleCreditiVersoSociVersamentiAncoraDovuti;
@@ -135,7 +138,7 @@ class BilanciCalculationsHelperAdvanced
     {
         $TotaleDebiti = $this->getElementFromBalance('TotaleDebiti', 1, $indexName);
 
-        if (!$TotaleDebiti)
+        if (is_bool($TotaleDebiti) && !$TotaleDebiti)
             return false;
 
         CustomLog::addToLogAnalisiBilancioCalculation('BilanciCalculationsHelper', 'GetTotaleDebiti', $TotaleDebiti);
