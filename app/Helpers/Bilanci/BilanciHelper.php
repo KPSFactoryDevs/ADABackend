@@ -148,9 +148,9 @@ class BilanciHelper
                 $arrayGiudizi[$label]['Scoring'] = ($arraySoglie[$label][0]->pesi->peso) * ($arraySoglie[$label][0]->score);
                 $arrayGiudizi[$label]['Giudizio'] = $arraySoglie[$label][0]->giudizio;
                 $scoringAreaBilancio += $arrayGiudizi[$label]['Scoring'];
+            } else {
+                $arrayGiudizi[$label] = false;
             }
-
-            $arrayGiudizi[$label] = false;
 
             if(isset($arrayGiudizi[$label]['Scoring'])) {
                 $arrayGiudizi[$label]['Scoring'] = number_format($arrayGiudizi[$label]['Scoring'], 2, ',', '.');
