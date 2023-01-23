@@ -35,7 +35,14 @@ class BilanciHelper
         if($instance) {
             $calculationHelper->setCurrentInstance($instance);
         } else {
-            return false;
+            $document = Document::findOrFail($idBilancio);
+
+            $filePath = base_path() . '/public/bilanci/' . $document->filename;
+            $taxonomyName = $document->taxonomy;
+            $taxonomyPath = base_path()."/taxonomies/2018-11-04/".$taxonomyName;
+
+            $readXBRL = XBRL_Instance::FromInstanceDocument($filePath, $taxonomyPath, $emptyInstance);
+            $calculationHelper->setCurrentInstance($readXBRL);
         }
 
         return array(
