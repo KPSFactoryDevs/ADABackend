@@ -149,7 +149,10 @@ class BilanciCalculationsHelperAdvanced
         $TotaleDebiti = $this->getTotaleDebiti($indexName);
         $PassivoRateiRisconti = $this->getElementFromBalance('PassivoRateiRisconti', 1, $indexName);
 
-        if (!$PN_NEGATIVO || !$TotaleDebiti || !$PassivoRateiRisconti) {
+        if (
+            (is_bool($PN_NEGATIVO) && !$PN_NEGATIVO) ||
+            (is_bool($TotaleDebiti) && !$TotaleDebiti) ||
+            (is_bool($PassivoRateiRisconti) && !$PassivoRateiRisconti)) {
             return false;
         }
         $ADEGUATEZZA_PATRIMONIALE = ($PN_NEGATIVO / ($TotaleDebiti + $PassivoRateiRisconti)) * 100;
@@ -245,7 +248,10 @@ class BilanciCalculationsHelperAdvanced
         $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale = $this->getElementFromBalance('DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale', 1, $indexName);
         $TotaleAttivo = $this->getElementFromBalance('TotaleAttivo', 1, $indexName);
 
-        if (!$DebitiDebitiTributariTotaleDebitiTributari || !$DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale || !$TotaleAttivo)
+        if (
+            (is_bool($DebitiDebitiTributariTotaleDebitiTributari) && !$DebitiDebitiTributariTotaleDebitiTributari) ||
+            (is_bool($DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale) && !$DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale) ||
+            !$TotaleAttivo)
             return false;
 
         $INDEBITAMENTO_PREVIDENZIALE_TRIBUTARIO = (($DebitiDebitiTributariTotaleDebitiTributari + $DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeTotaleDebitiVersoIstitutiPrevidenzaSicurezzaSociale) / $TotaleAttivo) * 100;
@@ -456,7 +462,14 @@ class BilanciCalculationsHelperAdvanced
         $TotaleDebitiEntroDodiciMesi = $this->getElementFromBalance('TotaleDebitiEntroDodiciMesi', 1, $indexName);
         $PassivoRateiRisconti = $this->getElementFromBalance('PassivoRateiRisconti', 1, $indexName);
 
-        if (!$TotaleDisponibilitaLiquide || !$AttivoRateiRisconti || !$TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni || !$TotaleRimanenze || !$TotaleCreditiEntroDodiciMesi || !$TotaleDebitiEntroDodiciMesi || !$PassivoRateiRisconti)
+        if (
+            (is_bool($TotaleDisponibilitaLiquide) && !$TotaleDisponibilitaLiquide) ||
+            (is_bool($AttivoRateiRisconti) && !$AttivoRateiRisconti)  ||
+            (is_bool($TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni) && !$TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni)  ||
+            (is_bool($TotaleRimanenze) && !$TotaleRimanenze)  ||
+            (is_bool($TotaleCreditiEntroDodiciMesi) && !$TotaleCreditiEntroDodiciMesi) ||
+            !$TotaleDebitiEntroDodiciMesi ||
+            !$PassivoRateiRisconti)
             return false;
 
         $formula = ($TotaleDisponibilitaLiquide + $AttivoRateiRisconti + $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni + $TotaleRimanenze + $TotaleCreditiEntroDodiciMesi) / ($TotaleDebitiEntroDodiciMesi + $PassivoRateiRisconti);
