@@ -9,26 +9,19 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests;
 use App;
-use lyquidity\xml\QName;
 use lyquidity\XPath2\XPath2Exception;
 use XBRL\XBRL_Instance;
-use XBRL\XBRL_Report;
-use XBRL\XBRL_DFR;
 use App\Models\Bilanci;
 use App\Models\Account;
 use function Livewire\str;
-use Illuminate\Support\Facades\DB;
 use App\Helpers\Bilanci\BilanciHelper;
 use App\Helpers\Bilanci\BilanciCalculationsHelperAdvanced;
 use App\Models\Voci;
 use Storage;
 use App\Models\Document;
 use App\Models\CustomLog;
-use Carbon\Carbon;
 use Auth;
-use App\Models\cr;
 use Exception;
-use Illuminate\Support\Facades\Http;
 use App\Models\MissingVoice;
 
 class BilanciController extends Controller
@@ -119,7 +112,7 @@ class BilanciController extends Controller
                     'message' => 'Il file è danneggiato'
                 ], 202);
             }
-            
+
 
         } catch(Exception $e) {
 
@@ -131,12 +124,15 @@ class BilanciController extends Controller
 
     }
 
-    public function missingVoices(Request $request) 
+    public function missingVoices(Request $request)
     {
         $documentId = $request->documentId;
 
         if (!$documentId)
-            return false;
+            return response()->json([
+                'error' => true,
+                'data' => "Id Bilancio Errato"
+            ]);
 
 
         try {
@@ -152,8 +148,8 @@ class BilanciController extends Controller
                 ]);
             }
 
-    
- 
+
+
             return response()->json([
                 'error' => false,
                 'data' => "Voci mancanti salvate"
@@ -199,33 +195,5 @@ class BilanciController extends Controller
                 'message' => $e,
             ]);
         }
-    }
-
-
-    public function getDocuments(Request $request)
-    {
-        if ($request->header('currentcompany') || $request->header('currentcompany') === 0) {
-            $documentsCr = Document::where('type', 'bilancio')->where('company_id', $request->header('currentcompany'))->orderBy('created_at', 'desc')->get();
-        } else {
-            $documentsCr = Document::where('type', 'bilancio')->orderBy('created_at', 'desc')->get();
-        }
-
-        foreach ($documentsCr as $singleDocument) {
-            $textPeriodAvailable = "";
-            $periodAvailable = cr::select(['mese', 'anno'])
-                ->Where('document_id', $singleDocument->codice_documento)
-                ->groupBy('anno', 'mese')
-                ->get();
-            foreach ($periodAvailable as $singlePeriod) {
-                $textPeriodAvailable .= substr(ucFirst($singlePeriod->mese), 0, 3) . " " . $singlePeriod->anno . ', ';
-            }
-            $singleDocument['status'] = ucfirst(str_replace('_', ' ', $singleDocument['status']));
-            $singleDocument['type'] = ucfirst($singleDocument['type']);
-            $singleDocument['availableMonths'] = $textPeriodAvailable;
-        }
-
-        return response()->json([
-            $documentsCr,
-        ]);
     }
 }
