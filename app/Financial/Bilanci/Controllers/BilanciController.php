@@ -196,4 +196,32 @@ class BilanciController extends Controller
             ]);
         }
     }
+
+
+    public function getDocuments(Request $request)
+    {
+        if ($request->header('currentcompany') || $request->header('currentcompany') === 0) {
+            $documentsCr = Document::where('type', 'bilancio')->where('company_id', $request->header('currentcompany'))->orderBy('created_at', 'desc')->get();
+        } else {
+            $documentsCr = Document::where('type', 'bilancio')->orderBy('created_at', 'desc')->get();
+        }
+
+        foreach ($documentsCr as $singleDocument) {
+            $textPeriodAvailable = "";
+            $periodAvailable = cr::select(['mese', 'anno'])
+                ->Where('document_id', $singleDocument->codice_documento)
+                ->groupBy('anno', 'mese')
+                ->get();
+            foreach ($periodAvailable as $singlePeriod) {
+                $textPeriodAvailable .= substr(ucFirst($singlePeriod->mese), 0, 3) . " " . $singlePeriod->anno . ', ';
+            }
+            $singleDocument['status'] = ucfirst(str_replace('_', ' ', $singleDocument['status']));
+            $singleDocument['type'] = ucfirst($singleDocument['type']);
+            $singleDocument['availableMonths'] = $textPeriodAvailable;
+        }
+
+        return response()->json([
+            $documentsCr,
+        ]);
+    }
 }
