@@ -145,12 +145,13 @@ class BilanciHelper
             $arraySoglie[$label] = range::where(
                 [['range_min', '<', $arrayIndici[$label]], ['range_max', '>', $arrayIndici[$label]], ['indice', '=', $label], ['tipo_azienda', '=', 'Generica']]
             )->with('pesi')
-            ->get();
+            ->get()
+            ->first();
 
 
             if (count($arraySoglie[$label]) > 0) {
-                $arrayGiudizi[$label]['Scoring'] = ($arraySoglie[$label][0]->pesi->peso) * ($arraySoglie[$label][0]->score);
-                $arrayGiudizi[$label]['Giudizio'] = $arraySoglie[$label][0]->giudizio;
+                $arrayGiudizi[$label]['Scoring'] = ($arraySoglie[$label]->pesi->peso) * ($arraySoglie[$label]->score);
+                $arrayGiudizi[$label]['Giudizio'] = $arraySoglie[$label]->giudizio;
                 $scoringAreaBilancio += $arrayGiudizi[$label]['Scoring'];
             } else {
                 $arrayGiudizi[$label] = false;
