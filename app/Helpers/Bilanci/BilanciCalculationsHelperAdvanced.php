@@ -959,7 +959,7 @@ class BilanciCalculationsHelperAdvanced
             'value' => false
         );
         $tipoAzienda =  $this->getTipoAzienda();
-        $currentRatio = $this->getCurrentRatio();
+        $currentRatio = $this->getCurrentRatio('Ritorno Liquido Attivo');
 
         if(!$currentRatio)
             return false;
