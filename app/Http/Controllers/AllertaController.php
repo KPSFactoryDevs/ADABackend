@@ -111,8 +111,8 @@ class AllertaController extends Controller
 
 
 
-        $ASISfinalScore = $allertaHelper->getAsIsFinalScore($bilancioData['bilancioAnalisi']['Indici']['Advanced'], $scoreCR, $scoreASIS);
-        $getScoreHelper = $allertaHelper->getScores($punteggioCR, $bilancioData['bilancioAnalisi']['Indici']['Advanced'], $scoreASIS, $ASISfinalScore, $scoreFL);
+        $ASISfinalScore = $allertaHelper->getAsIsFinalScore($bilancioData['Indici']['Advanced'], $scoreCR, $scoreASIS);
+        $getScoreHelper = $allertaHelper->getScores($punteggioCR, $bilancioData['Indici']['Advanced'], $scoreASIS, $ASISfinalScore, $scoreFL);
 
         return response()->json([
             'error' => false,
