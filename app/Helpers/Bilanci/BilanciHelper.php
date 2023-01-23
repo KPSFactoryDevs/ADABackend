@@ -321,7 +321,7 @@ class BilanciHelper
         }
         catch( \Exception $ex )
         {
-            echo $ex->getMessage();
+            //echo $ex->getMessage();
             return false;
         }
     }
