@@ -98,12 +98,12 @@ class BilanciController extends Controller
 
             if($readXBRL) {
                 $bilancioJSON = $readXBRL->toJSON();
-                $renderHTML = $bilanciHelper->generateHTMLRender($filePath, $taxonomyPath);
+                //$renderHTML = $bilanciHelper->generateHTMLRender($filePath, $taxonomyPath);
 
                 return response()->json([
                     'exception' => false,
                     'idDocumento' => $document->id,
-                    'renderHTML' => $renderHTML,
+                    'renderHTML' => false,
                     'bilancioJSON' => $bilancioJSON,
                     'bilancioAnalisi' => $bilanciHelper->getIndexesForBalanceTaxonomy($document->id, $filePath, $readXBRL),
                 ], 200);
