@@ -1173,7 +1173,7 @@ class AllertaHelper
 
     public function getAsIsFinalScore($bilancioData, $scoreCR, $scoreASIS)
     {
-        $scoreBilacioData = (float)str_replace(',', '.', $bilancioData['Giudizi']['Score']);
+        $scoreBilacioData = (float)str_replace(',', '.', $bilancioData['Score']);
 
         $ASISfinalScore = array("Score" => ((float)$scoreBilacioData * 0.25) + ((float)$scoreCR * 0.25) + ((float)$scoreASIS['1'] * 0.1) + ((float)$scoreASIS['2'] * 0.1) + ((float)$scoreASIS['3'] * 0.15) + ((float)$scoreASIS['4'] * 0.15));
 
