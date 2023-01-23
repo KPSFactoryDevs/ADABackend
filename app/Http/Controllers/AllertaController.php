@@ -51,8 +51,8 @@ class AllertaController extends Controller
 
         $valutazioneBilancio = $bilancioHelper->valutazioneIndici($bilancioData['Indici']['Advanced'], 'Comemrcio', date('Y'));
 
-        $bilancioData[] = $valutazioneBilancio;
-        dd($bilancioData, $valutazioneBilancio);
+        $bilancioData['ValutazioneGenerale'] = $valutazioneBilancio;
+
         $ASISfinalScore = false;
         $scoreASIS = array('1' => 0, '2' => 0, '3' => 0, '4' => 0);
         $scoreFL = array('Giudizio' => '', 'Valore' => '0');
@@ -112,8 +112,8 @@ class AllertaController extends Controller
 
 
 
-        $ASISfinalScore = $allertaHelper->getAsIsFinalScore($bilancioData, $scoreCR, $scoreASIS);
-        $getScoreHelper = $allertaHelper->getScores($punteggioCR, $bilancioData, $scoreASIS, $ASISfinalScore, $scoreFL);
+        $ASISfinalScore = $allertaHelper->getAsIsFinalScore($bilancioData['ValutazioneGenerale'], $scoreCR, $scoreASIS);
+        $getScoreHelper = $allertaHelper->getScores($punteggioCR, $bilancioData['ValutazioneGenerale'],, $scoreASIS, $ASISfinalScore, $scoreFL);
 
         return response()->json([
             'error' => false,
