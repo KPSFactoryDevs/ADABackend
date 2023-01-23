@@ -51,7 +51,7 @@ class AllertaController extends Controller
 
         $valutazioneBilancio = $bilancioHelper->valutazioneIndici($bilancioData['Indici']['Advanced'], 'Comemrcio', date('Y'));
 
-       // dd($valutazioneBilancio);
+        dd($valutazioneBilancio);
         $ASISfinalScore = false;
         $scoreASIS = array('1' => 0, '2' => 0, '3' => 0, '4' => 0);
         $scoreFL = array('Giudizio' => '', 'Valore' => '0');
