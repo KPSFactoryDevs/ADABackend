@@ -112,12 +112,9 @@ class BilanciHelper
             if(!$value) {
                 continue;
             }
-            if (str_contains((float)$value, '%') && isset($value)) {
-                $value = explode('%', (float)$value)[0];
-            }
 
-            $label = str_replace('_', ' ', $label);
             $value = (float)str_replace(',', '.', $value);
+            $arrayIndici[$label] = $value / 100;
 
             if ($label == 'ROE') {
                 $tassoInflazione = (float)Roe::where('year', $currentYear)->get()->first()->value / 100;
@@ -139,57 +136,25 @@ class BilanciHelper
                     $arrayGiudizi[$label]['Scoring'] = 0.0426 * 1;
                     $arrayGiudizi[$label]['Giudizio'] = 'Ottimo';
                 }
-            } else if ($label == 'OF Fatturato') {
-                $label = 'Peso Oneri Finanziari';
             }
 
-            $arrayIndici[$label] = $value / 100;
 
-            $arraySoglie[$label] = range::where([['range_min', '<', $arrayIndici[$label]], ['range_max', '>', $arrayIndici[$label]], ['indice', '=', $label], ['tipo_azienda', '=', $tipoAzienda]])->with('pesi')->get();
-            // if ($label == 'Costo del personale') {
-            //             dump($dataAnalisis);
-            // (range::where([['range_min', '<', $arrayIndici[$label]], ['range_max', '>', $arrayIndici[$label]], ['indice', '=', $label], ['tipo_azienda', '=', $tipoAzienda]])->with('pesi')->getBindings());
-            //     dd(range::where([['range_min', '<', $arrayIndici[$label]], ['range_max', '>', $arrayIndici[$label]], ['indice', '=', $label], ['tipo_azienda', '=', $tipoAzienda]])->with('pesi')->get());
-            // }
+
+        //  $arraySoglie[$label] = range::where([['range_min', '<', $arrayIndici[$label]], ['range_max', '>', $arrayIndici[$label]], ['indice', '=', $label], ['tipo_azienda', '=', $tipoAzienda]])->with('pesi')->get();
+            $arraySoglie[$label] = range::where([['range_min', '<', $arrayIndici[$label]], ['range_max', '>', $arrayIndici[$label]], ['indice', '=', $label], ['tipo_azienda', '=', 'Generica']])->with('pesi')->get();
+
 
             if (count($arraySoglie[$label]) > 0) {
                 $arrayGiudizi[$label]['Scoring'] = ($arraySoglie[$label][0]->pesi->peso) * ($arraySoglie[$label][0]->score);
                 $arrayGiudizi[$label]['Giudizio'] = $arraySoglie[$label][0]->giudizio;
-
                 $scoringAreaBilancio += $arrayGiudizi[$label]['Scoring'];
-            } else {
-                $arraySoglie[$label] = range::where([['range_min', '<', $arrayIndici[$label]], ['range_max', '>', $arrayIndici[$label]], ['indice', '=', $label], ['tipo_azienda', '=', 'Generica']])->with('pesi')->get();
-                // dump($arraySoglie);
-                // if ($label == 'PFN EBITDA') {
-                //     dd($label, $value, $tipoAzienda, count($arraySoglie['PFN EBITDA']));
-                // }
-                // if ($label == 'PFN EBITDA') {
-                //     dd(range::where([['range_min', '<', $arrayIndici[$label]], ['range_max', '>', $arrayIndici[$label]], ['indice', '=', $label], ['tipo_azienda', '=', 'Generica']])->with('pesi')->toSql(), $arrayIndici[$label], $label);
-                //     dd($label, $value, $arraySoglie[$label], $tipoAzienda, $arrayIndici[$label]);
-                // }
-                if (count($arraySoglie[$label]) > 0) {
-
-                    $arrayGiudizi[$label]['Scoring'] = ($arraySoglie[$label][0]->pesi->peso) * ($arraySoglie[$label][0]->score);
-
-                    $arrayGiudizi[$label]['Giudizio'] = $arraySoglie[$label][0]->giudizio;
-
-                    $scoringAreaBilancio += $arrayGiudizi[$label]['Scoring'];
-                }
-
             }
 
             if(isset($arrayGiudizi[$label]['Scoring'])) {
                 $arrayGiudizi[$label]['Scoring'] = number_format($arrayGiudizi[$label]['Scoring'], 2, ',', '.');
             }
 
-            $indiciName = str_replace(' ', '_', $label);
-
-            if(isset($arrayGiudizi[$label])) {
-                CustomLog::addToLogBilanciHelper('BilanciHelper', 'Get'.$indiciName.'', 'Scoring => '.json_decode(json_encode($arrayGiudizi[$label]['Scoring'])).' Giudizio => '.json_decode(json_encode($arrayGiudizi[$label]['Giudizio'])));
-            }
         }
-
-        CustomLog::addToLogBilanciHelper('BilanciHelper', 'GetGeneralScore', number_format($scoringAreaBilancio, 2, ',', '.'));
 
         return array("Score" => number_format($scoringAreaBilancio, 2, ',', '.'), "Giudizi" => $arrayGiudizi);
     }
