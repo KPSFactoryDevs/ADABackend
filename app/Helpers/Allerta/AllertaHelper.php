@@ -1070,6 +1070,7 @@ class AllertaHelper
             $resultAnalisiBilancio = "Solidità";
         }
 
+        $scoreASIS['1'] = (float)str_replace(',', '.', $scoreASIS['1'] );
         if ($scoreASIS['1'] >= 0 && $scoreASIS['1'] < 0.14) {
             $resultMinacceRapportiCommerciali = "Default";
         } else if ($scoreASIS['1'] >= 0.14 && $scoreASIS['1'] < 0.28) {
@@ -1089,6 +1090,7 @@ class AllertaHelper
         }
 
 
+        $scoreASIS['2'] = (float)str_replace(',', '.', $scoreASIS['2'] );
         if ($scoreASIS['2'] >= 0 && $scoreASIS['2'] < 0.14) {
             $resultMinacceGestioneAziendale = "Default";
         } else if ($scoreASIS['2'] >= 0.14 && $scoreASIS['2'] < 0.28) {
@@ -1108,6 +1110,7 @@ class AllertaHelper
         }
 
 
+        $scoreASIS['3'] = (float)str_replace(',', '.', $scoreASIS['3'] );
         if ($scoreASIS['3'] >= 0 && $scoreASIS['3'] < 0.14) {
             $resultMinacceEventiPregiudizievoli = "Default";
         } else if ($scoreASIS['3'] >= 0.14 && $scoreASIS['3'] < 0.28) {
@@ -1127,6 +1130,7 @@ class AllertaHelper
         }
 
 
+        $scoreASIS['4'] = (float)str_replace(',', '.', $scoreASIS['4'] );
         if ($scoreASIS['4'] >= 0 && $scoreASIS['4'] < 0.14) {
             $resultMinacceRischiCaratteristici = "Default";
         } else if ($scoreASIS['4'] >= 0.14 && $scoreASIS['4'] < 0.28) {
