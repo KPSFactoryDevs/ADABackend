@@ -1034,6 +1034,7 @@ class AllertaHelper
     {
 
 
+        $punteggioCR= (float)str_replace(',', '.', $punteggioCR);
         if ($punteggioCR >= 0 && $punteggioCR < 0.14) {
             $resultCentraleRischi = "Default";
         } else if ($punteggioCR >= 0.14 && $punteggioCR < 0.28) {
