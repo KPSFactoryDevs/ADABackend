@@ -149,7 +149,7 @@ class BilanciHelper
             ->first();
 
 
-            if (count($arraySoglie[$label]) > 0) {
+            if ($arraySoglie[$label]) {
                 $arrayGiudizi[$label]['Scoring'] = ($arraySoglie[$label]->pesi->peso) * ($arraySoglie[$label]->score);
                 $arrayGiudizi[$label]['Giudizio'] = $arraySoglie[$label]->giudizio;
                 $scoringAreaBilancio += $arrayGiudizi[$label]['Scoring'];
