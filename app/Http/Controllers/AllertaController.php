@@ -6,6 +6,7 @@ use App\Models\Account;
 use App\Models\Analisi;
 use App\Models\Bilanci;
 use App\Models\indici;
+use App\Models\Document;
 use App\Models\range;
 use App\Models\cr;
 use Illuminate\Http\Request;
@@ -28,7 +29,7 @@ class AllertaController extends Controller
             ], 400);
         }
 
-        if (Documents::where('id', $id)->where('type', 'bilancio')->get()->count() == 0 || !isset($id)) {
+        if (Document::where('id', $id)->where('type', 'bilancio')->get()->count() == 0 || !isset($id)) {
             return response()->json([
                 'error' => true,
                 'message' => 'Non è stato trovato nessun Bilancio'
