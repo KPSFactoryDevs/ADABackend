@@ -110,7 +110,7 @@ class BilanciHelper
 
         foreach ($data as $label => $value) {
             if(!$value) {
-                continue;
+                $arrayGiudizi[$label] = false;
             }
 
             $value = (float)str_replace(',', '.', $value);
