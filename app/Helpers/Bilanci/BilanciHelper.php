@@ -315,7 +315,8 @@ class BilanciHelper
             $nodes = $domXPath->query("/xbrli:xbrl/link:schemaRef");
             /** @var $domElement DOMElement */
             $domElement = $nodes[0];
-            return $domElement->getAttribute('xlink:href');
+            $result = $domElement->getAttribute('xlink:href');;
+            return $result;
         } catch(Exception $e) {
             return "itcc-ci-abb-2018-11-04.xsd";
         }
