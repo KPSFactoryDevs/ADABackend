@@ -48,7 +48,7 @@ class AllertaController extends Controller
 
         $bilancioHelper = new BilanciHelper;
         $bilancioData = $bilancioHelper->getIndexesForBalanceTaxonomy($id, false, false);
-        dd($bilancioData);
+
         $valutazioneBilancio = $bilancioHelper->valutazioneIndici($bilancioData['bilancioAnalisi']['Indici']['Advanced'], 'Comemrcio', date('Y'));
 
        // dd($valutazioneBilancio);
