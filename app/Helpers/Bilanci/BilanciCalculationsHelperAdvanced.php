@@ -151,8 +151,8 @@ class BilanciCalculationsHelperAdvanced
 
         if (
             (is_bool($PN_NEGATIVO) && !$PN_NEGATIVO) ||
-            (is_bool($TotaleDebiti) && !$TotaleDebiti) ||
-            (is_bool($PassivoRateiRisconti) && !$PassivoRateiRisconti)) {
+            (!$TotaleDebiti) ||
+            (!$PassivoRateiRisconti)) {
             return false;
         }
         $ADEGUATEZZA_PATRIMONIALE = ($PN_NEGATIVO / ($TotaleDebiti + $PassivoRateiRisconti)) * 100;
