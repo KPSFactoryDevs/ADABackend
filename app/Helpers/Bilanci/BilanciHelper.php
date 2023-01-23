@@ -253,7 +253,8 @@ class BilanciHelper
             XBRL_Global::reset();
             XBRL_Types::reset();
             new \XBRL_IFRS();
-
+/*
+ *
             $context = XBRL_Global::getInstance();
             if ( ! $context->useCache )
             {
@@ -261,6 +262,7 @@ class BilanciHelper
                 $context->cacheLocation = $cacheLocation;
                 $context->initializeCache();
             }
+            */
             $document = $instance;
 
             if ( ! file_exists( $document ) )
