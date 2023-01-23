@@ -13,6 +13,7 @@ use lyquidity\XPath2\XPath2Exception;
 use XBRL\XBRL_Instance;
 use App\Models\Bilanci;
 use App\Models\Account;
+use App\Models\cr;
 use function Livewire\str;
 use App\Helpers\Bilanci\BilanciHelper;
 use App\Helpers\Bilanci\BilanciCalculationsHelperAdvanced;
