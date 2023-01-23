@@ -143,7 +143,7 @@ class BilanciHelper
 
         //  $arraySoglie[$label] = range::where([['range_min', '<', $arrayIndici[$label]], ['range_max', '>', $arrayIndici[$label]], ['indice', '=', $label], ['tipo_azienda', '=', $tipoAzienda]])->with('pesi')->get();
             $arraySoglie[$label] = range::where(
-                [['range_min', '>', $arrayIndici[$label]], ['range_max', '<', $arrayIndici[$label]], ['indice', '=', $label], ['tipo_azienda', '=', 'Generica']]
+                [['range_min', '<', $arrayIndici[$label]], ['range_max', '>', $arrayIndici[$label]], ['indice', '=', $label], ['tipo_azienda', '=', 'Generica']]
             )->with('pesi')
             ->get();
 
