@@ -398,8 +398,8 @@ class BilanciHelper
                 $error['class'] = "warn";
         }
 
-        print_r( $error );
-        error_log( print_r( $error, true ) );
+       // print_r( $error );
+       // error_log( print_r( $error, true ) );
     }
 
 
