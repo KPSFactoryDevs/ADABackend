@@ -150,6 +150,8 @@ class BilanciHelper
                 $scoringAreaBilancio += $arrayGiudizi[$label]['Scoring'];
             }
 
+            $arrayGiudizi[$label] = false;
+
             if(isset($arrayGiudizi[$label]['Scoring'])) {
                 $arrayGiudizi[$label]['Scoring'] = number_format($arrayGiudizi[$label]['Scoring'], 2, ',', '.');
             }
