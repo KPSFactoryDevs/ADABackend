@@ -35,9 +35,9 @@ class BilanciCalculationsHelperAdvanced
             ->where('voiceFullName', $elementName)
             ->get();
 
-        if($elementName == "CostiProduzioneAccantonamentiRischi") {
+    /*    if($elementName == "CostiProduzioneAccantonamentiRischi") {
             echo $elementoFromQuery;
-        }
+        }*/
         if (isset($elements[$elementName])) {
             if ($period == 1) {
                 $value = array_first($elements[$elementName])['value'];
@@ -47,11 +47,11 @@ class BilanciCalculationsHelperAdvanced
 
             return $value;
         } elseif (count($elementoFromQuery) > 0) {
-            if($elementName == "CostiProduzioneAccantonamentiRischi") {
+       /*     if($elementName == "CostiProduzioneAccantonamentiRischi") {
                 echo $elementoFromQuery->first()->value;
-            }
+            }*/
 
-            return $elementoFromQuery->first()->value;
+            return $elementoFromQuery->first()->voiceValue;
         } else {
             if (!isset($this->_missingVoicesArray[$indexName])) {
                 $this->_missingVoicesArray[$indexName] = array(
