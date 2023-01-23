@@ -220,14 +220,13 @@ class BilanciCalculationsHelperAdvanced
         $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni = $this->getElementFromBalance('CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni', 1, $indexName);
         $CostiProduzioneAltriAccantonamenti = $this->getElementFromBalance('CostiProduzioneAltriAccantonamenti', 1, $indexName);
 
-        if (!$CostiProduzioneAccantonamentiRischi || !$TotaleAttivo || !$UtilePerditaEsercizio || !$CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni || !$CostiProduzioneAltriAccantonamenti) {
-          return array($CostiProduzioneAccantonamentiRischi,
-               $TotaleAttivo,
-               $UtilePerditaEsercizio,
-               $CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni,
-               $CostiProduzioneAltriAccantonamenti
-           );
-
+        if (
+            (is_bool($CostiProduzioneAccantonamentiRischi) && !$CostiProduzioneAccantonamentiRischi) ||
+            !$TotaleAttivo ||
+            (is_bool($CostiProduzioneAccantonamentiRischi) && !$UtilePerditaEsercizio) ||
+            (is_bool($CostiProduzioneAccantonamentiRischi) && !$CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni) ||
+            (is_bool($CostiProduzioneAccantonamentiRischi) && !$CostiProduzioneAltriAccantonamenti)
+        ) {
             return false;
         }
 
