@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Financial\Bilanci\Controllers;
+use Vtiful\Kernel\Excel;
 
 ini_set('max_input_vars', 5000);
 
@@ -8,25 +9,21 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Requests;
 use App;
-use lyquidity\xml\QName;
 use lyquidity\XPath2\XPath2Exception;
 use XBRL\XBRL_Instance;
-use XBRL\XBRL_Report;
-use XBRL\XBRL_DFR;
 use App\Models\Bilanci;
 use App\Models\Account;
+use App\Models\cr;
 use function Livewire\str;
-use Illuminate\Support\Facades\DB;
 use App\Helpers\Bilanci\BilanciHelper;
 use App\Helpers\Bilanci\BilanciCalculationsHelperAdvanced;
 use App\Models\Voci;
 use Storage;
 use App\Models\Document;
 use App\Models\CustomLog;
-use Carbon\Carbon;
 use Auth;
 use Exception;
-use Illuminate\Support\Facades\Http;
+use App\Models\MissingVoice;
 
 class BilanciController extends Controller
 {
@@ -70,11 +67,29 @@ class BilanciController extends Controller
         $use_xbrl_functions = true;
 
         $bilanciHelper = new BilanciHelper();
+        if($request->documentId) {
+            $document = Document::findOrFail($request->documentId);
 
-        $file = $request->base64;
-        $filePath = $file->getPathName();
-        $taxonomyName = $bilanciHelper->getInstanceTaxonomyHRef($filePath);
-        $taxonomyPath = base_path()."/taxonomies/2018-11-04/".$taxonomyName;
+            $filePath = base_path() . '/public/bilanci/' . $document->filename;
+            $taxonomyName = $document->taxonomy;
+        } else {
+            $file = $request->base64;
+            $filePath = $file->getPathName();
+            $taxonomyName = $bilanciHelper->getInstanceTaxonomyHRef($filePath);
+            $fileName = "Bilancio_" . time() . '.xbrl';
+            $storeFile = Storage::disk('bilanci')->putFileAs('', $file, $fileName);
+
+            $document = Document::create([
+                'filename' => $fileName,
+                'path' => asset('bilanci') . '/' . $fileName,
+                'type' => 'bilancio',
+                'taxonomy' => $taxonomyName,
+                'codice_documento' => rand(1, 999999999)
+            ]);
+        }
+
+            $taxonomyPath = base_path()."/taxonomies/2018-11-04/".$taxonomyName;
+
 
         try {
 
@@ -84,22 +99,13 @@ class BilanciController extends Controller
             if($readXBRL) {
                 $bilancioJSON = $readXBRL->toJSON();
                 $renderHTML = $bilanciHelper->generateHTMLRender($filePath, $taxonomyPath);
-        
-                $fileName = "Bilancio_" . time() . '.xbrl';
-                Storage::disk('bilanci')->put($fileName, base64_decode($file));
-                $document = Document::create([
-                    'filename' => $fileName,
-                    'path' => asset('bilanci') . '/' . $fileName,
-                    'type' => 'bilancio',
-                    'taxonomy' => $taxonomyName,
-                    'codice_documento' => rand(1, 999999999)
-                ]);
 
                 return response()->json([
                     'exception' => false,
+                    'idDocumento' => $document->id,
                     'renderHTML' => $renderHTML,
                     'bilancioJSON' => $bilancioJSON,
-                    'bilancioAnalisi' => $bilanciHelper->getIndexesForBalanceTaxonomy($document->id, $readXBRL),
+                    'bilancioAnalisi' => $bilanciHelper->getIndexesForBalanceTaxonomy($document->id, $filePath, $readXBRL),
                 ], 200);
             } else {
                 return response()->json([
@@ -107,7 +113,7 @@ class BilanciController extends Controller
                     'message' => 'Il file è danneggiato'
                 ], 202);
             }
-            
+
 
         } catch(Exception $e) {
 
@@ -119,6 +125,44 @@ class BilanciController extends Controller
 
     }
 
+    public function missingVoices(Request $request)
+    {
+        $documentId = $request->documentId;
+
+        if (!$documentId)
+            return response()->json([
+                'error' => true,
+                'data' => "Id Bilancio Errato"
+            ]);
+
+
+        try {
+
+            foreach($request->voci as $key => $singleVoice) {
+
+                MissingVoice::create([
+                    'documentId' => $documentId,
+                    'voiceFullName' => explode('_', $key)[0],
+                    'voiceLabel' => false,
+                    'voiceValue' => $singleVoice,
+                    'period' => explode('_', $key)[1]
+                ]);
+            }
+
+
+
+            return response()->json([
+                'error' => false,
+                'data' => "Voci mancanti salvate"
+            ]);
+
+        } catch(Exception $e) {
+            return response()->json([
+                'error' => true,
+                'data' => $e->getMessage()
+            ]);
+        }
+    }
 
 
     public function destroy($idBilancio)
@@ -152,5 +196,33 @@ class BilanciController extends Controller
                 'message' => $e,
             ]);
         }
+    }
+
+
+    public function getDocuments(Request $request)
+    {
+        if ($request->header('currentcompany') || $request->header('currentcompany') === 0) {
+            $documentsCr = Document::where('type', 'bilancio')->where('company_id', $request->header('currentcompany'))->orderBy('created_at', 'desc')->get();
+        } else {
+            $documentsCr = Document::where('type', 'bilancio')->orderBy('created_at', 'desc')->get();
+        }
+
+        foreach ($documentsCr as $singleDocument) {
+            $textPeriodAvailable = "";
+            $periodAvailable = cr::select(['mese', 'anno'])
+                ->Where('document_id', $singleDocument->codice_documento)
+                ->groupBy('anno', 'mese')
+                ->get();
+            foreach ($periodAvailable as $singlePeriod) {
+                $textPeriodAvailable .= substr(ucFirst($singlePeriod->mese), 0, 3) . " " . $singlePeriod->anno . ', ';
+            }
+            $singleDocument['status'] = ucfirst(str_replace('_', ' ', $singleDocument['status']));
+            $singleDocument['type'] = ucfirst($singleDocument['type']);
+            $singleDocument['availableMonths'] = $textPeriodAvailable;
+        }
+
+        return response()->json([
+            $documentsCr,
+        ]);
     }
 }

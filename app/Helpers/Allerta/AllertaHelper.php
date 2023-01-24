@@ -1034,6 +1034,7 @@ class AllertaHelper
     {
 
 
+        $punteggioCR= (float)str_replace(',', '.', $punteggioCR);
         if ($punteggioCR >= 0 && $punteggioCR < 0.14) {
             $resultCentraleRischi = "Default";
         } else if ($punteggioCR >= 0.14 && $punteggioCR < 0.28) {
@@ -1051,23 +1052,25 @@ class AllertaHelper
         }
 
         $resultAnalisiBilancio = "N/A";
+        $bilancioData['Score'] = (float)str_replace(',', '.', $bilancioData['Score']);
 
-        if ($bilancioData['Giudizi']['Score'] >= 0 && $bilancioData['Giudizi']['Score'] < 0.14) {
+        if ($bilancioData['Score'] >= 0 && $bilancioData['Score'] < 0.14) {
             $resultAnalisiBilancio = "Default";
-        } else if ($bilancioData['Giudizi']['Score'] >= 0.14 && $bilancioData['Giudizi']['Score'] < 0.28) {
+        } else if ($bilancioData['Score'] >= 0.14 && $bilancioData['Score'] < 0.28) {
             $resultAnalisiBilancio = "Situazione Grave";
-        } else if ($bilancioData['Giudizi']['Score'] >= 0.28 && $bilancioData['Giudizi']['Score'] < 0.42) {
+        } else if ($bilancioData['Score'] >= 0.28 && $bilancioData['Score'] < 0.42) {
             $resultAnalisiBilancio = "Alert";
-        } else if ($bilancioData['Giudizi']['Score'] >= 0.42 && $bilancioData['Giudizi']['Score'] < 0.56) {
+        } else if ($bilancioData['Score'] >= 0.42 && $bilancioData['Score'] < 0.56) {
             $resultAnalisiBilancio = "Rischio alert";
-        } else if ($bilancioData['Giudizi']['Score'] >= 0.56 && $bilancioData['Giudizi']['Score'] < 0.70) {
+        } else if ($bilancioData['Score'] >= 0.56 && $bilancioData['Score'] < 0.70) {
             $resultAnalisiBilancio = "Fragilità elevata";
-        } else if ($bilancioData['Giudizi']['Score'] >= 0.70 && $bilancioData['Giudizi']['Score'] < 0.85) {
+        } else if ($bilancioData['Score'] >= 0.70 && $bilancioData['Score'] < 0.85) {
             $resultAnalisiBilancio = "Fragilità";
-        } else if ($bilancioData['Giudizi']['Score'] >= 0.85 && $bilancioData['Giudizi']['Score'] <= 1) {
+        } else if ($bilancioData['Score'] >= 0.85 && $bilancioData['Score'] <= 1) {
             $resultAnalisiBilancio = "Solidità";
         }
 
+        $scoreASIS['1'] = (float)str_replace(',', '.', $scoreASIS['1'] );
         if ($scoreASIS['1'] >= 0 && $scoreASIS['1'] < 0.14) {
             $resultMinacceRapportiCommerciali = "Default";
         } else if ($scoreASIS['1'] >= 0.14 && $scoreASIS['1'] < 0.28) {
@@ -1087,6 +1090,7 @@ class AllertaHelper
         }
 
 
+        $scoreASIS['2'] = (float)str_replace(',', '.', $scoreASIS['2'] );
         if ($scoreASIS['2'] >= 0 && $scoreASIS['2'] < 0.14) {
             $resultMinacceGestioneAziendale = "Default";
         } else if ($scoreASIS['2'] >= 0.14 && $scoreASIS['2'] < 0.28) {
@@ -1106,6 +1110,7 @@ class AllertaHelper
         }
 
 
+        $scoreASIS['3'] = (float)str_replace(',', '.', $scoreASIS['3'] );
         if ($scoreASIS['3'] >= 0 && $scoreASIS['3'] < 0.14) {
             $resultMinacceEventiPregiudizievoli = "Default";
         } else if ($scoreASIS['3'] >= 0.14 && $scoreASIS['3'] < 0.28) {
@@ -1125,6 +1130,7 @@ class AllertaHelper
         }
 
 
+        $scoreASIS['4'] = (float)str_replace(',', '.', $scoreASIS['4'] );
         if ($scoreASIS['4'] >= 0 && $scoreASIS['4'] < 0.14) {
             $resultMinacceRischiCaratteristici = "Default";
         } else if ($scoreASIS['4'] >= 0.14 && $scoreASIS['4'] < 0.28) {
@@ -1173,7 +1179,7 @@ class AllertaHelper
 
     public function getAsIsFinalScore($bilancioData, $scoreCR, $scoreASIS)
     {
-        $scoreBilacioData = (float)str_replace(',', '.', $bilancioData['Giudizi']['Score']);
+        $scoreBilacioData = (float)str_replace(',', '.', $bilancioData['Score']);
 
         $ASISfinalScore = array("Score" => ((float)$scoreBilacioData * 0.25) + ((float)$scoreCR * 0.25) + ((float)$scoreASIS['1'] * 0.1) + ((float)$scoreASIS['2'] * 0.1) + ((float)$scoreASIS['3'] * 0.15) + ((float)$scoreASIS['4'] * 0.15));
 
@@ -1215,6 +1221,9 @@ class AllertaHelper
             6 => array("Min" => 0.85, "Max" => 1, "Giudizio" => "Solidità")
         );
         $generalScore = array();
+
+
+        $scoreASIS['4'] = (float)str_replace(',', '.', $scoreASIS['4'] );
 
         if ($scoreASIS['4'] < 0.75) {
             $generalScore["Giudizio"] = $rangeGiudizi[$ASISfinalScore["Index"] - 1]['Giudizio'];

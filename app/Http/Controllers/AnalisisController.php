@@ -56,4 +56,117 @@ class AnalisisController extends Controller
                 ], 200);
         
     }
+
+    public function getDSCRAnalisi(Request $dscrReq)
+    {
+        $bilancioHelper = new BilanciHelper;
+
+        $saveDscrData = $bilancioHelper->saveDscrAnalisi($dscrReq->all());
+
+        if($saveDscrData === 'Dati DSCR salvati correttamente') {
+            $calcoloDSCR = $bilancioHelper->getCalcoloDSCR($dscrReq->all());
+
+            if ($calcoloDSCR > 1) {
+                $dscrData = 'Azienda non a rischio';
+            } else {
+                $dscrData = 'Azienda a rischio';
+            }
+
+            return response()->json([
+                'error' => false,
+                'result' => $calcoloDSCR,
+                'alert' => $dscrData
+            ]);
+        } else {
+            return $saveDscrData;
+        }
+    }
+
+    public function getAgenziaEntrateAlert(Request $agenziaEntrateReq)
+    {
+        $bilancioHelper = new BilanciHelper;
+        $saveAgenziaEntrate = $bilancioHelper->saveAgenziaEntrate($agenziaEntrateReq->all());
+ 
+       if($saveAgenziaEntrate === 'Dati AgenziaEntrate salvati correttamente') {
+            $agenziaEntrate = $bilancioHelper->calculateAgenziaEntrate($agenziaEntrateReq->all());
+
+            return response()->json([
+                'error' => false,
+                'result' => $agenziaEntrate["agenziaEntrate4"]['agenziaEntrate4'],
+                'alert' => $agenziaEntrate['alert']
+            ]);
+        } else {
+            return $saveAgenziaEntrate;
+        }
+    }
+
+    public function getInpsAlert(Request $inpsReq)
+    {
+        $bilancioHelper = new BilanciHelper;
+        $checkInpsData = $bilancioHelper->saveInps($inpsReq->all());
+       
+        if($checkInpsData === 'Dati Inps salvati correttamente') {
+            $inps = $bilancioHelper->calcoloINPS($inpsReq->all());
+
+            return response()->json([
+                'error' => false,
+                'result' => $inps["inps3"],
+                'alert' => $inps['alert']
+            ]);
+        } else {
+            return $checkInpsData;
+        }
+    }
+
+    public function getRetribuzioniAlert(Request $retribuzioniReq)
+    {
+        $bilancioHelper = new BilanciHelper;
+        $checkRetribuzioniData = $bilancioHelper->saveRetribuzione($retribuzioniReq->all());
+
+        if($checkRetribuzioniData === 'Dati retribuzioni salvati correttamente') {
+            $retribuzioni = $bilancioHelper->calculateRetribuzione($retribuzioniReq->all());
+
+            return response()->json([
+                'error' => false,
+                'result' => $retribuzioni["retribuzioni3"],
+                'alert' => $retribuzioni['alert']
+            ]);
+        } else {
+            return $checkRetribuzioniData;
+        } 
+    }
+
+    public function getFornitoriAlert(Request $fornitoriReq)
+    {
+        $bilancioHelper = new BilanciHelper;
+        $checkFornitoriData = $bilancioHelper->saveFornitori($fornitoriReq->all());
+       
+        if($checkFornitoriData === 'Dati fornitori salvati correttamente') {
+            $fornitori = $bilancioHelper->calculateFornitori($fornitoriReq->all());
+
+            return response()->json([
+                'error' => false,
+                'alert' => $fornitori
+            ]);
+        } else {
+            return $checkFornitoriData;
+        }  
+    }
+
+    public function getRiscossione(Request $riscossioneReq)
+    {
+        $bilancioHelper = new BilanciHelper;
+        $checkRiscossioneData = $bilancioHelper->saveRiscossione($riscossioneReq->all());
+       
+        if($checkRiscossioneData === 'Dati riscossione salvati correttamente') { 
+            $riscossione = $bilancioHelper->calculateRiscossione($riscossioneReq->all());
+
+            return response()->json([
+                'error' => false,
+                'alert' => $riscossione
+            ]);
+        } else {
+            return $checkRiscossioneData;
+        }  
+    }
 }

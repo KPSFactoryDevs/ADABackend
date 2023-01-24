@@ -30,5 +30,7 @@ class VerifyCsrfToken extends Middleware
 		'api/deleteDocument',
         'api/editCompany',
         'api/analisiBilancioBasic',
+        'api/missingVoices',
+        'api/getBilanciDocuments',
     ];
 }

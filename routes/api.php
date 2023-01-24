@@ -37,7 +37,14 @@ Route::group(['middleware' => ['cors', 'json.response']], function () {
     Route::get('/getAllBilanci', 'App\Financial\Bilanci\Controllers\BilanciController@index');
     Route::get('/getLatestYears', 'App\Financial\Bilanci\Controllers\BilanciController@getLatestYears');
     Route::delete('/bilancio/{idBilancio}', 'App\Financial\Bilanci\Controllers\BilanciController@destroy');
-
+    Route::get('/getBilanciDocuments', 'App\Financial\Bilanci\Controllers\BilanciController@getDocuments');
+    Route::post('/missingVoices', 'App\Financial\Bilanci\Controllers\BilanciController@missingVoices');
+    Route::post('/getDSCRAnalisi', 'App\Http\Controllers\AnalisisController@getDSCRAnalisi');
+    Route::post('/getAgenziaEntrateAlert', 'App\Http\Controllers\AnalisisController@getAgenziaEntrateAlert');
+    Route::post('/getInpsAlert', 'App\Http\Controllers\AnalisisController@getInpsAlert');
+    Route::post('/getRetribuzioniAlert', 'App\Http\Controllers\AnalisisController@getRetribuzioniAlert');
+    Route::post('/getFornitoriAlert', 'App\Http\Controllers\AnalisisController@getFornitoriAlert');
+    Route::post('/getRiscossione', 'App\Http\Controllers\AnalisisController@getRiscossione');
 
 
 
@@ -46,7 +53,7 @@ Route::group(['middleware' => ['cors', 'json.response']], function () {
     Route::get('/crTrimestrale', 'App\Http\Controllers\CentraleRischiController@dettagliata');
     Route::post('/crRecap', 'App\Http\Controllers\CentraleRischiController@recap');
     Route::post('/importCr', 'App\Http\Controllers\CentraleRischiController@store');
-    Route::get('/getDocuments', 'App\Http\Controllers\CentraleRischiController@getDocuments');
+    Route::get('/getCrDocuments', 'App\Http\Controllers\CentraleRischiController@getDocuments');
     Route::get('/getDocuments/{id}', 'App\Http\Controllers\CentraleRischiController@getDocumentsById');
     Route::delete('/deleteDocument/{idDocument}', 'App\Http\Controllers\CentraleRischiController@destroy');
 
