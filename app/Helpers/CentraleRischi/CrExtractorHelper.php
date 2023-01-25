@@ -1401,7 +1401,7 @@ AND t.divisa = t2.divisa');
     public function getTotaleAffidamentiPerMese($lastYearPeriod, $categories, $banks)
     {
 
-        $indebitamentoPerMese = array(array('Data', 'Accordato', 'Utilizzato'));
+
         $affidamentoPerMese = array("RISCHI A SCADENZA" => array(array('Data', 'Accordato', 'Utilizzato')), "RISCHI A REVOCA" => array(array('Data', 'Accordato', 'Utilizzato')), "RISCHI AUTOLIQUIDANTI" => array(array('Data', 'Accordato', 'Utilizzato')));
 
         $singleYear = array_key_first($lastYearPeriod);
