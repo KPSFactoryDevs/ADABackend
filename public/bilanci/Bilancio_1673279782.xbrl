@@ -1,0 +1,171 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<!--TSS Xbrl generator version:1.9.3.0 2019.03.12 Tassonomia 2018-11-04 -->
+<!--xbrl generato il 24/11/2020 10:18:44-->
+<xbrl xmlns="http://www.xbrl.org/2003/instance" xmlns:link="http://www.xbrl.org/2003/linkbase" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:iso4217="http://www.xbrl.org/2003/iso4217" xmlns:xbrli="http://www.xbrl.org/2003/instance" xmlns:itcc-ci="http://www.infocamere.it/itnn/fr/itcc/ci/2018-11-04" xmlns:itcc-ci-micr="http://www.infocamere.it/itnn/fr/itcc/ci/micr/2018-11-04" > 
+  <link:schemaRef xlink:type="simple" xlink:arcrole="http://www.w3.org/1999/xlink/properties/linkbase" xlink:href="itcc-ci-micr-2018-11-04.xsd"/>
+  <context id="cntxCorr_d">
+    <entity>
+      <identifier scheme="http://www.infocamere.it">05944450823</identifier>
+    </entity>
+    <period>
+    <startDate>2019-01-01</startDate>
+    <endDate>2019-12-31</endDate>
+    </period>
+    <scenario>
+      <itcc-ci-micr:scen>Depositato</itcc-ci-micr:scen>
+    </scenario>
+  </context>
+  <context id="cntxCorr_i">
+    <entity>
+      <identifier scheme="http://www.infocamere.it">05944450823</identifier>
+    </entity>
+    <period>
+    <instant>2019-12-31</instant>
+    </period>
+    <scenario>
+      <itcc-ci-micr:scen>Depositato</itcc-ci-micr:scen>
+    </scenario>
+  </context>
+  <context id="cntxPrev_d">
+    <entity>
+      <identifier scheme="http://www.infocamere.it">05944450823</identifier>
+    </entity>
+    <period>
+    <startDate>2018-01-01</startDate>
+    <endDate>2018-12-31</endDate>
+    </period>
+    <scenario>
+      <itcc-ci-micr:scen>Depositato</itcc-ci-micr:scen>
+    </scenario>
+  </context>
+  <context id="cntxPrev_i">
+    <entity>
+      <identifier scheme="http://www.infocamere.it">05944450823</identifier>
+    </entity>
+    <period>
+    <instant>2018-12-31</instant>
+    </period>
+    <scenario>
+      <itcc-ci-micr:scen>Depositato</itcc-ci-micr:scen>
+    </scenario>
+  </context>
+  <unit id="eur">
+    <measure>iso4217:EUR</measure>
+  </unit>
+  <unit id="shares">
+    <measure>xbrli:shares</measure>
+  </unit>
+  <unit id="pure">
+    <measure>xbrli:pure</measure>
+  </unit>
+  <itcc-ci:DatiAnagraficiDenominazione contextRef="cntxCorr_i">M.G. DISTRIBUZIONE S.R.L.</itcc-ci:DatiAnagraficiDenominazione>
+  <itcc-ci:DatiAnagraficiSede contextRef="cntxCorr_i">90010 FICARAZZI (PA) VIA CALABRESE N.39</itcc-ci:DatiAnagraficiSede>
+  <itcc-ci:DatiAnagraficiCapitaleSociale contextRef="cntxCorr_i" unitRef="eur" decimals="0">10000</itcc-ci:DatiAnagraficiCapitaleSociale>
+  <itcc-ci:DatiAnagraficiCapitaleSocialeInteramenteVersato contextRef="cntxCorr_i">true</itcc-ci:DatiAnagraficiCapitaleSocialeInteramenteVersato>
+  <itcc-ci:DatiAnagraficiCodiceCciaa contextRef="cntxCorr_i">PA</itcc-ci:DatiAnagraficiCodiceCciaa>
+  <itcc-ci:DatiAnagraficiPartitaIva contextRef="cntxCorr_i">05944450823</itcc-ci:DatiAnagraficiPartitaIva>
+  <itcc-ci:DatiAnagraficiCodiceFiscale contextRef="cntxCorr_i">05944450823</itcc-ci:DatiAnagraficiCodiceFiscale>
+  <itcc-ci:DatiAnagraficiNumeroRea contextRef="cntxCorr_i">286535</itcc-ci:DatiAnagraficiNumeroRea>
+  <itcc-ci:DatiAnagraficiFormaGiuridica contextRef="cntxCorr_i">SOCIETA' A RESPONSABILITA' LIMITATA (SR)</itcc-ci:DatiAnagraficiFormaGiuridica>
+  <itcc-ci:DatiAnagraficiSettoreAttivitaPrevalenteAteco contextRef="cntxCorr_i">COMMERCIO ALL'INGROSSO NON SPECIALIZZATO DI ALTRI PRODOTTI ALIMENTARI, BEVANDE E TABACCO (463920)</itcc-ci:DatiAnagraficiSettoreAttivitaPrevalenteAteco>
+  <itcc-ci:DatiAnagraficiSocietaLiquidazione contextRef="cntxCorr_i">false</itcc-ci:DatiAnagraficiSocietaLiquidazione>
+  <itcc-ci:DatiAnagraficiSocietaSocioUnico contextRef="cntxCorr_i">false</itcc-ci:DatiAnagraficiSocietaSocioUnico>
+  <itcc-ci:DatiAnagraficiSocietaSottopostaAltruiAttivitaDirezioneCoordinamento contextRef="cntxCorr_i">false</itcc-ci:DatiAnagraficiSocietaSottopostaAltruiAttivitaDirezioneCoordinamento>
+  <itcc-ci:DatiAnagraficiAppartenenzaGruppo contextRef="cntxCorr_i">false</itcc-ci:DatiAnagraficiAppartenenzaGruppo>
+  <itcc-ci:TotaleImmobilizzazioniMateriali contextRef="cntxCorr_i" unitRef="eur" decimals="0">136</itcc-ci:TotaleImmobilizzazioniMateriali>
+  <itcc-ci:TotaleImmobilizzazioni contextRef="cntxCorr_i" unitRef="eur" decimals="0">136</itcc-ci:TotaleImmobilizzazioni>
+  <itcc-ci:TotaleRimanenze contextRef="cntxCorr_i" unitRef="eur" decimals="0">59963</itcc-ci:TotaleRimanenze>
+  <itcc-ci:TotaleCrediti contextRef="cntxCorr_i" unitRef="eur" decimals="0">82091</itcc-ci:TotaleCrediti>
+  <itcc-ci:TotaleDisponibilitaLiquide contextRef="cntxCorr_i" unitRef="eur" decimals="0">7373</itcc-ci:TotaleDisponibilitaLiquide>
+  <itcc-ci:TotaleAttivoCircolante contextRef="cntxCorr_i" unitRef="eur" decimals="0">149427</itcc-ci:TotaleAttivoCircolante>
+  <itcc-ci:TotaleAttivo contextRef="cntxCorr_i" unitRef="eur" decimals="0">149563</itcc-ci:TotaleAttivo>
+  <itcc-ci:PatrimonioNettoCapitale contextRef="cntxCorr_i" unitRef="eur" decimals="0">10000</itcc-ci:PatrimonioNettoCapitale>
+  <itcc-ci:PatrimonioNettoRiservaLegale contextRef="cntxCorr_i" unitRef="eur" decimals="0">2303</itcc-ci:PatrimonioNettoRiservaLegale>
+  <itcc-ci:PatrimonioNettoAltreRiserveDistintamenteIndicateTotaleAltreRiserve contextRef="cntxCorr_i" unitRef="eur" decimals="0" id ="FootNote_PatrimonioNettoAltreRiserveDistintamenteIndicateTotaleAltreRiserve_curr">39498</itcc-ci:PatrimonioNettoAltreRiserveDistintamenteIndicateTotaleAltreRiserve>
+  <itcc-ci:PatrimonioNettoUtilePerditaEsercizio contextRef="cntxCorr_i" unitRef="eur" decimals="0">11681</itcc-ci:PatrimonioNettoUtilePerditaEsercizio>
+  <itcc-ci:TotalePatrimonioNetto contextRef="cntxCorr_i" unitRef="eur" decimals="0">63482</itcc-ci:TotalePatrimonioNetto>
+  <itcc-ci:TrattamentoFineRapportoLavoroSubordinato contextRef="cntxCorr_i" unitRef="eur" decimals="0">4392</itcc-ci:TrattamentoFineRapportoLavoroSubordinato>
+  <itcc-ci:TotaleDebiti contextRef="cntxCorr_i" unitRef="eur" decimals="0">80627</itcc-ci:TotaleDebiti>
+  <itcc-ci:PassivoRateiRisconti contextRef="cntxCorr_i" unitRef="eur" decimals="0">1062</itcc-ci:PassivoRateiRisconti>
+  <itcc-ci:TotalePassivo contextRef="cntxCorr_i" unitRef="eur" decimals="0">149563</itcc-ci:TotalePassivo>
+  <itcc-ci:TotaleImmobilizzazioniMateriali contextRef="cntxPrev_i" unitRef="eur" decimals="0">407</itcc-ci:TotaleImmobilizzazioniMateriali>
+  <itcc-ci:TotaleImmobilizzazioni contextRef="cntxPrev_i" unitRef="eur" decimals="0">407</itcc-ci:TotaleImmobilizzazioni>
+  <itcc-ci:TotaleRimanenze contextRef="cntxPrev_i" unitRef="eur" decimals="0">50230</itcc-ci:TotaleRimanenze>
+  <itcc-ci:TotaleCrediti contextRef="cntxPrev_i" unitRef="eur" decimals="0">118628</itcc-ci:TotaleCrediti>
+  <itcc-ci:TotaleDisponibilitaLiquide contextRef="cntxPrev_i" unitRef="eur" decimals="0">3538</itcc-ci:TotaleDisponibilitaLiquide>
+  <itcc-ci:TotaleAttivoCircolante contextRef="cntxPrev_i" unitRef="eur" decimals="0">172396</itcc-ci:TotaleAttivoCircolante>
+  <itcc-ci:TotaleAttivo contextRef="cntxPrev_i" unitRef="eur" decimals="0">172803</itcc-ci:TotaleAttivo>
+  <itcc-ci:PatrimonioNettoCapitale contextRef="cntxPrev_i" unitRef="eur" decimals="0">10000</itcc-ci:PatrimonioNettoCapitale>
+  <itcc-ci:PatrimonioNettoRiservaLegale contextRef="cntxPrev_i" unitRef="eur" decimals="0">1772</itcc-ci:PatrimonioNettoRiservaLegale>
+  <itcc-ci:PatrimonioNettoAltreRiserveDistintamenteIndicateTotaleAltreRiserve contextRef="cntxPrev_i" unitRef="eur" decimals="0">29421</itcc-ci:PatrimonioNettoAltreRiserveDistintamenteIndicateTotaleAltreRiserve>
+  <itcc-ci:PatrimonioNettoUtilePerditaEsercizio contextRef="cntxPrev_i" unitRef="eur" decimals="0">10610</itcc-ci:PatrimonioNettoUtilePerditaEsercizio>
+  <itcc-ci:TotalePatrimonioNetto contextRef="cntxPrev_i" unitRef="eur" decimals="0">51803</itcc-ci:TotalePatrimonioNetto>
+  <itcc-ci:TrattamentoFineRapportoLavoroSubordinato contextRef="cntxPrev_i" unitRef="eur" decimals="0">3963</itcc-ci:TrattamentoFineRapportoLavoroSubordinato>
+  <itcc-ci:TotaleDebiti contextRef="cntxPrev_i" unitRef="eur" decimals="0">114273</itcc-ci:TotaleDebiti>
+  <itcc-ci:PassivoRateiRisconti contextRef="cntxPrev_i" unitRef="eur" decimals="0">2764</itcc-ci:PassivoRateiRisconti>
+  <itcc-ci:TotalePassivo contextRef="cntxPrev_i" unitRef="eur" decimals="0">172803</itcc-ci:TotalePassivo>
+  <itcc-ci:CreditiEsigibiliEntroEsercizioSuccessivo contextRef="cntxCorr_i" unitRef="eur" decimals="0">82091</itcc-ci:CreditiEsigibiliEntroEsercizioSuccessivo>
+  <itcc-ci:DebitiEsigibiliEntroEsercizioSuccessivo contextRef="cntxCorr_i" unitRef="eur" decimals="0">80627</itcc-ci:DebitiEsigibiliEntroEsercizioSuccessivo>
+  <itcc-ci:CreditiEsigibiliEntroEsercizioSuccessivo contextRef="cntxPrev_i" unitRef="eur" decimals="0">118628</itcc-ci:CreditiEsigibiliEntroEsercizioSuccessivo>
+  <itcc-ci:DebitiEsigibiliEntroEsercizioSuccessivo contextRef="cntxPrev_i" unitRef="eur" decimals="0">114273</itcc-ci:DebitiEsigibiliEntroEsercizioSuccessivo>
+  <itcc-ci:ValoreProduzioneRicaviVenditePrestazioni contextRef="cntxCorr_d" unitRef="eur" decimals="0">379965</itcc-ci:ValoreProduzioneRicaviVenditePrestazioni>
+  <itcc-ci:ValoreProduzioneAltriRicaviProventiAltri contextRef="cntxCorr_d" unitRef="eur" decimals="0">6848</itcc-ci:ValoreProduzioneAltriRicaviProventiAltri>
+  <itcc-ci:ValoreProduzioneAltriRicaviProventiTotaleAltriRicaviProventi contextRef="cntxCorr_d" unitRef="eur" decimals="0">6848</itcc-ci:ValoreProduzioneAltriRicaviProventiTotaleAltriRicaviProventi>
+  <itcc-ci:TotaleValoreProduzione contextRef="cntxCorr_d" unitRef="eur" decimals="0">386813</itcc-ci:TotaleValoreProduzione>
+  <itcc-ci:CostiProduzioneMateriePrimeSussidiarieConsumoMerci contextRef="cntxCorr_d" unitRef="eur" decimals="0">323799</itcc-ci:CostiProduzioneMateriePrimeSussidiarieConsumoMerci>
+  <itcc-ci:CostiProduzioneServizi contextRef="cntxCorr_d" unitRef="eur" decimals="0">16564</itcc-ci:CostiProduzioneServizi>
+  <itcc-ci:CostiProduzionePersonaleSalariStipendi contextRef="cntxCorr_d" unitRef="eur" decimals="0">22790</itcc-ci:CostiProduzionePersonaleSalariStipendi>
+  <itcc-ci:CostiProduzionePersonaleOneriSociali contextRef="cntxCorr_d" unitRef="eur" decimals="0">6337</itcc-ci:CostiProduzionePersonaleOneriSociali>
+  <itcc-ci:CostiProduzionePersonaleTrattamentoFineRapporto contextRef="cntxCorr_d" unitRef="eur" decimals="0">2172</itcc-ci:CostiProduzionePersonaleTrattamentoFineRapporto>
+  <itcc-ci:CostiProduzionePersonaleTotaleCostiPersonale contextRef="cntxCorr_d" unitRef="eur" decimals="0">31299</itcc-ci:CostiProduzionePersonaleTotaleCostiPersonale>
+  <itcc-ci:CostiProduzioneAmmortamentiSvalutazioniAmmortamentoImmobilizzazioniMateriali contextRef="cntxCorr_d" unitRef="eur" decimals="0">271</itcc-ci:CostiProduzioneAmmortamentiSvalutazioniAmmortamentoImmobilizzazioniMateriali>
+  <itcc-ci:CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni contextRef="cntxCorr_d" unitRef="eur" decimals="0">271</itcc-ci:CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni>
+  <itcc-ci:CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci contextRef="cntxCorr_d" unitRef="eur" decimals="0">-9733</itcc-ci:CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci>
+  <itcc-ci:CostiProduzioneOneriDiversiGestione contextRef="cntxCorr_d" unitRef="eur" decimals="0">5840</itcc-ci:CostiProduzioneOneriDiversiGestione>
+  <itcc-ci:TotaleCostiProduzione contextRef="cntxCorr_d" unitRef="eur" decimals="0">368040</itcc-ci:TotaleCostiProduzione>
+  <itcc-ci:DifferenzaValoreCostiProduzione contextRef="cntxCorr_d" unitRef="eur" decimals="0">18773</itcc-ci:DifferenzaValoreCostiProduzione>
+  <itcc-ci:ProventiOneriFinanziariInteressiAltriOneriFinanziariAltri contextRef="cntxCorr_d" unitRef="eur" decimals="0">2467</itcc-ci:ProventiOneriFinanziariInteressiAltriOneriFinanziariAltri>
+  <itcc-ci:ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari contextRef="cntxCorr_d" unitRef="eur" decimals="0">2467</itcc-ci:ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari>
+  <itcc-ci:TotaleProventiOneriFinanziari contextRef="cntxCorr_d" unitRef="eur" decimals="0">-2467</itcc-ci:TotaleProventiOneriFinanziari>
+  <itcc-ci:RisultatoPrimaImposte contextRef="cntxCorr_d" unitRef="eur" decimals="0">16306</itcc-ci:RisultatoPrimaImposte>
+  <itcc-ci:ImposteRedditoEsercizioCorrentiDifferiteAnticipateImposteCorrenti contextRef="cntxCorr_d" unitRef="eur" decimals="0">4625</itcc-ci:ImposteRedditoEsercizioCorrentiDifferiteAnticipateImposteCorrenti>
+  <itcc-ci:ImposteRedditoEsercizioCorrentiDifferiteAnticipateTotaleImposteRedditoEsercizioCorrentiDifferiteAnticipate contextRef="cntxCorr_d" unitRef="eur" decimals="0">4625</itcc-ci:ImposteRedditoEsercizioCorrentiDifferiteAnticipateTotaleImposteRedditoEsercizioCorrentiDifferiteAnticipate>
+  <itcc-ci:UtilePerditaEsercizio contextRef="cntxCorr_d" unitRef="eur" decimals="0">11681</itcc-ci:UtilePerditaEsercizio>
+  <itcc-ci:ValoreProduzioneRicaviVenditePrestazioni contextRef="cntxPrev_d" unitRef="eur" decimals="0">418839</itcc-ci:ValoreProduzioneRicaviVenditePrestazioni>
+  <itcc-ci:ValoreProduzioneAltriRicaviProventiAltri contextRef="cntxPrev_d" unitRef="eur" decimals="0">19</itcc-ci:ValoreProduzioneAltriRicaviProventiAltri>
+  <itcc-ci:ValoreProduzioneAltriRicaviProventiTotaleAltriRicaviProventi contextRef="cntxPrev_d" unitRef="eur" decimals="0">19</itcc-ci:ValoreProduzioneAltriRicaviProventiTotaleAltriRicaviProventi>
+  <itcc-ci:TotaleValoreProduzione contextRef="cntxPrev_d" unitRef="eur" decimals="0">418858</itcc-ci:TotaleValoreProduzione>
+  <itcc-ci:CostiProduzioneMateriePrimeSussidiarieConsumoMerci contextRef="cntxPrev_d" unitRef="eur" decimals="0">376301</itcc-ci:CostiProduzioneMateriePrimeSussidiarieConsumoMerci>
+  <itcc-ci:CostiProduzioneServizi contextRef="cntxPrev_d" unitRef="eur" decimals="0">20485</itcc-ci:CostiProduzioneServizi>
+  <itcc-ci:CostiProduzionePersonaleSalariStipendi contextRef="cntxPrev_d" unitRef="eur" decimals="0">34915</itcc-ci:CostiProduzionePersonaleSalariStipendi>
+  <itcc-ci:CostiProduzionePersonaleOneriSociali contextRef="cntxPrev_d" unitRef="eur" decimals="0">9196</itcc-ci:CostiProduzionePersonaleOneriSociali>
+  <itcc-ci:CostiProduzionePersonaleTrattamentoFineRapporto contextRef="cntxPrev_d" unitRef="eur" decimals="0">1954</itcc-ci:CostiProduzionePersonaleTrattamentoFineRapporto>
+  <itcc-ci:CostiProduzionePersonaleTotaleCostiPersonale contextRef="cntxPrev_d" unitRef="eur" decimals="0">46065</itcc-ci:CostiProduzionePersonaleTotaleCostiPersonale>
+  <itcc-ci:CostiProduzioneAmmortamentiSvalutazioniAmmortamentoImmobilizzazioniMateriali contextRef="cntxPrev_d" unitRef="eur" decimals="0">271</itcc-ci:CostiProduzioneAmmortamentiSvalutazioniAmmortamentoImmobilizzazioniMateriali>
+  <itcc-ci:CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni contextRef="cntxPrev_d" unitRef="eur" decimals="0">271</itcc-ci:CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni>
+  <itcc-ci:CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci contextRef="cntxPrev_d" unitRef="eur" decimals="0">-45718</itcc-ci:CostiProduzioneVariazioniRimanenzeMateriePrimeSussidiarieConsumoMerci>
+  <itcc-ci:CostiProduzioneOneriDiversiGestione contextRef="cntxPrev_d" unitRef="eur" decimals="0">4249</itcc-ci:CostiProduzioneOneriDiversiGestione>
+  <itcc-ci:TotaleCostiProduzione contextRef="cntxPrev_d" unitRef="eur" decimals="0">401653</itcc-ci:TotaleCostiProduzione>
+  <itcc-ci:DifferenzaValoreCostiProduzione contextRef="cntxPrev_d" unitRef="eur" decimals="0">17205</itcc-ci:DifferenzaValoreCostiProduzione>
+  <itcc-ci:ProventiOneriFinanziariInteressiAltriOneriFinanziariAltri contextRef="cntxPrev_d" unitRef="eur" decimals="0">2089</itcc-ci:ProventiOneriFinanziariInteressiAltriOneriFinanziariAltri>
+  <itcc-ci:ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari contextRef="cntxPrev_d" unitRef="eur" decimals="0">2089</itcc-ci:ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari>
+  <itcc-ci:TotaleProventiOneriFinanziari contextRef="cntxPrev_d" unitRef="eur" decimals="0">-2089</itcc-ci:TotaleProventiOneriFinanziari>
+  <itcc-ci:RisultatoPrimaImposte contextRef="cntxPrev_d" unitRef="eur" decimals="0">15116</itcc-ci:RisultatoPrimaImposte>
+  <itcc-ci:ImposteRedditoEsercizioCorrentiDifferiteAnticipateImposteCorrenti contextRef="cntxPrev_d" unitRef="eur" decimals="0">4506</itcc-ci:ImposteRedditoEsercizioCorrentiDifferiteAnticipateImposteCorrenti>
+  <itcc-ci:ImposteRedditoEsercizioCorrentiDifferiteAnticipateTotaleImposteRedditoEsercizioCorrentiDifferiteAnticipate contextRef="cntxPrev_d" unitRef="eur" decimals="0">4506</itcc-ci:ImposteRedditoEsercizioCorrentiDifferiteAnticipateTotaleImposteRedditoEsercizioCorrentiDifferiteAnticipate>
+  <itcc-ci:UtilePerditaEsercizio contextRef="cntxPrev_d" unitRef="eur" decimals="0">10610</itcc-ci:UtilePerditaEsercizio>
+  <itcc-ci:CostiProduzionePersonaleTrattamentoFineRapportoTrattamentoQuiescenzaAltriCostiPersonale contextRef="cntxCorr_d" unitRef="eur" decimals="0">2172</itcc-ci:CostiProduzionePersonaleTrattamentoFineRapportoTrattamentoQuiescenzaAltriCostiPersonale>
+  <itcc-ci:CostiProduzioneAmmortamentiSvalutazioniAmmortamentoImmobilizzazioniImmaterialiMaterialiAltreSvalutazioniImmobilizzazioni contextRef="cntxCorr_d" unitRef="eur" decimals="0">271</itcc-ci:CostiProduzioneAmmortamentiSvalutazioniAmmortamentoImmobilizzazioniImmaterialiMaterialiAltreSvalutazioniImmobilizzazioni>
+  <itcc-ci:CostiProduzionePersonaleTrattamentoFineRapportoTrattamentoQuiescenzaAltriCostiPersonale contextRef="cntxPrev_d" unitRef="eur" decimals="0">1954</itcc-ci:CostiProduzionePersonaleTrattamentoFineRapportoTrattamentoQuiescenzaAltriCostiPersonale>
+  <itcc-ci:CostiProduzioneAmmortamentiSvalutazioniAmmortamentoImmobilizzazioniImmaterialiMaterialiAltreSvalutazioniImmobilizzazioni contextRef="cntxPrev_d" unitRef="eur" decimals="0">271</itcc-ci:CostiProduzioneAmmortamentiSvalutazioniAmmortamentoImmobilizzazioniImmaterialiMaterialiAltreSvalutazioniImmobilizzazioni>
+  <itcc-ci:CommentoBilancioMicroAltreInformazioni contextRef = "cntxCorr_i">&lt;span style='font:7.0pt "Times New Roman"'&gt;&lt;/span&gt;
+      &lt;p  style="margin-top:0cm;margin-right:.05pt;margin-bottom:0cm; margin-left:0cm;text-align:justify;text-autospace:none"&gt;&lt;span style='font-family: "Times New Roman",serif'&gt;Presidente del Consiglio di amministrazione&lt;span style=""&gt; &lt;/span&gt;&lt;/span&gt;&lt;/p&gt;
+      &lt;p  style="margin-bottom:0cm"&gt;&lt;span style='font-family:"Times New Roman",serif'&gt;Rosalinda Marsala&lt;/span&gt;&lt;/p&gt;
+      &lt;p  style="margin-bottom:0cm"&gt;&lt;span style='font-family:"Times New Roman",serif'&gt;&amp;#160;&lt;/span&gt;&lt;/p&gt;
+  </itcc-ci:CommentoBilancioMicroAltreInformazioni>
+<link:footnoteLink xlink:type="extended" xlink:role="http://www.xbrl.org/2003/role/link">
+<link:loc xlink:type="locator" xlink:href="#FootNote_PatrimonioNettoAltreRiserveDistintamenteIndicateTotaleAltreRiserve_curr" xlink:label="PatrimonioNettoAltreRiserveDistintamenteIndicateTotaleAltreRiserve_curr" />
+<link:footnote xlink:type="resource" xlink:label="FootNote_PatrimonioNettoAltreRiserveDistintamenteIndicateTotaleAltreRiserve_curr" xlink:role="http://www.xbrl.org/2003/role/footnote" xml:lang="it">&lt;table class="usertable"&gt;&lt;thead&gt;&lt;tr&gt;&lt;td&gt;Altre riserve&lt;/td&gt;&lt;td&gt;31/12/2019&lt;/td&gt;&lt;td&gt;31/12/2018&lt;/td&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class="string"&gt;Riserva straordinaria&lt;/td&gt;&lt;td class="value"&gt;39.499&lt;/td&gt;&lt;td class="value"&gt;29.419&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td class="string"&gt;Differenza da arrotondamento all'unità di Euro&lt;/td&gt;&lt;td class="value"&gt;(1)&lt;/td&gt;&lt;td class="value"&gt;2&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;</link:footnote>
+<link:footnoteArc xlink:type="arc" xlink:arcrole="http://www.xbrl.org/2003/arcrole/fact-footnote" xlink:from="PatrimonioNettoAltreRiserveDistintamenteIndicateTotaleAltreRiserve_curr" xlink:to="FootNote_PatrimonioNettoAltreRiserveDistintamenteIndicateTotaleAltreRiserve_curr" order="1" />
+</link:footnoteLink><itcc-ci:DichiarazioneConformita contextRef="cntxCorr_i">Il sottoscritto MARSALA ROSALINDA ai sensi dell'art. 47 del d.p.r. n. 445/2000, dichiara che il documento informatico in formato xbrl contenente lo stato patrimoniale, il conto economico e le informazioni in calce, sono conformi ai corrispondenti documenti originali depositati presso la societa'.&lt;br/&gt;Data, 10/11/2020&lt;br/&gt;</itcc-ci:DichiarazioneConformita></xbrl>

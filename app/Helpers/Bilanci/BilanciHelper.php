@@ -86,7 +86,15 @@ class BilanciHelper
             ],
             'ValuesFromDb' => $calculationHelper->getMissingVoicesFromDb(),
             'indiceVociMancanti' => $calculationHelper->_missingVoicesArray,
-            'labels' => $vocis
+            'labels' => $vocis,
+            'Questionari' => [
+                'dscrData' => $calculationHelper->getDSCRData($document->codice_dcumento)['data'],
+                'agenziaEntrate' => $calculationHelper->getAgenziaEntrateData($document->codice_dcumento)['data'],
+                'inps' => $calculationHelper->getInpsData($document->codice_dcumento)['data'],
+                'riscossione' => $calculationHelper->getRiscossioneData($document->codice_dcumento)['data'],
+                'retribuzioni' => $calculationHelper->getRetribuzioniData($document->codice_dcumento)['data'],
+                'fornitori' => $calculationHelper->getFornitoriData($document->codice_dcumento)['data']
+            ]
         );
     }
 

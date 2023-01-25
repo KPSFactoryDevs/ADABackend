@@ -1394,7 +1394,8 @@ AND t.divisa = t2.divisa');
 
     public function getTotaleAffidamentiGeneral($categories, $latestYear, $latestMonth, $banks)
     {
-        return cr::selectRaw("SUM(accordato_operativo) as totAccordatoOperativo, SUM(utilizzato) as totUtilizzato")->where('anno', $latestYear)->where('mese', $latestMonth)->whereIn('categoria', $categories)->whereIn('nome_banca', $banks)->where('document_id', $this->_documentId)->get()->toArray();
+        //return cr::selectRaw("SUM(accordato_operativo) as totAccordatoOperativo, SUM(utilizzato) as totUtilizzato")->where('anno', $latestYear)->where('mese', $latestMonth)->whereIn('categoria', $categories)->whereIn('nome_banca', $banks)->where('document_id', $this->_documentId)->get()->toArray();
+        return cr::groupBy('nome_banca')->groupBy('categoria')->selectRaw("nome_banca, categoria, SUM(accordato_operativo) as totAccordatoOperativo, SUM(utilizzato) as totUtilizzato")->where('anno', $latestYear)->where('mese', $latestMonth)->whereIn('categoria', $categories)->whereIn('nome_banca', $banks)->where('document_id', $this->_documentId)->get()->toArray();
     }
 
     public function getTotaleAffidamentiPerMese($lastYearPeriod, $categories, $banks)
@@ -1428,7 +1429,7 @@ AND t.divisa = t2.divisa');
             $indebitamentoPerMese[] = array($tmp, $singleIndebitamentoData->totAccordatoOperativo, $singleIndebitamentoData->totUtilizzato);
         }
 
-        return array("Indebitamento" => $indebitamentoPerMese, "Affidamenti" => $affidamentoPerMese);
+        return array("IndebitamentoTotale" => $indebitamentoPerMese, "IndebitamentoPerCategoria" => $affidamentoPerMese);
     }
 
     public function getPesiAffidamentiPerBanca($categories, $latestYear, $latestMonth, $banks)

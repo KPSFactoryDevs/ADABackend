@@ -6,7 +6,14 @@ use Illuminate\Support\Facades\DB;
 use stdClass;
 use App\Models\CustomLog;
 use App\Models\MissingVoice;
-
+use App\Models\AnalisiAgenziaEntrate;
+use App\Models\AnalisiInps;
+use App\Models\AnalisiRiscossione;
+use App\Models\AnalisiRetribuzioni;
+use App\Models\AnalisiFornitori;
+use App\Models\Document;
+use App\Models\Bilanci;
+use App\Models\AnalisiDscr;
 
 class BilanciCalculationsHelperAdvanced
 {
@@ -1024,110 +1031,206 @@ class BilanciCalculationsHelperAdvanced
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     public function getIndiceCNDCEC() {
         if($this->getIndiceCNDCECEvaluation()) return "Azienda a Rischio";
 
         return "Azienda NON a Rischio";
     }
 
+    public function getInpsData($codiceDocumento)
+    {
+        $inpsData = AnalisiInps::where('document_id', $codiceDocumento)->latest()->first();
+
+        if($inpsData != null) {
+            return [
+                'data' => $inpsData
+            ];
+        } else {
+            return [
+                'data' => false
+            ];
+        }
+    }
+
+    public function saveInps($dataInps) {
+        if(!isset($dataInps["document_id"])) {
+            return [
+                'error' => true,
+                'message' => "document_id mancante"
+            ];
+        } else {
+            $idDocument = Document::where('codice_documento', $dataInps["document_id"])->first();
+            if ($idDocument == null) {
+                return  [
+                    'error' => true,
+                    'message' => "document_id non trovato"
+                ];
+            } 
+        }
+
+        $response = null;
+        if (!isset($dataInps["INPS1"])) {
+            $response = [
+                'error' => true,
+                'message' => "INPS1 mancante"
+            ];
+        } elseif (!isset($dataInps["INPS2"])) {
+            $response = [
+                'error' => true,
+                'message' => "INPS2 mancante"
+            ];
+        } else {
+            $response = $dataInps;
+        }
+
+        if (!isset($response['error'])) {
+
+            $calcoloInps = $this->calcoloINPS($dataInps);
+            if($calcoloInps) {
+                $response['INPS3'] = $dataInps['INPS3']; //$calcoloInps['inps3'];
+                $response['alertINPS'] = $calcoloInps['alert'];
+    
+                $inpsToDb = AnalisiInps::where('document_id', $dataInps['document_id'])->first();
+
+                if(isset($inpsToDb)) {
+                    $inpsToDb->delete();
+                    AnalisiInps::create($dataInps);
+                } else {
+                    AnalisiInps::create($dataInps);
+                }
+                
+                return "Dati Inps salvati correttamente";
+            } else {
+                return [
+                    "error" => true,
+                    "message" => "INPS1 o INPS2 settato a 0, impossibile calcolare"
+                ];
+            }
+        } else {
+            return $response;
+        }
+    }
 
     public function calcoloINPS($allData)
     {
-        if (empty($allData['INPS1']) || $allData['INPS1'] == 0 || empty($allData['INPS2']) || $allData['INPS2'] == 0) {
+        if (!isset($allData['INPS1']) || !isset($allData['INPS2'])) {
             $alert = "Dati Mancanti";
+        } elseif($allData['INPS1'] == 0 || $allData['INPS2'] == 0) {
+            return false;
         } else {
             $alert = "No";
         }
 
         if ($alert != "Dati Mancanti") {
-            if(str_contains($allData['INPS1'], ',') && str_contains($allData['INPS2'], ',')) {
+/*             if(str_contains($allData['INPS1'], ',') && str_contains($allData['INPS2'], ',')) {
                 $inps3 = ((str_replace(',', '', str_replace('.', '', $allData['INPS1'])) / str_replace(',', '', str_replace('.', '', $allData['INPS2']))) * 100);
             } else {
                 $inps3 = (($allData['INPS1'] / $allData['INPS2']) * 100);
-            }
+            } */
 
             if ($allData['INPS1'] > 50000) {
-                if ($inps3 > 50.50) {
+                if ($allData['INPS3'] > 50.50) {
                     $alert = "Si";
                 }
             }
-        } else {
+        } /* else {
             $inps3 = "NON CALCOLABILE";
-        }
+        } */
 
         $data = [
             'alert' => $alert,
-            'inps3' => $inps3
+            'inps3' => $allData['INPS3'] 
         ];
 
         return $data;
     }
 
+    public function getRiscossioneData($codiceDocumento)
+    {
+        $riscossioneData = AnalisiRiscossione::where('document_id', $codiceDocumento)->latest()->first();
+
+        if($riscossioneData != null) {
+            return [
+                'data' => $riscossioneData
+            ];
+        } else {
+            return [
+                'data' => false
+            ];
+        }
+    }
+
+    public function saveRiscossione($dataRiscossione)
+    {
+/*         if(!isset($dataRiscossione["idBilancio"])) {
+            return [
+                'error' => true,
+                'message' => "idBilancio mancante"
+            ];
+        } else {
+            $idBilancio = Bilanci::where('id', $dataRiscossione["idBilancio"])->first();
+            if ($idBilancio == null) {
+                return  [
+                    'error' => true,
+                    'message' => "idBilancio non trovato"
+                ];
+            } 
+        } */
+
+        if(!isset($dataRiscossione["document_id"])) {
+            return [
+                'error' => true,
+                'message' => "document_id mancante"
+            ];
+        } else {
+            $idDocument = Document::where('codice_documento', $dataRiscossione["document_id"])->first();
+            if ($idDocument == null) {
+                return  [
+                    'error' => true,
+                    'message' => "document_id non trovato"
+                ];
+            } 
+        }
+
+        $response = null;
+
+        if (!isset($dataRiscossione["riscossione"])) {
+            $response = [
+                'error' => true,
+                'message' => "riscossione mancante"
+            ];
+        } else {
+            $response = $dataRiscossione;
+        }
+
+        if (!isset($response['error'])) {
+            $calcoloRiscossione = $this->calculateRiscossione($response);
+
+            $response['alertRiscossione'] = $calcoloRiscossione; 
+
+            $riscossioneToDb = AnalisiRiscossione::where('document_id', $response['document_id'])->first();
+
+            if(isset($riscossioneToDb)) {
+                $riscossioneToDb->delete();
+                AnalisiRiscossione::create($response);
+            } else {
+                AnalisiRiscossione::create($response);
+            }
+            return "Dati riscossione salvati correttamente";
+        } else {
+            return $response;
+        }
+    }
+
     public function calculateRiscossione($allData)
     {
-        if(str_contains($allData['idBilancio'], '"')) {
+/*         if(str_contains($allData['idBilancio'], '"')) {
             $allData['idBilancio'] = str_replace('"', '', $allData['idBilancio']);
         }
 
         $balance = Bilanci::findOrFail($allData['idBilancio']);
 
-        $formaGiuridica = $balance->forma_giuridica;
+        $formaGiuridica = $balance->forma_giuridica; */
 
         if (empty($allData['riscossione']) || $allData['riscossione'] == 0) {
             $alert = "Dati Mancanti";
@@ -1135,69 +1238,213 @@ class BilanciCalculationsHelperAdvanced
             $alert = "No";
         }
 
-        if ($formaGiuridica == "DITTA INDIVIDUALE") {
+/*         if ($formaGiuridica == "DITTA INDIVIDUALE") {
             if ($allData['riscossione'] > 500000) {
                 $alert = "Si";
             } else {
                 $alert = "No";
             }
-        } else {
+        } else { */
             if ($allData['riscossione'] > 1000000) {
                 $alert = "Si";
             } else {
                 $alert = "No";
             }
-        }
+       /*  } */
 
         return $alert;
     }
 
-    public function calculateRetribuzione($allData)
+    public function getRetribuzioniData($codiceDocumento)
+    {
+        $retribuzioniData = AnalisiRetribuzioni::where('document_id', $codiceDocumento)->latest()->first();
+
+        if($retribuzioniData != null) {
+            return [
+                'data' => $retribuzioniData
+            ];
+        } else {
+            return [
+                'data' => false
+            ];
+        }
+    }
+
+    public function saveRetribuzione($dataRetribuzione) 
     {
 
-        if (empty($allData['retribuzioni1']) || $allData['retribuzioni1'] == 0 || empty($allData['retribuzioni2']) || $allData['retribuzioni2'] == 0) {
+        if(!isset($dataRetribuzione["document_id"])) {
+            return [
+                'error' => true,
+                'message' => "document_id mancante"
+            ];
+        } else {
+            $idDocument = Document::where('codice_documento', $dataRetribuzione["document_id"])->first();
+            if ($idDocument == null) {
+                return  [
+                    'error' => true,
+                    'message' => "document_id non trovato"
+                ];
+            } 
+        }
+
+        $response = null;
+        if (!isset($dataRetribuzione["retribuzioni1"])) {
+            $response = [
+                'error' => true,
+                'message' => "retribuzioni1 mancante"
+            ];
+        } elseif (!isset($dataRetribuzione["retribuzioni2"])) {
+            $response = [
+                'error' => true,
+                'message' => "retribuzioni2 mancante"
+            ];
+        } else {
+            $response = $dataRetribuzione;
+        }
+
+        if (!isset($response['error'])) {
+            $calcoloRetribuzioni = $this->calculateRetribuzione($response);
+            if($calcoloRetribuzioni) {
+                $response['retribuzioni3'] =  $dataRetribuzione['retribuzioni3']; //$calcoloRetribuzioni['retribuzioni3'];
+                $response['alertRetribuzioni'] = $calcoloRetribuzioni['alert']; 
+    
+                $retribuzioniToDb = AnalisiRetribuzioni::where('document_id', $response['document_id'])->first();
+
+                if(isset($retribuzioniToDb)) {
+                    $retribuzioniToDb->delete();
+                    AnalisiRetribuzioni::create($response);
+                } else {
+                    AnalisiRetribuzioni::create($response);
+                }    
+                return "Dati retribuzioni salvati correttamente";
+            } else {
+                return [
+                    "error" => true,
+                    "message" => "retribuzioni1 o retribuzioni2 settato a 0, impossibile calcolare"
+                    ];
+            }
+
+        } else {
+            return $response;
+        }
+
+    }
+
+    public function calculateRetribuzione($allData)
+    {
+        if (!isset($allData['retribuzioni1']) || !isset($allData['retribuzioni2'])) {
             $alert = "Dati Mancanti";
+        } elseif($allData['retribuzioni1'] == 0 || $allData['retribuzioni2'] == 0) {
+            return false;
         } else {
             $alert = "No";
         }
 
-        if ($alert != "Dati Mancanti") {
+        if ($alert != "Dati Mancanti" && $alert != false) {
             if(str_contains($allData['retribuzioni1'], ',') || str_contains($allData['retribuzioni2'], ',')) {
                 if ((str_replace(',', '.', str_replace('.', '', $allData['retribuzioni1'])) / str_replace(',', '.', str_replace('.', '', $allData['retribuzioni2']))) * 100 >= 50) {
                     $alert = "Si";
                 } else {
                     $alert = "No";
                 }
-                if (is_finite(str_replace(',', '.', str_replace('.', '', $allData['retribuzioni1'])) / str_replace(',', '.', str_replace('.', '', $allData['retribuzioni2'])))) {
+  /*               if (is_finite(str_replace(',', '.', str_replace('.', '', $allData['retribuzioni1'])) / str_replace(',', '.', str_replace('.', '', $allData['retribuzioni2'])))) {
                     $cleanData['retribuzioni3'] = number_format(((str_replace(',', '.', str_replace('.', '', $allData['retribuzioni1'])) / str_replace(',', '.', str_replace('.', '', $allData['retribuzioni2']))) * 100), 2, ".", ",");
                 } else {
                     $cleanData['retribuzioni3'] = "NON CALCOLABILE";
-                }
+                } */
             } else {
                 if ((str_replace(',', '.', str_replace('.', '', $allData['retribuzioni1'])) / str_replace(',', '.', str_replace('.', '', $allData['retribuzioni2']))) * 100 >= 50) {
                     $alert = "Si";
                 } else {
                     $alert = "No";
                 }
-                if (is_finite(str_replace(',', '.', str_replace('.', '', $allData['retribuzioni1'])) / str_replace(',', '.', str_replace('.', '', $allData['retribuzioni2'])))) {
+/*                 if (is_finite(str_replace(',', '.', str_replace('.', '', $allData['retribuzioni1'])) / str_replace(',', '.', str_replace('.', '', $allData['retribuzioni2'])))) {
                     $cleanData['retribuzioni3'] = number_format(((str_replace(',', '.', str_replace('.', '', $allData['retribuzioni1'])) / str_replace(',', '.', str_replace('.', '', $allData['retribuzioni2']))) * 100), 2, ".", ",");
                 } else {
                     $cleanData['retribuzioni3'] = "NON CALCOLABILE";
-                }
+                } */
             }
         }
 
         $data = [
             'alert' => $alert,
-            'retribuzioni3' => (isset($cleanData)) ? $cleanData['retribuzioni3'] : "NON CALCOLABILE"
+            'retribuzioni3' => $allData['retribuzioni3']
         ];
 
         return $data;
     }
 
+    public function getFornitoriData($codiceDocumento)
+    {
+        $fornitoriData = AnalisiFornitori::where('document_id', $codiceDocumento)->latest()->first();
+
+        if($fornitoriData != null) {
+            return [
+                'data' => $fornitoriData
+            ];
+        } else {
+            return [
+                'data' => false
+            ];
+        }
+    }
+
+    public function saveFornitori($dataFornitori)
+    {
+
+        if(!isset($dataFornitori["document_id"])) {
+            return [
+                'error' => true,
+                'message' => "document_id mancante"
+            ];
+        } else {
+            $idDocument = Document::where('codice_documento', $dataFornitori["document_id"])->first();
+            if ($idDocument == null) {
+                return  [
+                    'error' => true,
+                    'message' => "document_id non trovato"
+                ];
+            } 
+        }
+
+        $response = null;
+        if (!isset($dataFornitori["fornitori1"])) {
+            $response = [
+                'error' => true,
+                'message' => "fornitori1 mancante"
+            ];
+        } elseif (!isset($dataFornitori["fornitori2"])) {
+            $response = [
+                'error' => true,
+                'message' => "fornitori2 mancante"
+            ];
+        } else {
+            $response = $dataFornitori;
+        }
+
+        if (!isset($response['error'])) {
+            $calcoloFornitori = $this->calculateFornitori($response);
+
+            $response['alertFornitori'] = $calcoloFornitori;
+
+            $fornitoriToDb = AnalisiFornitori::where('document_id', $response['document_id'])->first();
+
+            if(isset($fornitoriToDb)) {
+                $fornitoriToDb->delete();
+                AnalisiFornitori::create($response);
+            } else {
+                AnalisiFornitori::create($response);
+            }    
+            return "Dati fornitori salvati correttamente";
+        } else {
+            return $response;
+        }
+    }
+
     public function calculateFornitori($allData)
     {
-        if (empty($allData['fornitori1']) || $allData['fornitori1'] == 0 || empty($allData['fornitori2']) || $allData['fornitori2'] == 0) {
+        if (!isset($allData['fornitori1']) || !isset($allData['fornitori2'])) {
             $alert = "Dati Mancanti";
         } else {
             $alert = "No";
@@ -1210,12 +1457,109 @@ class BilanciCalculationsHelperAdvanced
         return $alert;
     }
 
+    public function getAgenziaEntrateData($codiceDocumento)
+    {
+        $agenziaEntrateData = AnalisiAgenziaEntrate::where('document_id', $codiceDocumento)->latest()->first();
+
+        if($agenziaEntrateData != null) {
+            return [
+                'data' => $agenziaEntrateData
+            ];
+        } else {
+            return [
+                'data' => false
+            ];
+        }
+    }
+
+    public function saveAgenziaEntrate($agenziaEntrateData)
+    {
+
+        if(!isset($agenziaEntrateData["document_id"])) {
+            return [
+                'error' => true,
+                'message' => "document_id mancante"
+            ];
+        } else {
+            $idDocument = Document::where('codice_documento', $agenziaEntrateData["document_id"])->first();
+            if ($idDocument == null) {
+                return  [
+                    'error' => true,
+                    'message' => "document_id non trovato"
+                ];
+            } 
+        }
+
+        $response = null;
+        if (!isset($agenziaEntrateData["agenziaEntrate1"])) {
+            $response = [
+                'error' => true,
+                'message' => "agenziaEntrate1 mancante"
+            ];
+        } elseif (!isset($agenziaEntrateData["agenziaEntrate2"])) {
+            $response = [
+                'error' => true,
+                'message' => "agenziaEntrate2 mancante"
+            ];
+        } elseif (!isset($agenziaEntrateData["agenziaEntrate3"])) {
+            $response = [
+                'error' => true,
+                'message' => "agenziaEntrate3 mancante"
+            ];
+        } elseif (!isset($agenziaEntrateData["agenziaEntrate1"]) && !isset($agenziaEntrateData["agenziaEntrate2"])) {
+            $response = [
+                'error' => true,
+                'message' => "agenziaEntrate1 e agenziaEntrate2 mancanti"
+            ];
+        } else {
+            $response = $agenziaEntrateData;
+        }
+
+        if (!isset($response['error'])) {
+            $dataFloat = [
+                'document_id' => $response['document_id'],
+                'agenziaEntrate1' => (float)$response['agenziaEntrate1'],
+                'agenziaEntrate2' => (float)$response['agenziaEntrate2'],
+                'agenziaEntrate3' => (float)$response['agenziaEntrate3'],
+                'agenziaEntrate4' => $agenziaEntrateData['agenziaEntrate4']
+            ];
+
+            $calcoloAgenziaEntrate = $this->calculateAgenziaEntrate($dataFloat);
+
+            if($calcoloAgenziaEntrate) {
+                $dataFloat['alertAgenziaEntrate'] = $calcoloAgenziaEntrate['alert'];
+                $dataFloat['agenziaEntrate4'] = $agenziaEntrateData['agenziaEntrate4'];//(float)$calcoloAgenziaEntrate['agenziaEntrate4']['agenziaEntrate4'];
+    
+                $agenziaEntrateToDb = AnalisiAgenziaEntrate::where('document_id', $dataFloat['document_id'])->first();
+
+                if(isset($agenziaEntrateToDb)) {
+                    $agenziaEntrateToDb->delete();
+                    AnalisiAgenziaEntrate::create($dataFloat);
+                } else {
+                    AnalisiAgenziaEntrate::create($dataFloat);
+                }
+    
+                return "Dati AgenziaEntrate salvati correttamente";
+            } else {
+                return [
+                        "error" => true,
+                        "message" => "agenziaEntrate1 o agenziaEntrate2 settato a 0, impossibile calcolare"
+                    ];
+            }
+
+        } else {
+            return $response;
+        }
+    }
+
     public function calculateAgenziaEntrate($allData)
     {
 
-        if (empty($allData['agenziaEntrate1']) || $allData['agenziaEntrate1'] == 0 || empty($allData['agenziaEntrate2']) || $allData['agenziaEntrate2'] == 0) {
+        if (!isset($allData['agenziaEntrate1']) || !isset($allData['agenziaEntrate2'])) {
             $alert = "Dati Mancanti";
-        } else {
+        } elseif($allData['agenziaEntrate1'] == 0 || $allData['agenziaEntrate2'] == 0) {
+            return false;
+        }else {
             $alert = "No";
         }
 
@@ -1237,17 +1581,17 @@ class BilanciCalculationsHelperAdvanced
                     }
                 }
 
-                if (is_finite($allData['agenziaEntrate1'] / $allData['agenziaEntrate2'])) {
+      /*           if (is_finite($allData['agenziaEntrate1'] / $allData['agenziaEntrate2'])) {
                     // dd((float)number_format((((float)$allData['agenziaEntrate1'] / (float)$allData['agenziaEntrate2'])), 2, ",", "."));
                     $cleanData['agenziaEntrate4'] = number_format((($allData['agenziaEntrate1'] / $allData['agenziaEntrate2'])), 2, ",", ".");
                 } else {
                     $cleanData['agenziaEntrate4'] = "NON CALCOLABILE";
-                }
+                } */
             }
 
             $data = [
                 'alert' => $alert,
-                'agenziaEntrate4' => $cleanData
+                'agenziaEntrate4' => $allData['agenziaEntrate4'] 
             ];
 
             return $data;
@@ -1260,9 +1604,73 @@ class BilanciCalculationsHelperAdvanced
         }
     }
 
-    private function calculateDSCR($inboundData)
-    {
 
+    public function saveDscrAnalisi($dscrData)
+    {
+        if ($dscrData['DSCR'] != 1) {
+            return [
+                'error' => true,
+                'message' => "DSCR da non calcolare"
+            ];
+        }
+
+        if(!isset($dscrData["document_id"])) {
+            return [
+                'error' => true,
+                'message' => "document_id mancante"
+            ];
+        } else {
+            $idDocument = Document::where('codice_documento', $dscrData["document_id"])->first();
+            if ($idDocument == null) {
+                return  [
+                    'error' => true,
+                    'message' => "document_id non trovato"
+                ];
+            } 
+        }
+
+        $response = null;
+        foreach($dscrData as $key => $singleDscrData) {
+            if(!isset($dscrData[$key])) {
+               return $response = [
+                    'error' => true,
+                    'message' =>  $key." mancante"
+                ];
+            } else {
+                $response = $dscrData;
+            }
+        }
+
+        if (!isset($response['error'])) {
+            $calcoloDSCR = $this->calculateDSCR($dscrData);
+
+            if ($calcoloDSCR > 1) {
+                $response['alertDSCR'] = 'Azienda non a rischio';
+            } else {
+                $response['alertDSCR'] = 'Azienda a rischio';
+            }
+
+            $response['resultDSCR'] = $calcoloDSCR;
+
+            $dscrToDb = AnalisiDscr::where('document_id', $response['document_id'])->first();
+
+            if(isset($dscrToDb)) {
+                $dscrToDb->delete();
+                AnalisiDscr::create($response);
+            } else {
+                AnalisiDscr::create($response);
+            }
+
+            return "Dati DSCR salvati correttamente";
+        } else {
+            return $response;
+        }
+    }
+
+    public function calculateDSCR($inboundData)
+    {
+        
+        
         $sum = ($inboundData['DSCRdispLiquida'] +
             $inboundData['entrataDSCRCFmese1'] +
             $inboundData['entrataDSCRCFmese2'] +
@@ -1301,22 +1709,22 @@ class BilanciCalculationsHelperAdvanced
         }
     }
 
-    public function getCalcoloDSCR($allData)
+    public function getDSCRData($codiceDocumento)
     {
+       // dd($codiceDocumento);
+        $dscrData = AnalisiDscr::where('document_id', $codiceDocumento)->latest()->first();
 
-        $dscrData = $this->getDSCRArrayData($allData);
+        //dd($dscrData);
 
-        if ($dscrData['DSCR'] != 1) {
-            return "DSCR da non calcolare";
+        if($dscrData != null) {
+            return [
+                'data' => $dscrData
+            ];
+        } else {
+            return [
+                'data' => false
+            ];
         }
-
-        if (empty($dscrData['uscitaDSCRCFmese6']) || $dscrData['uscitaDSCRCFmese6'] == 0 || empty($dscrData['rimborsoDSCRmese1']) || $dscrData['rimborsoDSCRmese1'] == 0) {
-            CustomLog::addToLogBilanciHelper('BilanciHelper', 'GetEmptyCalculateDSCR', json_encode(["uscitaDSCRCFmese6" => $dscrData['uscitaDSCRCFmese6'], "rimborsoDSCRmese1" => $dscrData['rimborsoDSCRmese1']]));
-            return ['error' => true];
-        }
-
-
-        return $this->calculateDSCR($dscrData);
     }
 
 }

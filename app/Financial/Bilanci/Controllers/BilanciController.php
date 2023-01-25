@@ -102,6 +102,7 @@ class BilanciController extends Controller
 
                 return response()->json([
                     'exception' => false,
+                    'codice_documento' => $document->codice_documento,
                     'idDocumento' => $document->id,
                     'renderHTML' => $renderHTML,
                     'bilancioJSON' => $bilancioJSON,
@@ -169,7 +170,7 @@ class BilanciController extends Controller
     {
         if (!$idBilancio) {
 
-            CustomLog::addToLogBilanci('Bilanci destroy', 'ID non specificato');
+           // CustomLog::addToLogBilanci('Bilanci destroy', 'ID non specificato');
 
             return response()->json([
                 'error' => true,
@@ -177,10 +178,10 @@ class BilanciController extends Controller
             ]);
         }
         try {
-            $bilancio = Bilanci::findOrFail($idBilancio);
+            $bilancio = Document::findOrFail($idBilancio);
             $bilancio->delete();
 
-            CustomLog::addToLogBilanci('Bilanci destroy', 'Eliminato');
+           // CustomLog::addToLogBilanci('Bilanci destroy', 'Eliminato');
 
             return response()->json([
                 'error' => false,
@@ -188,7 +189,7 @@ class BilanciController extends Controller
             ]);
         } catch (Excepton $e) {
 
-            CustomLog::addToLogBilanci('Bilanci destroy', 'Exception: '.$e.'.');
+           // CustomLog::addToLogBilanci('Bilanci destroy', 'Exception: '.$e.'.');
 
             return response()->json([
                 'error' => false,

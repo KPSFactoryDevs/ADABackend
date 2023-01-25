@@ -316,7 +316,7 @@ class CentraleRischiController extends Controller
             $numeroSconfiniTotali = $crHelper->getTotaleSconfini($banks);
             $rischiGaranzie = $crHelper->getRischiGaranzie($banks);
             $totaleAffidamentiTable = $crHelper->getTotaleAffidamenti($categories, $latestYear, $latestMonth, $banks);
-            //  $totaleAffidamentiGeneral = $crHelper->getTotaleAffidamentiGeneral($categories, $latestYear, $latestMonth, $banks);
+            $totaleAffidamentiGeneral = $crHelper->getTotaleAffidamentiGeneral($categories, $latestYear, $latestMonth, $banks);
             // $totAffidamentiConPesiPerBanca = $crHelper->getPesiAffidamentiPerBanca($categories, $latestYear, $latestMonth, $banks);
 
             //dd($totAffidamentiConPesiPerBanca);
@@ -334,7 +334,7 @@ class CentraleRischiController extends Controller
             $informazioniGaranti = $crHelper->getInformazioniGaranti($banks);
             $garanzieRicevute = $crHelper->getGaranzieRicevute($banks);
             // $importiSconfini = $crHelper->getImportiSconfini($banks);
-            // $affidamentiPerMese = $crHelper->getTotaleAffidamentiPerMese($periods, $categories, $banks);
+            $affidamentiPerMese = $crHelper->getTotaleAffidamentiPerMese($periods, $categories, $banks);
             // $anomalieStatoRapporto = $crHelper->mancateSegnalazioniStatoRapporto($banks);
             $sconfiniDivisi = $crHelper->divideAnomalie($numeroSconfiniTotali, $banks);
             // $banksScoring = $crHelper->singleBankData($banks, $periods);
@@ -392,9 +392,10 @@ class CentraleRischiController extends Controller
                     'ListaAnomalie' => $anomalie,
                 ],
                 'AnalisiAffidamenti' => [
-                    'ListaAffidamenti' => $totaleAffidamentiTable
+                    'ListaAffidamentiConPesiPerBanca' => $totaleAffidamentiTable,
+                    'ListaAffidamentiGeneral' => $totaleAffidamentiGeneral
                 ],
-                'AnalisiIndebitamento' => [],
+                'AnalisiIndebitamento' => $affidamentiPerMese,
                 'AnalisiPerBanca' => [
                     //      'ListaScoringBanche' => $banksScoring
                 ],
