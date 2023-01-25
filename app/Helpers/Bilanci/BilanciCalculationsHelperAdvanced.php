@@ -1037,6 +1037,21 @@ class BilanciCalculationsHelperAdvanced
         return "Azienda NON a Rischio";
     }
 
+    public function getInpsData($codiceDocumento)
+    {
+        $inpsData = AnalisiInps::where('document_id', $codiceDocumento)->latest()->first();
+
+        if($inpsData != null) {
+            return [
+                'data' => $inpsData
+            ];
+        } else {
+            return [
+                'data' => false
+            ];
+        }
+    }
+
     public function saveInps($dataInps) {
         if(!isset($dataInps["document_id"])) {
             return [
@@ -1075,8 +1090,15 @@ class BilanciCalculationsHelperAdvanced
                 $response['INPS3'] = $dataInps['INPS3']; //$calcoloInps['inps3'];
                 $response['alertINPS'] = $calcoloInps['alert'];
     
-                AnalisiInps::create($response);
-    
+                $inpsToDb = AnalisiInps::where('document_id', $dataInps['document_id'])->first();
+
+                if(isset($inpsToDb)) {
+                    $inpsToDb->delete();
+                    AnalisiInps::create($dataInps);
+                } else {
+                    AnalisiInps::create($dataInps);
+                }
+                
                 return "Dati Inps salvati correttamente";
             } else {
                 return [
@@ -1123,6 +1145,20 @@ class BilanciCalculationsHelperAdvanced
         return $data;
     }
 
+    public function getRiscossioneData($codiceDocumento)
+    {
+        $riscossioneData = AnalisiRiscossione::where('document_id', $codiceDocumento)->latest()->first();
+
+        if($riscossioneData != null) {
+            return [
+                'data' => $riscossioneData
+            ];
+        } else {
+            return [
+                'data' => false
+            ];
+        }
+    }
 
     public function saveRiscossione($dataRiscossione)
     {
@@ -1172,8 +1208,14 @@ class BilanciCalculationsHelperAdvanced
 
             $response['alertRiscossione'] = $calcoloRiscossione; 
 
-            AnalisiRiscossione::create($response);
+            $riscossioneToDb = AnalisiRiscossione::where('document_id', $response['document_id'])->first();
 
+            if(isset($riscossioneToDb)) {
+                $riscossioneToDb->delete();
+                AnalisiRiscossione::create($response);
+            } else {
+                AnalisiRiscossione::create($response);
+            }
             return "Dati riscossione salvati correttamente";
         } else {
             return $response;
@@ -1213,6 +1255,20 @@ class BilanciCalculationsHelperAdvanced
         return $alert;
     }
 
+    public function getRetribuzioniData($codiceDocumento)
+    {
+        $retribuzioniData = AnalisiRetribuzioni::where('document_id', $codiceDocumento)->latest()->first();
+
+        if($retribuzioniData != null) {
+            return [
+                'data' => $retribuzioniData
+            ];
+        } else {
+            return [
+                'data' => false
+            ];
+        }
+    }
 
     public function saveRetribuzione($dataRetribuzione) 
     {
@@ -1253,8 +1309,14 @@ class BilanciCalculationsHelperAdvanced
                 $response['retribuzioni3'] =  $dataRetribuzione['retribuzioni3']; //$calcoloRetribuzioni['retribuzioni3'];
                 $response['alertRetribuzioni'] = $calcoloRetribuzioni['alert']; 
     
-                AnalisiRetribuzioni::create($response);
-    
+                $retribuzioniToDb = AnalisiRetribuzioni::where('document_id', $response['document_id'])->first();
+
+                if(isset($retribuzioniToDb)) {
+                    $retribuzioniToDb->delete();
+                    AnalisiRetribuzioni::create($response);
+                } else {
+                    AnalisiRetribuzioni::create($response);
+                }    
                 return "Dati retribuzioni salvati correttamente";
             } else {
                 return [
@@ -1313,6 +1375,21 @@ class BilanciCalculationsHelperAdvanced
         return $data;
     }
 
+    public function getFornitoriData($codiceDocumento)
+    {
+        $fornitoriData = AnalisiFornitori::where('document_id', $codiceDocumento)->latest()->first();
+
+        if($fornitoriData != null) {
+            return [
+                'data' => $fornitoriData
+            ];
+        } else {
+            return [
+                'data' => false
+            ];
+        }
+    }
+
     public function saveFornitori($dataFornitori)
     {
 
@@ -1351,8 +1428,14 @@ class BilanciCalculationsHelperAdvanced
 
             $response['alertFornitori'] = $calcoloFornitori;
 
-            AnalisiFornitori::create($response);
+            $fornitoriToDb = AnalisiFornitori::where('document_id', $response['document_id'])->first();
 
+            if(isset($fornitoriToDb)) {
+                $fornitoriToDb->delete();
+                AnalisiFornitori::create($response);
+            } else {
+                AnalisiFornitori::create($response);
+            }    
             return "Dati fornitori salvati correttamente";
         } else {
             return $response;
@@ -1374,6 +1457,20 @@ class BilanciCalculationsHelperAdvanced
         return $alert;
     }
 
+    public function getAgenziaEntrateData($codiceDocumento)
+    {
+        $agenziaEntrateData = AnalisiAgenziaEntrate::where('document_id', $codiceDocumento)->latest()->first();
+
+        if($agenziaEntrateData != null) {
+            return [
+                'data' => $agenziaEntrateData
+            ];
+        } else {
+            return [
+                'data' => false
+            ];
+        }
+    }
 
     public function saveAgenziaEntrate($agenziaEntrateData)
     {
@@ -1433,7 +1530,14 @@ class BilanciCalculationsHelperAdvanced
                 $dataFloat['alertAgenziaEntrate'] = $calcoloAgenziaEntrate['alert'];
                 $dataFloat['agenziaEntrate4'] = $agenziaEntrateData['agenziaEntrate4'];//(float)$calcoloAgenziaEntrate['agenziaEntrate4']['agenziaEntrate4'];
     
-                AnalisiAgenziaEntrate::create($dataFloat);
+                $agenziaEntrateToDb = AnalisiAgenziaEntrate::where('document_id', $dataFloat['document_id'])->first();
+
+                if(isset($agenziaEntrateToDb)) {
+                    $agenziaEntrateToDb->delete();
+                    AnalisiAgenziaEntrate::create($dataFloat);
+                } else {
+                    AnalisiAgenziaEntrate::create($dataFloat);
+                }
     
                 return "Dati AgenziaEntrate salvati correttamente";
             } else {
@@ -1548,7 +1652,14 @@ class BilanciCalculationsHelperAdvanced
 
             $response['resultDSCR'] = $calcoloDSCR;
 
-            AnalisiDscr::create($response);
+            $dscrToDb = AnalisiDscr::where('document_id', $response['document_id'])->first();
+
+            if(isset($dscrToDb)) {
+                $dscrToDb->delete();
+                AnalisiDscr::create($response);
+            } else {
+                AnalisiDscr::create($response);
+            }
 
             return "Dati DSCR salvati correttamente";
         } else {
@@ -1558,7 +1669,8 @@ class BilanciCalculationsHelperAdvanced
 
     public function calculateDSCR($inboundData)
     {
-
+        
+        
         $sum = ($inboundData['DSCRdispLiquida'] +
             $inboundData['entrataDSCRCFmese1'] +
             $inboundData['entrataDSCRCFmese2'] +
@@ -1593,6 +1705,24 @@ class BilanciCalculationsHelperAdvanced
             return [
                 'error' => true,
                 'message' => $e->getMessage()
+            ];
+        }
+    }
+
+    public function getDSCRData($codiceDocumento)
+    {
+       // dd($codiceDocumento);
+        $dscrData = AnalisiDscr::where('document_id', $codiceDocumento)->latest()->first();
+
+        //dd($dscrData);
+
+        if($dscrData != null) {
+            return [
+                'data' => $dscrData
+            ];
+        } else {
+            return [
+                'data' => false
             ];
         }
     }
