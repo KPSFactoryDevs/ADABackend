@@ -1422,12 +1422,24 @@ AND t.divisa = t2.divisa');
 
         $indebitamento = cr::selectRaw("date, SUM(accordato_operativo) as totAccordatoOperativo, SUM(utilizzato) as totUtilizzato")->where("date", '>=', $startPeriod->format('Y-m-d'))->where("date", '<=', $endPeriod->format('Y-m-d'))->orderBy('date')->groupBy('date')->whereIn('categoria', $categories)->whereIn('nome_banca', $banks)->where('document_id', $this->_documentId)->get();
 
-        foreach ($indebitamento as $label => $singleIndebitamentoData) {
-            $dateTmp = new DateTime($singleIndebitamentoData->date);
-            $tmp = $dateTmp->format('y') . '-' . $dateTmp->format('m');
 
-            $indebitamentoPerMese[] = array($tmp, $singleIndebitamentoData->totAccordatoOperativo, $singleIndebitamentoData->totUtilizzato);
+        $accordatoData = array();
+        $utilizzatoData = array();
+        foreach ($indebitamento as $label => $singleIndebitamentoData) {
+            array_push($accordatoData, $singleIndebitamentoData->totAccordatoOperativo);
+            array_push($utilizzatoData, $singleIndebitamentoData->totUtilizzato);
         }
+
+        $indebitamentoPerMese['series'] = array(
+            [
+                "name" => "Accordato",
+                "data" => $accordatoData,
+            ],
+            [
+                "name" => "Utilizzato",
+                "data" => $utilizzatoData,
+            ]
+        );
 
         return array("IndebitamentoTotale" => $indebitamentoPerMese, "IndebitamentoPerCategoria" => $affidamentoPerMese);
     }
