@@ -1425,7 +1425,12 @@ AND t.divisa = t2.divisa');
 
         $accordatoData = array();
         $utilizzatoData = array();
+        $dateArray = array();
         foreach ($indebitamento as $label => $singleIndebitamentoData) {
+            $dateTmp = new DateTime($singleCrData->date);
+            $tmp = $dateTmp->format('YYYY-MM-dd');
+
+            array_push($dateArray, $tmp);
             array_push($accordatoData, $singleIndebitamentoData->totAccordatoOperativo);
             array_push($utilizzatoData, $singleIndebitamentoData->totUtilizzato);
         }
@@ -1441,7 +1446,7 @@ AND t.divisa = t2.divisa');
             ]
         );
 
-        return array("IndebitamentoTotale" => $indebitamentoPerMese, "IndebitamentoPerCategoria" => $affidamentoPerMese);
+        return array("dates" => $dateArray, "IndebitamentoTotale" => $indebitamentoPerMese, "IndebitamentoPerCategoria" => $affidamentoPerMese);
     }
 
     public function getPesiAffidamentiPerBanca($categories, $latestYear, $latestMonth, $banks)
