@@ -392,8 +392,8 @@ class CentraleRischiController extends Controller
                     'ListaAnomalie' => $anomalie,
                 ],
                 'AnalisiAffidamenti' => [
-                    'ListaAffidamenti' => $totaleAffidamentiTable,
-                    'ListaAffidamentiPerCategoria' => $totaleAffidamentiGeneral
+                    'ListaAffidamentiConPesiPerBanca' => $totaleAffidamentiTable,
+                    'ListaAffidamentiGeneral' => $totaleAffidamentiGeneral
                 ],
                 'AnalisiIndebitamento' => [
                     'IndebitamentoPerMese' => $affidamentiPerMese
