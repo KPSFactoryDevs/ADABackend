@@ -25,8 +25,8 @@ use App\Helpers\Bilanci\BilanciCalculationsHelperAdvanced;
 class BilanciHelper
 {
 
-    public function getIndexesForBalanceTaxonomy($idBilancio, $filePath = false, $instance = false, $codiceDocumento) {
-        
+    public function getIndexesForBalanceTaxonomy($idBilancio, $filePath = false, $instance = false) {
+
         $vocis = Voci::pluck('name', 'extended_name')->all();
 
         $calculationHelper = new BilanciCalculationsHelperAdvanced;
@@ -88,12 +88,12 @@ class BilanciHelper
             'indiceVociMancanti' => $calculationHelper->_missingVoicesArray,
             'labels' => $vocis,
             'Questionari' => [
-                'dscrData' => $calculationHelper->getDSCRData($codiceDocumento)['data'],
-                'agenziaEntrate' => $calculationHelper->getAgenziaEntrateData($codiceDocumento)['data'],
-                'inps' => $calculationHelper->getInpsData($codiceDocumento)['data'],
-                'riscossione' => $calculationHelper->getRiscossioneData($codiceDocumento)['data'],
-                'retribuzioni' => $calculationHelper->getRetribuzioniData($codiceDocumento)['data'],
-                'fornitori' => $calculationHelper->getFornitoriData($codiceDocumento)['data']
+                'dscrData' => $calculationHelper->getDSCRData($document->codice_dcumento)['data'],
+                'agenziaEntrate' => $calculationHelper->getAgenziaEntrateData($document->codice_dcumento)['data'],
+                'inps' => $calculationHelper->getInpsData($document->codice_dcumento)['data'],
+                'riscossione' => $calculationHelper->getRiscossioneData($document->codice_dcumento)['data'],
+                'retribuzioni' => $calculationHelper->getRetribuzioniData($document->codice_dcumento)['data'],
+                'fornitori' => $calculationHelper->getFornitoriData($document->codice_dcumento)['data']
             ]
         );
     }
