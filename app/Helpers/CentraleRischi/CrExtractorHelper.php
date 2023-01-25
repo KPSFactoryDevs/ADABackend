@@ -1435,6 +1435,7 @@ AND t.divisa = t2.divisa');
             array_push($utilizzatoData, $singleIndebitamentoData->totUtilizzato);
         }
 
+        $indebitamentoPerMese['dates'] = $dateArray;
         $indebitamentoPerMese['series'] = array(
             [
                 "name" => "Accordato",
@@ -1446,7 +1447,7 @@ AND t.divisa = t2.divisa');
             ]
         );
 
-        return array("dates" => $dateArray, "IndebitamentoTotale" => $indebitamentoPerMese, "IndebitamentoPerCategoria" => $affidamentoPerMese);
+        return array("IndebitamentoTotale" => $indebitamentoPerMese, "IndebitamentoPerCategoria" => $affidamentoPerMese);
     }
 
     public function getPesiAffidamentiPerBanca($categories, $latestYear, $latestMonth, $banks)
