@@ -102,6 +102,7 @@ class BilanciController extends Controller
 
                 return response()->json([
                     'exception' => false,
+                    'codice_documento' => $document->codice_documento,
                     'idDocumento' => $document->id,
                     'renderHTML' => $renderHTML,
                     'bilancioJSON' => $bilancioJSON,
