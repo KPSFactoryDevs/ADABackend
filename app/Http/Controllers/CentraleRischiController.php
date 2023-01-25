@@ -316,7 +316,7 @@ class CentraleRischiController extends Controller
             $numeroSconfiniTotali = $crHelper->getTotaleSconfini($banks);
             $rischiGaranzie = $crHelper->getRischiGaranzie($banks);
             $totaleAffidamentiTable = $crHelper->getTotaleAffidamenti($categories, $latestYear, $latestMonth, $banks);
-            //  $totaleAffidamentiGeneral = $crHelper->getTotaleAffidamentiGeneral($categories, $latestYear, $latestMonth, $banks);
+            $totaleAffidamentiGeneral = $crHelper->getTotaleAffidamentiGeneral($categories, $latestYear, $latestMonth, $banks);
             // $totAffidamentiConPesiPerBanca = $crHelper->getPesiAffidamentiPerBanca($categories, $latestYear, $latestMonth, $banks);
 
             //dd($totAffidamentiConPesiPerBanca);
@@ -392,7 +392,8 @@ class CentraleRischiController extends Controller
                     'ListaAnomalie' => $anomalie,
                 ],
                 'AnalisiAffidamenti' => [
-                    'ListaAffidamenti' => $totaleAffidamentiTable
+                    'ListaAffidamenti' => $totaleAffidamentiTable,
+                    'ListaAffidamentiPerCategoria' => $totaleAffidamentiGeneral
                 ],
                 'AnalisiIndebitamento' => [
                     'IndebitamentoPerMese' => $affidamentiPerMese
