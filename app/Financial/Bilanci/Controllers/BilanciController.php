@@ -177,7 +177,7 @@ class BilanciController extends Controller
             ]);
         }
         try {
-            $bilancio = Bilanci::findOrFail($idBilancio);
+            $bilancio = Document::findOrFail($idBilancio);
             $bilancio->delete();
 
             CustomLog::addToLogBilanci('Bilanci destroy', 'Eliminato');
