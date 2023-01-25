@@ -1429,7 +1429,7 @@ AND t.divisa = t2.divisa');
             $indebitamentoPerMese[] = array($tmp, $singleIndebitamentoData->totAccordatoOperativo, $singleIndebitamentoData->totUtilizzato);
         }
 
-        return array("Indebitamento" => $indebitamentoPerMese, "Affidamenti" => $affidamentoPerMese);
+        return array("IndebitamentoTotale" => $indebitamentoPerMese, "IndebitamentoPerCategoria" => $affidamentoPerMese);
     }
 
     public function getPesiAffidamentiPerBanca($categories, $latestYear, $latestMonth, $banks)
