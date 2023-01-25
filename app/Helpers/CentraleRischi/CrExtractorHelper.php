@@ -1428,7 +1428,7 @@ AND t.divisa = t2.divisa');
         $dateArray = array();
         foreach ($indebitamento as $label => $singleIndebitamentoData) {
             $dateTmp = new DateTime($singleCrData->date);
-            $tmp = $dateTmp->format('YYYY-MM-dd');
+            $tmp = $dateTmp->format('Y-m-d');
 
             array_push($dateArray, $tmp);
             array_push($accordatoData, $singleIndebitamentoData->totAccordatoOperativo);
