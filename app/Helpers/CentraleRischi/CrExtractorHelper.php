@@ -1427,7 +1427,7 @@ AND t.divisa = t2.divisa');
         $utilizzatoData = array();
         $dateArray = array();
         foreach ($indebitamento as $label => $singleIndebitamentoData) {
-            $dateTmp = new DateTime($singleCrData->date);
+            $dateTmp = new DateTime($singleIndebitamentoData->date);
             $tmp = $dateTmp->format('Y-m-d');
 
             array_push($dateArray, $tmp);
