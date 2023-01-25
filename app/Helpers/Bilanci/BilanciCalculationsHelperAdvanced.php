@@ -24,6 +24,8 @@ class BilanciCalculationsHelperAdvanced
 
     public $documentId = false;
 
+    public $codice_documento = false;
+
     public function setCurrentInstance($instanceDocument)
     {
         $this->_currentInstance = $instanceDocument;
@@ -1037,18 +1039,14 @@ class BilanciCalculationsHelperAdvanced
         return "Azienda NON a Rischio";
     }
 
-    public function getInpsData($codiceDocumento)
+    public function getInpsData()
     {
-        $inpsData = AnalisiInps::where('document_id', $codiceDocumento)->latest()->first();
+        $inpsData = AnalisiInps::where('document_id', $this->codice_documento)->latest()->first();
 
         if($inpsData != null) {
-            return [
-                'data' => $inpsData
-            ];
+            return $inpsData;
         } else {
-            return [
-                'data' => false
-            ];
+            return false;
         }
     }
 
@@ -1145,18 +1143,14 @@ class BilanciCalculationsHelperAdvanced
         return $data;
     }
 
-    public function getRiscossioneData($codiceDocumento)
+    public function getRiscossioneData()
     {
-        $riscossioneData = AnalisiRiscossione::where('document_id', $codiceDocumento)->latest()->first();
+        $riscossioneData = AnalisiRiscossione::where('document_id', $this->codice_documento)->latest()->first();
 
         if($riscossioneData != null) {
-            return [
-                'data' => $riscossioneData
-            ];
+            return $riscossioneData;
         } else {
-            return [
-                'data' => false
-            ];
+            return false;
         }
     }
 
@@ -1255,18 +1249,14 @@ class BilanciCalculationsHelperAdvanced
         return $alert;
     }
 
-    public function getRetribuzioniData($codiceDocumento)
+    public function getRetribuzioniData()
     {
-        $retribuzioniData = AnalisiRetribuzioni::where('document_id', $codiceDocumento)->latest()->first();
+        $retribuzioniData = AnalisiRetribuzioni::where('document_id', $this->codice_documento)->latest()->first();
 
         if($retribuzioniData != null) {
-            return [
-                'data' => $retribuzioniData
-            ];
+            return $retribuzioniData;
         } else {
-            return [
-                'data' => false
-            ];
+            return false;
         }
     }
 
@@ -1375,18 +1365,14 @@ class BilanciCalculationsHelperAdvanced
         return $data;
     }
 
-    public function getFornitoriData($codiceDocumento)
+    public function getFornitoriData()
     {
-        $fornitoriData = AnalisiFornitori::where('document_id', $codiceDocumento)->latest()->first();
+        $fornitoriData = AnalisiFornitori::where('document_id', $this->codice_documento)->latest()->first();
 
         if($fornitoriData != null) {
-            return [
-                'data' => $fornitoriData
-            ];
+            return $fornitoriData;
         } else {
-            return [
-                'data' => false
-            ];
+            return false;
         }
     }
 
@@ -1457,18 +1443,14 @@ class BilanciCalculationsHelperAdvanced
         return $alert;
     }
 
-    public function getAgenziaEntrateData($codiceDocumento)
+    public function getAgenziaEntrateData()
     {
-        $agenziaEntrateData = AnalisiAgenziaEntrate::where('document_id', $codiceDocumento)->latest()->first();
+        $agenziaEntrateData = AnalisiAgenziaEntrate::where('document_id', $this->codice_documento)->latest()->first();
 
         if($agenziaEntrateData != null) {
-            return [
-                'data' => $agenziaEntrateData
-            ];
+            return $agenziaEntrateData;
         } else {
-            return [
-                'data' => false
-            ];
+            return false;
         }
     }
 
@@ -1709,21 +1691,16 @@ class BilanciCalculationsHelperAdvanced
         }
     }
 
-    public function getDSCRData($codiceDocumento)
+    public function getDSCRData()
     {
-       // dd($codiceDocumento);
-        $dscrData = AnalisiDscr::where('document_id', $codiceDocumento)->latest()->first();
+        $dscrData = AnalisiDscr::where('document_id', $this->codice_documento)->latest()->first();
 
         //dd($dscrData);
 
         if($dscrData != null) {
-            return [
-                'data' => $dscrData
-            ];
+            return $dscrData;
         } else {
-            return [
-                'data' => false
-            ];
+            return false;
         }
     }
 

@@ -25,18 +25,18 @@ use App\Helpers\Bilanci\BilanciCalculationsHelperAdvanced;
 class BilanciHelper
 {
 
-    public function getIndexesForBalanceTaxonomy($idBilancio, $filePath = false, $instance = false) {
+    public function getIndexesForBalanceTaxonomy($idBilancio, $filePath = false, $instance = false, $codiceDocumento = false) {
 
         $vocis = Voci::pluck('name', 'extended_name')->all();
 
         $calculationHelper = new BilanciCalculationsHelperAdvanced;
         $calculationHelper->documentId = $idBilancio;
-
+        $calculationHelper->codice_documento = $codiceDocumento;
+        
         if($instance) {
             $calculationHelper->setCurrentInstance($instance);
         } else {
             $document = Document::findOrFail($idBilancio);
-
             $filePath = base_path() . '/public/bilanci/' . $document->filename;
             $taxonomyName = $document->taxonomy;
             $taxonomyPath = base_path()."/taxonomies/2018-11-04/".$taxonomyName;
@@ -88,12 +88,12 @@ class BilanciHelper
             'indiceVociMancanti' => $calculationHelper->_missingVoicesArray,
             'labels' => $vocis,
             'Questionari' => [
-                'dscrData' => $calculationHelper->getDSCRData($document->codice_dcumento)['data'],
-                'agenziaEntrate' => $calculationHelper->getAgenziaEntrateData($document->codice_dcumento)['data'],
-                'inps' => $calculationHelper->getInpsData($document->codice_dcumento)['data'],
-                'riscossione' => $calculationHelper->getRiscossioneData($document->codice_dcumento)['data'],
-                'retribuzioni' => $calculationHelper->getRetribuzioniData($document->codice_dcumento)['data'],
-                'fornitori' => $calculationHelper->getFornitoriData($document->codice_dcumento)['data']
+                'dscrData' => $calculationHelper->getDSCRData(),
+                'agenziaEntrate' => $calculationHelper->getAgenziaEntrateData(),
+                'inps' => $calculationHelper->getInpsData(),
+                'riscossione' => $calculationHelper->getRiscossioneData(),
+                'retribuzioni' => $calculationHelper->getRetribuzioniData(),
+                'fornitori' => $calculationHelper->getFornitoriData()
             ]
         );
     }
