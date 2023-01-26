@@ -112,6 +112,35 @@ class BilanciCalculationsHelperAdvanced
         return $this->calculateDSCR($dscrData);
     }
 
+    private function getDSCRArrayData($allData)
+    {
+        $cleanArray = [
+            'DSCRDate' => $allData['DSCRDate'],
+            'DSCR' => $allData['DSCR'],
+            'DSCRdispLiquida' => $allData['DSCRdispLiquida'],
+            'entrataDSCRCFmese1' => (isset($allData['entrataDSCRCFmese1'])) ? $allData['entrataDSCRCFmese1'] : null,
+            'entrataDSCRCFmese2' => (isset($allData['entrataDSCRCFmese2'])) ? $allData['entrataDSCRCFmese2'] : null,
+            'entrataDSCRCFmese3' => (isset($allData['entrataDSCRCFmese3'])) ? $allData['entrataDSCRCFmese3'] : null,
+            'entrataDSCRCFmese4' => (isset($allData['entrataDSCRCFmese4'])) ? $allData['entrataDSCRCFmese4'] : null,
+            'entrataDSCRCFmese5' => (isset($allData['entrataDSCRCFmese5'])) ? $allData['entrataDSCRCFmese5'] : null,
+            'entrataDSCRCFmese6' => (isset($allData['entrataDSCRCFmese6'])) ? $allData['entrataDSCRCFmese6'] : null,
+            'uscitaDSCRCFmese1' => (isset($allData['uscitaDSCRCFmese1'])) ? $allData['uscitaDSCRCFmese1'] : null,
+            'uscitaDSCRCFmese2' => (isset($allData['uscitaDSCRCFmese2'])) ? $allData['uscitaDSCRCFmese2'] : null,
+            'uscitaDSCRCFmese3' => (isset($allData['uscitaDSCRCFmese3'])) ? $allData['uscitaDSCRCFmese3'] : null,
+            'uscitaDSCRCFmese4' => (isset($allData['uscitaDSCRCFmese4'])) ? $allData['uscitaDSCRCFmese4'] : null,
+            'uscitaDSCRCFmese5' => (isset($allData['uscitaDSCRCFmese5'])) ? $allData['uscitaDSCRCFmese5'] : null,
+            'uscitaDSCRCFmese6' => (isset($allData['uscitaDSCRCFmese6'])) ? $allData['uscitaDSCRCFmese6'] : null,
+            'rimborsoDSCRmese1' => (isset($allData['rimborsoDSCRmese1'])) ? $allData['rimborsoDSCRmese1'] : null,
+            'rimborsoDSCRmese2' => (isset($allData['rimborsoDSCRmese2'])) ? $allData['rimborsoDSCRmese2'] : null,
+            'rimborsoDSCRmese3' => (isset($allData['rimborsoDSCRmese3'])) ? $allData['rimborsoDSCRmese3'] : null,
+            'rimborsoDSCRmese4' => (isset($allData['rimborsoDSCRmese4'])) ? $allData['rimborsoDSCRmese4'] : null,
+            'rimborsoDSCRmese5' => (isset($allData['rimborsoDSCRmese5'])) ? $allData['rimborsoDSCRmese5'] : null,
+            'rimborsoDSCRmese6' => (isset($allData['rimborsoDSCRmese6'])) ? $allData['rimborsoDSCRmese6'] : null,
+        ];
+
+        return $cleanArray;
+    }
+
 
     public function getTotalePatrimonioNetto($indexName = "TotalePatrimonioNetto")
     {
