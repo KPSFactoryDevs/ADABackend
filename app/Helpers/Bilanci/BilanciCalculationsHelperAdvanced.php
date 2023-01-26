@@ -1091,6 +1091,8 @@ class BilanciCalculationsHelperAdvanced
         $inpsData = AnalisiInps::where('document_id', $this->codice_documento)->latest()->first();
 
         if($inpsData != null) {
+            $inpsData['alert'] = $inpsData['alertINPS'];
+
             return $inpsData;
         } else {
             return false;
@@ -1195,6 +1197,8 @@ class BilanciCalculationsHelperAdvanced
         $riscossioneData = AnalisiRiscossione::where('document_id', $this->codice_documento)->latest()->first();
 
         if($riscossioneData != null) {
+            $riscossioneData['alert'] = $riscossioneData['alertRiscossione'];
+
             return $riscossioneData;
         } else {
             return false;
@@ -1301,6 +1305,8 @@ class BilanciCalculationsHelperAdvanced
         $retribuzioniData = AnalisiRetribuzioni::where('document_id', $this->codice_documento)->latest()->first();
 
         if($retribuzioniData != null) {
+            $retribuzioniData['alert'] = $retribuzioniData['alertRetribuzioni'];
+
             return $retribuzioniData;
         } else {
             return false;
@@ -1417,6 +1423,8 @@ class BilanciCalculationsHelperAdvanced
         $fornitoriData = AnalisiFornitori::where('document_id', $this->codice_documento)->latest()->first();
 
         if($fornitoriData != null) {
+            $fornitoriData['alert'] = $fornitoriData['alertFornitori'];
+
             return $fornitoriData;
         } else {
             return false;
@@ -1495,6 +1503,8 @@ class BilanciCalculationsHelperAdvanced
         $agenziaEntrateData = AnalisiAgenziaEntrate::where('document_id', $this->codice_documento)->latest()->first();
 
         if($agenziaEntrateData != null) {
+            $agenziaEntrateData['alert'] = $agenziaEntrateData['alertAgenziaEntrate'];
+
             return $agenziaEntrateData;
         } else {
             return false;
@@ -1741,10 +1751,11 @@ class BilanciCalculationsHelperAdvanced
     public function getDSCRData()
     {
         $dscrData = AnalisiDscr::where('document_id', $this->codice_documento)->latest()->first();
-
         //dd($dscrData);
 
         if($dscrData != null) {
+            $dscrData['alert'] = $dscrData['alertDSCR'];
+
             return $dscrData;
         } else {
             return false;
