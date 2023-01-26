@@ -94,6 +94,24 @@ class BilanciCalculationsHelperAdvanced
         return $elementoFromQuery;
     }
 
+    public function getCalcoloDSCR($allData)
+    {
+
+        $dscrData = $this->getDSCRArrayData($allData);
+
+        if ($dscrData['DSCR'] != 1) {
+            return "DSCR da non calcolare";
+        }
+
+        if (empty($dscrData['uscitaDSCRCFmese6']) || $dscrData['uscitaDSCRCFmese6'] == 0 || empty($dscrData['rimborsoDSCRmese1']) || $dscrData['rimborsoDSCRmese1'] == 0) {
+           // CustomLog::addToLogBilanciHelper('BilanciHelper', 'GetEmptyCalculateDSCR', json_encode(["uscitaDSCRCFmese6" => $dscrData['uscitaDSCRCFmese6'], "rimborsoDSCRmese1" => $dscrData['rimborsoDSCRmese1']]));
+            return ['error' => true];
+        }
+
+
+        return $this->calculateDSCR($dscrData);
+    }
+
 
     public function getTotalePatrimonioNetto($indexName = "TotalePatrimonioNetto")
     {
