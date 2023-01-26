@@ -1136,14 +1136,14 @@ class BilanciCalculationsHelperAdvanced
             if($calcoloInps) {
                 $response['INPS3'] = $dataInps['INPS3']; //$calcoloInps['inps3'];
                 $response['alertINPS'] = $calcoloInps['alert'];
-    
+
                 $inpsToDb = AnalisiInps::where('document_id', $dataInps['document_id'])->first();
 
                 if(isset($inpsToDb)) {
                     $inpsToDb->delete();
-                    AnalisiInps::create($dataInps);
+                    AnalisiInps::create($response);
                 } else {
-                    AnalisiInps::create($dataInps);
+                    AnalisiInps::create($response);
                 }
                 
                 return "Dati Inps salvati correttamente";
