@@ -1416,7 +1416,7 @@ AND t.divisa = t2.divisa');
 
         foreach ($distinctRisks as $label => $singleCrData) {
             $dateTmp = new DateTime($singleCrData->date);
-            $tmp = $dateTmp->format('y') . '-' . $dateTmp->format('m');
+            $tmp = $dateTmp->format('Y-m-d');
             $affidamentoPerMese[$singleCrData->categoria][] = array($tmp, $singleCrData->totAccordatoOperativo, $singleCrData->totUtilizzato);
         }
 
