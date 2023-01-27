@@ -1477,7 +1477,7 @@ AND t.divisa = t2.divisa');
             ]
         );
 
-        return array("IndebitamentoTotale" => $indebitamentoPerMese, "IndebitamentoPerCategoria" => $affidamentoPerMese);
+        return array("IndebitamentoTotale" => $indebitamentoPerMese, "IndebitamentoPerCategoria" => $indebitamentoPerMeseCat);
     }
 
     public function getPesiAffidamentiPerBanca($categories, $latestYear, $latestMonth, $banks)
