@@ -285,9 +285,9 @@ class BilanciCalculationsHelperAdvanced
         if (
             (is_bool($CostiProduzioneAccantonamentiRischi) && !$CostiProduzioneAccantonamentiRischi) ||
             !$TotaleAttivo ||
-            (is_bool($CostiProduzioneAccantonamentiRischi) && !$UtilePerditaEsercizio) ||
-            (is_bool($CostiProduzioneAccantonamentiRischi) && !$CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni) ||
-            (is_bool($CostiProduzioneAccantonamentiRischi) && !$CostiProduzioneAltriAccantonamenti)
+            (is_bool($UtilePerditaEsercizio) && !$UtilePerditaEsercizio) ||
+            (is_bool($CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni) && !$CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni) ||
+            (is_bool($CostiProduzioneAltriAccantonamenti) && !$CostiProduzioneAltriAccantonamenti)
         ) {
             return false;
         }
@@ -1112,7 +1112,7 @@ class BilanciCalculationsHelperAdvanced
                     'error' => true,
                     'message' => "document_id non trovato"
                 ];
-            } 
+            }
         }
 
         $response = null;
@@ -1145,7 +1145,7 @@ class BilanciCalculationsHelperAdvanced
                 } else {
                     AnalisiInps::create($response);
                 }
-                
+
                 return "Dati Inps salvati correttamente";
             } else {
                 return [
@@ -1186,7 +1186,7 @@ class BilanciCalculationsHelperAdvanced
 
         $data = [
             'alert' => $alert,
-            'inps3' => $allData['INPS3'] 
+            'inps3' => $allData['INPS3']
         ];
 
         return $data;
@@ -1219,7 +1219,7 @@ class BilanciCalculationsHelperAdvanced
                     'error' => true,
                     'message' => "idBilancio non trovato"
                 ];
-            } 
+            }
         } */
 
         if(!isset($dataRiscossione["document_id"])) {
@@ -1234,7 +1234,7 @@ class BilanciCalculationsHelperAdvanced
                     'error' => true,
                     'message' => "document_id non trovato"
                 ];
-            } 
+            }
         }
 
         $response = null;
@@ -1251,7 +1251,7 @@ class BilanciCalculationsHelperAdvanced
         if (!isset($response['error'])) {
             $calcoloRiscossione = $this->calculateRiscossione($response);
 
-            $response['alertRiscossione'] = $calcoloRiscossione; 
+            $response['alertRiscossione'] = $calcoloRiscossione;
 
             $riscossioneToDb = AnalisiRiscossione::where('document_id', $response['document_id'])->first();
 
@@ -1313,7 +1313,7 @@ class BilanciCalculationsHelperAdvanced
         }
     }
 
-    public function saveRetribuzione($dataRetribuzione) 
+    public function saveRetribuzione($dataRetribuzione)
     {
 
         if(!isset($dataRetribuzione["document_id"])) {
@@ -1328,7 +1328,7 @@ class BilanciCalculationsHelperAdvanced
                     'error' => true,
                     'message' => "document_id non trovato"
                 ];
-            } 
+            }
         }
 
         $response = null;
@@ -1350,8 +1350,8 @@ class BilanciCalculationsHelperAdvanced
             $calcoloRetribuzioni = $this->calculateRetribuzione($response);
             if($calcoloRetribuzioni) {
                 $response['retribuzioni3'] =  $dataRetribuzione['retribuzioni3']; //$calcoloRetribuzioni['retribuzioni3'];
-                $response['alertRetribuzioni'] = $calcoloRetribuzioni['alert']; 
-    
+                $response['alertRetribuzioni'] = $calcoloRetribuzioni['alert'];
+
                 $retribuzioniToDb = AnalisiRetribuzioni::where('document_id', $response['document_id'])->first();
 
                 if(isset($retribuzioniToDb)) {
@@ -1359,7 +1359,7 @@ class BilanciCalculationsHelperAdvanced
                     AnalisiRetribuzioni::create($response);
                 } else {
                     AnalisiRetribuzioni::create($response);
-                }    
+                }
                 return "Dati retribuzioni salvati correttamente";
             } else {
                 return [
@@ -1446,7 +1446,7 @@ class BilanciCalculationsHelperAdvanced
                     'error' => true,
                     'message' => "document_id non trovato"
                 ];
-            } 
+            }
         }
 
         $response = null;
@@ -1476,7 +1476,7 @@ class BilanciCalculationsHelperAdvanced
                 AnalisiFornitori::create($response);
             } else {
                 AnalisiFornitori::create($response);
-            }    
+            }
             return "Dati fornitori salvati correttamente";
         } else {
             return $response;
@@ -1526,7 +1526,7 @@ class BilanciCalculationsHelperAdvanced
                     'error' => true,
                     'message' => "document_id non trovato"
                 ];
-            } 
+            }
         }
 
         $response = null;
@@ -1568,7 +1568,7 @@ class BilanciCalculationsHelperAdvanced
             if($calcoloAgenziaEntrate) {
                 $dataFloat['alertAgenziaEntrate'] = $calcoloAgenziaEntrate['alert'];
                 $dataFloat['agenziaEntrate4'] = $agenziaEntrateData['agenziaEntrate4'];//(float)$calcoloAgenziaEntrate['agenziaEntrate4']['agenziaEntrate4'];
-    
+
                 $agenziaEntrateToDb = AnalisiAgenziaEntrate::where('document_id', $dataFloat['document_id'])->first();
 
                 if(isset($agenziaEntrateToDb)) {
@@ -1577,7 +1577,7 @@ class BilanciCalculationsHelperAdvanced
                 } else {
                     AnalisiAgenziaEntrate::create($dataFloat);
                 }
-    
+
                 return "Dati AgenziaEntrate salvati correttamente";
             } else {
                 return [
@@ -1630,7 +1630,7 @@ class BilanciCalculationsHelperAdvanced
 
             $data = [
                 'alert' => $alert,
-                'agenziaEntrate4' => $allData['agenziaEntrate4'] 
+                'agenziaEntrate4' => $allData['agenziaEntrate4']
             ];
 
             return $data;
@@ -1665,7 +1665,7 @@ class BilanciCalculationsHelperAdvanced
                     'error' => true,
                     'message' => "document_id non trovato"
                 ];
-            } 
+            }
         }
 
         $response = null;
@@ -1708,8 +1708,8 @@ class BilanciCalculationsHelperAdvanced
 
     public function calculateDSCR($inboundData)
     {
-        
-        
+
+
         $sum = ($inboundData['DSCRdispLiquida'] +
             $inboundData['entrataDSCRCFmese1'] +
             $inboundData['entrataDSCRCFmese2'] +
