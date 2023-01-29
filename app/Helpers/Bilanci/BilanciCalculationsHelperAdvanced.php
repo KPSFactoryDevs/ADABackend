@@ -93,13 +93,7 @@ class BilanciCalculationsHelperAdvanced
 
     public function getMissingVoicesFromDb()
     {
-        $elementoFromQuery = MissingVoice::select('voiceFullName', 'period', 'voiceValue')
-            ->where('documentId', $this->documentId)
-            ->get()
-            ->groupBy(['voiceFullName', 'period', 'voiceValue'])
-            ->toArray();
-
-        return $elementoFromQuery;
+       return $this->_valuesFromDatabase;
     }
 
     public function getCalcoloDSCR($allData)
