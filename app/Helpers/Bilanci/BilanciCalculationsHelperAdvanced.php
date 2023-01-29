@@ -22,6 +22,8 @@ class BilanciCalculationsHelperAdvanced
 
     public $_missingVoicesArray = array();
 
+    public $_valuesFromDatabase = array();
+
     public $documentId = false;
 
     public $codice_documento = false;
@@ -56,9 +58,15 @@ class BilanciCalculationsHelperAdvanced
 
             return $value;
         } elseif (count($elementoFromQuery) > 0) {
-       /*     if($elementName == "CostiProduzioneAccantonamentiRischi") {
-                echo $elementoFromQuery->first()->value;
-            }*/
+            $data = array(
+                $elementName.'_'.$period => $elementoFromQuery->first()->voiceValue
+            );
+            if (!isset($this->_valuesFromDatabase[$indexName])) {
+                $this->_valuesFromDatabase[$indexName] = array();
+                array_push($this->_valuesFromDatabase[$indexName], $data);
+            } else {
+                array_push($this->_valuesFromDatabase[$indexName], $data);
+            }
 
             return $elementoFromQuery->first()->voiceValue;
         } else {
