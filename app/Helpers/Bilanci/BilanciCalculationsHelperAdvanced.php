@@ -63,9 +63,11 @@ class BilanciCalculationsHelperAdvanced
             );
             if (!isset($this->_valuesFromDatabase[$indexName])) {
                 $this->_valuesFromDatabase[$indexName] = array();
-                array_push($this->_valuesFromDatabase[$indexName], $data);
+                $this->_valuesFromDatabase[$indexName][$elementName.'_'.$period] = $elementoFromQuery->first()->voiceValue;
             } else {
-                array_push($this->_valuesFromDatabase[$indexName], $data);
+                if(!isset($this->_valuesFromDatabase[$indexName][$elementName.'_'.$period])) {
+                    $this->_valuesFromDatabase[$indexName][$elementName.'_'.$period] = $elementoFromQuery->first()->voiceValue;
+                }
             }
 
             return $elementoFromQuery->first()->voiceValue;
