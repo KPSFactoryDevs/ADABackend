@@ -166,6 +166,48 @@ class BilanciController extends Controller
     }
 
 
+    public function updateMissingVoices(Request $request)
+    {
+        $documentId = $request->documentId;
+
+        if (!$documentId)
+            return response()->json([
+                'error' => true,
+                'data' => "Id Bilancio Errato"
+            ]);
+
+
+        try {
+
+            foreach($request->voci as $key => $singleVoice) {
+                $missingVoices = MissingVoice::where('documentId', $documentId)->get();
+                foreach($missingVoices as $singleUpdateVoice) {
+                    $singleUpdateVoice->update([
+                        'documentId' => $documentId,
+                        'voiceFullName' => explode('_', $key)[0],
+                        'voiceLabel' => false,
+                        'voiceValue' => $singleVoice,
+                        'period' => explode('_', $key)[1]
+                    ]);
+                }
+            }
+
+
+
+            return response()->json([
+                'error' => false,
+                'data' => "Voci aggiornate correttamente"
+            ]);
+
+        } catch(Exception $e) {
+            return response()->json([
+                'error' => true,
+                'data' => $e->getMessage()
+            ]);
+        }
+    }
+
+
     public function destroy($idBilancio)
     {
         if (!$idBilancio) {
