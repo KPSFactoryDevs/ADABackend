@@ -180,19 +180,8 @@ class BilanciController extends Controller
         try {
 
             foreach($request->voci as $key => $singleVoice) {
-                $missingVoices = MissingVoice::where('documentId', $documentId)->get();
-                foreach($missingVoices as $singleUpdateVoice) {
-                    $singleUpdateVoice->update([
-                        'documentId' => $documentId,
-                        'voiceFullName' => explode('_', $key)[0],
-                        'voiceLabel' => false,
-                        'voiceValue' => $singleVoice,
-                        'period' => explode('_', $key)[1]
-                    ]);
-                }
+                MissingVoice::where('documentId', $documentId)->where('voiceFullName', explode('_', $key)[0])->update(['voiceValue' => $singleVoice]);
             }
-
-
 
             return response()->json([
                 'error' => false,
