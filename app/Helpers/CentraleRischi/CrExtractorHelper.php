@@ -1401,35 +1401,83 @@ AND t.divisa = t2.divisa');
     public function getTotaleAffidamentiPerMese($lastYearPeriod, $categories, $banks)
     {
 
-        $indebitamentoPerMese = array(array('Data', 'Accordato', 'Utilizzato'));
-        $affidamentoPerMese = array("RISCHI A SCADENZA" => array(array('Data', 'Accordato', 'Utilizzato')), "RISCHI A REVOCA" => array(array('Data', 'Accordato', 'Utilizzato')), "RISCHI AUTOLIQUIDANTI" => array(array('Data', 'Accordato', 'Utilizzato')));
 
+        $indebitamentoPerMese = array();
+        $indebitamentoPerMeseCat = array();
         $singleYear = array_key_first($lastYearPeriod);
         $singleMonth = array_key_first($lastYearPeriod[$singleYear]);
-
 
         $startPeriod = new DateTime(cr::select('date')->where('anno', $singleYear)->where('document_id', $this->_documentId)->where('mese', $singleMonth)->distinct()->first()->date);
         $endPeriod = new DateTime(cr::select('date')->where('document_id', $this->_documentId)->orderBy('date', 'desc')->distinct()->first()->date);
 
+
         $distinctRisks = cr::selectRaw("date,categoria, SUM(accordato_operativo) as totAccordatoOperativo, SUM(utilizzato) as totUtilizzato")->where("date", '>=', $startPeriod->format('Y-m-d'))->where("date", '<=', $endPeriod->format('Y-m-d'))->orderBy('date')->groupBy('date', 'categoria')->whereIn('categoria', $categories)->whereIn('nome_banca', $banks)->where('document_id', $this->_documentId)->get();
+
 
         foreach ($distinctRisks as $label => $singleCrData) {
             $dateTmp = new DateTime($singleCrData->date);
-            $tmp = $dateTmp->format('y') . '-' . $dateTmp->format('m');
-
+            $tmp = $dateTmp->format('Y-m-d');
             $affidamentoPerMese[$singleCrData->categoria][] = array($tmp, $singleCrData->totAccordatoOperativo, $singleCrData->totUtilizzato);
         }
 
-        $indebitamento = cr::selectRaw("date, SUM(accordato_operativo) as totAccordatoOperativo, SUM(utilizzato) as totUtilizzato")->where("date", '>=', $startPeriod->format('Y-m-d'))->where("date", '<=', $endPeriod->format('Y-m-d'))->orderBy('date')->groupBy('date')->whereIn('categoria', $categories)->whereIn('nome_banca', $banks)->where('document_id', $this->_documentId)->get();
 
-        foreach ($indebitamento as $label => $singleIndebitamentoData) {
-            $dateTmp = new DateTime($singleIndebitamentoData->date);
-            $tmp = $dateTmp->format('y') . '-' . $dateTmp->format('m');
+        foreach($affidamentoPerMese as $category => $arrData) {
+            $accordatoDataByCat = array();
+            $utilizzatoDataByCat = array();
+            $dateArrayByCat = array();
 
-            $indebitamentoPerMese[] = array($tmp, $singleIndebitamentoData->totAccordatoOperativo, $singleIndebitamentoData->totUtilizzato);
+            foreach($arrData as $key => $values) {
+                $date = $values[0];
+                $accordatoOperativo = $values[1];
+                $utilizzato = $values[2];
+
+                array_push($dateArrayByCat, $date);
+                array_push($accordatoDataByCat, $accordatoOperativo);
+                array_push($utilizzatoDataByCat, $utilizzato);
+            }
+
+            $indebitamentoPerMeseCat[$category]['dates'] = $dateArrayByCat;
+            $indebitamentoPerMeseCat[$category]['series'] = array(
+                [
+                    "name" => "Accordato",
+                    "data" => $accordatoDataByCat,
+                ],
+                [
+                    "name" => "Utilizzato",
+                    "data" => $utilizzatoDataByCat,
+                ]
+            );
+
         }
 
-        return array("IndebitamentoTotale" => $indebitamentoPerMese, "IndebitamentoPerCategoria" => $affidamentoPerMese);
+
+
+        $indebitamento = cr::selectRaw("date, SUM(accordato_operativo) as totAccordatoOperativo, SUM(utilizzato) as totUtilizzato")->where("date", '>=', $startPeriod->format('Y-m-d'))->where("date", '<=', $endPeriod->format('Y-m-d'))->orderBy('date')->groupBy('date')->whereIn('categoria', $categories)->whereIn('nome_banca', $banks)->where('document_id', $this->_documentId)->get();
+        $accordatoData = array();
+        $utilizzatoData = array();
+        $dateArray = array();
+        foreach ($indebitamento as $label => $singleIndebitamentoData) {
+            $dateTmp = new DateTime($singleIndebitamentoData->date);
+            $tmp = $dateTmp->format('Y-m-d');
+
+            array_push($dateArray, $tmp);
+            array_push($accordatoData, $singleIndebitamentoData->totAccordatoOperativo);
+            array_push($utilizzatoData, $singleIndebitamentoData->totUtilizzato);
+        }
+
+        $indebitamentoPerMese['dates'] = $dateArray;
+        $indebitamentoPerMese['series'] = array(
+            [
+                "name" => "Accordato",
+                "data" => $accordatoData,
+            ],
+            [
+                "name" => "Utilizzato",
+                "data" => $utilizzatoData,
+            ]
+        );
+
+        return array("IndebitamentoTotale" => $indebitamentoPerMese, "IndebitamentoPerCategoria" => $indebitamentoPerMeseCat);
     }
 
     public function getPesiAffidamentiPerBanca($categories, $latestYear, $latestMonth, $banks)
