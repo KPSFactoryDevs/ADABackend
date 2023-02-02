@@ -111,7 +111,7 @@ class BilanciController extends Controller
             if($readXBRL) {
                 $bilancioJSON = $readXBRL->toJSON();
                 $renderHTML = $bilanciHelper->generateHTMLRender($filePath, $taxonomyPath);
-
+                dd($bilancioJSON);
                 return response()->json([
                     'exception' => false,
                     'codice_documento' => $document->codice_documento,
