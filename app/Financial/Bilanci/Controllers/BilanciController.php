@@ -111,8 +111,25 @@ class BilanciController extends Controller
             if($readXBRL) {
                 $bilancioJSON = $readXBRL->toJSON();
                 $renderHTML = $bilanciHelper->generateHTMLRender($filePath, $taxonomyPath);
+
+                foreach(json_decode($bilancioJSON)->contexts as $singleContext) {
+                    $period[] = explode('-', $singleContext->period->startDate)[0];
+                }
+
+                rsort($period, SORT_NUMERIC);
+
+                $annoInizio = $period[3];
+                $annoFine = $period[0];
+    
+                foreach(json_decode($bilancioJSON)->elements->DatiAnagraficiDenominazione as $singleJson) {
+                    $nomaAzienda = $singleJson->value;
+                }
+
                 return response()->json([
                     'exception' => false,
+                    'nome_azienda' => $nomaAzienda,
+                    'annoInizio' => $annoInizio,
+                    'annoFine' => $annoFine,
                     'codice_documento' => $document->codice_documento,
                     'idDocumento' => $document->id,
                     'renderHTML' => $renderHTML,
