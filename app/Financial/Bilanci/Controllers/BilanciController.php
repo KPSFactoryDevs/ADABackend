@@ -21,6 +21,7 @@ use App\Models\Voci;
 use Storage;
 use App\Models\Document;
 use App\Models\CustomLog;
+use App\Domains\Auth\Models\User;
 use Auth;
 use Exception;
 use App\Models\MissingVoice;
@@ -79,13 +80,24 @@ class BilanciController extends Controller
             $fileName = "Bilancio_" . time() . '.xbrl';
             $storeFile = Storage::disk('bilanci')->putFileAs('', $file, $fileName);
 
-            $document = Document::create([
-                'filename' => $fileName,
-                'path' => asset('bilanci') . '/' . $fileName,
-                'type' => 'bilancio',
-                'taxonomy' => $taxonomyName,
-                'codice_documento' => rand(1, 999999999)
-            ]);
+            if($request->header('currentcompany') || $request->header('currentcompany') === 0){
+                $document = Document::create([
+                    'filename' => $fileName,
+                    'path' => asset('bilanci') . '/' . $fileName,
+                    'type' => 'bilancio',
+                    'taxonomy' => $taxonomyName,
+                    'codice_documento' => rand(1, 999999999),
+                    'company_id' => $request->header('currentcompany')
+                ]);
+            } else {
+                $document = Document::create([
+                    'filename' => $fileName,
+                    'path' => asset('bilanci') . '/' . $fileName,
+                    'type' => 'bilancio',
+                    'taxonomy' => $taxonomyName,
+                    'codice_documento' => rand(1, 999999999)
+                ]);
+            }
         }
 
             $taxonomyPath = base_path()."/taxonomies/2018-11-04/".$taxonomyName;
@@ -186,7 +198,7 @@ class BilanciController extends Controller
             return response()->json([
                 'error' => false,
                 'data' => "Voci aggiornate correttamente"
-            ]);
+            ]); 
 
         } catch(Exception $e) {
             return response()->json([
