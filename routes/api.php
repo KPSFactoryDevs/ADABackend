@@ -47,6 +47,7 @@ Route::group(['middleware' => ['cors', 'json.response']], function () {
     Route::post('/getFornitoriAlert', 'App\Http\Controllers\AnalisisController@getFornitoriAlert');
     Route::post('/getRiscossione', 'App\Http\Controllers\AnalisisController@getRiscossione');
 
+    Route::get('/getSettori', 'App\Helpers\Bilanci\BilanciHelper@getSettori');
 
 
     // CENTRALE RISCHI
