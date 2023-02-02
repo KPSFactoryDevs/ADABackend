@@ -111,25 +111,22 @@ class BilanciController extends Controller
             if($readXBRL) {
                 $bilancioJSON = $readXBRL->toJSON();
                 $renderHTML = $bilanciHelper->generateHTMLRender($filePath, $taxonomyPath);
+                $period = $bilanciHelper->getPeriodFromContext(json_decode($bilancioJSON)->contexts);
+                $nomeAzienda = $bilanciHelper->getNomeAziendaFromElements(json_decode($bilancioJSON)->elements->DatiAnagraficiDenominazione);
 
-                foreach(json_decode($bilancioJSON)->contexts as $singleContext) {
-                    $period[] = explode('-', $singleContext->period->startDate)[0];
-                }
-
-                rsort($period, SORT_NUMERIC);
-
-                $annoInizio = $period[3];
-                $annoFine = $period[0];
-    
-                foreach(json_decode($bilancioJSON)->elements->DatiAnagraficiDenominazione as $singleJson) {
-                    $nomaAzienda = $singleJson->value;
+                if($nomeAzienda && $period) {
+                    $document = Document::find($document->id);
+                    $document->update([
+                        'nome_azienda' => $nomeAzienda,
+                        'anno_inizio' => $period['anno_inizio'],
+                        'anno_fine' => $period['anno_fine']
+                    ]);
                 }
 
                 return response()->json([
                     'exception' => false,
-                    'nome_azienda' => $nomaAzienda,
-                    'annoInizio' => $annoInizio,
-                    'annoFine' => $annoFine,
+                    'nome_azienda' => $nomeAzienda,
+                    'period' => $period,
                     'codice_documento' => $document->codice_documento,
                     'idDocumento' => $document->id,
                     'renderHTML' => $renderHTML,

@@ -34,7 +34,11 @@ class Document extends Model
                   'filename',
                   'type',
 		          'company_id',
-                  'taxonomy'
+                  'taxonomy',
+                  'user_id', 
+                  'nome_azienda', 
+                  'anno_inizio', 
+                  'anno_fine'
               ];
 
 

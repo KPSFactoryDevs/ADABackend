@@ -212,7 +212,42 @@ class BilanciHelper
         ];
     }
 
+    public function getPeriodFromContext($contexts)
+    {
+        if(isset($contexts)) {
+            foreach($contexts as $singleContext) {
+                $period[] = explode('-', $singleContext->period->startDate)[0];
+            }
+    
+            rsort($period, SORT_NUMERIC);
+    
+            $annoInizio = $period[3];
+            $annoFine = $period[0];
+    
+            return [
+                'anno_inizio' => $annoInizio,
+                'anno_fine' => $annoFine
+            ];
+        } else {
+            return [
+                'anno_inizio' => false,
+                'anno_fine' => false
+            ];
+        }
+    }
 
+    public function getNomeAziendaFromElements($jsonData)
+    {
+        if(isset($jsonData)) {
+            foreach($jsonData as $singleJson) {
+                $nomeAzienda = $singleJson->value;
+            }
+
+            return $nomeAzienda;
+        } else {
+            return false;
+        }
+    }
 
     public function generateHTMLRender($instance, $taxonomy) {
 
