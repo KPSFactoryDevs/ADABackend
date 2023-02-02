@@ -38,7 +38,9 @@ class Document extends Model
                   'user_id', 
                   'nome_azienda', 
                   'anno_inizio', 
-                  'anno_fine'
+                  'anno_fine',
+                  'forma_giuridica',
+                  'tipo_azienda'
               ];
 
 

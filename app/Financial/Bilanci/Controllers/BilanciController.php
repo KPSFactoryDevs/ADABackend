@@ -87,7 +87,9 @@ class BilanciController extends Controller
                     'type' => 'bilancio',
                     'taxonomy' => $taxonomyName,
                     'codice_documento' => rand(1, 999999999),
-                    'company_id' => $request->header('currentcompany')
+                    'company_id' => $request->header('currentcompany'),
+                    'forma_giuridica' => $request->forma_giuridica,
+                    'tipo_azienda' => $request->tipo_azienda
                 ]);
             } else {
                 $document = Document::create([
@@ -95,7 +97,9 @@ class BilanciController extends Controller
                     'path' => asset('bilanci') . '/' . $fileName,
                     'type' => 'bilancio',
                     'taxonomy' => $taxonomyName,
-                    'codice_documento' => rand(1, 999999999)
+                    'codice_documento' => rand(1, 999999999),
+                    'forma_giuridica' => $request->forma_giuridica,
+                    'tipo_azienda' => $request->tipo_azienda
                 ]);
             }
         }
