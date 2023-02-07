@@ -25,7 +25,7 @@ use App\Domains\Auth\Models\User;
 use Auth;
 use Exception;
 use App\Models\MissingVoice;
-
+use Laravel\Passport\Token;
 class BilanciController extends Controller
 {
 
@@ -80,7 +80,9 @@ class BilanciController extends Controller
             $fileName = "Bilancio_" . time() . '.xbrl';
             $storeFile = Storage::disk('bilanci')->putFileAs('', $file, $fileName);
 
-            if($request->header('currentcompany') || $request->header('currentcompany') === 0){
+            $currentUserId = $bilanciHelper->getCurrentUserIdFromToken($request);
+
+            if($currentUserId){
                 $document = Document::create([
                     'filename' => $fileName,
                     'path' => asset('bilanci') . '/' . $fileName,
@@ -89,7 +91,8 @@ class BilanciController extends Controller
                     'codice_documento' => rand(1, 999999999),
                     'company_id' => $request->header('currentcompany'),
                     'forma_giuridica' => $request->forma_giuridica,
-                    'tipo_azienda' => $request->tipo_azienda
+                    'tipo_azienda' => $request->tipo_azienda,
+                    'user_id' => $currentUserId
                 ]);
             } else {
                 $document = Document::create([
@@ -262,8 +265,11 @@ class BilanciController extends Controller
 
     public function getDocuments(Request $request)
     {
-        if ($request->header('currentcompany') || $request->header('currentcompany') === 0) {
-            $documentsCr = Document::where('type', 'bilancio')->where('company_id', $request->header('currentcompany'))->orderBy('created_at', 'desc')->get();
+        $bilanciHelper = new BilanciHelper;
+        $currentUserId = $bilanciHelper->getCurrentUserIdFromToken($request);
+
+        if (isset($currentUserId) && $request->header('currentcompany') || isset($currentUserId) && $request->header('currentcompany') === 0) {
+            $documentsCr = Document::where('type', 'bilancio')->where('company_id', $request->header('currentcompany'))->where('user_id', $currentUserId)->orderBy('created_at', 'desc')->get();
         } else {
             $documentsCr = Document::where('type', 'bilancio')->orderBy('created_at', 'desc')->get();
         }

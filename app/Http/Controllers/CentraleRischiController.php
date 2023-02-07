@@ -20,6 +20,7 @@ use Carbon\Carbon;
 use DateTime;
 use Storage;
 use Exception;
+use App\Helpers\Bilanci\BilanciHelper;
 
 class CentraleRischiController extends Controller
 {
@@ -27,8 +28,11 @@ class CentraleRischiController extends Controller
 
     public function getDocuments(Request $request)
     {
-        if ($request->header('currentcompany') || $request->header('currentcompany') === 0) {
-            $documentsCr = Document::where('type', 'centrale rischi')->where('company_id', $request->header('currentcompany'))->orderBy('created_at', 'desc')->get();
+        $bilanciHelper = new BilanciHelper;
+        $currentUserId = $bilanciHelper->getCurrentUserIdFromToken($request);
+
+        if (isset($currentUserId) && $request->header('currentcompany') || isset($currentUserId) && $request->header('currentcompany') === 0) {
+            $documentsCr = Document::where('type', 'centrale rischi')->where('company_id', $request->header('currentcompany'))->where('user_id', $currentUserId)->orderBy('created_at', 'desc')->get();
         } else {
             $documentsCr = Document::where('type', 'centrale rischi')->orderBy('created_at', 'desc')->get();
         }
