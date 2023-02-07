@@ -40,7 +40,7 @@ class CentraleRischiController extends Controller
         if ($request->header('currentcompany') || $request->header('currentcompany') === 0) {
             $documentsCr = Document::where('type', 'centrale rischi')->where('company_id', $request->header('currentcompany'))->where('user_id', $currentUserId)->orderBy('created_at', 'desc')->get();
         } else {
-            $documentsCr = Document::where('type', 'centrale rischi')->orderBy('created_at', 'desc')->get();
+            $documentsCr = Document::where('type', 'centrale rischi')->where('user_id', $currentUserId)->orderBy('created_at', 'desc')->get();
         }
 
         foreach ($documentsCr as $singleDocument) {
@@ -184,7 +184,7 @@ class CentraleRischiController extends Controller
                 'exception' => true,
                 'message' => 'Unauthorized'
             ], 401);
-            
+
         $newDocumentData['user_id'] = $bilanciHelper->getCurrentUserIdFromToken($request);
 
         try {
