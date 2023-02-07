@@ -82,7 +82,12 @@ class BilanciController extends Controller
 
             $currentUserId = $bilanciHelper->getCurrentUserIdFromToken($request);
 
-            if(isset($currentUserId)){
+            if ($currentUserId == 'Unauthorized')
+                return response()->json([
+                    'exception' => true,
+                    'message' => 'Unauthorized'
+                ], 401);
+        
                 $document = Document::create([
                     'filename' => $fileName,
                     'path' => asset('bilanci') . '/' . $fileName,
@@ -94,17 +99,6 @@ class BilanciController extends Controller
                     'tipo_azienda' => $request->tipo_azienda,
                     'user_id' => $currentUserId
                 ]);
-            } else {
-                $document = Document::create([
-                    'filename' => $fileName,
-                    'path' => asset('bilanci') . '/' . $fileName,
-                    'type' => 'bilancio',
-                    'taxonomy' => $taxonomyName,
-                    'codice_documento' => rand(1, 999999999),
-                    'forma_giuridica' => $request->forma_giuridica,
-                    'tipo_azienda' => $request->tipo_azienda
-                ]);
-            }
         }
 
             $taxonomyPath = base_path()."/taxonomies/2018-11-04/".$taxonomyName;
@@ -149,7 +143,7 @@ class BilanciController extends Controller
 
 
         } catch(Exception $e) {
-
+            dd($e);
             return response()->json([
                 'exception' => true,
                 'message' => $e->getMessage()
@@ -268,6 +262,12 @@ class BilanciController extends Controller
         try {
             $bilanciHelper = new BilanciHelper;
             $currentUserId = $bilanciHelper->getCurrentUserIdFromToken($request);
+
+            if ($currentUserId == 'Unauthorized')
+                return response()->json([
+                    'exception' => true,
+                    'message' => 'Unauthorized'
+                ], 401);
 
             if ($request->header('currentcompany') || $request->header('currentcompany') === 0) {
                 $documentsCr = Document::where('type', 'bilancio')->where('company_id', $request->header('currentcompany'))->where('user_id', $currentUserId)->orderBy('created_at', 'desc')->get();

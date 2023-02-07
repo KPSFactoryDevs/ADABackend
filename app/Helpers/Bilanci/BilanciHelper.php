@@ -25,6 +25,30 @@ use Laravel\Passport\Token;
 
 class BilanciHelper
 {
+    public function indexesToFormat($indexValue)
+    {
+        if(isset($indexValue['Basic'])) {
+            foreach($indexValue['Basic'] as $key => $singleIndexBasic) {
+                if(isset($singleIndexBasic['value'])) {
+                    $indexValue['Basic'][$key]['value'] = number_format($singleIndexBasic['value'], 2, ',', '.');
+                }
+            }
+        }
+
+        if(isset($indexValue['Advanced'])) {
+            foreach($indexValue['Advanced'] as $key => $singleIndexAdvanced) {
+                if(isset($singleIndexAdvanced['value'])) {
+                    $indexValue['Advanced'][$key]['value'] = number_format($singleIndexAdvanced['value'], 2, ',', '.');
+                } elseif(!$indexValue['Advanced'][$key]) {
+                    $indexValue['Advanced'][$key] = false;
+                } else {
+                    $indexValue['Advanced'][$key] = number_format($singleIndexAdvanced, 2, ',', '.');
+                }
+            }
+        }
+
+        return $indexValue;
+    }
 
     public function getIndexesForBalanceTaxonomy($idBilancio, $filePath = false, $instance = false, $codiceDocumento = false) {
 
@@ -33,7 +57,7 @@ class BilanciHelper
         $calculationHelper = new BilanciCalculationsHelperAdvanced;
         $calculationHelper->documentId = $idBilancio;
         $calculationHelper->codice_documento = $codiceDocumento;
-
+        
         if($instance == true) {
             $calculationHelper->setCurrentInstance($instance);
         } else {
@@ -46,45 +70,49 @@ class BilanciHelper
             $calculationHelper->setCurrentInstance($readXBRL);
         }
 
-        return array(
-            "Indici" => [
-                "Basic" => [
-                    "Sostenibilità Oneri Finanziari" => $calculationHelper->getSostenibilitaOneriFinanziari(),
-                    "Adeguatezza Patrimoniale" => $calculationHelper->getAdeguatezzaPatrimonialeEvaluation(),
-                    "Liquidità" => $calculationHelper->getLiquiditaEvaluation(),
-                    "Indebitamento Previdenziale Tributario" => $calculationHelper->getIndebitamentoPrevidenziale(),
-                    "Ritorno Liquido Attivo" => $calculationHelper->getRitornoLiquidoAttivo(),
-                    "IndiceCNDCEC" => $calculationHelper->getIndiceCNDCEC(),
-                ],
-                "Advanced" => [
-                    'OF Ricavi' => $calculationHelper->getOfRicavi(),
-                    'Adeguatezza Patrimoniale' => $calculationHelper->getAdeguatezzaPatrimoniale(),
-                    'Liqudità' => $calculationHelper->getLiquidita(),
-                    'Andamento Del Fatturato' => $calculationHelper->getAndamentoDelFatturato(),
-                    'Andamento Del Mol' => ($calculationHelper->getAndamentoDelMol('Andamento Del Mol')) ? $calculationHelper->getAndamentoDelMol('Andamento Del Mol')['AndamentoMOL'] : false,
-                    'ROI' => $calculationHelper->getROI(),
-                    'ROS' => $calculationHelper->getROS(),
-                    'ROE' => $calculationHelper->getROE(),
-                    'Ebitda Fatturato' => $calculationHelper->getEbitdaFatturato(),
-                    'Andamento Dei Mezzi Propri' => $calculationHelper->getAndamentoDeiMezziPropri(),
-                    'Margine Struttura Primario' => $calculationHelper->getMargineStrutturaPrimario(),
-                    'Margine Struttura Secondario' => $calculationHelper->getMargineStrutturaSecondario(),
-                    'Current Ratio' => $calculationHelper->getCurrentRatio(),
-                    'Attivita Passivita A Breve' => ($calculationHelper->getAttivitaPassivitaABreve('Attivita Passivita A Breve')) ? $calculationHelper->getAttivitaPassivitaABreve('Attivita Passivita A Breve')['Attivita_a_breve_Passività_a_Breve_Ordinario'] : false,
-                    'Acid Test' => $calculationHelper->getAcidTest(),
-                    'Acid Test Ordinario' => $calculationHelper->getAcidTestOrdinario(),
-                    'Autonomia Finanziaria' => $calculationHelper->getAutonomiaFinanziaria(),
-                    'Livello Investimenti Aziendali' => $calculationHelper->getLivelloInvestimentiAziendali(),
-                    'Pfn Ebitda' => $calculationHelper->getPfnEbitda(),
-                    'Peso Oneri Finanziari' => $calculationHelper->getPesoOneriFinanziari(),
-                    'Copertura Lorda Degli Oneri Finanziari' => $calculationHelper->getCoperturaLordaDegliOneriFinanziari(),
-                    'Ebit Of' => $calculationHelper->getEbitOf(),
-                    'Costo Del Personale' => $calculationHelper->getCostoDelPersonale(),
-                    'Cf Attivo' => $calculationHelper->getCfAttivo(),
-                    'Indice Di Indebitamento' => $calculationHelper->getIndiceDiIndebitamento(),
-                    'Saldo Debiti Vs Fisco' => $calculationHelper->getSaldoDebitiVsFisco(),
-                ]
+        $indexFormattedValue = [
+            "Basic" => [
+                "Sostenibilità Oneri Finanziari" => $calculationHelper->getSostenibilitaOneriFinanziari(),
+                "Adeguatezza Patrimoniale" => $calculationHelper->getAdeguatezzaPatrimonialeEvaluation(),
+                "Liquidità" => $calculationHelper->getLiquiditaEvaluation(),
+                "Indebitamento Previdenziale Tributario" => $calculationHelper->getIndebitamentoPrevidenziale(),
+                "Ritorno Liquido Attivo" => $calculationHelper->getRitornoLiquidoAttivo(),
+                "IndiceCNDCEC" => $calculationHelper->getIndiceCNDCEC(),
             ],
+            "Advanced" => [
+                'OF Ricavi' => $calculationHelper->getOfRicavi(),
+                'Adeguatezza Patrimoniale' => $calculationHelper->getAdeguatezzaPatrimoniale(),
+                'Liqudità' => $calculationHelper->getLiquidita(),
+                'Andamento Del Fatturato' => $calculationHelper->getAndamentoDelFatturato(),
+                'Andamento Del Mol' => ($calculationHelper->getAndamentoDelMol('Andamento Del Mol')) ? $calculationHelper->getAndamentoDelMol('Andamento Del Mol')['AndamentoMOL'] : false,
+                'ROI' => $calculationHelper->getROI(),
+                'ROS' => $calculationHelper->getROS(),
+                'ROE' => $calculationHelper->getROE(),
+                'Ebitda Fatturato' => $calculationHelper->getEbitdaFatturato(),
+                'Andamento Dei Mezzi Propri' => $calculationHelper->getAndamentoDeiMezziPropri(),
+                'Margine Struttura Primario' => $calculationHelper->getMargineStrutturaPrimario(),
+                'Margine Struttura Secondario' => $calculationHelper->getMargineStrutturaSecondario(),
+                'Current Ratio' => $calculationHelper->getCurrentRatio(),
+                'Attivita Passivita A Breve' => ($calculationHelper->getAttivitaPassivitaABreve('Attivita Passivita A Breve')) ? $calculationHelper->getAttivitaPassivitaABreve('Attivita Passivita A Breve')['Attivita_a_breve_Passività_a_Breve_Ordinario'] : false,
+                'Acid Test' => $calculationHelper->getAcidTest(),
+                'Acid Test Ordinario' => $calculationHelper->getAcidTestOrdinario(),
+                'Autonomia Finanziaria' => $calculationHelper->getAutonomiaFinanziaria(),
+                'Livello Investimenti Aziendali' => $calculationHelper->getLivelloInvestimentiAziendali(),
+                'Pfn Ebitda' => $calculationHelper->getPfnEbitda(),
+                'Peso Oneri Finanziari' => $calculationHelper->getPesoOneriFinanziari(),
+                'Copertura Lorda Degli Oneri Finanziari' => $calculationHelper->getCoperturaLordaDegliOneriFinanziari(),
+                'Ebit Of' => $calculationHelper->getEbitOf(),
+                'Costo Del Personale' => $calculationHelper->getCostoDelPersonale(),
+                'Cf Attivo' => $calculationHelper->getCfAttivo(),
+                'Indice Di Indebitamento' => $calculationHelper->getIndiceDiIndebitamento(),
+                'Saldo Debiti Vs Fisco' => $calculationHelper->getSaldoDebitiVsFisco(),
+            ]
+        ];
+
+        $indexFormattedValue = $this->indexesToFormat($indexFormattedValue);
+
+        return array(
+            "Indici" => $indexFormattedValue,
             'ValuesFromDb' => $calculationHelper->getMissingVoicesFromDb(),
             'indiceVociMancanti' => $calculationHelper->_missingVoicesArray,
             'labels' => $vocis,
@@ -476,17 +504,21 @@ class BilanciHelper
 
     public function getCurrentUserIdFromToken($request)
     {
-        $access_token = $request->header('Authorization');
-        $auth_header = explode(' ', $access_token);
-        $token = $auth_header[1];
-        $token_parts = explode('.', $token);
-        $token_header = $token_parts[1];
-        $token_header_json = base64_decode($token_header);
-        $token_header_array = json_decode($token_header_json, true);
-        $token_id = $token_header_array['jti'];
-  
-        $user = Token::find($token_id)->user;
-
-        return $user->id;
+        try {
+            $access_token = $request->header('Authorization');
+            $auth_header = explode(' ', $access_token);
+            $token = $auth_header[1];
+            $token_parts = explode('.', $token);
+            $token_header = $token_parts[1];
+            $token_header_json = base64_decode($token_header);
+            $token_header_array = json_decode($token_header_json, true);
+            $token_id = $token_header_array['jti'];
+    
+            $user = Token::findOrFail($token_id)->user;
+         
+            return $user->id;
+        } catch(Exception $e) {
+            return 'Unauthorized';
+        }
     }
 }

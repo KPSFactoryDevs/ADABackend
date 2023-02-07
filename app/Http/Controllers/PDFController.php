@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+ini_set('max_input_vars', 5000);
+
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Bilanci;
@@ -18,9 +20,87 @@ use GuzzleHttp\Client;
 use Response;
 use App\Helpers\printpdf;
 use HTTP_Request2;
+use App\Models\Document;
 
 class PDFController extends Controller
 {
+	public function templateReportBasic($id)
+	{
+		$document = Document::find($id);
+
+		$filePath = base_path() . '/public/bilanci/' . $document->filename;
+		$taxonomyName = $document->taxonomy;
+		$emptyInstance = false;
+		$taxonomyPath = base_path()."/taxonomies/2018-11-04/".$taxonomyName;
+		$readXBRL = \XBRL\XBRL_Instance::FromInstanceDocument($filePath, $taxonomyPath, $emptyInstance);
+		$bilancioJSON = $readXBRL->toJSON();
+
+	 	$Elements = $readXBRL->getElements();
+		$elements = $Elements->getElements();
+
+ 		foreach($elements as $key => $singleElements) {
+			foreach($singleElements as $singleElement) {
+				$element[$key] = $singleElement['value'];
+			}
+		}
+
+		$bilanciHelper = new BilanciHelper;
+		$bilancioAnalisi = $bilanciHelper->getIndexesForBalanceTaxonomy($document->id, $filePath, $readXBRL, $document->codice_documento);
+		$renderHTML = $bilanciHelper->generateHTMLRender($filePath, $taxonomyPath);
+
+
+	
+/* 		$bilancioAnalisi['Questionari'] = str_replace('dscrData', 'Alert DSCR', array_key_first($bilancioAnalisi['Questionari']));
+
+		dd($bilancioAnalisi['Questionari']); */
+
+		$statoPatrimonialeAttivoRange = array_slice($element, 9, 26);
+
+/* 		$statoPatrimonialeAttivo = [
+			'Crediti verso soci per versamenti ancora dovuti' => $statoPatrimonialeAttivoRange['TotaleCreditiVersoSociVersamentiAncoraDovuti'],
+			'Immobilizzazioni (NON crediti finanziari)' => $statoPatrimonialeAttivoRange['TotaleImmobilizzazioni'],
+			'Immobilizzazione - Crediti finanziari' => $statoPatrimonialeAttivoRange['TotaleImmobilizzazioniFinanziarie'],
+			'Rimanenze' => $statoPatrimonialeAttivoRange['TotaleRimanenze'],
+			'Crediti esigibili entro l\'esercizio successivo (NON finanziari)' => $statoPatrimonialeAttivoRange['CreditiEsigibiliEntroEsercizioSuccessivo'],
+			'Crediti esigibili oltre l\'esercizio successivo' => $statoPatrimonialeAttivoRange['CreditiEsigibiliOltreEsercizioSuccessivo'],
+			'C III) Attività finanziarie che non costituiscono immobilizzazioni' => $statoPatrimonialeAttivoRange['TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni'],
+			'C IV) Disponibilità liquide' => $statoPatrimonialeAttivoRange['TotaleDisponibilitaLiquide'],
+			'D) Ratei e risconti attivi' => $statoPatrimonialeAttivoRange['AttivoRateiRisconti'],
+		]; */
+
+/* 	 	foreach($statoPatrimonialeAttivo as $key => $singleStatoPatrimonialeAttivo) {
+			if($singleStatoPatrimonialeAttivo > "0") {
+				dump(number_format(floatval($singleStatoPatrimonialeAttivo), ',', '.', 2));
+				$numberFormat = number_format(floatval($singleStatoPatrimonialeAttivo), ',', '.', 2);
+				dump($numberFormat);
+
+				//dd($numberFormat);
+
+				//$statoPatrimonialeAttivo[$key] = number_format((int)$singleStatoPatrimonialeAttivo, ',', '.', 2);
+			}
+		} */
+		//dd($statoPatrimonialeAttivo);
+	//	$totaleAttivo = array_slice($element, 9, 26)['TotaleAttivo'];
+
+		$nomeAzienda = $document->nome_azienda;
+		$formaGiuridica = $document->forma_giuridica;
+		$tipoAzienda = $document->tipo_azienda;
+		$annoInizio = $document->anno_inizio;
+		$annoFine = $document->anno_fine;
+
+		$datiImpresa = [
+			'ragione_sociale' => $nomeAzienda,
+			'tipologia_impresa' => $formaGiuridica,
+			'settore' => $tipoAzienda,
+			'data_chiusura' => $annoInizio,
+			'data_ultima' => $annoFine,
+			'bilancioAnalisi' => $bilancioAnalisi,
+			'renderHTML' => $renderHTML,
+		];
+
+		$pdf = PDF::loadView('frontend.reportBasic',['datiImpresa' => $datiImpresa])->setPaper('A4');;
+		return $pdf->stream('result.pdf', array('Attachment'=>0));
+	}
 	public function reportBasicPdf($idBilancio)
 	{
 		$bilanciHelper = new BilanciHelper;

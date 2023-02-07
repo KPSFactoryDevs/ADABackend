@@ -31,10 +31,16 @@ class CentraleRischiController extends Controller
         $bilanciHelper = new BilanciHelper;
         $currentUserId = $bilanciHelper->getCurrentUserIdFromToken($request);
 
-        if (isset($currentUserId) || $request->header('currentcompany') || $request->header('currentcompany') === 0) {
+        if ($currentUserId == 'Unauthorized')
+            return response()->json([
+                'exception' => true,
+                'message' => 'Unauthorized'
+            ], 401);
+
+        if ($request->header('currentcompany') || $request->header('currentcompany') === 0) {
             $documentsCr = Document::where('type', 'centrale rischi')->where('company_id', $request->header('currentcompany'))->where('user_id', $currentUserId)->orderBy('created_at', 'desc')->get();
         } else {
-            $documentsCr = Document::where('type', 'centrale rischi')->where('user_id', $currentUserId)->orderBy('created_at', 'desc')->get();
+            $documentsCr = Document::where('type', 'centrale rischi')->orderBy('created_at', 'desc')->get();
         }
 
         foreach ($documentsCr as $singleDocument) {
@@ -157,6 +163,7 @@ class CentraleRischiController extends Controller
 
         $storedFile = Storage::disk('public')->putFile('', $base64CentraleRischi);
         $storeFullPath = asset('centraleRischi') . '/' . $storedFile;
+        $bilanciHelper = new BilanciHelper;
 
         $newDocumentData = [
             'filename' => time() . '_' . $base64CentraleRischi->getClientOriginalName(),
@@ -164,12 +171,21 @@ class CentraleRischiController extends Controller
             'type' => 'centrale rischi',
             'codice_documento' => rand(1, 999999999),
             'status' => 'Da Elaborare',
-            'company_id' => null
+            'company_id' => null,
+            'user_id' => null
         ];
 
         if ($request->header('currentcompany') || $request->header('currentcompany') == 0) {
             $newDocumentData["company_id"] = $request->header('currentcompany');
         }
+
+        if ($bilanciHelper->getCurrentUserIdFromToken($request) == 'Unauthorized')
+            return response()->json([
+                'exception' => true,
+                'message' => 'Unauthorized'
+            ], 401);
+            
+        $newDocumentData['user_id'] = $bilanciHelper->getCurrentUserIdFromToken($request);
 
         try {
             $documentCreated = Document::create($newDocumentData);
