@@ -21,6 +21,7 @@ use XBRL\XBRL_Global;
 use XBRL\XBRL_Types;
 use XBRL\XBRL_Instance;
 use App\Helpers\Bilanci\BilanciCalculationsHelperAdvanced;
+use Laravel\Passport\Token;
 
 class BilanciHelper
 {
@@ -32,8 +33,8 @@ class BilanciHelper
         $calculationHelper = new BilanciCalculationsHelperAdvanced;
         $calculationHelper->documentId = $idBilancio;
         $calculationHelper->codice_documento = $codiceDocumento;
-        
-        if($instance) {
+
+        if($instance == true) {
             $calculationHelper->setCurrentInstance($instance);
         } else {
             $document = Document::findOrFail($idBilancio);
@@ -471,5 +472,21 @@ class BilanciHelper
             "SERVIZI ALLE IMPRESE",
             "SERVIZI ALLE PERSONE"
         );
+    }
+
+    public function getCurrentUserIdFromToken($request)
+    {
+        $access_token = $request->header('Authorization');
+        $auth_header = explode(' ', $access_token);
+        $token = $auth_header[1];
+        $token_parts = explode('.', $token);
+        $token_header = $token_parts[1];
+        $token_header_json = base64_decode($token_header);
+        $token_header_array = json_decode($token_header_json, true);
+        $token_id = $token_header_array['jti'];
+  
+        $user = Token::find($token_id)->user;
+
+        return $user->id;
     }
 }
