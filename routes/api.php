@@ -71,7 +71,7 @@ Route::group(['middleware' => ['cors', 'json.response']], function () {
     Route::post('/createUser', 'App\Http\Controllers\Frontend\User\AccountController@store');
 
     // PDF MONKEY
-    Route::get('/reportBasicPDF/{id}', 'App\Http\Controllers\PDFController@reportBasicPdf');
+    Route::get('/reportBasicPDF/{id}', 'App\Http\Controllers\PDFController@templateReportBasic');
     Route::get('/reportAllerta/{idBilancio}/{idCr}', 'App\Http\Controllers\PDFController@reportAllerta');
     Route::get('/reportAndamentale/{years}', 'App\Http\Controllers\PDFController@reportCrAndamentale');
 
