@@ -272,7 +272,7 @@ class BilanciController extends Controller
             if ($request->header('currentcompany') || $request->header('currentcompany') === 0) {
                 $documentsCr = Document::where('type', 'bilancio')->where('company_id', $request->header('currentcompany'))->where('user_id', $currentUserId)->orderBy('created_at', 'desc')->get();
             } else {
-                $documentsCr = Document::where('type', 'bilancio')->orderBy('created_at', 'desc')->get();
+                $documentsCr = Document::where('type', 'bilancio')->where('user_id', $currentUserId)->orderBy('created_at', 'desc')->get();
             }
 
             foreach ($documentsCr as $singleDocument) {
