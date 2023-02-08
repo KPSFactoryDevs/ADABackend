@@ -77,7 +77,7 @@ class BilanciHelper
                 "Liquidità" => $calculationHelper->getLiquiditaEvaluation(),
                 "Indebitamento Previdenziale Tributario" => $calculationHelper->getIndebitamentoPrevidenziale(),
                 "Ritorno Liquido Attivo" => $calculationHelper->getRitornoLiquidoAttivo(),
-                "IndiceCNDCEC" => $calculationHelper->getIndiceCNDCEC(),
+                "Indice CNDCEC" => $calculationHelper->getIndiceCNDCEC(),
             ],
             "Advanced" => [
                 'OF Ricavi' => $calculationHelper->getOfRicavi(),
