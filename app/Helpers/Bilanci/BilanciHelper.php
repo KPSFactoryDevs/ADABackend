@@ -57,7 +57,7 @@ class BilanciHelper
         $calculationHelper = new BilanciCalculationsHelperAdvanced;
         $calculationHelper->documentId = $idBilancio;
         $calculationHelper->codice_documento = $codiceDocumento;
-        
+
         if($instance == true) {
             $calculationHelper->setCurrentInstance($instance);
         } else {
@@ -77,7 +77,7 @@ class BilanciHelper
                 "Liquidità" => $calculationHelper->getLiquiditaEvaluation(),
                 "Indebitamento Previdenziale Tributario" => $calculationHelper->getIndebitamentoPrevidenziale(),
                 "Ritorno Liquido Attivo" => $calculationHelper->getRitornoLiquidoAttivo(),
-                "IndiceCNDCEC" => $calculationHelper->getIndiceCNDCEC(),
+                "Indice CNDCEC" => $calculationHelper->getIndiceCNDCEC(),
             ],
             "Advanced" => [
                 'OF Ricavi' => $calculationHelper->getOfRicavi(),
@@ -117,12 +117,12 @@ class BilanciHelper
             'indiceVociMancanti' => $calculationHelper->_missingVoicesArray,
             'labels' => $vocis,
             'Questionari' => [
-                'dscrData' => $calculationHelper->getDSCRData(),
-                'agenziaEntrate' => $calculationHelper->getAgenziaEntrateData(),
-                'inps' => $calculationHelper->getInpsData(),
-                'riscossione' => $calculationHelper->getRiscossioneData(),
-                'retribuzioni' => $calculationHelper->getRetribuzioniData(),
-                'fornitori' => $calculationHelper->getFornitoriData()
+                'Questionario DSCR' => $calculationHelper->getDSCRData(),
+                'Agenzia delle Entrate' => $calculationHelper->getAgenziaEntrateData(),
+                'INPS' => $calculationHelper->getInpsData(),
+                'Agente della Riscossione' => $calculationHelper->getRiscossioneData(),
+                'Debiti per Retribuzioni' => $calculationHelper->getRetribuzioniData(),
+                'Debiti verso Fornitori' => $calculationHelper->getFornitoriData()
             ]
         );
     }
@@ -247,12 +247,12 @@ class BilanciHelper
             foreach($contexts as $singleContext) {
                 $period[] = explode('-', $singleContext->period->startDate)[0];
             }
-    
+
             rsort($period, SORT_NUMERIC);
-    
+
             $annoInizio = $period[3];
             $annoFine = $period[0];
-    
+
             return [
                 'anno_inizio' => $annoInizio,
                 'anno_fine' => $annoFine
@@ -334,14 +334,9 @@ class BilanciHelper
                 "<html>\n" .
                 "	<head>\n" .
                 "		<title>XBRL Rendered Views Index</title>\n" .
-               "		<link rel='stylesheet' id='font-awesome_style-css' href='https://www.xbrlquery.com/wp-content/themes/zerif-pro/assets/css/font-awesome.min.css?ver=v1' type='text/css' media='all'>\n" .
-              "		<link rel='stylesheet' id='render-report-css' href='https://piratebuy.it/xbrl-render-report.css'>\n" .
-                "		<script src='https://kit.fontawesome.com/d5b3603aa0.js'></script>\n" .
-                "		<script type='text/javascript' src='https://code.jquery.com/jquery-1.12.4.min.js'></script>\n" .
+             "		<link rel='stylesheet' id='render-report-css' href='https://piratebuy.it/xbrl-render-report.css'>\n" .
 
-                "		<style>\n" .
-                "			body { margin-left: 20px; margin-right: 20px; }\n" .
-                "		</style>\n" .
+                "		<script type='text/javascript' src='https://code.jquery.com/jquery-1.12.4.min.js'></script>\n" .
 
                 "	</head>\n" .
                 "	<body>\n" .
@@ -513,9 +508,9 @@ class BilanciHelper
             $token_header_json = base64_decode($token_header);
             $token_header_array = json_decode($token_header_json, true);
             $token_id = $token_header_array['jti'];
-    
+
             $user = Token::findOrFail($token_id)->user;
-         
+
             return $user->id;
         } catch(Exception $e) {
             return 'Unauthorized';
