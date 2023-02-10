@@ -1483,6 +1483,9 @@ class AllertaHelper
 
         foreach ($arrayQuestionario as $label => $result) {
             $explodedLabel = explode('-', $label)[0];
+            if(!isset($scoreASIS[$explodedLabel])) {
+                $scoreASIS[$explodedLabel] = 0;
+            }
             $value = $pesi[$label]['peso'] * $pesi[$label]['score'][$result['Result']];
             $scoreASIS[$explodedLabel] = $scoreASIS[$explodedLabel]+$value;
         }
