@@ -79,7 +79,7 @@
             @if($singleStatoPatrimonialeAttivo != false)
             <tr>
                 <td colspan="6" class="dati_impresa">{{ str_replace('_', ' ', $key) }}</td>
-                <td colspan="6" class="dati_impresa bgcolor-dati-impresa">{{ $dati['pageData']['bilancioData']['Indici']['Advanced'][$key]}}</td>
+                <td colspan="6" class="dati_impresa bgcolor-dati-impresa">{{ $dati['pageData']['bilancioData']['Indici']['Advanced'][$key]}}%</td>
                 <td colspan="6" class="dati_impresa bgcolor-dati-impresa">{{ $singleStatoPatrimonialeAttivo['Giudizio'] }}</td>
             </tr>
             @endif
