@@ -49,7 +49,7 @@ class PDFController extends Controller
 		$renderHTML = $bilanciHelper->generateHTMLRender($filePath, $taxonomyPath);
 
 
-	
+
 /* 		$bilancioAnalisi['Questionari'] = str_replace('dscrData', 'Alert DSCR', array_key_first($bilancioAnalisi['Questionari']));
 
 		dd($bilancioAnalisi['Questionari']); */
@@ -325,7 +325,7 @@ class PDFController extends Controller
             $impagati = $crHelper->getAlertImpagati($banks);
             $garanzieEsitoNegativo = $crHelper->getGaranzieEsitoNegativo($banks);
 
-            $anomalie = $crHelper->getAnomalie($banks);  
+            $anomalie = $crHelper->getAnomalie($banks);
 
             $incidenzaImpagati = $crHelper->getPercentualeMediaImpagati($banks);
             $informazioniGaranti = $crHelper->getInformazioniGaranti($banks);
@@ -333,7 +333,7 @@ class PDFController extends Controller
             // $importiSconfini = $crHelper->getImportiSconfini($banks);
             // $affidamentiPerMese = $crHelper->getTotaleAffidamentiPerMese($periods, $categories, $banks);
             // $anomalieStatoRapporto = $crHelper->mancateSegnalazioniStatoRapporto($banks);
-            $sconfiniDivisi = $crHelper->divideAnomalie($numeroSconfiniTotali, $banks);   
+            $sconfiniDivisi = $crHelper->divideAnomalie($numeroSconfiniTotali, $banks);
             // $banksScoring = $crHelper->singleBankData($banks, $periods);
             // $informazioniGarantiAnomalie = $crHelper->informazioniSuiGaranti($informazioniGaranti);
             // $percentualiAccordato = $crHelper->percentualiAccordato($totAffidamentiConPesiPerBanca);
@@ -390,7 +390,7 @@ class PDFController extends Controller
                         'Sofferenze' => (!empty($sofferenze)),
                         'CreditiPassatiPerdita' => (!empty($creditiPassatiPerdita)),
                     ],
-                ], 
+                ],
                 'ResocontoAnomalie' => [
                     'ListaSconfiniEntroNovantaGiorni' => $sconfiniDivisi['SconfiniEntro90Giorni'],
                     'ListaSconfiniEntroCentoOttantaGiorni' => $sconfiniDivisi['SconfiniOltre90Giorni'],
@@ -551,6 +551,7 @@ class PDFController extends Controller
                 'arrayQuestionarioAsIs' => $arrayQuestionario,  // questionario per document id e bilancio id
                 'arrayForwardLookingToBe' => $arrayForwardLooking,
                 'bilancioData' => $bilancioData,
+                'ValutazioneGeneraleBilancio' => $bilancioData['ValutazioneGenerale'],
                 'FinalScore' => $getScoreHelper['FinalScore']
             ],
             'GeneralScore' => [
