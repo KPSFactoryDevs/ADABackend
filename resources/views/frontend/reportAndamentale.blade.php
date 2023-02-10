@@ -15,25 +15,45 @@
         font-weight: 400!important;
     }
 
+    .dati_impresa {
+        font-size: 12px;
+        font-weight: 400!important;
+    }
+
+    .heading {
+        text-align: center;
+        padding: 5px;
+        font-size: 12px;
+    }
+    .header-info {
+        font-size: 10px;
+        vertical-align: top;
+    }
+    .bgcolor-dati-impresa {
+        background-color: #ccffff;
+    }
+    .size-12 {
+        font-size: 12px;
+    }
 
 </style>
 
-<h2 class="page-title">Report Centrale Rischi Andamentale</h2>
+<h2>Report Centrale Rischi Andamentale</h2>
 <hr>
-<table>
-    <tr>
-        <th><h3 class="page-title">Inizio del periodo analizzato | <span class="font-weight-normal text-muted ml-2">{{$response['Scoring']['Panoramica']['PeriodoRiferimento']['Inizio']}}</span></h3></th>
-        <th><h3 class="page-title">Fine del periodo analizzato | <span class="font-weight-normal text-muted ml-2">{{$response['Scoring']['Panoramica']['PeriodoRiferimento']['Fine']}}</span></h3></th>
-    <tr>
-</table>
-<table>
-    <tr>
 
-        <td><h3 align="left" class="page-title">Data Analisi | {{date('Y-m-d')}}</h3></td>
 
+
+<table style="width:100%;margin-bottom: 44rem;">
+    <tr>
+        <th colspan="12" class="heading">DATI GENERALI - Analisi del {{date('Y-m-d')}}</th>
     </tr>
-    <tr>      <td><div class="card-title"><h3>Punteggio Centrale Rischi</h3> <span class="font-weight-normal text-muted ml-2">{{number_format((float)str_replace(',', '.', $response['Scoring']['Panoramica']['FinalScore'])*10/10, 2, ',', '.')}} / 10</span><div></td>
-
+    <tr>
+        <td style="width:40%" class="dati_impresa">Periodo analizzato</td>
+        <td style="width:60%" colspan="11" class="dati_impresa bgcolor-dati-impresa">{{$response['Scoring']['Panoramica']['PeriodoRiferimento']['Inizio']}} - {{$response['Scoring']['Panoramica']['PeriodoRiferimento']['Fine']}}</td>
+    </tr>
+    <tr>
+        <td style="width:40%" class="dati_impresa">Scoring Finale</td>
+        <td style="width:60%" colspan="11" class="dati_impresa bgcolor-dati-impresa">{{number_format((float)str_replace(',', '.', $response['Scoring']['Panoramica']['FinalScore'])*10/10, 2, ',', '.')}} / 1</td>
     </tr>
 </table>
 
