@@ -1492,6 +1492,7 @@ class AllertaHelper
 
     public function getPesiASIS()
     {
+        /*
         return array(
             "1-1" => array("peso" => 0.09, "score" => array("Si" => -0.5, "No" => 1)),
             "1-2" => array("peso" => 0.15, "score" => array("Si" => -0.5, "No" => 1)),
@@ -1524,6 +1525,41 @@ class AllertaHelper
             "4-4" => array("peso" => 0.166, "score" => array("Si" => -0.5, "No" => 1)),
             "4-5" => array("peso" => 0.18, "score" => array("Si" => -1, "No" => 1)),
             "4-6" => array("peso" => 0.166, "score" => array("Si" => -0.5, "No" => 1))
+        );
+        */
+$score = array("Si" => 0, "No" => 1);
+        return array(
+            "1-1" => array("peso" => 0.09, "score" => $score),
+            "1-2" => array("peso" => 0.15, "score" => $score),
+            "1-3" => array("peso" => 0.15, "score" => $score),
+            "1-4" => array("peso" => 0.15, "score" => $score),
+            "1-5" => array("peso" => 0.15, "score" => $score),
+            "1-6" => array("peso" => 0.11, "score" => $score),
+            "1-7" => array("peso" => 0.11, "score" => $score),
+            "1-8" => array("peso" => 0.09, "score" => $score),
+
+            "2-1" => array("peso" => 0.11, "score" => $score),
+            "2-2" => array("peso" => 0.1, "score" => $score),
+            "2-3" => array("peso" => 0.1, "score" => $score),
+            "2-4" => array("peso" => 0.11, "score" => $score),
+            "2-5" => array("peso" => 0.1, "score" =>  $score),
+            "2-6" => array("peso" => 0.11, "score" =>  $score),
+            "2-7" => array("peso" => 0.1, "score" =>  $score),
+            "2-8" => array("peso" => 0.0, "score" =>  $score),
+            "2-9" => array("peso" => 0.1, "score" =>  $score),
+            "2-10" => array("peso" => 0.1, "score" =>  $score),
+
+            "3-1" => array("peso" => 0.3, "score" =>  $score),
+            "3-2" => array("peso" => 0.3, "score" => $score),
+            "3-3" => array("peso" => 0.2, "score" =>  $score),
+            "3-4" => array("peso" => 0.2, "score" =>  $score),
+
+            "4-1" => array("peso" => 0.166, "score" =>  $score),
+            "4-2" => array("peso" => 0.166, "score" =>  $score),
+            "4-3" => array("peso" => 0.156, "score" =>  $score),
+            "4-4" => array("peso" => 0.166, "score" =>  $score),
+            "4-5" => array("peso" => 0.18, "score" => $score),
+            "4-6" => array("peso" => 0.166, "score" =>  $score),
         );
     }
 }
