@@ -21,9 +21,10 @@
     }
 
     .heading {
-        text-align: center;
+        text-align: left;
         padding: 5px;
-        font-size: 12px;
+        font-size: 14px;
+        font-weight:bold;
     }
     .header-info {
         font-size: 10px;
@@ -43,7 +44,7 @@
 
 
 
-<table style="width:100%;margin-bottom: 44rem;">
+<table style="width:100%;margin-bottom:50px;">
     <tr>
         <th colspan="12" class="heading">DATI GENERALI - Analisi del {{date('Y-m-d')}}</th>
     </tr>
@@ -53,62 +54,55 @@
     </tr>
     <tr>
         <td style="width:40%" class="dati_impresa">Scoring Finale</td>
-        <td style="width:60%" colspan="11" class="dati_impresa bgcolor-dati-impresa">{{number_format((float)str_replace(',', '.', $response['Scoring']['Panoramica']['FinalScore'])*10/10, 2, ',', '.')}} / 1</td>
+        <td style="width:60%" colspan="11" class="dati_impresa bgcolor-dati-impresa">{{number_format((float)str_replace(',', '.', $response['Scoring']['Panoramica']['FinalScore'])*10/10, 2, ',', '.')}} / 10</td>
+    </tr>
+
+    <tr>
+        <td style="width:40%" class="dati_impresa">N. Intermediari:</td>
+        <td style="width:60%" colspan="11" class="dati_impresa bgcolor-dati-impresa">{{$response['Scoring']['Panoramica']['NumeroIntermediari']}}</td>
+    </tr>
+
+    <tr>
+        <td style="width:40%" class="dati_impresa">N. Posizioni Contestate:</td>
+        <td style="width:60%" colspan="11" class="dati_impresa bgcolor-dati-impresa">{{$response['Scoring']['Panoramica']['NumeroPosizioniContestate']}}</td>
     </tr>
 </table>
 
-                    <table class="table table-hover">
-                        <tbody>
 
-                        <tr>
-                            <td><h4>Periodo di riferimento: </h4></td>
-                            <td class="text-center">{{$response['Scoring']['Panoramica']['PeriodoRiferimento']['Inizio']}} - {{$response['Scoring']['Panoramica']['PeriodoRiferimento']['Fine']}}</td>
-                        </tr>
 
-                        <tr>
-                            <td><h4>N. Intermediari: </h4></td>
-                            <td class="text-center">{{$response['Scoring']['Panoramica']['NumeroIntermediari']}}</td>
-                        </tr>
 
-                        <tr>
-                            <td><h4>N° Posizioni Contestate: </h4></td>
-                            <td class="text-center">{{$response['Scoring']['Panoramica']['NumeroPosizioniContestate']}}</td>
-                        </tr>
-                        </tbody>
-                    </table>
+<table style="width:100%;margin-bottom:50px;">
+    <tr>
+        <th colspan="12" class="heading">Anomalie Utilizzi</th>
+    </tr>
+    <tr>
+        <td style="width:40%" class="dati_impresa">Tensione Finanziaria Utilizzi Autoliquidanti</td>
+        @if($response['Scoring']['AnomalieUtilizzi']['TensioneAutoliquidanti'])
+            <td class='text-center' style='color:white; background-color: red'>Si</td>
+        @else
+            <td class='text-center' style='color:white;background-color: green'>No</td>
+        @endif  </tr>
+    <tr>
+        <td style="width:40%" class="dati_impresa">Tensione Finanziaria Utilizzi A Revoca</td>
+        @if($response['Scoring']['AnomalieUtilizzi']['TensioneRevoca'])
+            <td class='text-center' style='color:white; background-color: red'>Si</td>
+        @else
+            <td class='text-center' style='color:white; background-color: green'>No</td>
+        @endif
+    </tr>
 
-                    <h2 align="center">Anomalie utilizzi</h2>
-                    <table class="table table-hover">
-                        <tbody>
+    <tr>
+        <td style="width:40%" class="dati_impresa">Tensione Finanziaria Utilizzi A Scadenza:</td>
+        @if($response['Scoring']['AnomalieUtilizzi']['TensioneScadenza'])
+            <td class='text-center' style='color:white; background-color: red'>Si</td>
+        @else
+            <td class='text-center' style='color:white; background-color: green'>No</td>
+        @endif
+    </tr>
 
-                        <tr>
-                            <td><h4>Tensione Finanziaria Utilizzi Autoliquidanti</h4></td>
-                            @if($response['Scoring']['AnomalieUtilizzi']['TensioneAutoliquidanti'])
-                                <td class='text-center' style='color:white; background-color: red'>Si</td>
-                            @else
-                                <td class='text-center' style='color:white;background-color: green'>No</td>
-                            @endif
-                        </tr>
 
-                        <tr>
-                            <td><h4>Tensione Finanziaria Utilizzi A Revoca</h4></td>
-                            @if($response['Scoring']['AnomalieUtilizzi']['TensioneRevoca'])
-                                <td class='text-center' style='color:white; background-color: red'>Si</td>
-                            @else
-                                <td class='text-center' style='color:white; background-color: green'>No</td>
-                            @endif
-                        </tr>
+</table>
 
-                        <tr>
-                            <td><h4>Tensione Finanziaria Utilizzi A Scadenza</h4></td>
-                            @if($response['Scoring']['AnomalieUtilizzi']['TensioneScadenza'])
-                                <td class='text-center' style='color:white; background-color: red'>Si</td>
-                            @else
-                                <td class='text-center' style='color:white; background-color: green'>No</td>
-                            @endif
-                        </tr>
-                        </tbody>
-                    </table>
 
 
 
