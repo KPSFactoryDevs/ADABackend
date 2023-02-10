@@ -107,73 +107,52 @@
 
 
 
-        <h2 align="center">Anomalie lievi</h2>
 
-        <table class="table table-hover">
 
-            <tbody>
 
-            <tr>
-                <td><h4>Impagati</h4></td>
-                @if($response['Scoring']['AnomalieLievi']['Impagati'])
-                    <td class='text-center' style='color:white; background-color: red'>Si</td>
-                @else
-                    <td class='text-center' style='color:white;background-color: green'>No</td>
-                @endif
-            </tr>
+<table style="width:100%;margin-bottom:50px;">
+    <tr>
+        <th colspan="12" class="heading">Anomalie Lievi</th>
+    </tr>
+    <tr>
+        <td style="width:40%" class="dati_impresa">Impagati</td>
+        @if($response['Scoring']['AnomalieLievi']['Impagati'])
+            <td class='text-center' colspan="11"  style='color:white; background-color: red'>Si</td>
+        @else
+            <td class='text-center' colspan="11"  style='color:white;background-color: green'>No</td>
+        @endif  </tr>
+    <tr>
+        <td style="width:40%" class="dati_impresa">Presenza Sconfini</td>
+        @if($response['Scoring']['AnomalieLievi']['Sconfini'])
+            <td class='text-center' colspan="11"  style='color:white; background-color: red'>Si</td>
+        @else
+            <td class='text-center' colspan="11"  style='color:white; background-color: green'>No</td>
+        @endif
+    </tr>
 
-            <tr>
-                <td><h4>Presenza Sconfini</h4></td>
-                @if($response['Scoring']['AnomalieLievi']['Sconfini'])
-                    <td class='text-center' style='color:white; background-color: red'>Si</td>
-                @else
-                    <td class='text-center' style='color:white;background-color: green'>No</td>
-                @endif
-            </tr>
+    @if($response['Scoring']['AnomalieLievi']['Sconfini'])
 
-            @if($response['Scoring']['AnomalieLievi']['Sconfini'])
+        <tr>
+            <td style="width:40%" class="dati_impresa">N° Sconfini Autoliquidanti:</td>
+            <td> {{ $response['Scoring']['AnomalieLievi']['NumeroSconfiniPerTipo']['RISCHI AUTOLIQUIDANTI'] }}</td>
+        </tr>
 
-                <tr>
-                    <td><h4>N° Sconfini Autoliquidanti</h4></td>
-                    <td class="text-center">
-                    {{ $response['Scoring']['AnomalieLievi']['NumeroSconfiniPerTipo']['RISCHI AUTOLIQUIDANTI'] }}
+        <tr>
+            <td style="width:40%" class="dati_impresa">N° Sconfini a Revoca:</td>
+            <td> {{ $response['Scoring']['AnomalieLievi']['NumeroSconfiniPerTipo']['RISCHI A REVOCA'] }}</td>
+        </tr>
 
-                    <!--    @if(isset($response['Scoring']['AnomalieLievi']['NumeroSconfiniPerTipo']['RISCHI AUTOLIQUIDANTI']))
-                        {{$response['Scoring']['AnomalieLievi']['NumeroSconfiniPerTipo']['RISCHI AUTOLIQUIDANTI']}}
-                    @else
-                        0
-@endif -->
-                    </td>
-                </tr>
+        <tr>
+            <td style="width:40%" class="dati_impresa">N° Sconfini a Scadenza:</td>
+            <td> {{ $response['Scoring']['AnomalieLievi']['NumeroSconfiniPerTipo']['RISCHI A SCADENZA'] }}</td>
+        </tr>
+    @endif
 
-                <tr>
-                    <td><h4>N° Sconfini A Revoca</h4></td>
-                    <td class="text-center">
-                    {{ $response['Scoring']['AnomalieLievi']['NumeroSconfiniPerTipo']['RISCHI A REVOCA'] }}
+</table>
 
-                    <!--    @if(isset($response['Scoring']['AnomalieLievi']['NumeroSconfiniPerTipo']['RISCHI A REVOCA']))
-                        {{$response['Scoring']['AnomalieLievi']['NumeroSconfiniPerTipo']['RISCHI A REVOCA']}}
-                    @else
-                        0
-@endif -->
-                    </td>
-                </tr>
 
-                <tr>
-                    <td><h4>N° Sconfini A Scadenza</h4></td>
-                    <td class="text-center">
-                    {{ $response['Scoring']['AnomalieLievi']['NumeroSconfiniPerTipo']['RISCHI A SCADENZA'] }}
 
-                    <!--    @if(isset($response['Scoring']['AnomalieLievi']['NumeroSconfiniPerTipo']['RISCHI A SCADENZA']))
-                        {{$response['Scoring']['AnomalieLievi']['NumeroSconfiniPerTipo']['RISCHI A SCADENZA']}}
-                    @else
-                        0
-@endif -->
-                    </td>
-                </tr>
-            @endif
-            </tbody>
-        </table>
+
 
 
         <h2 align="center">Anomalie quasi pregiudizievoli</h2>
