@@ -60,59 +60,59 @@
 
         </tr>
         <tr>
-            <td>Valutazione Negativa Del CR Scoring Che Deriva Dall'analisi Sintetica Della CR</td>
-            <td>No</td>
+            <td class="dati_impresa">Valutazione Negativa Del CR Scoring Che Deriva Dall'analisi Sintetica Della CR</td>
+            <td class="dati_impresa">No</td>
         </tr>
         <tr>
-            <td>Sconfini E Ritardi Nei Pagamenti</td>
+            <td class="dati_impresa">Sconfini E Ritardi Nei Pagamenti</td>
         </tr>
         <tr>
-            <td>Sconfini Significativi E/O Ripetuti Nel Corso Degli Ultimi 12 Mesi</td>
-            <td>Si</td>
+            <td class="dati_impresa">Sconfini Significativi E/O Ripetuti Nel Corso Degli Ultimi 12 Mesi</td>
+            <td class="dati_impresa">Si</td>
         </tr>
         <tr>
-            <td>Mancato Pagamento Di Finanziamenti O Di Altre Scadenze</td>
-            <td>Si</td>
+            <td class="dati_impresa">Mancato Pagamento Di Finanziamenti O Di Altre Scadenze</td>
+            <td class="dati_impresa">Si</td>
         </tr>
         <tr>
-            <td>Aumento Delle Garanzie</td>
+            <td class="dati_impresa">Aumento Delle Garanzie</td>
         </tr>
         <tr>
-            <td>Aumento Delle Richieste Di Garanzie Su Beni Aziendali</td>
-            <td>Si</td>
+            <td class="dati_impresa">Aumento Delle Richieste Di Garanzie Su Beni Aziendali</td>
+            <td class="dati_impresa">Si</td>
         </tr>
         <tr>
-            <td>Aumento Delle Garanzie Concesse Su Esposizioni Di Altri Soggetti</td>
-            <td>No</td>
+            <td class="dati_impresa">Aumento Delle Garanzie Concesse Su Esposizioni Di Altri Soggetti</td>
+            <td class="dati_impresa">No</td>
         </tr>
         <tr>
-            <td>Insoluti Portafoglio Anticipi</td>
+            <td class="dati_impresa">Insoluti Portafoglio Anticipi</td>
         </tr>
         <tr>
-            <td>Aumento Significativo O Peso Elevato Di Incidenza Insoluti Su Anticipo Crediti</td>
-            <td>No</td>
+            <td class="dati_impresa">Aumento Significativo O Peso Elevato Di Incidenza Insoluti Su Anticipo Crediti</td>
+            <td class="dati_impresa">No</td>
         </tr>
         <tr>
-            <td>Aumento Affidamenti E Utilizzi</td>
+            <td class="dati_impresa">Aumento Affidamenti E Utilizzi</td>
         </tr>
         <tr>
-            <td>Aumento Significativo Delle Richieste Di Affidamenti Di Cassa</td>
-            <td>Si</td>
+            <td class="dati_impresa">Aumento Significativo Delle Richieste Di Affidamenti Di Cassa</td>
+            <td class="dati_impresa">Si</td>
         </tr>
         <tr>
-            <td>Richiesta Finanziamenti Straordinari</td>
-            <td>No</td>
+            <td class="dati_impresa">Richiesta Finanziamenti Straordinari</td>
+            <td class="dati_impresa">No</td>
         </tr>
         <tr>
-            <td>Crescita Continua E Rilevante Di Utilizzi Per Liquidità Di Cassa</td>
-            <td>No</td>
+            <td class="dati_impresa">Crescita Continua E Rilevante Di Utilizzi Per Liquidità Di Cassa</td>
+            <td class="dati_impresa">No</td>
         </tr>
         <tr>
-            <td>Crescita Continua E Rilevante Di Utilizzi Per Smobilizzo Crediti Commerciali O Tensione Finanziaria</td>
-            <td>Si</td>
+            <td class="dati_impresa">Crescita Continua E Rilevante Di Utilizzi Per Smobilizzo Crediti Commerciali O Tensione Finanziaria</td>
+            <td class="dati_impresa">Si</td>
         </tr>
         <tr>
-            <td>Rientro Linee Anticipi, Cassa E Firma</td>
+            <td class="dati_impresa">Rientro Linee Anticipi, Cassa E Firma</td>
         </tr>
     </table>
 
@@ -128,44 +128,44 @@
             <th>Spiegazioni</th>
         </tr>
         <tr>
-            <td>Sono presenti fatture e avvisi di pagamento di cui non si è rispettata la scadenza?</td>
-            <td>No</td>
-            <td></td>
+            <td class="dati_impresa">Sono presenti fatture e avvisi di pagamento di cui non si è rispettata la scadenza?</td>
+            <td class="dati_impresa">No</td>
+            <td class="dati_impresa"></td>
         </tr>
         <tr>
-            <td>Ci sono ritardi nei pagamenti ai fornitori superiori a 90 giorni per un ammontare superiore a quello dei debiti non scaduti?</td>
-            <td>No</td>
-            <td></td>
+            <td class="dati_impresa">Ci sono ritardi nei pagamenti ai fornitori superiori a 90 giorni per un ammontare superiore a quello dei debiti non scaduti?</td>
+            <td class="dati_impresa">No</td>
+            <td class="dati_impresa"></td>
         </tr>
         <tr>
-            <td>I fornitori hanno modificato le condizioni di pagamento delle forniture (ad es. pagamento dilazionato a pagamento anticipato)?</td>
-            <td>No</td>
-            <td></td>
+            <td class="dati_impresa">I fornitori hanno modificato le condizioni di pagamento delle forniture (ad es. pagamento dilazionato a pagamento anticipato)?</td>
+            <td class="dati_impresa">No</td>
+            <td class="dati_impresa"></td>
         </tr>
         <tr>
-            <td>Avete inoltrato richieste di rimodulazione delle scadenze nei pagamenti richiedendo di aumentare la dilazione?</td>
-            <td>No</td>
-            <td></td>
+            <td class="dati_impresa">Avete inoltrato richieste di rimodulazione delle scadenze nei pagamenti richiedendo di aumentare la dilazione?</td>
+            <td class="dati_impresa">No</td>
+            <td class="dati_impresa"></td>
         </tr>
         <tr>
-            <td>Sono state modificate le condizioni di incasso da parte dei clienti con un conseguente allungamento dei tempi di incasso?</td>
-            <td>No</td>
-            <td></td>
+            <td class="dati_impresa">Sono state modificate le condizioni di incasso da parte dei clienti con un conseguente allungamento dei tempi di incasso?</td>
+            <td class="dati_impresa">No</td>
+            <td class="dati_impresa"></td>
         </tr>
         <tr>
-            <td>Sono stati registrati mancati incassi per importi considerevoli superiori a 90gg?</td>
-            <td>No</td>
-            <td></td>
+            <td class="dati_impresa">Sono stati registrati mancati incassi per importi considerevoli superiori a 90gg?</td>
+            <td class="dati_impresa">No</td>
+            <td class="dati_impresa"></td>
         </tr>
         <tr>
-            <td>Sono presenti contenziosi in atto con clienti o fornitori?</td>
-            <td>No</td>
-            <td></td>
+            <td class="dati_impresa">Sono presenti contenziosi in atto con clienti o fornitori?</td>
+            <td class="dati_impresa">No</td>
+            <td class="dati_impresa"></td>
         </tr>
         <tr>
-            <td>Sono presenti criticità con clienti derivanti da non conformità o ritardi?</td>
-            <td>No</td>
-            <td></td>
+            <td class="dati_impresa">Sono presenti criticità con clienti derivanti da non conformità o ritardi?</td>
+            <td class="dati_impresa">No</td>
+            <td class="dati_impresa"></td>
         </tr>
     </table>
 
@@ -181,44 +181,44 @@
             <th>Spiegazioni</th>
         </tr>
         <tr>
-            <td>Sono presenti fatture e avvisi di pagamento di cui non si è rispettata la scadenza?</td>
-            <td>No</td>
-            <td></td>
+            <td class="dati_impresa">Sono presenti fatture e avvisi di pagamento di cui non si è rispettata la scadenza?</td>
+            <td class="dati_impresa">No</td>
+            <td class="dati_impresa"></td>
         </tr>
         <tr>
-            <td>Ci sono ritardi nei pagamenti ai fornitori superiori a 90 giorni per un ammontare superiore a quello dei debiti non scaduti?</td>
-            <td>No</td>
-            <td></td>
+            <td class="dati_impresa">Ci sono ritardi nei pagamenti ai fornitori superiori a 90 giorni per un ammontare superiore a quello dei debiti non scaduti?</td>
+            <td class="dati_impresa">No</td>
+            <td class="dati_impresa"></td>
         </tr>
         <tr>
-            <td>I fornitori hanno modificato le condizioni di pagamento delle forniture (ad es. pagamento dilazionato a pagamento anticipato)?</td>
-            <td>No</td>
-            <td></td>
+            <td class="dati_impresa">I fornitori hanno modificato le condizioni di pagamento delle forniture (ad es. pagamento dilazionato a pagamento anticipato)?</td>
+            <td class="dati_impresa">No</td>
+            <td class="dati_impresa"></td>
         </tr>
         <tr>
-            <td>Avete inoltrato richieste di rimodulazione delle scadenze nei pagamenti richiedendo di aumentare la dilazione?</td>
-            <td>No</td>
-            <td></td>
+            <td class="dati_impresa">Avete inoltrato richieste di rimodulazione delle scadenze nei pagamenti richiedendo di aumentare la dilazione?</td>
+            <td class="dati_impresa">No</td>
+            <td class="dati_impresa"></td>
         </tr>
         <tr>
-            <td>Sono state modificate le condizioni di incasso da parte dei clienti con un conseguente allungamento dei tempi di incasso?</td>
-            <td>No</td>
-            <td></td>
+            <td class="dati_impresa">Sono state modificate le condizioni di incasso da parte dei clienti con un conseguente allungamento dei tempi di incasso?</td>
+            <td class="dati_impresa">No</td>
+            <td class="dati_impresa"></td>
         </tr>
         <tr>
-            <td>Sono stati registrati mancati incassi per importi considerevoli superiori a 90gg?</td>
-            <td>No</td>
-            <td></td>
+            <td class="dati_impresa">Sono stati registrati mancati incassi per importi considerevoli superiori a 90gg?</td>
+            <td class="dati_impresa">No</td>
+            <td class="dati_impresa"></td>
         </tr>
         <tr>
-            <td>Sono presenti contenziosi in atto con clienti o fornitori?</td>
-            <td>No</td>
-            <td></td>
+            <td class="dati_impresa">Sono presenti contenziosi in atto con clienti o fornitori?</td>
+            <td class="dati_impresa">No</td>
+            <td class="dati_impresa"></td>
         </tr>
         <tr>
-            <td>Sono presenti criticità con clienti derivanti da non conformità o ritardi?</td>
-            <td>No</td>
-            <td></td>
+            <td class="dati_impresa">Sono presenti criticità con clienti derivanti da non conformità o ritardi?</td>
+            <td class="dati_impresa">No</td>
+            <td class="dati_impresa"></td>
         </tr>
     </table>
 
