@@ -38,12 +38,14 @@
             <th>Giudizio</th>
         </tr>
         <tr>
-        @foreach($dati['pageData']['bilancioData']['Indici']['Advanced'] as $key => $singleStatoPatrimonialeAttivo)
+        @foreach($dati['pageData']['ValutazioneGeneraleBilancio']['Giudizi'] as $key => $singleStatoPatrimonialeAttivo)
+            @if($singleStatoPatrimonialeAttivo != false)
             <tr>
                 <td colspan="6" class="dati_impresa">{{ str_replace('_', ' ', $key) }}</td>
-                <td colspan="6" class="dati_impresa bgcolor-dati-impresa">{{ $singleStatoPatrimonialeAttivo }}</td>
-                <td colspan="6" class="dati_impresa bgcolor-dati-impresa">{{ $dati['pageData']['ValutazioneGeneraleBilancio'][$key] }}</td>
+                <td colspan="6" class="dati_impresa bgcolor-dati-impresa">{{ $singleStatoPatrimonialeAttivo[0] }}</td>
+                <td colspan="6" class="dati_impresa bgcolor-dati-impresa">{{ $singleStatoPatrimonialeAttivo[1] }}</td>
             </tr>
+            @endif
             @endforeach
         </tr>
 
