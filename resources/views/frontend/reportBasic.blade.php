@@ -43,12 +43,9 @@
             </tr>
             <tr>
                 <td class="dati_impresa">ELABORAZIONE A CURA DI</td>
-                <td colspan="11" class="dati_impresa bgcolor-dati-impresa">KPS Factory</td>
+                <td colspan="11" class="dati_impresa bgcolor-dati-impresa">Key Performance Softwares Srl</td>
             </tr>
-            <tr>
-                <td class="dati_impresa">LUOGO ELABORAZIONE</td>
-                <td colspan="11" class="dati_impresa bgcolor-dati-impresa">Palermo</td>
-            </tr>
+
         </table>
 
 
