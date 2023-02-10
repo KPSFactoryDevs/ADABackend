@@ -50,21 +50,21 @@
     </tr>
     <tr>
         <td style="width:40%" class="dati_impresa">Periodo analizzato</td>
-        <td style="width:60%" colspan="11" class="dati_impresa bgcolor-dati-impresa">{{$response['Scoring']['Panoramica']['PeriodoRiferimento']['Inizio']}} - {{$response['Scoring']['Panoramica']['PeriodoRiferimento']['Fine']}}</td>
+        <td style="width:60%" colspan="2" class="dati_impresa bgcolor-dati-impresa">{{$response['Scoring']['Panoramica']['PeriodoRiferimento']['Inizio']}} - {{$response['Scoring']['Panoramica']['PeriodoRiferimento']['Fine']}}</td>
     </tr>
     <tr>
         <td style="width:40%" class="dati_impresa">Scoring Finale</td>
-        <td style="width:60%" colspan="11" class="dati_impresa bgcolor-dati-impresa">{{number_format((float)str_replace(',', '.', $response['Scoring']['Panoramica']['FinalScore'])*10/10, 2, ',', '.')}} / 10</td>
+        <td style="width:60%" colspan="2" class="dati_impresa bgcolor-dati-impresa">{{number_format((float)str_replace(',', '.', $response['Scoring']['Panoramica']['FinalScore'])*10/10, 2, ',', '.')}} / 10</td>
     </tr>
 
     <tr>
         <td style="width:40%" class="dati_impresa">N. Intermediari:</td>
-        <td style="width:60%" colspan="11" class="dati_impresa bgcolor-dati-impresa">{{$response['Scoring']['Panoramica']['NumeroIntermediari']}}</td>
+        <td style="width:60%" colspan="2" class="dati_impresa bgcolor-dati-impresa">{{$response['Scoring']['Panoramica']['NumeroIntermediari']}}</td>
     </tr>
 
     <tr>
         <td style="width:40%" class="dati_impresa">N. Posizioni Contestate:</td>
-        <td style="width:60%" colspan="11" class="dati_impresa bgcolor-dati-impresa">{{$response['Scoring']['Panoramica']['NumeroPosizioniContestate']}}</td>
+        <td style="width:60%" colspan="2" class="dati_impresa bgcolor-dati-impresa">{{$response['Scoring']['Panoramica']['NumeroPosizioniContestate']}}</td>
     </tr>
 </table>
 
@@ -78,25 +78,25 @@
     <tr>
         <td style="width:40%" class="dati_impresa">Tensione Finanziaria Utilizzi Autoliquidanti</td>
         @if($response['Scoring']['AnomalieUtilizzi']['TensioneAutoliquidanti'])
-            <td class='text-center' colspan="11"  style='color:white; background-color: red'>Si</td>
+            <td class='text-center' colspan="2"  style='color:white; background-color: red'>Si</td>
         @else
-            <td class='text-center' colspan="11"  style='color:white;background-color: green'>No</td>
+            <td class='text-center' colspan="2"  style='color:white;background-color: green'>No</td>
         @endif  </tr>
     <tr>
         <td style="width:40%" class="dati_impresa">Tensione Finanziaria Utilizzi A Revoca</td>
         @if($response['Scoring']['AnomalieUtilizzi']['TensioneRevoca'])
-            <td class='text-center' colspan="11"  style='color:white; background-color: red'>Si</td>
+            <td class='text-center' colspan="2"  style='color:white; background-color: red'>Si</td>
         @else
-            <td class='text-center' colspan="11"  style='color:white; background-color: green'>No</td>
+            <td class='text-center' colspan="2"  style='color:white; background-color: green'>No</td>
         @endif
     </tr>
 
     <tr>
         <td style="width:40%" class="dati_impresa">Tensione Finanziaria Utilizzi A Scadenza:</td>
         @if($response['Scoring']['AnomalieUtilizzi']['TensioneScadenza'])
-            <td class='text-center' colspan="11"  style='color:white; background-color: red'>Si</td>
+            <td class='text-center' colspan="2"  style='color:white; background-color: red'>Si</td>
         @else
-            <td class='text-center' colspan="11"  style='color:white; background-color: green'>No</td>
+            <td class='text-center' colspan="2"  style='color:white; background-color: green'>No</td>
         @endif
     </tr>
 
@@ -117,16 +117,16 @@
     <tr>
         <td style="width:40%" class="dati_impresa">Impagati</td>
         @if($response['Scoring']['AnomalieLievi']['Impagati'])
-            <td class='text-center' colspan="11"  style='color:white; background-color: red'>Si</td>
+            <td class='text-center' colspan="2"  style='color:white; background-color: red'>Si</td>
         @else
-            <td class='text-center' colspan="11"  style='color:white;background-color: green'>No</td>
+            <td class='text-center' colspan="2"  style='color:white;background-color: green'>No</td>
         @endif  </tr>
     <tr>
         <td style="width:40%" class="dati_impresa">Presenza Sconfini</td>
         @if($response['Scoring']['AnomalieLievi']['Sconfini'])
-            <td class='text-center' colspan="11"  style='color:white; background-color: red'>Si</td>
+            <td class='text-center' colspan="2"  style='color:white; background-color: red'>Si</td>
         @else
-            <td class='text-center' colspan="11"  style='color:white; background-color: green'>No</td>
+            <td class='text-center' colspan="2"  style='color:white; background-color: green'>No</td>
         @endif
     </tr>
 
@@ -134,17 +134,17 @@
 
         <tr>
             <td style="width:40%" class="dati_impresa">N° Sconfini Autoliquidanti:</td>
-            <td> {{ $response['Scoring']['AnomalieLievi']['NumeroSconfiniPerTipo']['RISCHI AUTOLIQUIDANTI'] }}</td>
+            <td  colspan="2"> {{ $response['Scoring']['AnomalieLievi']['NumeroSconfiniPerTipo']['RISCHI AUTOLIQUIDANTI'] }}</td>
         </tr>
 
         <tr>
             <td style="width:40%" class="dati_impresa">N° Sconfini a Revoca:</td>
-            <td> {{ $response['Scoring']['AnomalieLievi']['NumeroSconfiniPerTipo']['RISCHI A REVOCA'] }}</td>
+            <td  colspan="2"> {{ $response['Scoring']['AnomalieLievi']['NumeroSconfiniPerTipo']['RISCHI A REVOCA'] }}</td>
         </tr>
 
         <tr>
             <td style="width:40%" class="dati_impresa">N° Sconfini a Scadenza:</td>
-            <td> {{ $response['Scoring']['AnomalieLievi']['NumeroSconfiniPerTipo']['RISCHI A SCADENZA'] }}</td>
+            <td  colspan="2"> {{ $response['Scoring']['AnomalieLievi']['NumeroSconfiniPerTipo']['RISCHI A SCADENZA'] }}</td>
         </tr>
     @endif
 
