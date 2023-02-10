@@ -33,9 +33,9 @@
 
     <table>
         <tr>
-            <th>Indice</th>
-            <th>Valore</th>
-            <th>Giudizio</th>
+            <th colspan="6">Indice</th>
+            <th colspan="6">Valore</th>
+            <th colspan="6">Giudizio</th>
         </tr>
         <tr>
         @foreach($dati['pageData']['ValutazioneGeneraleBilancio']['Giudizi'] as $key => $singleStatoPatrimonialeAttivo)
