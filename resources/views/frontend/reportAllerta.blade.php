@@ -42,8 +42,8 @@
             @if($singleStatoPatrimonialeAttivo != false)
             <tr>
                 <td colspan="6" class="dati_impresa">{{ str_replace('_', ' ', $key) }}</td>
-                <td colspan="6" class="dati_impresa bgcolor-dati-impresa">{{ $singleStatoPatrimonialeAttivo[0] }}</td>
-                <td colspan="6" class="dati_impresa bgcolor-dati-impresa">{{ $singleStatoPatrimonialeAttivo[1] }}</td>
+                <td colspan="6" class="dati_impresa bgcolor-dati-impresa">{{ $singleStatoPatrimonialeAttivo['Scoring'] }}</td>
+                <td colspan="6" class="dati_impresa bgcolor-dati-impresa">{{ $singleStatoPatrimonialeAttivo['Giudizio'] }}</td>
             </tr>
             @endif
             @endforeach
