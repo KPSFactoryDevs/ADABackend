@@ -7,9 +7,46 @@
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <title>Report Allerta</title>
+
+
     </head>
     <body>
+    <style>
 
+        table {
+            border-right: dotted black;
+            border-left: dotted black;
+            width:100%;
+            margin-bottom:30px;
+        }
+
+        th, td  {
+            border-top: dotted black;
+            border-bottom: dotted black;
+            padding: 5px;
+        }
+
+        .dati_impresa {
+            font-size: 12px;
+            font-weight: 400!important;
+        }
+
+        .heading {
+            text-align: center;
+            padding: 5px;
+            font-size: 12px;
+        }
+        .header-info {
+            font-size: 10px;
+            vertical-align: top;
+        }
+        .bgcolor-dati-impresa {
+            background-color: #ccffff;
+        }
+        .size-12 {
+            font-size: 12px;
+        }
+    </style>
     <h3 style="margin-bottom:30px;">Scoring Generale: {{$dati['pageData']['FinalScore']}}</h3>
 
     <hr>
@@ -37,7 +74,7 @@
             <th colspan="6">Valore</th>
             <th colspan="6">Giudizio</th>
         </tr>
-     
+
         @foreach($dati['pageData']['ValutazioneGeneraleBilancio']['Giudizi'] as $key => $singleStatoPatrimonialeAttivo)
             @if($singleStatoPatrimonialeAttivo != false)
             <tr>
