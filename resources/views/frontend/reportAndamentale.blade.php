@@ -44,7 +44,7 @@
 
 
 
-<table style="width:100%;margin-bottom:50px;">
+<table style="width:100%;margin-bottom:30px;">
     <tr>
         <th colspan="12" class="heading">DATI GENERALI - Analisi del {{date('Y-m-d')}}</th>
     </tr>
@@ -71,7 +71,7 @@
 
 
 
-<table style="width:100%;margin-bottom:50px;">
+<table style="width:100%;margin-bottom:30px;">
     <tr>
         <th colspan="12" class="heading">Anomalie Utilizzi</th>
     </tr>
@@ -110,7 +110,7 @@
 
 
 
-<table style="width:100%;margin-bottom:50px;">
+<table style="width:100%;margin-bottom:30px;">
     <tr>
         <th colspan="12" class="heading">Anomalie Lievi</th>
     </tr>
@@ -155,7 +155,7 @@
 
 
 
-<table style="width:100%;margin-bottom:50px;">
+<table style="width:100%;margin-bottom:30px;">
     <tr>
         <th colspan="12" class="heading">Anomalie quasi pregiudizievoli</th>
     </tr>
@@ -194,7 +194,7 @@
 
 
 
-<table style="width:100%;margin-bottom:50px;">
+<table style="width:100%;margin-bottom:30px;">
     <tr>
         <th colspan="12" class="heading">Anomalie pregiudizievoli</th>
     </tr>
