@@ -15,7 +15,7 @@
     <hr>
     <h3 style="margin-bottom:30px;">Scoring per Sezione</h3>
 
-        <table style="width:100%;">
+        <table>
             @foreach($dati['GeneralScore'] as $key => $singleStatoPatrimonialeAttivo)
                 <tr>
                     <td colspan="6" class="dati_impresa">{{ str_replace('_', ' ', $key) }}</td>
@@ -28,15 +28,9 @@
     <h3 style="margin-bottom:30px;margin-top:50px;">Analisi Bilancio</h3>
 
 
-    <table>
-        <tr>
-            <th colspan="4">Valutazione Analisi Bilancio</th>
-        </tr>
-        <tr>
-            <td rowspan="2">Esito Analisi Bilancio</td>
-            <td colspan="2">{{$dati['pageData']['ValutazioneGeneraleBilancio']['Score']}}</td>
-        </tr>
-    </table>
+    <h4>Scoring Analisi Bilancio: {{$dati['pageData']['ValutazioneGeneraleBilancio']['Score']}}</h4>
+
+
     <table>
         <tr>
             <th>Indice</th>
@@ -235,6 +229,7 @@
         table {
             border-right: dotted black;
             border-left: dotted black;
+            width:100%;
         }
 
         th, td  {
