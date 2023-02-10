@@ -10,59 +10,9 @@
     </head>
     <body>
 
-        <p class="header-info text-right text-header pt-0 mt-0">
-            Ditta/Denominazione/Ragione sociale: <b class="header-info">{{ $dati['ragione_sociale'] }}</b><br>
-            Tipologia Impresa: <b class="header-info">{{ $dati['tipologia_impresa'] }}</b><br>
-            Settore Attività: <b class="header-info">{{ $dati['settore'] }}</b>
-        </p>
-
-        <table style="width:100%;margin-bottom: 44rem;">
-            <tr>
-                <th colspan="12" class="heading">DATI IMPRESA</th>
-            </tr>
-            <tr>
-                <td style="width:40%" class="dati_impresa">DITTA/DENOMINAZIONE/RAGIONE SOCIALE</td>
-                <td style="width:60%" colspan="11" class="dati_impresa bgcolor-dati-impresa">{{ $dati['ragione_sociale'] }}</td>
-            </tr>
-            <tr>
-                <td class="dati_impresa">TIPOLOGIA IMPRESA</td>
-                <td colspan="11" class="dati_impresa bgcolor-dati-impresa">{{ $dati['tipologia_impresa'] }}</td>
-            </tr>
-            <tr>
-                <td class="dati_impresa">SETTORE ATTIVITÀ</td>
-                <td colspan="11" class="dati_impresa bgcolor-dati-impresa">{{ $dati['settore'] }}</td>
-            </tr>
-            <tr>
-                <td class="dati_impresa">DATA CHIUSURA ESERCIZIO PRECEDENTE</td>
-                <td colspan="11" class="dati_impresa bgcolor-dati-impresa">{{ $dati['data_chiusura'] }}</td>
-            </tr>
-            <tr>
-                <td class="dati_impresa">ANNO CHIUSURA ESERCIZIO PRECEDENTE</td>
-                <td colspan="11" class="dati_impresa bgcolor-dati-impresa">{{ $dati['data_ultima'] }}</td>
-            </tr>
-            <tr>
-                <td class="dati_impresa">ELABORAZIONE A CURA DI</td>
-                <td colspan="11" class="dati_impresa bgcolor-dati-impresa">KPS Factory</td>
-            </tr>
-            <tr>
-                <td class="dati_impresa">LUOGO ELABORAZIONE</td>
-                <td colspan="11" class="dati_impresa bgcolor-dati-impresa">Palermo</td>
-            </tr>
-        </table>
-
-
-        <p class="header-info text-right text-header pt-0 mt-0">
-            Ditta/Denominazione/Ragione sociale: <b class="header-info">{{ $dati['ragione_sociale'] }}</b><br>
-            Tipologia Impresa: <b class="header-info">{{ $dati['tipologia_impresa'] }}</b><br>
-            Settore Attività: <b class="header-info">{{ $dati['settore'] }}</b>
-        </p>
-
 
         <table style="width:100%;margin-bottom: 49rem;">
-            <tr>
-                <th colspan="6" class="size-12">Indici Basic</th>
-                <th colspan="6" class="size-12">{{ $dati['data_ultima'] }}</th>
-            </tr>
+       <h3>Scoring per Sezione</h3>
             @foreach($dati['GeneralScore'] as $key => $singleStatoPatrimonialeAttivo)
                 @if(isset($singleStatoPatrimonialeAttivo['value']))
                 <tr>
