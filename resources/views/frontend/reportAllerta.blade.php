@@ -42,7 +42,7 @@
             <tr>
                 <td colspan="6" class="dati_impresa">{{ str_replace('_', ' ', $key) }}</td>
                 <td colspan="6" class="dati_impresa bgcolor-dati-impresa">{{ $singleStatoPatrimonialeAttivo }}</td>
-                <td colspan="6" class="dati_impresa bgcolor-dati-impresa">{{ $dati['ValutazioneGeneraleBilancio'][$key] }}</td>
+                <td colspan="6" class="dati_impresa bgcolor-dati-impresa">{{ $dati['pageData']['ValutazioneGeneraleBilancio'][$key] }}</td>
             </tr>
             @endforeach
         </tr>
