@@ -14,12 +14,10 @@
         <table style="width:100%;margin-bottom: 49rem;">
        <h3>Scoring per Sezione</h3>
             @foreach($dati['GeneralScore'] as $key => $singleStatoPatrimonialeAttivo)
-                @if(isset($singleStatoPatrimonialeAttivo['value']))
                 <tr>
                     <td colspan="6" class="dati_impresa">{{ $key }}</td>
-                    <td colspan="6" class="dati_impresa bgcolor-dati-impresa">{{ $singleStatoPatrimonialeAttivo['value'] }}</td>
+                    <td colspan="6" class="dati_impresa bgcolor-dati-impresa">{{ $singleStatoPatrimonialeAttivo }}</td>
                 </tr>
-                @endif
             @endforeach
         </table>
 
