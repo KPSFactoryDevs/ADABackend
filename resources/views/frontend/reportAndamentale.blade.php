@@ -2,12 +2,14 @@
 * {
   box-sizing: border-box;
 }
-
+table {
+    width:100%;
+}
 .row {
   margin-left:-5px;
   margin-right:-5px;
 }
-  
+
 .column {
   float: left;
   width: 50%;
@@ -53,7 +55,7 @@ tr:nth-child(even) {
                             <th><h3 class="page-title">Inizio del periodo analizzato | <span class="font-weight-normal text-muted ml-2">{{$response['Scoring']['Panoramica']['PeriodoRiferimento']['Inizio']}}</span></h3></th>
                             <th>&nbsp;&nbsp;&nbsp;</th>
                             <th><h3 class="page-title">Fine del periodo analizzato | <span class="font-weight-normal text-muted ml-2">{{$response['Scoring']['Panoramica']['PeriodoRiferimento']['Fine']}}</span></h3></th>
-                                <tr>   
+                                <tr>
                             </table>
                             <table>
                              <th><h3 align="left" class="page-title">Data Analisi | {{date('Y-m-d')}}</h3></th>
@@ -528,7 +530,7 @@ tr:nth-child(even) {
                                             </div>
                                         </div><!-- col-6 -->
                                     </div>
-                                </div> 
+                                </div>
 
 
 
@@ -559,7 +561,7 @@ tr:nth-child(even) {
                                             <hr>
                                         </div>
                                     </div>
-                                </div>  
+                                </div>
 
                                 <div class="card">
                                     <div class="card-body">
@@ -597,7 +599,7 @@ tr:nth-child(even) {
                                                     <td style="border: 1px solid black" >{{number_format($totaleAffidamentiGeneral[0]['totAccordatoOperativo'],0,',','.')}}€</td>
                                                     <td></td>
                                                     <td style="border: 1px solid black" >{{number_format($totaleAffidamentiGeneral[0]['totUtilizzato'],0,',','.')}}€</td>
-                                                </tr>  
+                                                </tr>
                                                 </tbody>
                                             </table>
                                         </div>
@@ -771,7 +773,7 @@ tr:nth-child(even) {
                                     </div><!-- col-6 -->
                                 </div>
 
-                            </div> 
+                            </div>
                             </div>
 
                       <div class="tab-pane fade" id="pills-rischigaranzie" role="tabpanel" aria-labelledby="pills-rischigaranzie">
@@ -860,7 +862,7 @@ tr:nth-child(even) {
                                         </tr>
                                     </tbody>
                                 </table>
-                            </div> 
+                            </div>
                         </div>
                     </div>
                 </div>
