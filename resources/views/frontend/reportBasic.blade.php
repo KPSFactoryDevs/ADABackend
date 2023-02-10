@@ -5,7 +5,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <!-- Bootstrap CSS -->
- 
+
     </head>
     <body>
 
@@ -17,7 +17,7 @@
 
         <hr>
 
-        <table style="width:100%;">
+        <table >
             <tr>
                 <th colspan="12" class="heading">DATI IMPRESA</th>
             </tr>
@@ -53,7 +53,7 @@
 
 
 
-        <table style="width:100%;">
+        <table >
             <tr>
                 <th colspan="4" class="size-12">Indici Basic</th>
                 <th colspan="4" class="size-12">{{ $datiImpresa['data_ultima'] }}</th>
@@ -101,6 +101,8 @@
         table {
             border-right: dotted black;
             border-left: dotted black;
+            width:100%;
+            margin-bottom:30px;
         }
 
         th, td  {
