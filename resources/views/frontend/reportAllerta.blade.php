@@ -56,15 +56,16 @@
 
     <table>
         <tr>
-            <th><b>Scoring CR Andamentale</b></th>
-
+            <th><b>Area Centrale Rischi</b></th>
+            <th><b>Esito</b></th>
         </tr>
         <tr>
             <td class="dati_impresa">Valutazione Negativa Del CR Scoring Che Deriva Dall'analisi Sintetica Della CR</td>
             <td class="dati_impresa">No</td>
         </tr>
         <tr>
-            <td class="dati_impresa">Sconfini E Ritardi Nei Pagamenti</td>
+            <th><b>Sconfini E Ritardi Nei Pagamenti</b></th>
+            <th><b>Esito</b></th>
         </tr>
         <tr>
             <td class="dati_impresa">Sconfini Significativi E/O Ripetuti Nel Corso Degli Ultimi 12 Mesi</td>
@@ -75,7 +76,8 @@
             <td class="dati_impresa">Si</td>
         </tr>
         <tr>
-            <td class="dati_impresa">Aumento Delle Garanzie</td>
+            <th><b>Aumento Delle Garanzie</b></th>
+            <th><b>Esito</b></th>
         </tr>
         <tr>
             <td class="dati_impresa">Aumento Delle Richieste Di Garanzie Su Beni Aziendali</td>
@@ -86,14 +88,16 @@
             <td class="dati_impresa">No</td>
         </tr>
         <tr>
-            <td class="dati_impresa">Insoluti Portafoglio Anticipi</td>
+            <th><b>Insoluti Portafoglio Anticipi</b></th>
+            <th><b>Esito</b></th>
         </tr>
         <tr>
             <td class="dati_impresa">Aumento Significativo O Peso Elevato Di Incidenza Insoluti Su Anticipo Crediti</td>
             <td class="dati_impresa">No</td>
         </tr>
         <tr>
-            <td class="dati_impresa">Aumento Affidamenti E Utilizzi</td>
+            <th><b>Aumento Affidamenti E Utilizzi</b></th>
+            <th><b>Esito</b></th>
         </tr>
         <tr>
             <td class="dati_impresa">Aumento Significativo Delle Richieste Di Affidamenti Di Cassa</td>
@@ -110,9 +114,6 @@
         <tr>
             <td class="dati_impresa">Crescita Continua E Rilevante Di Utilizzi Per Smobilizzo Crediti Commerciali O Tensione Finanziaria</td>
             <td class="dati_impresa">Si</td>
-        </tr>
-        <tr>
-            <td class="dati_impresa">Rientro Linee Anticipi, Cassa E Firma</td>
         </tr>
     </table>
 
