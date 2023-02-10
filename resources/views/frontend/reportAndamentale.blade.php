@@ -78,25 +78,25 @@
     <tr>
         <td style="width:40%" class="dati_impresa">Tensione Finanziaria Utilizzi Autoliquidanti</td>
         @if($response['Scoring']['AnomalieUtilizzi']['TensioneAutoliquidanti'])
-            <td class='text-center' style='color:white; background-color: red'>Si</td>
+            <td class='text-center' colspan="11"  style='color:white; background-color: red'>Si</td>
         @else
-            <td class='text-center' style='color:white;background-color: green'>No</td>
+            <td class='text-center' colspan="11"  style='color:white;background-color: green'>No</td>
         @endif  </tr>
     <tr>
         <td style="width:40%" class="dati_impresa">Tensione Finanziaria Utilizzi A Revoca</td>
         @if($response['Scoring']['AnomalieUtilizzi']['TensioneRevoca'])
-            <td class='text-center' style='color:white; background-color: red'>Si</td>
+            <td class='text-center' colspan="11"  style='color:white; background-color: red'>Si</td>
         @else
-            <td class='text-center' style='color:white; background-color: green'>No</td>
+            <td class='text-center' colspan="11"  style='color:white; background-color: green'>No</td>
         @endif
     </tr>
 
     <tr>
         <td style="width:40%" class="dati_impresa">Tensione Finanziaria Utilizzi A Scadenza:</td>
         @if($response['Scoring']['AnomalieUtilizzi']['TensioneScadenza'])
-            <td class='text-center' style='color:white; background-color: red'>Si</td>
+            <td class='text-center' colspan="11"  style='color:white; background-color: red'>Si</td>
         @else
-            <td class='text-center' style='color:white; background-color: green'>No</td>
+            <td class='text-center' colspan="11"  style='color:white; background-color: green'>No</td>
         @endif
     </tr>
 
