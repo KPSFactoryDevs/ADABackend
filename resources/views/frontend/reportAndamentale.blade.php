@@ -1,44 +1,20 @@
+
 <style>
-* {
-  box-sizing: border-box;
-}
-table {
-    width:100%;
-}
-.row {
-  margin-left:-5px;
-  margin-right:-5px;
-}
 
-.column {
-  float: left;
-  width: 50%;
-  padding: 5px;
-}
+    table {
+        border-right: dotted black;
+        border-left: dotted black;
+        width:100%;
+    }
 
-/* Clearfix (clear floats) */
-.row::after {
-  content: "";
-  clear: both;
-  display: table;
-}
+    th, td  {
+        border-top: dotted black;
+        border-bottom: dotted black;
+        padding: 5px;
+        font-size: 12px;
+        font-weight: 400!important;
+    }
 
-table {
-  border-collapse: collapse;
-  border-spacing: 0;
-  width: 100%;
-  padding: 0;
-  border: 1px solid #ddd;
-}
-
-th, td {
-  text-align: left;
-  padding: 5px;
-}
-
-tr:nth-child(even) {
-  background-color: #f2f2f2;
-}
 
 </style>
 
@@ -110,6 +86,114 @@ tr:nth-child(even) {
                         </tr>
                         </tbody>
                     </table>
+
+
+
+ 
+        <h2 align="center">Anomalie lievi</h2>
+
+        <table class="table table-hover">
+
+            <tbody>
+
+            <tr>
+                <td><h4>Impagati</h4></td>
+                @if($response['Scoring']['AnomalieLievi']['Impagati'])
+                    <td class='text-center' style='color:white; background-color: red'>Si</td>
+                @else
+                    <td class='text-center' style='color:white;background-color: green'>No</td>
+                @endif
+            </tr>
+
+            <tr>
+                <td><h4>Presenza Sconfini</h4></td>
+                @if($response['Scoring']['AnomalieLievi']['Sconfini'])
+                    <td class='text-center' style='color:white; background-color: red'>Si</td>
+                @else
+                    <td class='text-center' style='color:white;background-color: green'>No</td>
+                @endif
+            </tr>
+
+            @if($response['Scoring']['AnomalieLievi']['Sconfini'])
+
+                <tr>
+                    <td><h4>N° Sconfini Autoliquidanti</h4></td>
+                    <td class="text-center">
+                    {{ $response['Scoring']['AnomalieLievi']['NumeroSconfiniPerTipo']['RISCHI AUTOLIQUIDANTI'] }}
+
+                    <!--    @if(isset($response['Scoring']['AnomalieLievi']['NumeroSconfiniPerTipo']['RISCHI AUTOLIQUIDANTI']))
+                        {{$response['Scoring']['AnomalieLievi']['NumeroSconfiniPerTipo']['RISCHI AUTOLIQUIDANTI']}}
+                    @else
+                        0
+@endif -->
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><h4>N° Sconfini A Revoca</h4></td>
+                    <td class="text-center">
+                    {{ $response['Scoring']['AnomalieLievi']['NumeroSconfiniPerTipo']['RISCHI A REVOCA'] }}
+
+                    <!--    @if(isset($response['Scoring']['AnomalieLievi']['NumeroSconfiniPerTipo']['RISCHI A REVOCA']))
+                        {{$response['Scoring']['AnomalieLievi']['NumeroSconfiniPerTipo']['RISCHI A REVOCA']}}
+                    @else
+                        0
+@endif -->
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><h4>N° Sconfini A Scadenza</h4></td>
+                    <td class="text-center">
+                    {{ $response['Scoring']['AnomalieLievi']['NumeroSconfiniPerTipo']['RISCHI A SCADENZA'] }}
+
+                    <!--    @if(isset($response['Scoring']['AnomalieLievi']['NumeroSconfiniPerTipo']['RISCHI A SCADENZA']))
+                        {{$response['Scoring']['AnomalieLievi']['NumeroSconfiniPerTipo']['RISCHI A SCADENZA']}}
+                    @else
+                        0
+@endif -->
+                    </td>
+                </tr>
+            @endif
+            </tbody>
+        </table>
+
+
+        <h2 align="center">Anomalie quasi pregiudizievoli</h2>
+
+        <table class="table table-hover">
+
+            <tbody>
+
+            <tr>
+                <td><h4>Sconfinamenti entro 90gg</h4></td>
+                @if($response['Scoring']['AnomalieQuasiPregiudizievoli']['SconfiniEntroNovantaGiorni'])
+                    <td class='text-center' style='color:white; background-color: red'>Si</td>
+                @else
+                    <td class='text-center' style='color:white;background-color: green'>No</td>
+                @endif
+            </tr>
+
+            <tr>
+                <td><h4>Sconfinamenti oltre 90 gg ed entro 180</h4></td>
+                @if($response['Scoring']['AnomalieQuasiPregiudizievoli']['SconfiniEntroCentoOttantaGiorni'])
+                    <td class='text-center' style='color:white; background-color: red'>Si</td>
+                @else
+                    <td class='text-center' style='color:white;background-color: green'>No</td>
+                @endif
+            </tr>
+
+            <tr>
+                <td><h4>Sconfinamenti oltre 180gg</h4></td>
+                @if($response['Scoring']['AnomalieQuasiPregiudizievoli']['SconfiniOltreCentoOttantaGiorni'])
+                    <td class='text-center' style='color:white; background-color: red'>Si</td>
+                @else
+                    <td class='text-center' style='color:white;background-color: green'>No</td>
+                @endif
+            </tr>
+
+            </tbody>
+        </table>
 
 
 

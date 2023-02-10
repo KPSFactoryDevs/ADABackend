@@ -225,44 +225,6 @@
 
 
 
-    <style>
-
-        table {
-            border-right: dotted black;
-            border-left: dotted black;
-            width:100%;
-        }
-
-        th, td  {
-            border-top: dotted black;
-            border-bottom: dotted black;
-            padding: 5px;
-        }
-
-        .dati_impresa {
-            font-size: 12px;
-            font-weight: 400!important;
-        }
-
-        .heading {
-            text-align: center;
-            padding: 5px;
-            font-size: 12px;
-        }
-        .header-info {
-            font-size: 10px;
-            vertical-align: top;
-        }
-        .bgcolor-dati-impresa {
-            background-color: #ccffff;
-        }
-        .size-12 {
-            font-size: 12px;
-        }
-        .bgcolor-alert {
-            background-color: #99ff66;
-        }
-    </style>
 
     </body>
 </html>
