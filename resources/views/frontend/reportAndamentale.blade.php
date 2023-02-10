@@ -162,17 +162,17 @@
     <tr>
         <td style="width:40%" class="dati_impresa">Sconfini Entro 90 Giorni</td>
         @if($response['Scoring']['AnomalieQuasiPregiudizievoli']['SconfiniEntroNovantaGiorni'])
-            <td class='text-center' style='color:white; background-color: red'>Si</td>
+            <td class='text-center' colspan="11" style='color:white; background-color: red'>Si</td>
         @else
-            <td class='text-center' style='color:white;background-color: green'>No</td>
+            <td class='text-center' colspan="11" style='color:white;background-color: green'>No</td>
         @endif
     </tr>
     <tr>
         <td style="width:40%" class="dati_impresa">Sconfini Oltre 90 Giorni ed Entro 180 Giorni</td>
         @if($response['Scoring']['AnomalieQuasiPregiudizievoli']['SconfiniEntroCentoOttantaGiorni'])
-            <td class='text-center' style='color:white; background-color: red'>Si</td>
+            <td class='text-center' colspan="11" style='color:white; background-color: red'>Si</td>
         @else
-            <td class='text-center' style='color:white;background-color: green'>No</td>
+            <td class='text-center' colspan="11" style='color:white;background-color: green'>No</td>
         @endif
     </tr>
 
@@ -180,9 +180,9 @@
     <tr>
         <td style="width:40%" class="dati_impresa">Sconfini Oltre 180 Giorni</td>
         @if($response['Scoring']['AnomalieQuasiPregiudizievoli']['SconfiniOltreCentoOttantaGiorni'])
-            <td class='text-center' style='color:white; background-color: red'>Si</td>
+            <td class='text-center' colspan="11" style='color:white; background-color: red'>Si</td>
         @else
-            <td class='text-center' style='color:white;background-color: green'>No</td>
+            <td class='text-center' colspan="11" style='color:white;background-color: green'>No</td>
         @endif
     </tr>
 
@@ -201,17 +201,17 @@
     <tr>
         <td style="width:40%" class="dati_impresa">Garanzie attivate con esito negativo</td>
         @if($response['Scoring']['AnomaliePregiudizievoli']['GaranzieAttivateEsitoNegativo'])
-            <td class='text-center' style='color:white; background-color: red'>Si</td>
+            <td class='text-center' colspan="11" style='color:white; background-color: red'>Si</td>
         @else
-            <td class='text-center' style='color:white;background-color: green'>No</td>
+            <td class='text-center' colspan="11" style='color:white;background-color: green'>No</td>
         @endif
     </tr>
     <tr>
         <td style="width:40%" class="dati_impresa">Sofferenze</td>
         @if($response['Scoring']['AnomaliePregiudizievoli']['Sofferenze'])
-            <td class='text-center' style='color:white; background-color: red'>Si</td>
+            <td class='text-center' colspan="11" style='color:white; background-color: red'>Si</td>
         @else
-            <td class='text-center' style='color:white;background-color: green'>No</td>
+            <td class='text-center' colspan="11" style='color:white;background-color: green'>No</td>
         @endif
     </tr>
 
@@ -219,9 +219,9 @@
     <tr>
         <td style="width:40%" class="dati_impresa">Presenza crediti passati a perdita</td>
         @if($response['Scoring']['AnomaliePregiudizievoli']['CreditiPassatiPerdita'])
-            <td class='text-center' style='color:white; background-color: red'>Si</td>
+            <td class='text-center' colspan="11" style='color:white; background-color: red'>Si</td>
         @else
-            <td class='text-center' style='color:white;background-color: green'>No</td>
+            <td class='text-center' colspan="11" style='color:white;background-color: green'>No</td>
         @endif
     </tr>
 
