@@ -65,7 +65,7 @@
     <h3 style="margin-bottom:30px;margin-top:50px;">Analisi Bilancio</h3>
 
 
-    <h4>Scoring Analisi Bilancio: {{$dati['pageData']['ValutazioneGeneraleBilancio']['Score']*10}} /10</h4>
+    <h4>Scoring Analisi Bilancio: {{(float)$dati['pageData']['ValutazioneGeneraleBilancio']['Score']*10}} /10</h4>
 
 
     <table>
