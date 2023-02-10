@@ -10,6 +10,9 @@
     </head>
     <body>
 
+    <h3 style="margin-bottom:30px;">Scoring Generale: {{$dati['pageData']['FinalScore']}}</h3>
+
+    <hr>
     <h3 style="margin-bottom:30px;">Scoring per Sezione</h3>
 
         <table style="width:100%;">
@@ -22,16 +25,19 @@
         </table>
 
 
-    <h3 style="margin-bottom:30px;">Analisi Bilancio</h3>
+    <h3 style="margin-bottom:30px;margin-top:50px;">Analisi Bilancio</h3>
+
 
     <table>
         <tr>
-            <th colspan="3">Valutazione Analisi Bilancio</th>
+            <th colspan="4">Valutazione Analisi Bilancio</th>
         </tr>
         <tr>
-            <td rowspan="2">Esito Analisi</td>
-            <td colspan="2">1.7999999999999998</td>
+            <td rowspan="2">Esito Analisi Bilancio</td>
+            <td colspan="2">{{$dati['pageData']['ValutazioneGeneraleBilancio']['Score']}}</td>
         </tr>
+    </table>
+    <table>
         <tr>
             <th>Indice</th>
             <th>Valore</th>
@@ -52,12 +58,12 @@
     </table>
 
 
-    <h3 style="margin-bottom:30px;">Analisi Centrale Rischi</h3>
+    <h3 style="margin-bottom:30px;margin-top:50px;">Analisi Centrale Rischi</h3>
 
     <table>
         <tr>
-            <th>Scoring CR Andamentale</th>
-            <th>Risultato</th>
+            <th><b>Scoring CR Andamentale</b></th>
+
         </tr>
         <tr>
             <td>Valutazione Negativa Del CR Scoring Che Deriva Dall'analisi Sintetica Della CR</td>
@@ -65,7 +71,6 @@
         </tr>
         <tr>
             <td>Sconfini E Ritardi Nei Pagamenti</td>
-            <td>Risultato</td>
         </tr>
         <tr>
             <td>Sconfini Significativi E/O Ripetuti Nel Corso Degli Ultimi 12 Mesi</td>
@@ -77,7 +82,6 @@
         </tr>
         <tr>
             <td>Aumento Delle Garanzie</td>
-            <td>Risultato</td>
         </tr>
         <tr>
             <td>Aumento Delle Richieste Di Garanzie Su Beni Aziendali</td>
@@ -89,7 +93,6 @@
         </tr>
         <tr>
             <td>Insoluti Portafoglio Anticipi</td>
-            <td>Risultato</td>
         </tr>
         <tr>
             <td>Aumento Significativo O Peso Elevato Di Incidenza Insoluti Su Anticipo Crediti</td>
@@ -97,7 +100,6 @@
         </tr>
         <tr>
             <td>Aumento Affidamenti E Utilizzi</td>
-            <td>Risultato</td>
         </tr>
         <tr>
             <td>Aumento Significativo Delle Richieste Di Affidamenti Di Cassa</td>
@@ -117,16 +119,16 @@
         </tr>
         <tr>
             <td>Rientro Linee Anticipi, Cassa E Firma</td>
-            <td>Risultato</td>
         </tr>
     </table>
 
 
-    <h3 style="margin-bottom:30px;">Questionario AS IS</h3>
+    <h3 style="margin-bottom:30px;margin-top:50px;">Questionario AS IS</h3>
 
+    <h5> Anomalie Dei Pagamenti Verso Controparti Commerciali</h5>
     <table>
         <tr>
-            <th>Anomalie Dei Pagamenti Verso Controparti Commerciali</th>
+
             <th>Valutazione Negativa Del CR Scoring Che Deriva Dall'analisi Sintetica Della CR</th>
             <th>Esito</th>
             <th>Spiegazioni</th>
@@ -175,11 +177,11 @@
 
 
 
-    <h3 style="margin-bottom:30px;">Questionario TO BE</h3>
+    <h3 style="margin-bottom:30px;margin-top:50px;">Questionario TO BE</h3>
 
+    <h5>Anomalie Dei Pagamenti Verso Controparti Commerciali</h5>
     <table>
         <tr>
-            <th>Anomalie Dei Pagamenti Verso Controparti Commerciali</th>
             <th>Valutazione Negativa Del CR Scoring Che Deriva Dall'analisi Sintetica Della CR</th>
             <th>Esito</th>
             <th>Spiegazioni</th>
