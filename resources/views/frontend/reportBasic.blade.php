@@ -9,6 +9,8 @@
     </head>
     <body>
 
+    <h2>Report Analisi Bilancio {{ $datiImpresa['ragione_sociale'] }}</h2>
+
         <p class="header-info text-right text-header pt-0 mt-0">
             Ditta/Denominazione/Ragione sociale: <b class="header-info">{{ $datiImpresa['ragione_sociale'] }}</b><br>
             Tipologia Impresa: <b class="header-info">{{ $datiImpresa['tipologia_impresa'] }}</b><br>
