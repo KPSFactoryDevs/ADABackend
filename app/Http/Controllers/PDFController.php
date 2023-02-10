@@ -49,6 +49,39 @@ class PDFController extends Controller
 		$renderHTML = $bilanciHelper->generateHTMLRender($filePath, $taxonomyPath);
 
 
+	
+/* 		$bilancioAnalisi['Questionari'] = str_replace('dscrData', 'Alert DSCR', array_key_first($bilancioAnalisi['Questionari']));
+
+		dd($bilancioAnalisi['Questionari']); */
+
+		$statoPatrimonialeAttivoRange = array_slice($element, 9, 26);
+
+/* 		$statoPatrimonialeAttivo = [
+			'Crediti verso soci per versamenti ancora dovuti' => $statoPatrimonialeAttivoRange['TotaleCreditiVersoSociVersamentiAncoraDovuti'],
+			'Immobilizzazioni (NON crediti finanziari)' => $statoPatrimonialeAttivoRange['TotaleImmobilizzazioni'],
+			'Immobilizzazione - Crediti finanziari' => $statoPatrimonialeAttivoRange['TotaleImmobilizzazioniFinanziarie'],
+			'Rimanenze' => $statoPatrimonialeAttivoRange['TotaleRimanenze'],
+			'Crediti esigibili entro l\'esercizio successivo (NON finanziari)' => $statoPatrimonialeAttivoRange['CreditiEsigibiliEntroEsercizioSuccessivo'],
+			'Crediti esigibili oltre l\'esercizio successivo' => $statoPatrimonialeAttivoRange['CreditiEsigibiliOltreEsercizioSuccessivo'],
+			'C III) Attività finanziarie che non costituiscono immobilizzazioni' => $statoPatrimonialeAttivoRange['TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni'],
+			'C IV) Disponibilità liquide' => $statoPatrimonialeAttivoRange['TotaleDisponibilitaLiquide'],
+			'D) Ratei e risconti attivi' => $statoPatrimonialeAttivoRange['AttivoRateiRisconti'],
+		]; */
+
+/* 	 	foreach($statoPatrimonialeAttivo as $key => $singleStatoPatrimonialeAttivo) {
+			if($singleStatoPatrimonialeAttivo > "0") {
+				dump(number_format(floatval($singleStatoPatrimonialeAttivo), ',', '.', 2));
+				$numberFormat = number_format(floatval($singleStatoPatrimonialeAttivo), ',', '.', 2);
+				dump($numberFormat);
+
+				//dd($numberFormat);
+
+				//$statoPatrimonialeAttivo[$key] = number_format((int)$singleStatoPatrimonialeAttivo, ',', '.', 2);
+			}
+		} */
+		//dd($statoPatrimonialeAttivo);
+	//	$totaleAttivo = array_slice($element, 9, 26)['TotaleAttivo'];
+
 		$nomeAzienda = $document->nome_azienda;
 		$formaGiuridica = $document->forma_giuridica;
 		$tipoAzienda = $document->tipo_azienda;
@@ -65,7 +98,7 @@ class PDFController extends Controller
 			'renderHTML' => $renderHTML,
 		];
 
-		$pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView('frontend.reportBasic',['datiImpresa' => $datiImpresa])->setPaper('A4');;
+		$pdf = PDF::loadView('frontend.reportBasic',['datiImpresa' => $datiImpresa])->setPaper('A4');;
 		return $pdf->stream('result.pdf', array('Attachment'=>0));
 	}
 	public function reportBasicPdf($idBilancio)
@@ -403,16 +436,14 @@ class PDFController extends Controller
                 'generalDates' => $generalDates
             ];
 
-		/* 	$printPDF = new printpdf;
+			$printPDF = new printpdf;
 
 			$printPDF->currentPayload = $response;
 
 			$documentId = $printPDF->generateDocument('crAndamentale');
 			sleep(5);
 
-			return $printPDF->getDocumentData($documentId); */
-			$pdf = PDF::setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true])->loadView('frontend.reportAndamentale',['response' => $response])->setPaper('A4');;
-			return $pdf->stream('result.pdf', array('Attachment'=>0));
+			return $printPDF->getDocumentData($documentId);
 		}
 	}
 
@@ -494,8 +525,8 @@ class PDFController extends Controller
         $alerts['16'] = $allertaHelper->getAnalisiCRSedici($banks);
         $punteggioCR = $allertaHelper->getPunteggioCR($alerts);
 
-        $arrayQuestionario = $allertaHelper->getArrayQuestionarioAsIs($id, $idCr);
-        $arrayForwardLooking = $allertaHelper->getArrayQuestionarioToBe($id, $idCr);
+        $arrayQuestionario = $allertaHelper->getArrayQuestionarioAsIs($idBilancio, $idCr);
+        $arrayForwardLooking = $allertaHelper->getArrayQuestionarioToBe($idBilancio, $idCr);
 
 
 
