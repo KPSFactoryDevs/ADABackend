@@ -50,21 +50,21 @@
     </tr>
     <tr>
         <td style="width:40%" class="dati_impresa">Periodo analizzato</td>
-        <td style="width:60%" colspan="2" class="dati_impresa bgcolor-dati-impresa">{{$response['Scoring']['Panoramica']['PeriodoRiferimento']['Inizio']}} - {{$response['Scoring']['Panoramica']['PeriodoRiferimento']['Fine']}}</td>
+        <td style="width:60%" colspan="11"  class="dati_impresa bgcolor-dati-impresa">{{$response['Scoring']['Panoramica']['PeriodoRiferimento']['Inizio']}} - {{$response['Scoring']['Panoramica']['PeriodoRiferimento']['Fine']}}</td>
     </tr>
     <tr>
         <td style="width:40%" class="dati_impresa">Scoring Finale</td>
-        <td style="width:60%" colspan="2" class="dati_impresa bgcolor-dati-impresa">{{number_format((float)str_replace(',', '.', $response['Scoring']['Panoramica']['FinalScore'])*10/10, 2, ',', '.')}} / 10</td>
+        <td style="width:60%" colspan="11"  class="dati_impresa bgcolor-dati-impresa">{{number_format((float)str_replace(',', '.', $response['Scoring']['Panoramica']['FinalScore'])*10/10, 2, ',', '.')}} / 10</td>
     </tr>
 
     <tr>
         <td style="width:40%" class="dati_impresa">N. Intermediari:</td>
-        <td style="width:60%" colspan="2" class="dati_impresa bgcolor-dati-impresa">{{$response['Scoring']['Panoramica']['NumeroIntermediari']}}</td>
+        <td style="width:60%" colspan="11"  class="dati_impresa bgcolor-dati-impresa">{{$response['Scoring']['Panoramica']['NumeroIntermediari']}}</td>
     </tr>
 
     <tr>
         <td style="width:40%" class="dati_impresa">N. Posizioni Contestate:</td>
-        <td style="width:60%" colspan="2" class="dati_impresa bgcolor-dati-impresa">{{$response['Scoring']['Panoramica']['NumeroPosizioniContestate']}}</td>
+        <td style="width:60%" colspan="11"  class="dati_impresa bgcolor-dati-impresa">{{$response['Scoring']['Panoramica']['NumeroPosizioniContestate']}}</td>
     </tr>
 </table>
 
@@ -78,25 +78,25 @@
     <tr>
         <td style="width:40%" class="dati_impresa">Tensione Finanziaria Utilizzi Autoliquidanti</td>
         @if($response['Scoring']['AnomalieUtilizzi']['TensioneAutoliquidanti'])
-            <td class='text-center' colspan="2"  style='color:white; background-color: red'>Si</td>
+            <td class='text-center' colspan="11"   style='color:white; background-color: red'>Si</td>
         @else
-            <td class='text-center' colspan="2"  style='color:white;background-color: green'>No</td>
+            <td class='text-center' colspan="11"   style='color:white;background-color: green'>No</td>
         @endif  </tr>
     <tr>
         <td style="width:40%" class="dati_impresa">Tensione Finanziaria Utilizzi A Revoca</td>
         @if($response['Scoring']['AnomalieUtilizzi']['TensioneRevoca'])
-            <td class='text-center' colspan="2"  style='color:white; background-color: red'>Si</td>
+            <td class='text-center' colspan="11"   style='color:white; background-color: red'>Si</td>
         @else
-            <td class='text-center' colspan="2"  style='color:white; background-color: green'>No</td>
+            <td class='text-center' colspan="11"   style='color:white; background-color: green'>No</td>
         @endif
     </tr>
 
     <tr>
         <td style="width:40%" class="dati_impresa">Tensione Finanziaria Utilizzi A Scadenza:</td>
         @if($response['Scoring']['AnomalieUtilizzi']['TensioneScadenza'])
-            <td class='text-center' colspan="2"  style='color:white; background-color: red'>Si</td>
+            <td class='text-center' colspan="11"   style='color:white; background-color: red'>Si</td>
         @else
-            <td class='text-center' colspan="2"  style='color:white; background-color: green'>No</td>
+            <td class='text-center' colspan="11"   style='color:white; background-color: green'>No</td>
         @endif
     </tr>
 
@@ -117,16 +117,16 @@
     <tr>
         <td style="width:40%" class="dati_impresa">Impagati</td>
         @if($response['Scoring']['AnomalieLievi']['Impagati'])
-            <td class='text-center' colspan="2"  style='color:white; background-color: red'>Si</td>
+            <td class='text-center' colspan="11"   style='color:white; background-color: red'>Si</td>
         @else
-            <td class='text-center' colspan="2"  style='color:white;background-color: green'>No</td>
+            <td class='text-center' colspan="11"   style='color:white;background-color: green'>No</td>
         @endif  </tr>
     <tr>
         <td style="width:40%" class="dati_impresa">Presenza Sconfini</td>
         @if($response['Scoring']['AnomalieLievi']['Sconfini'])
-            <td class='text-center' colspan="2"  style='color:white; background-color: red'>Si</td>
+            <td class='text-center' colspan="11"   style='color:white; background-color: red'>Si</td>
         @else
-            <td class='text-center' colspan="2"  style='color:white; background-color: green'>No</td>
+            <td class='text-center' colspan="11"   style='color:white; background-color: green'>No</td>
         @endif
     </tr>
 
@@ -134,17 +134,17 @@
 
         <tr>
             <td style="width:40%" class="dati_impresa">N° Sconfini Autoliquidanti:</td>
-            <td  colspan="2"> {{ $response['Scoring']['AnomalieLievi']['NumeroSconfiniPerTipo']['RISCHI AUTOLIQUIDANTI'] }}</td>
+            <td  colspan="11" > {{ $response['Scoring']['AnomalieLievi']['NumeroSconfiniPerTipo']['RISCHI AUTOLIQUIDANTI'] }}</td>
         </tr>
 
         <tr>
             <td style="width:40%" class="dati_impresa">N° Sconfini a Revoca:</td>
-            <td  colspan="2"> {{ $response['Scoring']['AnomalieLievi']['NumeroSconfiniPerTipo']['RISCHI A REVOCA'] }}</td>
+            <td  colspan="11" > {{ $response['Scoring']['AnomalieLievi']['NumeroSconfiniPerTipo']['RISCHI A REVOCA'] }}</td>
         </tr>
 
         <tr>
             <td style="width:40%" class="dati_impresa">N° Sconfini a Scadenza:</td>
-            <td  colspan="2"> {{ $response['Scoring']['AnomalieLievi']['NumeroSconfiniPerTipo']['RISCHI A SCADENZA'] }}</td>
+            <td  colspan="11" > {{ $response['Scoring']['AnomalieLievi']['NumeroSconfiniPerTipo']['RISCHI A SCADENZA'] }}</td>
         </tr>
     @endif
 
@@ -155,60 +155,59 @@
 
 
 
-        <h2 align="center">Anomalie quasi pregiudizievoli</h2>
-
-        <table class="table table-hover">
-
-            <tbody>
-
-            <tr>
-                <td><h4>Sconfinamenti entro 90gg</h4></td>
-                @if($response['Scoring']['AnomalieQuasiPregiudizievoli']['SconfiniEntroNovantaGiorni'])
-                    <td class='text-center' style='color:white; background-color: red'>Si</td>
-                @else
-                    <td class='text-center' style='color:white;background-color: green'>No</td>
-                @endif
-            </tr>
-
-            <tr>
-                <td><h4>Sconfinamenti oltre 90 gg ed entro 180</h4></td>
-                @if($response['Scoring']['AnomalieQuasiPregiudizievoli']['SconfiniEntroCentoOttantaGiorni'])
-                    <td class='text-center' style='color:white; background-color: red'>Si</td>
-                @else
-                    <td class='text-center' style='color:white;background-color: green'>No</td>
-                @endif
-            </tr>
-
-            <tr>
-                <td><h4>Sconfinamenti oltre 180gg</h4></td>
-                @if($response['Scoring']['AnomalieQuasiPregiudizievoli']['SconfiniOltreCentoOttantaGiorni'])
-                    <td class='text-center' style='color:white; background-color: red'>Si</td>
-                @else
-                    <td class='text-center' style='color:white;background-color: green'>No</td>
-                @endif
-            </tr>
-
-            </tbody>
-        </table>
-
-
-<h2 align="center">Anomalie pregiudizievoli</h2>
-
-<table class="table table-hover">
-
-    <tbody>
-
+<table style="width:100%;margin-bottom:50px;">
     <tr>
-        <td><h4>Garanzie attivate con esito negativo</h4></td>
-        @if($response['Scoring']['AnomaliePregiudizievoli']['GaranzieAttivateEsitoNegativo'])
+        <th colspan="12" class="heading">Anomalie quasi pregiudizievoli</th>
+    </tr>
+    <tr>
+        <td style="width:40%" class="dati_impresa">Sconfini Entro 90 Giorni</td>
+        @if($response['Scoring']['AnomalieQuasiPregiudizievoli']['SconfiniEntroNovantaGiorni'])
+            <td class='text-center' style='color:white; background-color: red'>Si</td>
+        @else
+            <td class='text-center' style='color:white;background-color: green'>No</td>
+        @endif
+    </tr>
+    <tr>
+        <td style="width:40%" class="dati_impresa">Sconfini Oltre 90 Giorni ed Entro 180 Giorni</td>
+        @if($response['Scoring']['AnomalieQuasiPregiudizievoli']['SconfiniEntroCentoOttantaGiorni'])
             <td class='text-center' style='color:white; background-color: red'>Si</td>
         @else
             <td class='text-center' style='color:white;background-color: green'>No</td>
         @endif
     </tr>
 
+
     <tr>
-        <td><h4>Sofferenze</h4></td>
+        <td style="width:40%" class="dati_impresa">Sconfini Oltre 180 Giorni</td>
+        @if($response['Scoring']['AnomalieQuasiPregiudizievoli']['SconfiniOltreCentoOttantaGiorni'])
+            <td class='text-center' style='color:white; background-color: red'>Si</td>
+        @else
+            <td class='text-center' style='color:white;background-color: green'>No</td>
+        @endif
+    </tr>
+
+
+</table>
+
+
+
+
+
+
+<table style="width:100%;margin-bottom:50px;">
+    <tr>
+        <th colspan="12" class="heading">Anomalie pregiudizievoli</th>
+    </tr>
+    <tr>
+        <td style="width:40%" class="dati_impresa">Garanzie attivate con esito negativo</td>
+        @if($response['Scoring']['AnomaliePregiudizievoli']['GaranzieAttivateEsitoNegativo'])
+            <td class='text-center' style='color:white; background-color: red'>Si</td>
+        @else
+            <td class='text-center' style='color:white;background-color: green'>No</td>
+        @endif
+    </tr>
+    <tr>
+        <td style="width:40%" class="dati_impresa">Sofferenze</td>
         @if($response['Scoring']['AnomaliePregiudizievoli']['Sofferenze'])
             <td class='text-center' style='color:white; background-color: red'>Si</td>
         @else
@@ -216,8 +215,9 @@
         @endif
     </tr>
 
+
     <tr>
-        <td><h4>Presenza crediti passati a perdita</h4></td>
+        <td style="width:40%" class="dati_impresa">Presenza crediti passati a perdita</td>
         @if($response['Scoring']['AnomaliePregiudizievoli']['CreditiPassatiPerdita'])
             <td class='text-center' style='color:white; background-color: red'>Si</td>
         @else
@@ -225,8 +225,11 @@
         @endif
     </tr>
 
-    </tbody>
+
 </table>
+
+
+
 
 
 
