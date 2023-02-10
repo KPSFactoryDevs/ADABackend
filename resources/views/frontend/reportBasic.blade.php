@@ -34,11 +34,11 @@
                 <td colspan="11" class="dati_impresa bgcolor-dati-impresa">{{ $datiImpresa['settore'] }}</td>
             </tr>
             <tr>
-                <td class="dati_impresa">DATA CHIUSURA ESERCIZIO PRECEDENTE</td>
+                <td class="dati_impresa">ANNO CHIUSURA ESERCIZIO PRECEDENTE</td>
                 <td colspan="11" class="dati_impresa bgcolor-dati-impresa">{{ $datiImpresa['data_chiusura'] }}</td>
             </tr>
             <tr>
-                <td class="dati_impresa">ANNO CHIUSURA ESERCIZIO PRECEDENTE</td>
+                <td class="dati_impresa">ANNO CHIUSURA ESERCIZIO CORRENTE</td>
                 <td colspan="11" class="dati_impresa bgcolor-dati-impresa">{{ $datiImpresa['data_ultima'] }}</td>
             </tr>
             <tr>
