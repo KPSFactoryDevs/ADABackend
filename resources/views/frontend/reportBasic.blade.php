@@ -5,11 +5,10 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <!-- Bootstrap CSS -->
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    
+ 
     </head>
     <body>
-        
+
         <p class="header-info text-right text-header pt-0 mt-0">
             Ditta/Denominazione/Ragione sociale: <b class="header-info">{{ $datiImpresa['ragione_sociale'] }}</b><br>
             Tipologia Impresa: <b class="header-info">{{ $datiImpresa['tipologia_impresa'] }}</b><br>
@@ -18,7 +17,7 @@
 
         <hr>
 
-        <table style="width:100%;margin-bottom: 44rem;">
+        <table style="width:100%;">
             <tr>
                 <th colspan="12" class="heading">DATI IMPRESA</th>
             </tr>
@@ -52,15 +51,7 @@
             </tr>
         </table>
 
-       <p class="header-info text-right text-header pt-0 mt-0">
-            Ditta/Denominazione/Ragione sociale: <b class="header-info">{{ $datiImpresa['ragione_sociale'] }}</b><br>
-            Tipologia Impresa: <b class="header-info">{{ $datiImpresa['tipologia_impresa'] }}</b><br>
-            Settore Attività: <b class="header-info">{{ $datiImpresa['settore'] }}</b>
-        </p>   
 
-        <hr>
-
-        <p style="font-size: 18px;font-wheight: 400;">L'analisi di bilancio è una tecnica che permette di valutare la situazione finanziaria e la performance di un'impresa, attraverso l'esame dei suoi bilanci (cioè le sue dichiarazioni finanziarie). Esistono diverse tecniche di analisi di bilancio, come ad esempio l'analisi di ratio, che consentono di ottenere informazioni sulla liquidità, la solvibilità, la redditività e la struttura patrimoniale dell'impresa.</p>
 
         <table style="width:100%;">
             <tr>
@@ -68,8 +59,8 @@
                 <th colspan="4" class="size-12">{{ $datiImpresa['data_ultima'] }}</th>
                 <th colspan="4" class="size-12">Fuori Soglia</th>
             </tr>
-            @foreach($datiImpresa['bilancioAnalisi']['Indici']['Basic'] as $key => $singleStatoPatrimonialeAttivo) 
-                @if(isset($singleStatoPatrimonialeAttivo['value'])) 
+            @foreach($datiImpresa['bilancioAnalisi']['Indici']['Basic'] as $key => $singleStatoPatrimonialeAttivo)
+                @if(isset($singleStatoPatrimonialeAttivo['value']))
                 <tr>
                     <td colspan="4" class="dati_impresa">{{ $key }}</td>
                     <td colspan="4" class="dati_impresa bgcolor-dati-impresa">{{ $singleStatoPatrimonialeAttivo['value'] }}</td>
@@ -84,53 +75,28 @@
             </tr>
         </table>
 
-    <!--     <p class="header-info text-right text-header pt-0 mt-0">
-            Ditta/Denominazione/Ragione sociale: <b class="header-info">{{ $datiImpresa['ragione_sociale'] }}</b><br>
-            Tipologia Impresa: <b class="header-info">{{ $datiImpresa['tipologia_impresa'] }}</b><br>
-            Settore Attività: <b class="header-info">{{ $datiImpresa['settore'] }}</b>
-        </p>
 
-       <table style="width:100%;;margin-bottom: 28rem;" class="mt-3">
-            <tr>
-                <th colspan="6" class="size-12">Indici Advanced</th>
-                <th colspan="6" class="size-12">{{ $datiImpresa['data_ultima'] }}</th>
-            </tr>
-            @foreach($datiImpresa['bilancioAnalisi']['Indici']['Advanced'] as $key => $singleStatoPatrimonialePassivo) 
-                @if($singleStatoPatrimonialePassivo)
-                <tr>
-                    <td colspan="6" class="dati_impresa">{{ $key }}</td>
-                    <td colspan="6" class="dati_impresa bgcolor-dati-impresa">{{ $singleStatoPatrimonialePassivo }}</td>
-                </tr>
-                @endif
-            @endforeach
-        </table>  -->
-
-    <!--    <p class="header-info text-right text-header pt-0 mt-2">
-            Ditta/Denominazione/Ragione sociale: <b class="header-info">{{ $datiImpresa['ragione_sociale'] }}</b><br>
-            Tipologia Impresa: <b class="header-info">{{ $datiImpresa['tipologia_impresa'] }}</b><br>
-            Settore Attività: <b class="header-info">{{ $datiImpresa['settore'] }}</b>
-        </p>  -->
 
         <table style="width:100%" class="mt-5">
             <tr>
                 <th colspan="6" class="size-12">Alert Questionari Qualitativi</th>
                 <th colspan="6" class="size-12">{{ $datiImpresa['data_ultima'] }}</th>
             </tr>
-            @foreach($datiImpresa['bilancioAnalisi']['Questionari'] as $key => $alertQuestionari) 
+            @foreach($datiImpresa['bilancioAnalisi']['Questionari'] as $key => $alertQuestionari)
                 <tr>
                     <td colspan="6" class="dati_impresa">{{ $key }}</td>
                     @if(isset($alertQuestionari->alert) && $alertQuestionari->alert === 'Azienda a rischio')
                         <td colspan="6" class="dati_impresa" style="background-color: #b31317;color: #ffffff;">@if(isset($alertQuestionari->alert)) {{ $alertQuestionari->alert }} @else NA @endif</td>
                     @elseif(!isset($alertQuestionari->alert))
                         <td colspan="6" class="dati_impresa">@if(isset($alertQuestionari->alert)) {{ $alertQuestionari->alert }} @else NA @endif</td>
-                    @else 
+                    @else
                         <td colspan="6" class="dati_impresa" style="background-color: #99ff66;">@if(isset($alertQuestionari->alert)) {{ $alertQuestionari->alert }} @else NA @endif</td>
                     @endif
                 </tr>
             @endforeach
         </table>
- 
-    <style> 
+
+    <style>
 
         table {
             border-right: dotted black;
