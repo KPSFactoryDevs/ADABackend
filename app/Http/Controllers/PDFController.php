@@ -395,7 +395,7 @@ class PDFController extends Controller
             ];
 
 
-            $pdf = PDF::loadView('frontend.reportAndamentale',['dati' => $response])->setPaper('A4');;
+            $pdf = PDF::loadView('frontend.reportAndamentale',['response' => $response])->setPaper('A4');;
             return $pdf->stream('result.pdf', array('Attachment'=>0));
 
 		}
