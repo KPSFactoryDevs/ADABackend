@@ -37,7 +37,7 @@
             <th colspan="6">Valore</th>
             <th colspan="6">Giudizio</th>
         </tr>
-        <tr>
+     
         @foreach($dati['pageData']['ValutazioneGeneraleBilancio']['Giudizi'] as $key => $singleStatoPatrimonialeAttivo)
             @if($singleStatoPatrimonialeAttivo != false)
             <tr>
@@ -47,7 +47,7 @@
             </tr>
             @endif
             @endforeach
-        </tr>
+
 
     </table>
 
