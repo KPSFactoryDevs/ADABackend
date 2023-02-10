@@ -18,20 +18,23 @@
 
 </style>
 
-<h2 class="page-title">Centrale Rischi Andamentale | <span class="font-weight-normal text-muted ml-2">Key Performance Softwares S.r.l.</span></h2>
+<h2 class="page-title">Report Centrale Rischi Andamentale</h2>
 <hr>
 <table>
     <tr>
         <th><h3 class="page-title">Inizio del periodo analizzato | <span class="font-weight-normal text-muted ml-2">{{$response['Scoring']['Panoramica']['PeriodoRiferimento']['Inizio']}}</span></h3></th>
-        <th>&nbsp;&nbsp;&nbsp;</th>
         <th><h3 class="page-title">Fine del periodo analizzato | <span class="font-weight-normal text-muted ml-2">{{$response['Scoring']['Panoramica']['PeriodoRiferimento']['Fine']}}</span></h3></th>
     <tr>
 </table>
 <table>
-    <th><h3 align="left" class="page-title">Data Analisi | {{date('Y-m-d')}}</h3></th>
-    <th>&nbsp;&nbsp;&nbsp;</th>
-    <th><div class="card-title"><h3>Punteggio CR</h3> <span class="font-weight-normal text-muted ml-2">{{number_format((float)str_replace(',', '.', $response['Scoring']['Panoramica']['FinalScore'])*10/10, 2, ',', '.')}} / 10</span><div></th>
-    <th>&nbsp;&nbsp;&nbsp;</th>
+    <tr>
+
+        <td><h3 align="left" class="page-title">Data Analisi | {{date('Y-m-d')}}</h3></td>
+
+    </tr>
+    <tr>      <td><div class="card-title"><h3>Punteggio Centrale Rischi</h3> <span class="font-weight-normal text-muted ml-2">{{number_format((float)str_replace(',', '.', $response['Scoring']['Panoramica']['FinalScore'])*10/10, 2, ',', '.')}} / 10</span><div></td>
+
+    </tr>
 </table>
 
                     <table class="table table-hover">
@@ -89,7 +92,7 @@
 
 
 
- 
+
         <h2 align="center">Anomalie lievi</h2>
 
         <table class="table table-hover">
@@ -195,6 +198,42 @@
             </tbody>
         </table>
 
+
+<h2 align="center">Anomalie pregiudizievoli</h2>
+
+<table class="table table-hover">
+
+    <tbody>
+
+    <tr>
+        <td><h4>Garanzie attivate con esito negativo</h4></td>
+        @if($response['Scoring']['AnomaliePregiudizievoli']['GaranzieAttivateEsitoNegativo'])
+            <td class='text-center' style='color:white; background-color: red'>Si</td>
+        @else
+            <td class='text-center' style='color:white;background-color: green'>No</td>
+        @endif
+    </tr>
+
+    <tr>
+        <td><h4>Sofferenze</h4></td>
+        @if($response['Scoring']['AnomaliePregiudizievoli']['Sofferenze'])
+            <td class='text-center' style='color:white; background-color: red'>Si</td>
+        @else
+            <td class='text-center' style='color:white;background-color: green'>No</td>
+        @endif
+    </tr>
+
+    <tr>
+        <td><h4>Presenza crediti passati a perdita</h4></td>
+        @if($response['Scoring']['AnomaliePregiudizievoli']['CreditiPassatiPerdita'])
+            <td class='text-center' style='color:white; background-color: red'>Si</td>
+        @else
+            <td class='text-center' style='color:white;background-color: green'>No</td>
+        @endif
+    </tr>
+
+    </tbody>
+</table>
 
 
 
