@@ -11,11 +11,11 @@
     <body>
 
 
-        <table style="width:100%;margin-bottom: 49rem;">
-       <h3>Scoring per Sezione</h3>
+        <table style="width:100%;">
+       <h3 style="margin-bottom:30px;">Scoring per Sezione</h3>
             @foreach($dati['GeneralScore'] as $key => $singleStatoPatrimonialeAttivo)
                 <tr>
-                    <td colspan="6" class="dati_impresa">{{ $key }}</td>
+                    <td colspan="6" class="dati_impresa">{{ str_replace('_', ' ', $key) }}</td>
                     <td colspan="6" class="dati_impresa bgcolor-dati-impresa">{{ $singleStatoPatrimonialeAttivo }}</td>
                 </tr>
             @endforeach
