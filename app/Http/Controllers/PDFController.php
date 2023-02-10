@@ -391,59 +391,13 @@ class PDFController extends Controller
                         'CreditiPassatiPerdita' => (!empty($creditiPassatiPerdita)),
                     ],
                 ],
-                'ResocontoAnomalie' => [
-                    'ListaSconfiniEntroNovantaGiorni' => $sconfiniDivisi['SconfiniEntro90Giorni'],
-                    'ListaSconfiniEntroCentoOttantaGiorni' => $sconfiniDivisi['SconfiniOltre90Giorni'],
-                    'ListaSconfiniOltreCentoOttantaGiorni' => $sconfiniDivisi['SconfiniOltre180Giorni'],
-                    'ListaAnomalie' => $anomalie,
-                ],
-                'AnalisiAffidamenti' => [
-                    'ListaAffidamenti' => $totaleAffidamentiTable
-                ],
-                'AnalisiIndebitamento' => [],
-                'AnalisiPerBanca' => [
-                    //      'ListaScoringBanche' => $banksScoring
-                ],
-                'RischiGaranzie' => [
-                    'PosizioniDiRischio' => [
-                        'Gestibili' => [
-                            'TotaleCreditiScaduti' => number_format($rischiGaranzie['CreditiScaduti'], 2, ',', '.'),
-                            'TotaleCreditiScadutiImpagati' => number_format($rischiGaranzie['CreditiScadutiImpagati'], 2, ',', '.'),
-                            'PercentualeIncidenzaImpagati' => $incidenzaImpagati,
-                        ],
-                        'QuasiPregiudizievoli' => [
-                            'TotaleScadutiSconfinatiEntroNovantaGiorni' => number_format($rischiGaranzie['Entro90'], 2, ',', '.'),
-                            'TotaleScadutiSconfinatiEntroCentoOttantaGiorni' => number_format($rischiGaranzie['Oltre90'], 2, ',', '.'),
-                            'TotaleScadutiSconfinatiOltreCentoOttantaGiorni' => number_format($rischiGaranzie['Oltre180'], 2, ',', '.'),
-                        ],
-                        'Pregiudizievoli' => [
-                            'TotaleSofferenze' => number_format($rischiGaranzie['Sofferenze'], 2, ',', '.'),
-                            'TotaleCreditiPassatiPerdita' => number_format($rischiGaranzie['CreditiPassatiPerdita'], 2, ',', '.'),
-                            'TotaleCreditiContestati' => number_format($rischiGaranzie['CreditiContestati'], 2, ',', '.'),
-                        ],
-                    ],
-                    'Garanzie' => [
-                        'InfoGaranti' => [
-                            'TotaleValore' => number_format($informazioniGaranti['Tot. Valore Garanzia'], 2, ',', '.'),
-                            'TotaleImporto' => number_format($informazioniGaranti['Tot. importo garantito'], 2, ',', '.'),
-                        ],
-                        'GaranzieRicevute' => [
-                            'TotaleValore' => number_format($garanzieRicevute['Garantito'], 2, ',', '.'),
-                            'TotaleImporto' => number_format($garanzieRicevute['Garanzia'], 2, ',', '.'),
-                        ],
-                    ]
-                ],
                 'generalDates' => $generalDates
             ];
 
-			$printPDF = new printpdf;
 
-			$printPDF->currentPayload = $response;
+            $pdf = PDF::loadView('frontend.reportAndamentale',['dati' => $response])->setPaper('A4');;
+            return $pdf->stream('result.pdf', array('Attachment'=>0));
 
-			$documentId = $printPDF->generateDocument('crAndamentale');
-			sleep(5);
-
-			return $printPDF->getDocumentData($documentId);
 		}
 	}
 
