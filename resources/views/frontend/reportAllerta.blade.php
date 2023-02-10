@@ -56,7 +56,7 @@
 
     <table>
         <tr>
-            <th><b>Area Centrale Rischi</b></th>
+            <th><b>Scoring Centrale Rischi Andamentale</b></th>
             <th><b>Esito</b></th>
         </tr>
         <tr>
