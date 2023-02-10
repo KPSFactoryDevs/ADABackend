@@ -9,12 +9,14 @@
     
     </head>
     <body>
-
+        
         <p class="header-info text-right text-header pt-0 mt-0">
             Ditta/Denominazione/Ragione sociale: <b class="header-info">{{ $datiImpresa['ragione_sociale'] }}</b><br>
             Tipologia Impresa: <b class="header-info">{{ $datiImpresa['tipologia_impresa'] }}</b><br>
             Settore Attività: <b class="header-info">{{ $datiImpresa['settore'] }}</b>
         </p>
+
+        <hr>
 
         <table style="width:100%;margin-bottom: 44rem;">
             <tr>
@@ -50,40 +52,45 @@
             </tr>
         </table>
 
-
-        <p class="header-info text-right text-header pt-0 mt-0">
+       <p class="header-info text-right text-header pt-0 mt-0">
             Ditta/Denominazione/Ragione sociale: <b class="header-info">{{ $datiImpresa['ragione_sociale'] }}</b><br>
             Tipologia Impresa: <b class="header-info">{{ $datiImpresa['tipologia_impresa'] }}</b><br>
             Settore Attività: <b class="header-info">{{ $datiImpresa['settore'] }}</b>
-        </p>
+        </p>   
 
+        <hr>
 
-        <table style="width:100%;margin-bottom: 49rem;">
+        <p style="font-size: 18px;font-wheight: 400;">L'analisi di bilancio è una tecnica che permette di valutare la situazione finanziaria e la performance di un'impresa, attraverso l'esame dei suoi bilanci (cioè le sue dichiarazioni finanziarie). Esistono diverse tecniche di analisi di bilancio, come ad esempio l'analisi di ratio, che consentono di ottenere informazioni sulla liquidità, la solvibilità, la redditività e la struttura patrimoniale dell'impresa.</p>
+
+        <table style="width:100%;">
             <tr>
-                <th colspan="6" class="size-12">Indici Basic</th>
-                <th colspan="6" class="size-12">{{ $datiImpresa['data_ultima'] }}</th>
+                <th colspan="4" class="size-12">Indici Basic</th>
+                <th colspan="4" class="size-12">{{ $datiImpresa['data_ultima'] }}</th>
+                <th colspan="4" class="size-12">Fuori Soglia</th>
             </tr>
             @foreach($datiImpresa['bilancioAnalisi']['Indici']['Basic'] as $key => $singleStatoPatrimonialeAttivo) 
                 @if(isset($singleStatoPatrimonialeAttivo['value'])) 
                 <tr>
-                    <td colspan="6" class="dati_impresa">{{ $key }}</td>
-                    <td colspan="6" class="dati_impresa bgcolor-dati-impresa">{{ $singleStatoPatrimonialeAttivo['value'] }}</td>
+                    <td colspan="4" class="dati_impresa">{{ $key }}</td>
+                    <td colspan="4" class="dati_impresa bgcolor-dati-impresa">{{ $singleStatoPatrimonialeAttivo['value'] }}</td>
+                    <td colspan="4" class="dati_impresa bgcolor-dati-impresa">@if($singleStatoPatrimonialeAttivo['fuoriSoglia'] == true) Si @else No @endif</td>
                 </tr>
                 @endif
             @endforeach
             <tr>
-                <th colspan="6" class="dati_impresa">Indice CNDCEC</th>
-                <th colspan="6" class="dati_impresa bgcolor-dati-impresa">{{ $datiImpresa['bilancioAnalisi']['Indici']['Basic']['IndiceCNDCEC'] }}</th>
+                <th colspan="4" class="dati_impresa"><b>Indice CNDCEC<b></th>
+                <th colspan="4" class="dati_impresa bgcolor-dati-impresa"><b>{{ $datiImpresa['bilancioAnalisi']['Indici']['Basic']['Indice CNDCEC'] }}</b></th>
+                <th colspan="4" class="dati_impresa bgcolor-dati-impresa"></th>
             </tr>
         </table>
 
-        <p class="header-info text-right text-header pt-0 mt-0">
+    <!--     <p class="header-info text-right text-header pt-0 mt-0">
             Ditta/Denominazione/Ragione sociale: <b class="header-info">{{ $datiImpresa['ragione_sociale'] }}</b><br>
             Tipologia Impresa: <b class="header-info">{{ $datiImpresa['tipologia_impresa'] }}</b><br>
             Settore Attività: <b class="header-info">{{ $datiImpresa['settore'] }}</b>
         </p>
 
-        <table style="width:100%;;margin-bottom: 28rem;" class="mt-3">
+       <table style="width:100%;;margin-bottom: 28rem;" class="mt-3">
             <tr>
                 <th colspan="6" class="size-12">Indici Advanced</th>
                 <th colspan="6" class="size-12">{{ $datiImpresa['data_ultima'] }}</th>
@@ -96,26 +103,30 @@
                 </tr>
                 @endif
             @endforeach
-        </table>
+        </table>  -->
 
-        <p class="header-info text-right text-header pt-0 mt-0">
+    <!--    <p class="header-info text-right text-header pt-0 mt-2">
             Ditta/Denominazione/Ragione sociale: <b class="header-info">{{ $datiImpresa['ragione_sociale'] }}</b><br>
             Tipologia Impresa: <b class="header-info">{{ $datiImpresa['tipologia_impresa'] }}</b><br>
             Settore Attività: <b class="header-info">{{ $datiImpresa['settore'] }}</b>
-        </p>
+        </p>  -->
 
-        <table style="width:100%" class="mt-3">
+        <table style="width:100%" class="mt-5">
             <tr>
-                <th colspan="6" class="size-12">Indici Advanced</th>
+                <th colspan="6" class="size-12">Alert Questionari Qualitativi</th>
                 <th colspan="6" class="size-12">{{ $datiImpresa['data_ultima'] }}</th>
             </tr>
             @foreach($datiImpresa['bilancioAnalisi']['Questionari'] as $key => $alertQuestionari) 
-                @if($alertQuestionari)
                 <tr>
                     <td colspan="6" class="dati_impresa">{{ $key }}</td>
-                    <td colspan="6" class="dati_impresa bgcolor-alert">{{ $alertQuestionari->alert }}</td>
+                    @if(isset($alertQuestionari->alert) && $alertQuestionari->alert === 'Azienda a rischio')
+                        <td colspan="6" class="dati_impresa" style="background-color: #b31317;color: #ffffff;">@if(isset($alertQuestionari->alert)) {{ $alertQuestionari->alert }} @else NA @endif</td>
+                    @elseif(!isset($alertQuestionari->alert))
+                        <td colspan="6" class="dati_impresa">@if(isset($alertQuestionari->alert)) {{ $alertQuestionari->alert }} @else NA @endif</td>
+                    @else 
+                        <td colspan="6" class="dati_impresa" style="background-color: #99ff66;">@if(isset($alertQuestionari->alert)) {{ $alertQuestionari->alert }} @else NA @endif</td>
+                    @endif
                 </tr>
-                @endif
             @endforeach
         </table>
  
@@ -151,9 +162,6 @@
         }
         .size-12 {
             font-size: 12px;
-        }
-        .bgcolor-alert {
-            background-color: #99ff66;
         }
     </style>
 
