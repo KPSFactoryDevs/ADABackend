@@ -123,7 +123,8 @@ class AllertaController extends Controller
                 'arrayQuestionarioAsIs' => $arrayQuestionario,  // questionario per document id e bilancio id
                 'arrayForwardLookingToBe' => $arrayForwardLooking,
                 'bilancioData' => $bilancioData,
-                'FinalScore' => $getScoreHelper['FinalScore']
+                'FinalScore' => $getScoreHelper['FinalScore'],
+                'ValutazioneGeneraleBilancio' => $bilancioData['ValutazioneGenerale']
             ],
             'GeneralScore' => [
                 'Giudizio_CR' => $getScoreHelper['resultCentraleRischi'],
