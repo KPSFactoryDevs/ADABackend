@@ -74,7 +74,7 @@
 
     <table>
         <tr>
-            <th colspan="12" class="heading">Analisi di Bilancio</th>
+            <th colspan="18" class="heading">Analisi di Bilancio</th>
         </tr>
         <tr>
             <th colspan="6">Indice</th>
