@@ -666,58 +666,75 @@
 
 
     <table>
+
         <tr>
-            <th class="heading" colspan="10">Valutazione Negativa Dell'analisi Sintetica CR</th>
-            <th colspan="2"><b>Esito</b></th>
-        </tr>
-        <tr>
-            <td class="dati_impresa" colspan="10">Sono presenti fatture e avvisi di pagamento di cui non si è rispettata la scadenza?</td>
-            <td class="dati_impresa" colspan="2">No</td>
+            <td class="dati_impresa" colspan="10">Per i prossimi 6 mesi l'azienda prevede un fatturato, rispetto al semestre precedente:</td>
+            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
         </tr>
 
 
 
         <tr>
-            <td class="dati_impresa" colspan="10">Ci sono ritardi nei pagamenti ai fornitori superiori a 90 giorni per un ammontare superiore a quello dei debiti non scaduti?</td>
-            <td class="dati_impresa" colspan="2">No</td>
+            <td class="dati_impresa" colspan="10">L'azienda prevede di chiedere nuovi finanziamenti nei prossimi 6 mesi?</td>
+            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
         </tr>
 
 
         <tr>
-            <td class="dati_impresa" colspan="10">I fornitori hanno modificato le condizioni di pagamento delle forniture (ad es. pagamento dilazionato a pagamento anticipato)?</td>
-            <td class="dati_impresa" colspan="2">No</td>
+            <td class="dati_impresa" colspan="10">L'azienda prevede costi di gestione (fissi e variabili) per i prossimi 6 mesi rispetto al semestre precedente:</td>
+            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
         </tr>
 
         <tr>
-            <td class="dati_impresa" colspan="10">Avete inoltrato richieste di rimodulazione delle scadenze nei pagamenti richiedendo di aumentare la dilazione?</td>
-            <td class="dati_impresa" colspan="2">No</td>
+            <td class="dati_impresa" colspan="10">Su quanti clienti è concentrato il fatturato dei prossimi 6 mesi?</td>
+            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
         </tr>
 
         <tr>
-            <td class="dati_impresa"  colspan="10">Sono state modificate le condizioni di incasso da parte dei clienti con un conseguente allungamento dei tempi di incasso?</td>
-            <td class="dati_impresa" colspan="2">No</td>
-        </tr>
-
-
-
-        <tr>
-            <td class="dati_impresa" colspan="10">Sono stati registrati mancati incassi per importi considerevoli superiori a 90gg?</td>
-            <td class="dati_impresa" colspan="2">No</td>
-        </tr>
-
-
-        <tr>
-            <td class="dati_impresa" colspan="10">Sono presenti contenziosi in atto con clienti o fornitori?</td>
-            <td class="dati_impresa" colspan="2">No</td>
+            <td class="dati_impresa"  colspan="10">L'azienda utilizza un sistema di pianificazione e controllo di gestione?</td>
+            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
         </tr>
 
 
 
         <tr>
-            <td class="dati_impresa" colspan="10">Sono presenti criticità con clienti derivanti da non conformità o ritardi?</td>
-            <td class="dati_impresa" colspan="2">No</td>
+            <td class="dati_impresa" colspan="10">L'azienda prevede costi straordinari per i prossimi 6 mesi? (es. manutenzioni starordinarie, minusvalenze da conferimenti aziendali, da ristrutturazione, da espropri, da cessione di beni o contenziosi, oneri per le multe ecc.)</td>
+            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
         </tr>
 
+
+        <tr>
+            <td class="dati_impresa" colspan="10">L' prevede di utilizzare al limite (o oltre) le disponibilità per liquidità di cassa nei prossimi 6 mesi?</td>
+            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
+        </tr>
+
+
+
+        <tr>
+            <td class="dati_impresa" colspan="10">L'azienda prevede flussi di cassa della gestione operativa (ricavi esigibili - costi da sostenere nei prossimi 6 mesi) sufficienti a coprire gli impegni finanziari (quote capitali sui finanziamenti e oneri finanziari) dei prossimi 6 mesi (DSCR)?</td>
+            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
+        </tr>
+
+
+        <tr>
+            <td class="dati_impresa" colspan="10">L'azienda prevede che le disponibilità di cassa attuali e le entrate (ordinarie + straordinarie) dei prossimi 6 mesi saranno in grado di coprire tutte le passività/uscite (impegni finanziari e commerciali) dei prossimi 6 mesi (margine di tesorerie positivo)?</td>
+            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
+        </tr>
+
+        <tr>
+            <td class="dati_impresa" colspan="10">L'azienda prevede tempi medi di pagamento ai fornitori (uscite) inferiori ai tempi medi di incasso dai clienti (entrate)?</td>
+            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
+        </tr>
+
+        <tr>
+            <td class="dati_impresa" colspan="10">L'azienda prevede reiterati e significativi ritardi nei pagamenti verso terzi (fornitori, dipendenti, erario, enti previdenziali, finanziamenti) nei prossimi 6 mesi?</td>
+            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
+        </tr>
+
+        <tr>
+            <td class="dati_impresa" colspan="10">L'azienda prevede di utilizzare al limite (o oltre) le disponibilità del castelletto anticipi nei prossimi 6 mesi?</td>
+            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
+        </tr>
 
     </table>
 
