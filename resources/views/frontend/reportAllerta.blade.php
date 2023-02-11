@@ -310,7 +310,6 @@
 
     <table>
         <tr>
-
             <th class="heading" colspan="10" >Valutazione Negativa Dell'analisi Sintetica CR</th>
             <th colspan="2"><b>Esito</b></th>
         </tr>
@@ -319,20 +318,28 @@
             <td class="dati_impresa" colspan="2">No</td>
         </tr>
         <tr>
-            <td class="dati_impresa" colspan="12">Spiegazioni</td>
+            <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>N/A</b></td>
         </tr>
 
 
         <tr>
             <td class="dati_impresa">Ci sono ritardi nei pagamenti ai fornitori superiori a 90 giorni per un ammontare superiore a quello dei debiti non scaduti?</td>
             <td class="dati_impresa">No</td>
-            <td class="dati_impresa"></td>
         </tr>
+        <tr>
+            <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>N/A</b></td>
+        </tr>
+
+
         <tr>
             <td class="dati_impresa">I fornitori hanno modificato le condizioni di pagamento delle forniture (ad es. pagamento dilazionato a pagamento anticipato)?</td>
             <td class="dati_impresa">No</td>
-            <td class="dati_impresa"></td>
         </tr>
+        <tr>
+            <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>N/A</b></td>
+        </tr>
+
+        
         <tr>
             <td class="dati_impresa">Avete inoltrato richieste di rimodulazione delle scadenze nei pagamenti richiedendo di aumentare la dilazione?</td>
             <td class="dati_impresa">No</td>
