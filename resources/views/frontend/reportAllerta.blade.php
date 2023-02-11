@@ -100,7 +100,7 @@
 
     <table>
         <tr>
-            <th colspan="12" class="heading">Scoring Centrale Rischi {{$dati['scoreCR']*10}}/10</th>
+            <th colspan="12" class="heading">Scoring Centrale Rischi {{$dati['pageData']['scoreCR']*10}}/10</th>
         </tr>
         <tr>
             <th class="heading" colspan="10"><b>Scoring Centrale Rischi Andamentale</b></th>
