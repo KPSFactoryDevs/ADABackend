@@ -103,15 +103,15 @@
             <th colspan="12" class="heading">Analisi Centrale Rischi</th>
         </tr>
         <tr>
-            <th class="heading" colspan="10"><b>Scoring Centrale Rischi Andamentale</b></th>
-            <th colspan="2"><b>Esito</b></th>
+            <th class="heading" colspan="9"><b>Scoring Centrale Rischi Andamentale</b></th>
+            <th colspan="3"><b>Esito</b></th>
         </tr>
 
 
 
         <tr>
-            <td class="dati_impresa" colspan="10">Valutazione Negativa Del CR Scoring Che Deriva Dall'analisi Sintetica Della CR</td>
-            <td class="dati_impresa" colspan="2">
+            <td class="dati_impresa" colspan="9">Valutazione Negativa Del CR Scoring Che Deriva Dall'analisi Sintetica Della CR</td>
+            <td class="dati_impresa" colspan="3">
                 @if($dati['pageData']['crAlerts'][1])
                     Si
                 @else
@@ -120,12 +120,12 @@
             </td>
         </tr>
         <tr>
-            <th class="heading" colspan="10"><b>Sconfini E Ritardi Nei Pagamenti</b></th>
-            <th colspan="2"><b>Esito</b></th>
+            <th class="heading" colspan="9"><b>Sconfini E Ritardi Nei Pagamenti</b></th>
+            <th colspan="3"><b>Esito</b></th>
         </tr>
         <tr>
-            <td class="dati_impresa" colspan="10">Sconfini Significativi E/O Ripetuti Nel Corso Degli Ultimi 12 Mesi</td>
-            <td class="dati_impresa" colspan="2">
+            <td class="dati_impresa" colspan="9">Sconfini Significativi E/O Ripetuti Nel Corso Degli Ultimi 12 Mesi</td>
+            <td class="dati_impresa" colspan="3">
                 @if($dati['pageData']['crAlerts'][2])
                     Si
                 @else
@@ -134,8 +134,8 @@
             </td>
         </tr>
         <tr>
-            <td class="dati_impresa" colspan="10">Mancato Pagamento Di Finanziamenti O Di Altre Scadenze</td>
-            <td class="dati_impresa" colspan="2">
+            <td class="dati_impresa" colspan="9">Mancato Pagamento Di Finanziamenti O Di Altre Scadenze</td>
+            <td class="dati_impresa" colspan="3">
                 @if($dati['pageData']['crAlerts'][3])
                     Si
                 @else
@@ -144,12 +144,12 @@
             </td>
         </tr>
         <tr>
-            <th class="heading" colspan="10"><b>Aumento Delle Garanzie</b></th>
-            <th colspan="2"><b>Esito</b></th>
+            <th class="heading" colspan="9"><b>Aumento Delle Garanzie</b></th>
+            <th colspan="3"><b>Esito</b></th>
         </tr>
         <tr>
-            <td class="dati_impresa" colspan="10">Aumento Delle Richieste Di Garanzie Su Beni Aziendali</td>
-            <td class="dati_impresa" colspan="2">
+            <td class="dati_impresa" colspan="9">Aumento Delle Richieste Di Garanzie Su Beni Aziendali</td>
+            <td class="dati_impresa" colspan="3">
                 @if($dati['pageData']['crAlerts'][4])
                     Si
                 @else
@@ -158,8 +158,8 @@
             </td>
         </tr>
         <tr>
-            <td class="dati_impresa" colspan="10">Aumento Delle Garanzie Concesse Su Esposizioni Di Altri Soggetti</td>
-            <td class="dati_impresa" colspan="2">
+            <td class="dati_impresa" colspan="9">Aumento Delle Garanzie Concesse Su Esposizioni Di Altri Soggetti</td>
+            <td class="dati_impresa" colspan="3">
                 @if($dati['pageData']['crAlerts'][5])
                     Si
                 @else
@@ -168,12 +168,12 @@
             </td>
         </tr>
         <tr>
-            <th class="heading" colspan="10"><b>Insoluti Portafoglio Anticipi</b></th>
-            <th colspan="2"><b>Esito</b></th>
+            <th class="heading" colspan="9"><b>Insoluti Portafoglio Anticipi</b></th>
+            <th colspan="3"><b>Esito</b></th>
         </tr>
         <tr>
-            <td class="dati_impresa" colspan="10">Aumento Significativo O Peso Elevato Di Incidenza Insoluti Su Anticipo Crediti</td>
-            <td class="dati_impresa" colspan="2">
+            <td class="dati_impresa" colspan="9">Aumento Significativo O Peso Elevato Di Incidenza Insoluti Su Anticipo Crediti</td>
+            <td class="dati_impresa" colspan="3">
                 @if($dati['pageData']['crAlerts'][6])
                     Si
                 @else
@@ -182,12 +182,12 @@
             </td>
         </tr>
         <tr>
-            <th class="heading" colspan="10"><b>Aumento Affidamenti E Utilizzi</b></th>
-            <th colspan="2"><b>Esito</b></th>
+            <th class="heading" colspan="9"><b>Aumento Affidamenti E Utilizzi</b></th>
+            <th colspan="3"><b>Esito</b></th>
         </tr>
         <tr>
-            <td class="dati_impresa" colspan="10">Aumento Significativo Delle Richieste Di Affidamenti Di Cassa</td>
-            <td class="dati_impresa" colspan="2">
+            <td class="dati_impresa" colspan="9">Aumento Significativo Delle Richieste Di Affidamenti Di Cassa</td>
+            <td class="dati_impresa" colspan="3">
                 @if($dati['pageData']['crAlerts'][7])
                     Si
                 @else
@@ -196,8 +196,8 @@
             </td>
         </tr>
         <tr>
-            <td class="dati_impresa" colspan="10">Richiesta Finanziamenti Straordinari</td>
-            <td class="dati_impresa" colspan="2">
+            <td class="dati_impresa" colspan="9">Richiesta Finanziamenti Straordinari</td>
+            <td class="dati_impresa" colspan="3">
                 @if($dati['pageData']['crAlerts'][8])
                     Si
                 @else
@@ -206,8 +206,8 @@
             </td>
         </tr>
         <tr>
-            <td class="dati_impresa" colspan="10">Crescita Continua E Rilevante Di Utilizzi Per Liquidità Di Cassa</td>
-            <td class="dati_impresa" colspan="2">
+            <td class="dati_impresa" colspan="9">Crescita Continua E Rilevante Di Utilizzi Per Liquidità Di Cassa</td>
+            <td class="dati_impresa" colspan="3">
                 @if($dati['pageData']['crAlerts'][9])
                     Si
                 @else
@@ -216,8 +216,8 @@
             </td>
         </tr>
         <tr>
-            <td class="dati_impresa" colspan="10">Crescita Continua E Rilevante Di Utilizzi Per Smobilizzo Crediti Commerciali O Tensione Finanziaria</td>
-            <td class="dati_impresa" colspan="2">
+            <td class="dati_impresa" colspan="9">Crescita Continua E Rilevante Di Utilizzi Per Smobilizzo Crediti Commerciali O Tensione Finanziaria</td>
+            <td class="dati_impresa" colspan="3">
                 @if($dati['pageData']['crAlerts'][10])
                     Si
                 @else
@@ -227,12 +227,12 @@
         </tr>
 
         <tr>
-            <th class="heading" colspan="10"><b>Rientro Linee Anticipi, Cassa E Firma</b></th>
-            <th colspan="2"><b>Esito</b></th>
+            <th class="heading" colspan="9"><b>Rientro Linee Anticipi, Cassa E Firma</b></th>
+            <th colspan="3"><b>Esito</b></th>
         </tr>
         <tr>
-            <td class="dati_impresa" colspan="10">Rientri Nelle Linee Di Cassa</td>
-            <td class="dati_impresa" colspan="2">
+            <td class="dati_impresa" colspan="9">Rientri Nelle Linee Di Cassa</td>
+            <td class="dati_impresa" colspan="3">
                 @if($dati['pageData']['crAlerts'][11])
                     Si
                 @else
@@ -241,8 +241,8 @@
             </td>
         </tr>
         <tr>
-            <td class="dati_impresa" colspan="10">Rientri Nelle Linee Anticipi Sbf/Fatture	</td>
-            <td class="dati_impresa" colspan="2">
+            <td class="dati_impresa" colspan="9">Rientri Nelle Linee Anticipi Sbf/Fatture	</td>
+            <td class="dati_impresa" colspan="3">
                 @if($dati['pageData']['crAlerts'][12])
                     Si
                 @else
@@ -251,8 +251,8 @@
             </td>
         </tr>
         <tr>
-            <td class="dati_impresa" colspan="10">Rientri Nelle Linee Di Crediti Per Firma</td>
-            <td class="dati_impresa" colspan="2">
+            <td class="dati_impresa" colspan="9">Rientri Nelle Linee Di Crediti Per Firma</td>
+            <td class="dati_impresa" colspan="3">
                 @if($dati['pageData']['crAlerts'][13])
                     Si
                 @else
@@ -263,12 +263,12 @@
 
 
         <tr>
-            <th class="heading" colspan="10"><b>Segnalazioni Pregiudizievoli</b></th>
-            <th colspan="2"><b>Esito</b></th>
+            <th class="heading" colspan="9"><b>Segnalazioni Pregiudizievoli</b></th>
+            <th colspan="3"><b>Esito</b></th>
         </tr>
         <tr>
-            <td class="dati_impresa" colspan="10">Presenza Sconfinamenti Fra 90gg E 180gg Oppure Oltre I 180gg</td>
-            <td class="dati_impresa" colspan="2">
+            <td class="dati_impresa" colspan="9">Presenza Sconfinamenti Fra 90gg E 180gg Oppure Oltre I 180gg</td>
+            <td class="dati_impresa" colspan="3">
                 @if($dati['pageData']['crAlerts'][14])
                     Si
                 @else
@@ -277,8 +277,8 @@
             </td>
         </tr>
         <tr>
-            <td class="dati_impresa" colspan="10">Presenza Di Garanzie Attivate Con Esito Negativo</td>
-            <td class="dati_impresa" colspan="2">
+            <td class="dati_impresa" colspan="9">Presenza Di Garanzie Attivate Con Esito Negativo</td>
+            <td class="dati_impresa" colspan="3">
                 @if($dati['pageData']['crAlerts'][15])
                     Si
                 @else
@@ -287,8 +287,8 @@
             </td>
         </tr>
         <tr>
-            <td class="dati_impresa" colspan="10">Presenza Di Sofferenze O Crediti Passati A Perdita	</td>
-            <td class="dati_impresa" colspan="2">
+            <td class="dati_impresa" colspan="9">Presenza Di Sofferenze O Crediti Passati A Perdita	</td>
+            <td class="dati_impresa" colspan="3">
                 @if($dati['pageData']['crAlerts'][16])
                     Si
                 @else
@@ -309,12 +309,12 @@
             <th colspan="12" class="heading"> Anomalie Dei Pagamenti Verso Controparti Commerciali</th>
         </tr>
         <tr>
-            <th class="heading" colspan="10">Valutazione Negativa Dell'analisi Sintetica CR</th>
-            <th colspan="2"><b>Esito</b></th>
+            <th class="heading" colspan="9">Valutazione Negativa Dell'analisi Sintetica CR</th>
+            <th colspan="3"><b>Esito</b></th>
         </tr>
         <tr>
-            <td class="dati_impresa" colspan="10">Sono presenti fatture e avvisi di pagamento di cui non si è rispettata la scadenza?</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayQuestionarioAsIs']['1-1']['Result']}}</td>
+            <td class="dati_impresa" colspan="9">Sono presenti fatture e avvisi di pagamento di cui non si è rispettata la scadenza?</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayQuestionarioAsIs']['1-1']['Result']}}</td>
         </tr>
         <tr>
             <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>{{$dati['pageData']['arrayQuestionarioAsIs']['1-1']['Details']}}</b></td>
@@ -322,8 +322,8 @@
 
 
         <tr>
-            <td class="dati_impresa" colspan="10">Ci sono ritardi nei pagamenti ai fornitori superiori a 90 giorni per un ammontare superiore a quello dei debiti non scaduti?</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayQuestionarioAsIs']['1-2']['Result']}}</td>
+            <td class="dati_impresa" colspan="9">Ci sono ritardi nei pagamenti ai fornitori superiori a 90 giorni per un ammontare superiore a quello dei debiti non scaduti?</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayQuestionarioAsIs']['1-2']['Result']}}</td>
         </tr>
         <tr>
             <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>{{$dati['pageData']['arrayQuestionarioAsIs']['1-2']['Details']}}</b></td>
@@ -331,8 +331,8 @@
 
 
         <tr>
-            <td class="dati_impresa" colspan="10">I fornitori hanno modificato le condizioni di pagamento delle forniture (ad es. pagamento dilazionato a pagamento anticipato)?</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayQuestionarioAsIs']['1-3']['Result']}}</td>
+            <td class="dati_impresa" colspan="9">I fornitori hanno modificato le condizioni di pagamento delle forniture (ad es. pagamento dilazionato a pagamento anticipato)?</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayQuestionarioAsIs']['1-3']['Result']}}</td>
         </tr>
         <tr>
             <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>{{$dati['pageData']['arrayQuestionarioAsIs']['1-3']['Details']}}</b></td>
@@ -340,8 +340,8 @@
 
 
         <tr>
-            <td class="dati_impresa" colspan="10">Avete inoltrato richieste di rimodulazione delle scadenze nei pagamenti richiedendo di aumentare la dilazione?</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayQuestionarioAsIs']['1-4']['Result']}}</td>
+            <td class="dati_impresa" colspan="9">Avete inoltrato richieste di rimodulazione delle scadenze nei pagamenti richiedendo di aumentare la dilazione?</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayQuestionarioAsIs']['1-4']['Result']}}</td>
         </tr>
         <tr>
             <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>{{$dati['pageData']['arrayQuestionarioAsIs']['1-4']['Details']}}</b></td>
@@ -349,8 +349,8 @@
 
 
         <tr>
-            <td class="dati_impresa"  colspan="10">Sono state modificate le condizioni di incasso da parte dei clienti con un conseguente allungamento dei tempi di incasso?</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayQuestionarioAsIs']['1-5']['Result']}}</td>
+            <td class="dati_impresa"  colspan="9">Sono state modificate le condizioni di incasso da parte dei clienti con un conseguente allungamento dei tempi di incasso?</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayQuestionarioAsIs']['1-5']['Result']}}</td>
         </tr>
         <tr>
             <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>{{$dati['pageData']['arrayQuestionarioAsIs']['1-5']['Details']}}</b></td>
@@ -359,8 +359,8 @@
 
 
         <tr>
-            <td class="dati_impresa" colspan="10">Sono stati registrati mancati incassi per importi considerevoli superiori a 90gg?</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayQuestionarioAsIs']['1-6']['Result']}}</td>
+            <td class="dati_impresa" colspan="9">Sono stati registrati mancati incassi per importi considerevoli superiori a 90gg?</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayQuestionarioAsIs']['1-6']['Result']}}</td>
         </tr>
         <tr>
             <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>{{$dati['pageData']['arrayQuestionarioAsIs']['1-6']['Details']}}</b></td>
@@ -368,8 +368,8 @@
 
 
         <tr>
-            <td class="dati_impresa" colspan="10">Sono presenti contenziosi in atto con clienti o fornitori?</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayQuestionarioAsIs']['1-7']['Result']}}</td>
+            <td class="dati_impresa" colspan="9">Sono presenti contenziosi in atto con clienti o fornitori?</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayQuestionarioAsIs']['1-7']['Result']}}</td>
         </tr>
         <tr>
             <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>{{$dati['pageData']['arrayQuestionarioAsIs']['1-7']['Details']}}</b></td>
@@ -377,8 +377,8 @@
 
 
         <tr>
-            <td class="dati_impresa" colspan="10">Sono presenti criticità con clienti derivanti da non conformità o ritardi?</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayQuestionarioAsIs']['1-8']['Result']}}</td>
+            <td class="dati_impresa" colspan="9">Sono presenti criticità con clienti derivanti da non conformità o ritardi?</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayQuestionarioAsIs']['1-8']['Result']}}</td>
         </tr>
         <tr>
             <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>{{$dati['pageData']['arrayQuestionarioAsIs']['1-8']['Details']}}</b></td>
@@ -399,12 +399,12 @@
             <th colspan="12" class="heading">Anomalie Gestionali</th>
         </tr>
         <tr>
-            <th class="heading" colspan="10">Parametro Analizzato</th>
-            <th colspan="2"><b>Esito</b></th>
+            <th class="heading" colspan="9">Parametro Analizzato</th>
+            <th colspan="3"><b>Esito</b></th>
         </tr>
         <tr>
-            <td class="dati_impresa" colspan="10">Sono stati registrate perdite di fette di mercato, commesse o clienti importanti?</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayQuestionarioAsIs']['2-1']['Result']}}</td>
+            <td class="dati_impresa" colspan="9">Sono stati registrate perdite di fette di mercato, commesse o clienti importanti?</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayQuestionarioAsIs']['2-1']['Result']}}</td>
         </tr>
         <tr>
             <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>{{$dati['pageData']['arrayQuestionarioAsIs']['2-1']['Details']}}</b></td>
@@ -412,8 +412,8 @@
 
 
         <tr>
-            <td class="dati_impresa" colspan="10">Si sono verificate perdite di membri della direzione o di figure di responsabilità strategiche senza una loro sostituzione?</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayQuestionarioAsIs']['2-2']['Result']}}</td>
+            <td class="dati_impresa" colspan="9">Si sono verificate perdite di membri della direzione o di figure di responsabilità strategiche senza una loro sostituzione?</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayQuestionarioAsIs']['2-2']['Result']}}</td>
         </tr>
         <tr>
             <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>{{$dati['pageData']['arrayQuestionarioAsIs']['2-2']['Details']}}</b></td>
@@ -421,8 +421,8 @@
 
 
         <tr>
-            <td class="dati_impresa" colspan="10">Sono presenti problemi con la gestione del personale?</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayQuestionarioAsIs']['2-3']['Result']}}</td>
+            <td class="dati_impresa" colspan="9">Sono presenti problemi con la gestione del personale?</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayQuestionarioAsIs']['2-3']['Result']}}</td>
         </tr>
         <tr>
             <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>{{$dati['pageData']['arrayQuestionarioAsIs']['2-3']['Details']}}</b></td>
@@ -430,8 +430,8 @@
 
 
         <tr>
-            <td class="dati_impresa" colspan="10">Ci sono ritardi nei pagamenti relativi alle retribuzioni superiori a 60gg per un ammontare maggiore della metà dell'ammontare mensile della retribuzione?</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayQuestionarioAsIs']['2-4']['Result']}}</td>
+            <td class="dati_impresa" colspan="9">Ci sono ritardi nei pagamenti relativi alle retribuzioni superiori a 60gg per un ammontare maggiore della metà dell'ammontare mensile della retribuzione?</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayQuestionarioAsIs']['2-4']['Result']}}</td>
         </tr>
         <tr>
             <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>{{$dati['pageData']['arrayQuestionarioAsIs']['2-4']['Details']}}</b></td>
@@ -439,8 +439,8 @@
 
 
         <tr>
-            <td class="dati_impresa"  colspan="10">Sono presenti nel mercato nuove aziende concorrenti che possono mettere in difficoltà la nostra azienda?</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayQuestionarioAsIs']['2-5']['Result']}}</td>
+            <td class="dati_impresa"  colspan="9">Sono presenti nel mercato nuove aziende concorrenti che possono mettere in difficoltà la nostra azienda?</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayQuestionarioAsIs']['2-5']['Result']}}</td>
         </tr>
         <tr>
             <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>{{$dati['pageData']['arrayQuestionarioAsIs']['2-5']['Details']}}</b></td>
@@ -449,8 +449,8 @@
 
 
         <tr>
-            <td class="dati_impresa" colspan="10">Sono state richieste dilazioni alle banche su finanziamenti in essere?</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayQuestionarioAsIs']['2-6']['Result']}}</td>
+            <td class="dati_impresa" colspan="9">Sono state richieste dilazioni alle banche su finanziamenti in essere?</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayQuestionarioAsIs']['2-6']['Result']}}</td>
         </tr>
         <tr>
             <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>{{$dati['pageData']['arrayQuestionarioAsIs']['2-6']['Details']}}</b></td>
@@ -458,8 +458,8 @@
 
 
         <tr>
-            <td class="dati_impresa" colspan="10">Vi è la possibilità di incorrere in problemi inerenti l'approviggionamento di prodotti fondamentali o in aumenti drastici dei prezzi di acquisto delle materie prime?</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayQuestionarioAsIs']['2-7']['Result']}}</td>
+            <td class="dati_impresa" colspan="9">Vi è la possibilità di incorrere in problemi inerenti l'approviggionamento di prodotti fondamentali o in aumenti drastici dei prezzi di acquisto delle materie prime?</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayQuestionarioAsIs']['2-7']['Result']}}</td>
         </tr>
         <tr>
             <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>{{$dati['pageData']['arrayQuestionarioAsIs']['2-7']['Details']}}</b></td>
@@ -467,8 +467,8 @@
 
 
         <tr>
-            <td class="dati_impresa" colspan="10">Sono state registrate variazioni nell'assetto societario?</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayQuestionarioAsIs']['2-8']['Result']}}</td>
+            <td class="dati_impresa" colspan="9">Sono state registrate variazioni nell'assetto societario?</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayQuestionarioAsIs']['2-8']['Result']}}</td>
         </tr>
         <tr>
             <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>{{$dati['pageData']['arrayQuestionarioAsIs']['2-8']['Details']}}</b></td>
@@ -476,8 +476,8 @@
 
 
         <tr>
-            <td class="dati_impresa" colspan="10">Le scelte gestionali portate avanti dall'amministratore (o consiglio di amministrazione) risultano in contrasto con la mission aziendale e con la vision della direzione?</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayQuestionarioAsIs']['2-9']['Result']}}</td>
+            <td class="dati_impresa" colspan="9">Le scelte gestionali portate avanti dall'amministratore (o consiglio di amministrazione) risultano in contrasto con la mission aziendale e con la vision della direzione?</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayQuestionarioAsIs']['2-9']['Result']}}</td>
         </tr>
         <tr>
             <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>{{$dati['pageData']['arrayQuestionarioAsIs']['2-9']['Details']}}</b></td>
@@ -485,8 +485,8 @@
 
 
         <tr>
-            <td class="dati_impresa" colspan="10">Vi è possibilità che si verifichino eventi catastrofici per i quali non si dispone di una adeguata copertura assicurativa?</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayQuestionarioAsIs']['2-10']['Result']}}</td>
+            <td class="dati_impresa" colspan="9">Vi è possibilità che si verifichino eventi catastrofici per i quali non si dispone di una adeguata copertura assicurativa?</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayQuestionarioAsIs']['2-10']['Result']}}</td>
         </tr>
         <tr>
             <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>{{$dati['pageData']['arrayQuestionarioAsIs']['2-10']['Details']}}</b></td>
@@ -504,12 +504,12 @@
             <th colspan="12" class="heading">Minacce Erariali e Rischi Caratteristici</th>
         </tr>
         <tr>
-            <th class="heading" colspan="10">Parametro Analizzato</th>
-            <th colspan="2"><b>Esito</b></th>
+            <th class="heading" colspan="9">Parametro Analizzato</th>
+            <th colspan="3"><b>Esito</b></th>
         </tr>
         <tr>
-            <td class="dati_impresa" colspan="10">Sono presenti mancati pagamenti verso Agenzia delle Entrate ed Enti di riscossione per oltre 6 mesi</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayQuestionarioAsIs']['3-1']['Result']}}</td>
+            <td class="dati_impresa" colspan="9">Sono presenti mancati pagamenti verso Agenzia delle Entrate ed Enti di riscossione per oltre 6 mesi</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayQuestionarioAsIs']['3-1']['Result']}}</td>
         </tr>
         <tr>
             <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>{{$dati['pageData']['arrayQuestionarioAsIs']['3-1']['Details']}}</b></td>
@@ -517,8 +517,8 @@
 
 
         <tr>
-            <td class="dati_impresa" colspan="10">Sono presenti mancati pagamenti verso INPS e INAIL per oltre 6 mesi?</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayQuestionarioAsIs']['3-2']['Result']}}</td>
+            <td class="dati_impresa" colspan="9">Sono presenti mancati pagamenti verso INPS e INAIL per oltre 6 mesi?</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayQuestionarioAsIs']['3-2']['Result']}}</td>
         </tr>
         <tr>
             <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>{{$dati['pageData']['arrayQuestionarioAsIs']['3-2']['Details']}}</b></td>
@@ -526,16 +526,16 @@
 
 
         <tr>
-            <td class="dati_impresa" colspan="10">Vi sono procedimenti legali o regolamentari in corso la cui sorte negativa potrebbe comportare richieste di risarcimento alle quali l'impresa potrebbe non far fronte?</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayQuestionarioAsIs']['3-3']['Result']}}</td>
+            <td class="dati_impresa" colspan="9">Vi sono procedimenti legali o regolamentari in corso la cui sorte negativa potrebbe comportare richieste di risarcimento alle quali l'impresa potrebbe non far fronte?</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayQuestionarioAsIs']['3-3']['Result']}}</td>
         </tr>
         <tr>
             <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>{{$dati['pageData']['arrayQuestionarioAsIs']['3-3']['Details']}}</b></td>
         </tr>
 
         <tr>
-            <td class="dati_impresa" colspan="10">Sono entrate in atto modifiche di leggi o regolamenti o politiche governative che potrebbero influenzare negativamente l'impresa?</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayQuestionarioAsIs']['3-4']['Result']}}</td>
+            <td class="dati_impresa" colspan="9">Sono entrate in atto modifiche di leggi o regolamenti o politiche governative che potrebbero influenzare negativamente l'impresa?</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayQuestionarioAsIs']['3-4']['Result']}}</td>
         </tr>
         <tr>
             <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>{{$dati['pageData']['arrayQuestionarioAsIs']['3-4']['Details']}}</b></td>
@@ -553,12 +553,12 @@
             <th colspan="12" class="heading">Anomalie Dei Pagamenti Verso Controparti Commerciali</th>
         </tr>
         <tr>
-            <th class="heading" colspan="10">Parametro Analizzato</th>
-            <th colspan="2"><b>Esito</b></th>
+            <th class="heading" colspan="9">Parametro Analizzato</th>
+            <th colspan="3"><b>Esito</b></th>
         </tr>
         <tr>
-            <td class="dati_impresa" colspan="10">Sono presenti iscrizioni di ipoteche giudiziarie, pegni e forme tecniche di prelazioni sui beni aziendali?</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayQuestionarioAsIs']['4-1']['Result']}}</td>
+            <td class="dati_impresa" colspan="9">Sono presenti iscrizioni di ipoteche giudiziarie, pegni e forme tecniche di prelazioni sui beni aziendali?</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayQuestionarioAsIs']['4-1']['Result']}}</td>
         </tr>
         <tr>
             <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>{{$dati['pageData']['arrayQuestionarioAsIs']['4-1']['Details']}}</b></td>
@@ -566,8 +566,8 @@
 
 
         <tr>
-            <td class="dati_impresa" colspan="10">Sono stati ricevuti decreti ingiuntivi ed atti ricognitivi di avvio di azioni per il recupero di crediti?</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayQuestionarioAsIs']['4-2']['Result']}}</td>
+            <td class="dati_impresa" colspan="9">Sono stati ricevuti decreti ingiuntivi ed atti ricognitivi di avvio di azioni per il recupero di crediti?</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayQuestionarioAsIs']['4-2']['Result']}}</td>
         </tr>
         <tr>
             <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>{{$dati['pageData']['arrayQuestionarioAsIs']['4-2']['Details']}}</b></td>
@@ -575,24 +575,24 @@
 
 
         <tr>
-            <td class="dati_impresa" colspan="10">L'azienda ha subito il protesto di assegni e cambiali?</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayQuestionarioAsIs']['4-3']['Result']}}</td>
+            <td class="dati_impresa" colspan="9">L'azienda ha subito il protesto di assegni e cambiali?</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayQuestionarioAsIs']['4-3']['Result']}}</td>
         </tr>
         <tr>
             <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>{{$dati['pageData']['arrayQuestionarioAsIs']['4-3']['Details']}}</b></td>
         </tr>
 
         <tr>
-            <td class="dati_impresa" colspan="10">Sono in atto azioni volte alla liquidazione dell'azienda o alla cessazione dell'attività?</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayQuestionarioAsIs']['4-4']['Result']}}</td>
+            <td class="dati_impresa" colspan="9">Sono in atto azioni volte alla liquidazione dell'azienda o alla cessazione dell'attività?</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayQuestionarioAsIs']['4-4']['Result']}}</td>
         </tr>
         <tr>
             <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>{{$dati['pageData']['arrayQuestionarioAsIs']['4-4']['Details']}}</b></td>
         </tr>
 
         <tr>
-            <td class="dati_impresa" colspan="10">Vi sono istanze di fallimento avanzate dai creditori aziendali?</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayQuestionarioAsIs']['4-5']['Result']}}</td>
+            <td class="dati_impresa" colspan="9">Vi sono istanze di fallimento avanzate dai creditori aziendali?</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayQuestionarioAsIs']['4-5']['Result']}}</td>
         </tr>
         <tr>
             <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>{{$dati['pageData']['arrayQuestionarioAsIs']['4-5']['Details']}}</b></td>
@@ -600,8 +600,8 @@
 
 
         <tr>
-            <td class="dati_impresa" colspan="10">Si è verificato il default o il fallimento di garanti e default o fallimento dei garanti legati all'azienda (rischio infragruppo)?</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayQuestionarioAsIs']['4-6']['Result']}}</td>
+            <td class="dati_impresa" colspan="9">Si è verificato il default o il fallimento di garanti e default o fallimento dei garanti legati all'azienda (rischio infragruppo)?</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayQuestionarioAsIs']['4-6']['Result']}}</td>
         </tr>
         <tr>
             <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>{{$dati['pageData']['arrayQuestionarioAsIs']['4-6']['Details']}}</b></td>
@@ -618,76 +618,76 @@
             <th colspan="12" class="heading">Al fine di valutare l'azienda attraverso un approccio previsionale è necessario rispondere alle seguenti domande.</th>
         </tr>
         <tr>
-            <th class="heading" colspan="10">Domanda</th>
-            <th colspan="2"><b>Esito</b></th>
+            <th class="heading" colspan="9">Domanda</th>
+            <th colspan="3"><b>Esito</b></th>
         </tr>
         <tr>
-            <td class="dati_impresa" colspan="10">Per i prossimi 6 mesi l'azienda prevede un fatturato, rispetto al semestre precedente:</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
-        </tr>
-
-
-
-        <tr>
-            <td class="dati_impresa" colspan="10">L'azienda prevede di chiedere nuovi finanziamenti nei prossimi 6 mesi?</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
-        </tr>
-
-
-        <tr>
-            <td class="dati_impresa" colspan="10">L'azienda prevede costi di gestione (fissi e variabili) per i prossimi 6 mesi rispetto al semestre precedente:</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
-        </tr>
-
-        <tr>
-            <td class="dati_impresa" colspan="10">Su quanti clienti è concentrato il fatturato dei prossimi 6 mesi?</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
-        </tr>
-
-        <tr>
-            <td class="dati_impresa"  colspan="10">L'azienda utilizza un sistema di pianificazione e controllo di gestione?</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
+            <td class="dati_impresa" colspan="9">Per i prossimi 6 mesi l'azienda prevede un fatturato, rispetto al semestre precedente:</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
         </tr>
 
 
 
         <tr>
-            <td class="dati_impresa" colspan="10">L'azienda prevede costi straordinari per i prossimi 6 mesi? (es. manutenzioni starordinarie, minusvalenze da conferimenti aziendali, da ristrutturazione, da espropri, da cessione di beni o contenziosi, oneri per le multe ecc.)</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
+            <td class="dati_impresa" colspan="9">L'azienda prevede di chiedere nuovi finanziamenti nei prossimi 6 mesi?</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
         </tr>
 
 
         <tr>
-            <td class="dati_impresa" colspan="10">L' prevede di utilizzare al limite (o oltre) le disponibilità per liquidità di cassa nei prossimi 6 mesi?</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
+            <td class="dati_impresa" colspan="9">L'azienda prevede costi di gestione (fissi e variabili) per i prossimi 6 mesi rispetto al semestre precedente:</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
+        </tr>
+
+        <tr>
+            <td class="dati_impresa" colspan="9">Su quanti clienti è concentrato il fatturato dei prossimi 6 mesi?</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
+        </tr>
+
+        <tr>
+            <td class="dati_impresa"  colspan="9">L'azienda utilizza un sistema di pianificazione e controllo di gestione?</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
         </tr>
 
 
 
         <tr>
-            <td class="dati_impresa" colspan="10">L'azienda prevede flussi di cassa della gestione operativa (ricavi esigibili - costi da sostenere nei prossimi 6 mesi) sufficienti a coprire gli impegni finanziari (quote capitali sui finanziamenti e oneri finanziari) dei prossimi 6 mesi (DSCR)?</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
+            <td class="dati_impresa" colspan="9">L'azienda prevede costi straordinari per i prossimi 6 mesi? (es. manutenzioni starordinarie, minusvalenze da conferimenti aziendali, da ristrutturazione, da espropri, da cessione di beni o contenziosi, oneri per le multe ecc.)</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
         </tr>
 
 
         <tr>
-            <td class="dati_impresa" colspan="10">L'azienda prevede che le disponibilità di cassa attuali e le entrate (ordinarie + straordinarie) dei prossimi 6 mesi saranno in grado di coprire tutte le passività/uscite (impegni finanziari e commerciali) dei prossimi 6 mesi (margine di tesorerie positivo)?</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
+            <td class="dati_impresa" colspan="9">L' prevede di utilizzare al limite (o oltre) le disponibilità per liquidità di cassa nei prossimi 6 mesi?</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
+        </tr>
+
+
+
+        <tr>
+            <td class="dati_impresa" colspan="9">L'azienda prevede flussi di cassa della gestione operativa (ricavi esigibili - costi da sostenere nei prossimi 6 mesi) sufficienti a coprire gli impegni finanziari (quote capitali sui finanziamenti e oneri finanziari) dei prossimi 6 mesi (DSCR)?</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
+        </tr>
+
+
+        <tr>
+            <td class="dati_impresa" colspan="9">L'azienda prevede che le disponibilità di cassa attuali e le entrate (ordinarie + straordinarie) dei prossimi 6 mesi saranno in grado di coprire tutte le passività/uscite (impegni finanziari e commerciali) dei prossimi 6 mesi (margine di tesorerie positivo)?</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
         </tr>
 
         <tr>
-            <td class="dati_impresa" colspan="10">L'azienda prevede tempi medi di pagamento ai fornitori (uscite) inferiori ai tempi medi di incasso dai clienti (entrate)?</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
+            <td class="dati_impresa" colspan="9">L'azienda prevede tempi medi di pagamento ai fornitori (uscite) inferiori ai tempi medi di incasso dai clienti (entrate)?</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
         </tr>
 
         <tr>
-            <td class="dati_impresa" colspan="10">L'azienda prevede reiterati e significativi ritardi nei pagamenti verso terzi (fornitori, dipendenti, erario, enti previdenziali, finanziamenti) nei prossimi 6 mesi?</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
+            <td class="dati_impresa" colspan="9">L'azienda prevede reiterati e significativi ritardi nei pagamenti verso terzi (fornitori, dipendenti, erario, enti previdenziali, finanziamenti) nei prossimi 6 mesi?</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
         </tr>
 
         <tr>
-            <td class="dati_impresa" colspan="10">L'azienda prevede di utilizzare al limite (o oltre) le disponibilità del castelletto anticipi nei prossimi 6 mesi?</td>
-            <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
+            <td class="dati_impresa" colspan="9">L'azienda prevede di utilizzare al limite (o oltre) le disponibilità del castelletto anticipi nei prossimi 6 mesi?</td>
+            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
         </tr>
 
     </table>
