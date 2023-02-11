@@ -100,7 +100,7 @@
 
     <table>
         <tr>
-            <th colspan="12" class="heading">Analisi Centrale Rischi</th>
+            <th colspan="12" class="heading">Scoring Centrale Rischi {{$dati['scoreCR']*10}}/10</th>
         </tr>
         <tr>
             <th class="heading" colspan="10"><b>Scoring Centrale Rischi Andamentale</b></th>
@@ -121,7 +121,7 @@
         </tr>
         <tr>
             <th class="heading" colspan="10"><b>Sconfini E Ritardi Nei Pagamenti</b></th>
-            <th><b>Esito</b></th>
+            <th colspan="2"><b>Esito</b></th>
         </tr>
         <tr>
             <td class="dati_impresa" colspan="10">Sconfini Significativi E/O Ripetuti Nel Corso Degli Ultimi 12 Mesi</td>
@@ -134,7 +134,7 @@
             </td>
         </tr>
         <tr>
-            <td class="dati_impresa">Mancato Pagamento Di Finanziamenti O Di Altre Scadenze</td>
+            <td class="dati_impresa" colspan="10">Mancato Pagamento Di Finanziamenti O Di Altre Scadenze</td>
             <td class="dati_impresa" colspan="2">
                 @if($dati['pageData']['crAlerts'][3])
                     Si
@@ -144,11 +144,11 @@
             </td>
         </tr>
         <tr>
-            <th class="heading"><b>Aumento Delle Garanzie</b></th>
-            <th><b>Esito</b></th>
+            <th class="heading" colspan="10"><b>Aumento Delle Garanzie</b></th>
+            <th colspan="2"><b>Esito</b></th>
         </tr>
         <tr>
-            <td class="dati_impresa">Aumento Delle Richieste Di Garanzie Su Beni Aziendali</td>
+            <td class="dati_impresa" colspan="10">Aumento Delle Richieste Di Garanzie Su Beni Aziendali</td>
             <td class="dati_impresa" colspan="2">
                 @if($dati['pageData']['crAlerts'][4])
                     Si
@@ -158,7 +158,7 @@
             </td>
         </tr>
         <tr>
-            <td class="dati_impresa">Aumento Delle Garanzie Concesse Su Esposizioni Di Altri Soggetti</td>
+            <td class="dati_impresa" colspan="10">Aumento Delle Garanzie Concesse Su Esposizioni Di Altri Soggetti</td>
             <td class="dati_impresa" colspan="2">
                 @if($dati['pageData']['crAlerts'][5])
                     Si
@@ -168,11 +168,11 @@
             </td>
         </tr>
         <tr>
-            <th class="heading"><b>Insoluti Portafoglio Anticipi</b></th>
-            <th><b>Esito</b></th>
+            <th class="heading" colspan="10"><b>Insoluti Portafoglio Anticipi</b></th>
+            <th colspan="2"><b>Esito</b></th>
         </tr>
         <tr>
-            <td class="dati_impresa">Aumento Significativo O Peso Elevato Di Incidenza Insoluti Su Anticipo Crediti</td>
+            <td class="dati_impresa" colspan="10">Aumento Significativo O Peso Elevato Di Incidenza Insoluti Su Anticipo Crediti</td>
             <td class="dati_impresa" colspan="2">
                 @if($dati['pageData']['crAlerts'][6])
                     Si
@@ -182,11 +182,11 @@
             </td>
         </tr>
         <tr>
-            <th class="heading"><b>Aumento Affidamenti E Utilizzi</b></th>
-            <th><b>Esito</b></th>
+            <th class="heading" colspan="10"><b>Aumento Affidamenti E Utilizzi</b></th>
+            <th colspan="2"><b>Esito</b></th>
         </tr>
         <tr>
-            <td class="dati_impresa">Aumento Significativo Delle Richieste Di Affidamenti Di Cassa</td>
+            <td class="dati_impresa" colspan="10">Aumento Significativo Delle Richieste Di Affidamenti Di Cassa</td>
             <td class="dati_impresa" colspan="2">
                 @if($dati['pageData']['crAlerts'][7])
                     Si
@@ -196,7 +196,7 @@
             </td>
         </tr>
         <tr>
-            <td class="dati_impresa">Richiesta Finanziamenti Straordinari</td>
+            <td class="dati_impresa" colspan="10">Richiesta Finanziamenti Straordinari</td>
             <td class="dati_impresa" colspan="2">
                 @if($dati['pageData']['crAlerts'][8])
                     Si
@@ -206,7 +206,7 @@
             </td>
         </tr>
         <tr>
-            <td class="dati_impresa">Crescita Continua E Rilevante Di Utilizzi Per Liquidità Di Cassa</td>
+            <td class="dati_impresa" colspan="10">Crescita Continua E Rilevante Di Utilizzi Per Liquidità Di Cassa</td>
             <td class="dati_impresa" colspan="2">
                 @if($dati['pageData']['crAlerts'][9])
                     Si
@@ -216,7 +216,7 @@
             </td>
         </tr>
         <tr>
-            <td class="dati_impresa">Crescita Continua E Rilevante Di Utilizzi Per Smobilizzo Crediti Commerciali O Tensione Finanziaria</td>
+            <td class="dati_impresa" colspan="10">Crescita Continua E Rilevante Di Utilizzi Per Smobilizzo Crediti Commerciali O Tensione Finanziaria</td>
             <td class="dati_impresa" colspan="2">
                 @if($dati['pageData']['crAlerts'][10])
                     Si
@@ -227,11 +227,11 @@
         </tr>
 
         <tr>
-            <th class="heading"><b>Rientro Linee Anticipi, Cassa E Firma</b></th>
-            <th><b>Esito</b></th>
+            <th class="heading" colspan="10"><b>Rientro Linee Anticipi, Cassa E Firma</b></th>
+            <th colspan="2"><b>Esito</b></th>
         </tr>
         <tr>
-            <td class="dati_impresa">Rientri Nelle Linee Di Cassa</td>
+            <td class="dati_impresa" colspan="10">Rientri Nelle Linee Di Cassa</td>
             <td class="dati_impresa" colspan="2">
                 @if($dati['pageData']['crAlerts'][11])
                     Si
@@ -241,7 +241,7 @@
             </td>
         </tr>
         <tr>
-            <td class="dati_impresa">Rientri Nelle Linee Anticipi Sbf/Fatture	</td>
+            <td class="dati_impresa" colspan="10">Rientri Nelle Linee Anticipi Sbf/Fatture	</td>
             <td class="dati_impresa" colspan="2">
                 @if($dati['pageData']['crAlerts'][12])
                     Si
@@ -251,7 +251,7 @@
             </td>
         </tr>
         <tr>
-            <td class="dati_impresa">Rientri Nelle Linee Di Crediti Per Firma</td>
+            <td class="dati_impresa" colspan="10">Rientri Nelle Linee Di Crediti Per Firma</td>
             <td class="dati_impresa" colspan="2">
                 @if($dati['pageData']['crAlerts'][13])
                     Si
@@ -263,11 +263,11 @@
 
 
         <tr>
-            <th class="heading"><b>Segnalazioni Pregiudizievoli</b></th>
-            <th><b>Esito</b></th>
+            <th class="heading" colspan="10"><b>Segnalazioni Pregiudizievoli</b></th>
+            <th colspan="2"><b>Esito</b></th>
         </tr>
         <tr>
-            <td class="dati_impresa">Presenza Sconfinamenti Fra 90gg E 180gg Oppure Oltre I 180gg</td>
+            <td class="dati_impresa" colspan="10">Presenza Sconfinamenti Fra 90gg E 180gg Oppure Oltre I 180gg</td>
             <td class="dati_impresa" colspan="2">
                 @if($dati['pageData']['crAlerts'][14])
                     Si
@@ -277,7 +277,7 @@
             </td>
         </tr>
         <tr>
-            <td class="dati_impresa">Presenza Di Garanzie Attivate Con Esito Negativo</td>
+            <td class="dati_impresa" colspan="10">Presenza Di Garanzie Attivate Con Esito Negativo</td>
             <td class="dati_impresa" colspan="2">
                 @if($dati['pageData']['crAlerts'][15])
                     Si
@@ -287,7 +287,7 @@
             </td>
         </tr>
         <tr>
-            <td class="dati_impresa">Presenza Di Sofferenze O Crediti Passati A Perdita	</td>
+            <td class="dati_impresa" colspan="10">Presenza Di Sofferenze O Crediti Passati A Perdita	</td>
             <td class="dati_impresa" colspan="2">
                 @if($dati['pageData']['crAlerts'][16])
                     Si
