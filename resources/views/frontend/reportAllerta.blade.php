@@ -612,10 +612,13 @@
 
 
     <h3 style="margin-bottom:30px;margin-top:100px;">Questionario TO BE (Situazione Aziendale Futura)</h3>
-    
+
     <h5>Al fine di valutare l'azienda attraverso un approccio previsionale è necessario rispondere alle seguenti domande.</h5>
     <table>
-
+        <tr>
+            <th class="heading" colspan="10">Domanda</th>
+            <th colspan="2"><b>Esito</b></th>
+        </tr>
         <tr>
             <td class="dati_impresa" colspan="10">Per i prossimi 6 mesi l'azienda prevede un fatturato, rispetto al semestre precedente:</td>
             <td class="dati_impresa" colspan="2">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
