@@ -311,7 +311,7 @@
     <table>
         <tr>
 
-            <th class="heading" colspan="10" >Valutazione Negativa Del CR Scoring Che Deriva Dall'analisi Sintetica Della CR</th>
+            <th class="heading" colspan="10" >Valutazione Negativa Dell'analisi Sintetica CR</th>
             <th class="heading" colspan="2">Esito</th>
         </tr>
         <tr>
@@ -322,7 +322,7 @@
             <td class="dati_impresa" colspan="12">Spiegazioni</td>
         </tr>
 
-        
+
         <tr>
             <td class="dati_impresa">Ci sono ritardi nei pagamenti ai fornitori superiori a 90 giorni per un ammontare superiore a quello dei debiti non scaduti?</td>
             <td class="dati_impresa">No</td>
