@@ -127,7 +127,7 @@ class AllertaController extends Controller
                 'ValutazioneGeneraleBilancio' => $bilancioData['ValutazioneGenerale']
             ],
             'GeneralScore' => [
-                'Giudizio_CR' => $getScoreHelper['resultCentraleRischi'],
+                'Giudizio Centrale Rischi' => $getScoreHelper['resultCentraleRischi'],
                 'Giudizio_Bilancio' => $getScoreHelper['resultAnalisiBilancio'],
                 'Minacce rapporti commerciali' => $getScoreHelper['resultMinacceRapportiCommerciali'],
                 'Minacce gestione aziendale' => $getScoreHelper['resultMinacceGestioneAziendale'],
