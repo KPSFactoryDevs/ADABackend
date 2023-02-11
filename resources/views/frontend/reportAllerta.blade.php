@@ -312,7 +312,7 @@
         <tr>
 
             <th class="heading" colspan="10" >Valutazione Negativa Dell'analisi Sintetica CR</th>
-            <th class="heading" colspan="2">Esito</th>
+            <th colspan="2"><b>Esito</b></th>
         </tr>
         <tr>
             <td class="dati_impresa" colspan="10">Sono presenti fatture e avvisi di pagamento di cui non si è rispettata la scadenza?</td>
