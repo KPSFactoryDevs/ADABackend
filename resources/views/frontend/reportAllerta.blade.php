@@ -304,11 +304,10 @@
     <h3 style="margin-bottom:30px;margin-top:100px;">Questionari AS IS (Situazione Aziendale Corrente)</h3>
 
 
-
-    <h5> Anomalie Dei Pagamenti Verso Controparti Commerciali</h5>
-
-
     <table>
+        <tr>
+            <th colspan="12" class="heading"> Anomalie Dei Pagamenti Verso Controparti Commerciali</th>
+        </tr>
         <tr>
             <th class="heading" colspan="10">Valutazione Negativa Dell'analisi Sintetica CR</th>
             <th colspan="2"><b>Esito</b></th>
@@ -395,11 +394,10 @@
 
 
 
-
-    <h5> Anomalie Gestionali</h5>
-
-
     <table>
+        <tr>
+            <th colspan="12" class="heading">Anomalie Gestionali</th>
+        </tr>
         <tr>
             <th class="heading" colspan="10">Parametro Analizzato</th>
             <th colspan="2"><b>Esito</b></th>
@@ -501,11 +499,10 @@
 
 
 
-
-    <h5> Minacce Erariali e Rischi Caratteristici</h5>
-
-
     <table>
+        <tr>
+            <th colspan="12" class="heading">Minacce Erariali e Rischi Caratteristici</th>
+        </tr>
         <tr>
             <th class="heading" colspan="10">Parametro Analizzato</th>
             <th colspan="2"><b>Esito</b></th>
@@ -550,9 +547,11 @@
 
 
 
-    <h5> Anomalie Dei Pagamenti Verso Controparti Commerciali</h5>
 
     <table>
+        <tr>
+            <th colspan="12" class="heading">Anomalie Dei Pagamenti Verso Controparti Commerciali</th>
+        </tr>
         <tr>
             <th class="heading" colspan="10">Parametro Analizzato</th>
             <th colspan="2"><b>Esito</b></th>
@@ -613,8 +612,11 @@
 
     <h3 style="margin-bottom:30px;margin-top:100px;">Questionario TO BE (Situazione Aziendale Futura)</h3>
 
-    <h5>Al fine di valutare l'azienda attraverso un approccio previsionale è necessario rispondere alle seguenti domande.</h5>
+
     <table>
+        <tr>
+            <th colspan="12" class="heading">Al fine di valutare l'azienda attraverso un approccio previsionale è necessario rispondere alle seguenti domande.</th>
+        </tr>
         <tr>
             <th class="heading" colspan="10">Domanda</th>
             <th colspan="2"><b>Esito</b></th>
