@@ -103,14 +103,14 @@
             <th colspan="12" class="heading">Analisi Centrale Rischi</th>
         </tr>
         <tr>
-            <th class="heading"><b>Scoring Centrale Rischi Andamentale</b></th>
-            <th><b>Esito</b></th>
+            <th class="heading" colspan="10"><b>Scoring Centrale Rischi Andamentale</b></th>
+            <th colspan="2"><b>Esito</b></th>
         </tr>
 
 
 
         <tr>
-            <td class="dati_impresa">Valutazione Negativa Del CR Scoring Che Deriva Dall'analisi Sintetica Della CR</td>
+            <td class="dati_impresa" colspan="10">Valutazione Negativa Del CR Scoring Che Deriva Dall'analisi Sintetica Della CR</td>
             <td class="dati_impresa" colspan="2">
                 @if($dati['pageData']['crAlerts'][1])
                     Si
@@ -120,11 +120,11 @@
             </td>
         </tr>
         <tr>
-            <th class="heading"><b>Sconfini E Ritardi Nei Pagamenti</b></th>
+            <th class="heading" colspan="10"><b>Sconfini E Ritardi Nei Pagamenti</b></th>
             <th><b>Esito</b></th>
         </tr>
         <tr>
-            <td class="dati_impresa">Sconfini Significativi E/O Ripetuti Nel Corso Degli Ultimi 12 Mesi</td>
+            <td class="dati_impresa" colspan="10">Sconfini Significativi E/O Ripetuti Nel Corso Degli Ultimi 12 Mesi</td>
             <td class="dati_impresa" colspan="2">
                 @if($dati['pageData']['crAlerts'][2])
                     Si
