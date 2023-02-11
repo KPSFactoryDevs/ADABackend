@@ -323,8 +323,8 @@
 
 
         <tr>
-            <td class="dati_impresa">Ci sono ritardi nei pagamenti ai fornitori superiori a 90 giorni per un ammontare superiore a quello dei debiti non scaduti?</td>
-            <td class="dati_impresa">No</td>
+            <td class="dati_impresa" colspan="10">Ci sono ritardi nei pagamenti ai fornitori superiori a 90 giorni per un ammontare superiore a quello dei debiti non scaduti?</td>
+            <td class="dati_impresa" colspan="2">No</td>
         </tr>
         <tr>
             <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>N/A</b></td>
@@ -332,39 +332,59 @@
 
 
         <tr>
-            <td class="dati_impresa">I fornitori hanno modificato le condizioni di pagamento delle forniture (ad es. pagamento dilazionato a pagamento anticipato)?</td>
-            <td class="dati_impresa">No</td>
+            <td class="dati_impresa" colspan="10">I fornitori hanno modificato le condizioni di pagamento delle forniture (ad es. pagamento dilazionato a pagamento anticipato)?</td>
+            <td class="dati_impresa" colspan="2">No</td>
         </tr>
         <tr>
             <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>N/A</b></td>
         </tr>
 
-        
+
         <tr>
-            <td class="dati_impresa">Avete inoltrato richieste di rimodulazione delle scadenze nei pagamenti richiedendo di aumentare la dilazione?</td>
-            <td class="dati_impresa">No</td>
-            <td class="dati_impresa"></td>
+            <td class="dati_impresa" colspan="10">Avete inoltrato richieste di rimodulazione delle scadenze nei pagamenti richiedendo di aumentare la dilazione?</td>
+            <td class="dati_impresa" colspan="2">No</td>
         </tr>
         <tr>
-            <td class="dati_impresa">Sono state modificate le condizioni di incasso da parte dei clienti con un conseguente allungamento dei tempi di incasso?</td>
-            <td class="dati_impresa">No</td>
-            <td class="dati_impresa"></td>
+            <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>N/A</b></td>
+        </tr>
+
+
+        <tr>
+            <td class="dati_impresa"  colspan="10">Sono state modificate le condizioni di incasso da parte dei clienti con un conseguente allungamento dei tempi di incasso?</td>
+            <td class="dati_impresa" colspan="2">No</td>
         </tr>
         <tr>
-            <td class="dati_impresa">Sono stati registrati mancati incassi per importi considerevoli superiori a 90gg?</td>
-            <td class="dati_impresa">No</td>
-            <td class="dati_impresa"></td>
+            <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>N/A</b></td>
+        </tr>
+
+
+
+        <tr>
+            <td class="dati_impresa" colspan="10">Sono stati registrati mancati incassi per importi considerevoli superiori a 90gg?</td>
+            <td class="dati_impresa" colspan="2">No</td>
         </tr>
         <tr>
-            <td class="dati_impresa">Sono presenti contenziosi in atto con clienti o fornitori?</td>
-            <td class="dati_impresa">No</td>
-            <td class="dati_impresa"></td>
+            <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>N/A</b></td>
+        </tr>
+
+
+        <tr>
+            <td class="dati_impresa" colspan="10">Sono presenti contenziosi in atto con clienti o fornitori?</td>
+            <td class="dati_impresa" colspan="2">No</td>
         </tr>
         <tr>
-            <td class="dati_impresa">Sono presenti criticità con clienti derivanti da non conformità o ritardi?</td>
-            <td class="dati_impresa">No</td>
-            <td class="dati_impresa"></td>
+            <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>N/A</b></td>
         </tr>
+
+
+        <tr>
+            <td class="dati_impresa" colspan="10">Sono presenti criticità con clienti derivanti da non conformità o ritardi?</td>
+            <td class="dati_impresa" colspan="2">No</td>
+        </tr>
+        <tr>
+            <td class="dati_impresa" colspan="12" style="background:lightgrey;">Spiegazioni: <b>N/A</b></td>
+        </tr>
+
     </table>
 
 
