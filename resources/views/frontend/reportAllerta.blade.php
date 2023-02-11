@@ -6,7 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <title>Report Allerta</title>
+    <title>Report Allerta </title>
 
 
     </head>
@@ -47,12 +47,16 @@
             font-size: 12px;
         }
     </style>
+
     <h3 style="margin-bottom:30px;">Scoring Generale: {{$dati['pageData']['FinalScore']}}</h3>
 
     <hr>
-    <h3 style="margin-bottom:30px;">Scoring per Sezione</h3>
+
 
         <table>
+            <tr>
+                <th colspan="12" class="heading">Analisi per Area d'interesse</th>
+            </tr>
             @foreach($dati['GeneralScore'] as $key => $singleStatoPatrimonialeAttivo)
                 <tr>
                     <td colspan="6" class="dati_impresa">{{ str_replace('_', ' ', $key) }}</td>
@@ -62,13 +66,16 @@
         </table>
 
 
-    <h3 style="margin-bottom:30px;margin-top:50px;">Analisi Bilancio</h3>
+
 
 
     <h4>Scoring Analisi Bilancio: {{(float)str_replace(",", ".", $dati['pageData']['ValutazioneGeneraleBilancio']['Score'])*10}} /10</h4>
 
 
     <table>
+        <tr>
+            <th colspan="12" class="heading">Analisi di Bilancio</th>
+        </tr>
         <tr>
             <th colspan="6">Indice</th>
             <th colspan="6">Valore</th>
@@ -93,66 +100,206 @@
 
     <table>
         <tr>
-            <th><b>Scoring Centrale Rischi Andamentale</b></th>
+            <th colspan="12" class="heading">Analisi Centrale Rischi</th>
+        </tr>
+        <tr>
+            <th class="heading"><b>Scoring Centrale Rischi Andamentale</b></th>
             <th><b>Esito</b></th>
         </tr>
+
+
+
         <tr>
             <td class="dati_impresa">Valutazione Negativa Del CR Scoring Che Deriva Dall'analisi Sintetica Della CR</td>
-            <td class="dati_impresa">No</td>
+            <td class="dati_impresa">
+                @if($dati['pageData']['crAlerts'][1])
+                    Si
+                @else
+                    No
+                @endif
+            </td>
         </tr>
         <tr>
-            <th><b>Sconfini E Ritardi Nei Pagamenti</b></th>
+            <th class="heading"><b>Sconfini E Ritardi Nei Pagamenti</b></th>
             <th><b>Esito</b></th>
         </tr>
         <tr>
             <td class="dati_impresa">Sconfini Significativi E/O Ripetuti Nel Corso Degli Ultimi 12 Mesi</td>
-            <td class="dati_impresa">Si</td>
+            <td class="dati_impresa">
+                @if($dati['pageData']['crAlerts'][2])
+                    Si
+                @else
+                    No
+                @endif
+            </td>
         </tr>
         <tr>
             <td class="dati_impresa">Mancato Pagamento Di Finanziamenti O Di Altre Scadenze</td>
-            <td class="dati_impresa">Si</td>
+            <td class="dati_impresa">
+                @if($dati['pageData']['crAlerts'][3])
+                    Si
+                @else
+                    No
+                @endif
+            </td>
         </tr>
         <tr>
-            <th><b>Aumento Delle Garanzie</b></th>
+            <th class="heading"><b>Aumento Delle Garanzie</b></th>
             <th><b>Esito</b></th>
         </tr>
         <tr>
             <td class="dati_impresa">Aumento Delle Richieste Di Garanzie Su Beni Aziendali</td>
-            <td class="dati_impresa">Si</td>
+            <td class="dati_impresa">
+                @if($dati['pageData']['crAlerts'][4])
+                    Si
+                @else
+                    No
+                @endif
+            </td>
         </tr>
         <tr>
             <td class="dati_impresa">Aumento Delle Garanzie Concesse Su Esposizioni Di Altri Soggetti</td>
-            <td class="dati_impresa">No</td>
+            <td class="dati_impresa">
+                @if($dati['pageData']['crAlerts'][5])
+                    Si
+                @else
+                    No
+                @endif
+            </td>
         </tr>
         <tr>
-            <th><b>Insoluti Portafoglio Anticipi</b></th>
+            <th class="heading"><b>Insoluti Portafoglio Anticipi</b></th>
             <th><b>Esito</b></th>
         </tr>
         <tr>
             <td class="dati_impresa">Aumento Significativo O Peso Elevato Di Incidenza Insoluti Su Anticipo Crediti</td>
-            <td class="dati_impresa">No</td>
+            <td class="dati_impresa">
+                @if($dati['pageData']['crAlerts'][6])
+                    Si
+                @else
+                    No
+                @endif
+            </td>
         </tr>
         <tr>
-            <th><b>Aumento Affidamenti E Utilizzi</b></th>
+            <th class="heading"><b>Aumento Affidamenti E Utilizzi</b></th>
             <th><b>Esito</b></th>
         </tr>
         <tr>
             <td class="dati_impresa">Aumento Significativo Delle Richieste Di Affidamenti Di Cassa</td>
-            <td class="dati_impresa">Si</td>
+            <td class="dati_impresa">
+                @if($dati['pageData']['crAlerts'][7])
+                    Si
+                @else
+                    No
+                @endif
+            </td>
         </tr>
         <tr>
             <td class="dati_impresa">Richiesta Finanziamenti Straordinari</td>
-            <td class="dati_impresa">No</td>
+            <td class="dati_impresa">
+                @if($dati['pageData']['crAlerts'][8])
+                    Si
+                @else
+                    No
+                @endif
+            </td>
         </tr>
         <tr>
             <td class="dati_impresa">Crescita Continua E Rilevante Di Utilizzi Per Liquidità Di Cassa</td>
-            <td class="dati_impresa">No</td>
+            <td class="dati_impresa">
+                @if($dati['pageData']['crAlerts'][9])
+                    Si
+                @else
+                    No
+                @endif
+            </td>
         </tr>
         <tr>
             <td class="dati_impresa">Crescita Continua E Rilevante Di Utilizzi Per Smobilizzo Crediti Commerciali O Tensione Finanziaria</td>
-            <td class="dati_impresa">Si</td>
+            <td class="dati_impresa">
+                @if($dati['pageData']['crAlerts'][10])
+                    Si
+                @else
+                    No
+                @endif
+            </td>
+        </tr>
+
+        <tr>
+            <th class="heading"><b>Rientro Linee Anticipi, Cassa E Firma</b></th>
+            <th><b>Esito</b></th>
+        </tr>
+        <tr>
+            <td class="dati_impresa">Rientri Nelle Linee Di Cassa</td>
+            <td class="dati_impresa">
+                @if($dati['pageData']['crAlerts'][11])
+                    Si
+                @else
+                    No
+                @endif
+            </td>
+        </tr>
+        <tr>
+            <td class="dati_impresa">Rientri Nelle Linee Anticipi Sbf/Fatture	</td>
+            <td class="dati_impresa">
+                @if($dati['pageData']['crAlerts'][12])
+                    Si
+                @else
+                    No
+                @endif
+            </td>
+        </tr>
+        <tr>
+            <td class="dati_impresa">Rientri Nelle Linee Di Crediti Per Firma</td>
+            <td class="dati_impresa">
+                @if($dati['pageData']['crAlerts'][13])
+                    Si
+                @else
+                    No
+                @endif
+            </td>
+        </tr>
+
+
+        <tr>
+            <th class="heading"><b>Segnalazioni Pregiudizievoli</b></th>
+            <th><b>Esito</b></th>
+        </tr>
+        <tr>
+            <td class="dati_impresa">Presenza Sconfinamenti Fra 90gg E 180gg Oppure Oltre I 180gg</td>
+            <td class="dati_impresa">
+                @if($dati['pageData']['crAlerts'][14])
+                    Si
+                @else
+                    No
+                @endif
+            </td>
+        </tr>
+        <tr>
+            <td class="dati_impresa">Presenza Di Garanzie Attivate Con Esito Negativo</td>
+            <td class="dati_impresa">
+                @if($dati['pageData']['crAlerts'][15])
+                    Si
+                @else
+                    No
+                @endif
+            </td>
+        </tr>
+        <tr>
+            <td class="dati_impresa">Presenza Di Sofferenze O Crediti Passati A Perdita	</td>
+            <td class="dati_impresa">
+                @if($dati['pageData']['crAlerts'][16])
+                    Si
+                @else
+                    No
+                @endif
+            </td>
         </tr>
     </table>
+
+
+
 
 
     <h3 style="margin-bottom:30px;margin-top:50px;">Questionario AS IS</h3>
