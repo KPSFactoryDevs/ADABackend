@@ -38,49 +38,12 @@ class PDFController extends Controller
 	 	$Elements = $readXBRL->getElements();
 		$elements = $Elements->getElements();
 
- 		foreach($elements as $key => $singleElements) {
-			foreach($singleElements as $singleElement) {
-				$element[$key] = $singleElement['value'];
-			}
-		}
-
+  
 		$bilanciHelper = new BilanciHelper;
 		$bilancioAnalisi = $bilanciHelper->getIndexesForBalanceTaxonomy($document->id, $filePath, $readXBRL, $document->codice_documento);
 		$renderHTML = $bilanciHelper->generateHTMLRender($filePath, $taxonomyPath);
 
 
-
-/* 		$bilancioAnalisi['Questionari'] = str_replace('dscrData', 'Alert DSCR', array_key_first($bilancioAnalisi['Questionari']));
-
-		dd($bilancioAnalisi['Questionari']); */
-
-		$statoPatrimonialeAttivoRange = array_slice($element, 9, 26);
-
-/* 		$statoPatrimonialeAttivo = [
-			'Crediti verso soci per versamenti ancora dovuti' => $statoPatrimonialeAttivoRange['TotaleCreditiVersoSociVersamentiAncoraDovuti'],
-			'Immobilizzazioni (NON crediti finanziari)' => $statoPatrimonialeAttivoRange['TotaleImmobilizzazioni'],
-			'Immobilizzazione - Crediti finanziari' => $statoPatrimonialeAttivoRange['TotaleImmobilizzazioniFinanziarie'],
-			'Rimanenze' => $statoPatrimonialeAttivoRange['TotaleRimanenze'],
-			'Crediti esigibili entro l\'esercizio successivo (NON finanziari)' => $statoPatrimonialeAttivoRange['CreditiEsigibiliEntroEsercizioSuccessivo'],
-			'Crediti esigibili oltre l\'esercizio successivo' => $statoPatrimonialeAttivoRange['CreditiEsigibiliOltreEsercizioSuccessivo'],
-			'C III) Attività finanziarie che non costituiscono immobilizzazioni' => $statoPatrimonialeAttivoRange['TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni'],
-			'C IV) Disponibilità liquide' => $statoPatrimonialeAttivoRange['TotaleDisponibilitaLiquide'],
-			'D) Ratei e risconti attivi' => $statoPatrimonialeAttivoRange['AttivoRateiRisconti'],
-		]; */
-
-/* 	 	foreach($statoPatrimonialeAttivo as $key => $singleStatoPatrimonialeAttivo) {
-			if($singleStatoPatrimonialeAttivo > "0") {
-				dump(number_format(floatval($singleStatoPatrimonialeAttivo), ',', '.', 2));
-				$numberFormat = number_format(floatval($singleStatoPatrimonialeAttivo), ',', '.', 2);
-				dump($numberFormat);
-
-				//dd($numberFormat);
-
-				//$statoPatrimonialeAttivo[$key] = number_format((int)$singleStatoPatrimonialeAttivo, ',', '.', 2);
-			}
-		} */
-		//dd($statoPatrimonialeAttivo);
-	//	$totaleAttivo = array_slice($element, 9, 26)['TotaleAttivo'];
 
 		$nomeAzienda = $document->nome_azienda;
 		$formaGiuridica = $document->forma_giuridica;
