@@ -34,7 +34,7 @@
         .heading {
             text-align: center;
             padding: 5px;
-            font-size: 12px;
+            font-size: 14px;
         }
         .header-info {
             font-size: 10px;
@@ -96,11 +96,11 @@
     </table>
 
 
-    <h3 style="margin-bottom:30px;margin-top:100px;">Analisi Centrale Rischi</h3>
+    <h3 style="margin-bottom:30px;margin-top:100px;">Scoring Centrale Rischi {{str_replace(",",".",$dati['pageData']['scoreCR'])*10}}/10</h3>
 
     <table>
         <tr>
-            <th colspan="12" class="heading">Scoring Centrale Rischi {{str_replace(",",".",$dati['pageData']['scoreCR'])*10}}/10</th>
+            <th colspan="12" class="heading">Analisi Centrale Rischi</th>
         </tr>
         <tr>
             <th class="heading" colspan="10"><b>Scoring Centrale Rischi Andamentale</b></th>
@@ -301,22 +301,28 @@
 
 
 
+    <h3 style="margin-bottom:30px;margin-top:100px;">Questionari AS IS (Situazione Aziendale Corrente)</h3>
 
-    <h3 style="margin-bottom:30px;margin-top:50px;">Questionario AS IS</h3>
+
 
     <h5> Anomalie Dei Pagamenti Verso Controparti Commerciali</h5>
+
+
     <table>
         <tr>
 
-            <th>Valutazione Negativa Del CR Scoring Che Deriva Dall'analisi Sintetica Della CR</th>
-            <th>Esito</th>
-            <th>Spiegazioni</th>
+            <th class="heading" colspan="10" >Valutazione Negativa Del CR Scoring Che Deriva Dall'analisi Sintetica Della CR</th>
+            <th class="heading" colspan="2">Esito</th>
         </tr>
         <tr>
-            <td class="dati_impresa">Sono presenti fatture e avvisi di pagamento di cui non si è rispettata la scadenza?</td>
-            <td class="dati_impresa">No</td>
-            <td class="dati_impresa"></td>
+            <td class="dati_impresa" colspan="10">Sono presenti fatture e avvisi di pagamento di cui non si è rispettata la scadenza?</td>
+            <td class="dati_impresa" colspan="2">No</td>
         </tr>
+        <tr>
+            <td class="dati_impresa" colspan="12">Spiegazioni</td>
+        </tr>
+
+        
         <tr>
             <td class="dati_impresa">Ci sono ritardi nei pagamenti ai fornitori superiori a 90 giorni per un ammontare superiore a quello dei debiti non scaduti?</td>
             <td class="dati_impresa">No</td>
