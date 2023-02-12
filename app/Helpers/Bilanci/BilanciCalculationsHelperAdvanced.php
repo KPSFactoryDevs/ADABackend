@@ -1029,7 +1029,7 @@ class BilanciCalculationsHelperAdvanced
             ->where('soglia', '>', $indebitamentoTributario)
             ->count();
 
-        if($evaluation) {
+        if(!$evaluation) {
             $returnData['fuoriSoglia'] = true;
         }
 
