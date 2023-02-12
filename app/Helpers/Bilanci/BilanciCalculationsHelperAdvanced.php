@@ -948,7 +948,7 @@ class BilanciCalculationsHelperAdvanced
             ->where('soglia', '>', $of_fatturato)
             ->count();
 
-        if($sostenibilitaOneriFinanziari) {
+        if(!$sostenibilitaOneriFinanziari) {
             $returnData['fuoriSoglia'] = true;
         }
 
