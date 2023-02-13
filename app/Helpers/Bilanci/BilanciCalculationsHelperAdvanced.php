@@ -1083,6 +1083,7 @@ class BilanciCalculationsHelperAdvanced
         return false;
     }
 
+    
 
     public function getIndiceCNDCEC() {
         if($this->getIndiceCNDCECEvaluation()) return "Azienda a Rischio";

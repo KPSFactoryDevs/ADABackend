@@ -623,71 +623,51 @@
         </tr>
         <tr>
             <td class="dati_impresa" colspan="9">Per i prossimi 6 mesi l'azienda prevede un fatturato, rispetto al semestre precedente:</td>
-            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
+            <td class="dati_impresa" colspan="3">{{$risposte['forwardLooking1'][$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']] }}</td>
         </tr>
-
-
-
         <tr>
             <td class="dati_impresa" colspan="9">L'azienda prevede di chiedere nuovi finanziamenti nei prossimi 6 mesi?</td>
-            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
+            <td class="dati_impresa" colspan="3">{{$risposte['forwardLooking2'][$dati['pageData']['arrayForwardLookingToBe']['forwardLooking12']]}}</td>
         </tr>
-
-
         <tr>
             <td class="dati_impresa" colspan="9">L'azienda prevede costi di gestione (fissi e variabili) per i prossimi 6 mesi rispetto al semestre precedente:</td>
-            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
+            <td class="dati_impresa" colspan="3">{{$risposte['forwardLooking3'][$dati['pageData']['arrayForwardLookingToBe']['forwardLooking3']]}}</td>
         </tr>
-
         <tr>
             <td class="dati_impresa" colspan="9">Su quanti clienti è concentrato il fatturato dei prossimi 6 mesi?</td>
-            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
+            <td class="dati_impresa" colspan="3">{{$risposte['forwardLooking4'][$dati['pageData']['arrayForwardLookingToBe']['forwardLooking4']]}}</td>
         </tr>
-
         <tr>
             <td class="dati_impresa"  colspan="9">L'azienda utilizza un sistema di pianificazione e controllo di gestione?</td>
-            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
+            <td class="dati_impresa" colspan="3">{{$risposte['forwardLooking5'][$dati['pageData']['arrayForwardLookingToBe']['forwardLooking5']]}}</td>
         </tr>
-
-
-
         <tr>
             <td class="dati_impresa" colspan="9">L'azienda prevede costi straordinari per i prossimi 6 mesi? (es. manutenzioni starordinarie, minusvalenze da conferimenti aziendali, da ristrutturazione, da espropri, da cessione di beni o contenziosi, oneri per le multe ecc.)</td>
-            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
+            <td class="dati_impresa" colspan="3">{{$risposte['forwardLooking6'][$dati['pageData']['arrayForwardLookingToBe']['forwardLooking6']]}}</td>
         </tr>
-
-
         <tr>
             <td class="dati_impresa" colspan="9">L' prevede di utilizzare al limite (o oltre) le disponibilità per liquidità di cassa nei prossimi 6 mesi?</td>
-            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
+            <td class="dati_impresa" colspan="3">{{$risposte['forwardLooking7'][$dati['pageData']['arrayForwardLookingToBe']['forwardLooking7']]}}</td>
         </tr>
-
-
-
         <tr>
             <td class="dati_impresa" colspan="9">L'azienda prevede flussi di cassa della gestione operativa (ricavi esigibili - costi da sostenere nei prossimi 6 mesi) sufficienti a coprire gli impegni finanziari (quote capitali sui finanziamenti e oneri finanziari) dei prossimi 6 mesi (DSCR)?</td>
-            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
+            <td class="dati_impresa" colspan="3">{{$risposte['forwardLooking8'][$dati['pageData']['arrayForwardLookingToBe']['forwardLooking8']]}}</td>
         </tr>
-
-
         <tr>
             <td class="dati_impresa" colspan="9">L'azienda prevede che le disponibilità di cassa attuali e le entrate (ordinarie + straordinarie) dei prossimi 6 mesi saranno in grado di coprire tutte le passività/uscite (impegni finanziari e commerciali) dei prossimi 6 mesi (margine di tesorerie positivo)?</td>
-            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
+            <td class="dati_impresa" colspan="3">{{$risposte['forwardLooking9'][$dati['pageData']['arrayForwardLookingToBe']['forwardLooking9']]}}</td>
         </tr>
-
         <tr>
             <td class="dati_impresa" colspan="9">L'azienda prevede tempi medi di pagamento ai fornitori (uscite) inferiori ai tempi medi di incasso dai clienti (entrate)?</td>
-            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
+            <td class="dati_impresa" colspan="3">{{$risposte['forwardLooking10'][$dati['pageData']['arrayForwardLookingToBe']['forwardLooking10']]}}</td>
         </tr>
-
         <tr>
             <td class="dati_impresa" colspan="9">L'azienda prevede reiterati e significativi ritardi nei pagamenti verso terzi (fornitori, dipendenti, erario, enti previdenziali, finanziamenti) nei prossimi 6 mesi?</td>
-            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
+            <td class="dati_impresa" colspan="3">{{$risposte['forwardLooking11'][$dati['pageData']['arrayForwardLookingToBe']['forwardLooking11']]}}</td>
         </tr>
-
         <tr>
             <td class="dati_impresa" colspan="9">L'azienda prevede di utilizzare al limite (o oltre) le disponibilità del castelletto anticipi nei prossimi 6 mesi?</td>
-            <td class="dati_impresa" colspan="3">{{$dati['pageData']['arrayForwardLookingToBe']['forwardLooking1']}}</td>
+            <td class="dati_impresa" colspan="3">{{$risposte['forwardLooking12'][$dati['pageData']['arrayForwardLookingToBe']['forwardLooking12']]}}</td>
         </tr>
 
     </table>

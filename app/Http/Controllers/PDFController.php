@@ -38,7 +38,7 @@ class PDFController extends Controller
 	 	$Elements = $readXBRL->getElements();
 		$elements = $Elements->getElements();
 
-  
+
 		$bilanciHelper = new BilanciHelper;
 		$bilancioAnalisi = $bilanciHelper->getIndexesForBalanceTaxonomy($document->id, $filePath, $readXBRL, $document->codice_documento);
 		$renderHTML = $bilanciHelper->generateHTMLRender($filePath, $taxonomyPath);
@@ -485,7 +485,68 @@ class PDFController extends Controller
 				$printPDF = new printpdf;
 				$printPDF->currentPayload = $dataAllerta;
 
-        $pdf = PDF::loadView('frontend.reportAllerta',['dati' => $dataAllerta])->setPaper('A4');;
+        $arrayAnwersForwarLooking = [
+            "forwardLooking1" => [
+                1 => "Costante",
+                2 => "In aumento",
+                3 => "In diminuizione"
+            ],
+            "forwardLooking2" => [
+                1 => "Si, per nuovi investimenti",
+                2 => "Si, perchè serve liquidità",
+                3 => "No"
+            ],
+            "forwardLooking3" => [
+                1 => "Costante",
+                2 => "In aumento",
+                3 => "In diminuizione"
+            ],
+            "forwardLooking4" => [
+                1 => "Fra 10 e 30",
+                2 => "Più di 30",
+                3 => "Meno di 10"
+            ],
+            "forwardLooking5" => [
+                1 => "Su base pluriennale",
+                2 => "Su base annuale",
+                3 => "No"
+            ],
+            "forwardLooking6" => [
+                1 => "Si, ma non rilevanti",
+                2 => "Si",
+                3 => "No"
+            ],
+            "forwardLooking7" => [
+                1 => "Si, per aumento previsto di utilizzi",
+                2 => "Si, li usiamo sempre al limite",
+                3 => "No"
+            ],
+            "forwardLooking8" => [
+                1 => "Si",
+                2 => "Forse si, ma potrebbero esserci difficoltà",
+                3 => "No, serve sicuramente liquidità"
+            ],
+            "forwardLooking9" => [
+                1 => "Si",
+                2 => "No",
+                3 => "Probabilmente si"
+            ],
+            "forwardLooking10" => [
+                1 => "Si, i tempi di pagamento ai fornitori sono più corti",
+                2 => "No",
+            ],
+            "forwardLooking11" => [
+                1 => "Si",
+                2 => "Si, ma evitabili",
+                3 => "No"
+            ],
+            "forwardLooking12" => [
+                1 => "Si, usiamo sempre al limite le disponibilità",
+                2 => "Si, prevediamo maggior utilizzo",
+                3 => "No"
+            ]
+        ];
+        $pdf = PDF::loadView('frontend.reportAllerta',['dati' => $dataAllerta, 'risposte' => $arrayAnwersForwarLooking])->setPaper('A4');
         return $pdf->stream('result.pdf', array('Attachment'=>0));
 
 
