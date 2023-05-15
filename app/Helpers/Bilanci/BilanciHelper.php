@@ -250,7 +250,11 @@ class BilanciHelper
 
             rsort($period, SORT_NUMERIC);
 
-            $annoInizio = $period[3];
+            if(isset($period[3])) {
+                $annoInizio = $period[3];
+            } else {
+                $annoInizio = $period[1];
+            }
             $annoFine = $period[0];
 
             return [
