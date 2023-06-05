@@ -531,7 +531,7 @@ class BilanciCalculationsHelperAdvanced
             (is_bool($TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni) && !$TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni)  ||
             (is_bool($TotaleRimanenze) && !$TotaleRimanenze)  ||
             (is_bool($TotaleCreditiEntroDodiciMesi) && !$TotaleCreditiEntroDodiciMesi) ||
-            !$TotaleDebitiEntroDodiciMesi ||
+            !$TotaleDebitiEntroDodiciMesi &&
             !$PassivoRateiRisconti)
             return false;
 
