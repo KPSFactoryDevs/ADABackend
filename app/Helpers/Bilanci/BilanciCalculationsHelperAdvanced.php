@@ -521,8 +521,8 @@ class BilanciCalculationsHelperAdvanced
         $AttivoRateiRisconti = $this->getElementFromBalance('AttivoRateiRisconti', 1, $indexName);
         $TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni = $this->getElementFromBalance('TotaleAttivitaFinanziarieNonCostituisconoImmobilizzazioni', 1, $indexName);
         $TotaleRimanenze = $this->getElementFromBalance('TotaleRimanenze', 1, $indexName);
-        $TotaleCreditiEntroDodiciMesi = $this->getElementFromBalance('TotaleCreditiEntroDodiciMesi', 1, $indexName);
-        $TotaleDebitiEntroDodiciMesi = $this->getElementFromBalance('TotaleDebitiEntroDodiciMesi', 1, $indexName);
+        $TotaleCreditiEntroDodiciMesi = $this->getElementFromBalance('CreditiEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
+        $TotaleDebitiEntroDodiciMesi = $this->getElementFromBalance('DebitiEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
         $PassivoRateiRisconti = $this->getElementFromBalance('PassivoRateiRisconti', 1, $indexName);
 
         if (
