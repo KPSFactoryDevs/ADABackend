@@ -3134,6 +3134,7 @@ AND t.divisa = t2.divisa');
             $banksQuery->orWhere(function ($query) use ($queryPeriodArray, $categories, $crAndamentaleData) {
                 $query->where('document_id', $crAndamentaleData['period']);
                 $query->where($queryPeriodArray);
+                $query->whereIn('categoria', $categories);
             });
         }
 
@@ -3153,6 +3154,7 @@ AND t.divisa = t2.divisa');
                 $banks[] = $singleBankName;
             }
         }
+   
         return $banks;
     }
 }
