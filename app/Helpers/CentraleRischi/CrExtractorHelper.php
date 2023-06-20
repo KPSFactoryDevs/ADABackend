@@ -3154,7 +3154,7 @@ AND t.divisa = t2.divisa');
                 $banks[] = $singleBankName;
             }
         }
-        dd($banks);
+   
         return $banks;
     }
 }
