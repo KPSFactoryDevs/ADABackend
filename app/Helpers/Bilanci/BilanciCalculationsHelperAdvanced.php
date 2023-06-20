@@ -261,8 +261,14 @@ class BilanciCalculationsHelperAdvanced
       
     }
 
-    public function getTotaleDebitiEntroDodiciMesi($indexName = "Totale Debiti Entro Dodici Mesi")
+    public function getTotaleDebitiEntroDodiciMesi($indexName = "Totale Debiti Entro Esercizio Successivo")
     {
+
+        $TotaleDebitiEntroDodiciMesi = $this->getElementFromBalance('DebitiEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
+        if(!is_bool($TotaleDebitiEntroDodiciMesi)) {
+            return $TotaleDebitiEntroDodiciMesi;
+        } else {
+
         $DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
         $DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
         $DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
@@ -295,6 +301,7 @@ class BilanciCalculationsHelperAdvanced
             (is_bool($DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo) && !$DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo)) {
             return false;
         }
+    }
 
         $TotaleDebitiEntroDodiciMesi = (float)$DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo + (float)$DebitiAccontiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo + (float)$DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo;
 
@@ -551,7 +558,7 @@ class BilanciCalculationsHelperAdvanced
         $TotaleRimanenze = $this->getElementFromBalance('TotaleRimanenze', 1, $indexName);
 
         $TotaleCreditiEntroDodiciMesi = $this->getTotaleCreditiEntroDodiciMesi();
-        $TotaleDebitiEntroDodiciMesi = $this->getElementFromBalance('DebitiEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
+        $TotaleDebitiEntroDodiciMesi = $this->getTotaleDebitiEntroDodiciMesi();
         $PassivoRateiRisconti = $this->getElementFromBalance('PassivoRateiRisconti', 1, $indexName);
 
         if (
