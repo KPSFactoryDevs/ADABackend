@@ -228,10 +228,11 @@ class BilanciCalculationsHelperAdvanced
 
     public function getTotaleCreditiEntroDodiciMesi($indexName = "Totale Crediti Entro Esercizio Successivo")
     {
-        $TotaleCreditiEntroDodiciMesi = $this->getElementFromBalance('CreditiEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
+      $TotaleCreditiEntroDodiciMesi = $this->getElementFromBalance('CreditiEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
+
         if(!is_bool($TotaleCreditiEntroDodiciMesi)) {
             return $TotaleCreditiEntroDodiciMesi;
-        } else {
+        } else { 
             
             $CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
             $CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo = $this->getElementFromBalance('CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
@@ -251,7 +252,21 @@ class BilanciCalculationsHelperAdvanced
                 (is_bool($CreditiImposteAnticipateTotaleImposteAnticipate) && !$CreditiImposteAnticipateTotaleImposteAnticipate)) {
                 return false;
             } 
-        }
+        
+
+           if(count($this->_missingVoicesArray['Totale Crediti Entro Esercizio Successivo']) > 1) {
+                foreach($this->_missingVoicesArray['Totale Crediti Entro Esercizio Successivo'] as $singleMissingVoices) {
+                    if(in_array('CreditiEsigibiliEntroEsercizioSuccessivo', $singleMissingVoices)) {
+                        unset($singleMissingVoices);
+                    }
+                }
+            } else {
+                unset($this->_missingVoicesArray['Totale Crediti Entro Esercizio Successivo']);
+            }
+
+         } 
+
+
         $TotaleDebitiEntroDodiciMesi = (float)$CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo + (float)$CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + (float)$CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + (float)$CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo + (float)$CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo + (float)$CreditiImposteAnticipateTotaleImposteAnticipate + (float)$CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo;
         $calculation = (float)$CreditiVersoClientiEsigibiliEntroEsercizioSuccessivo . ' + ' . (float)$CreditiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo . ' + ' . (float)$CreditiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo . ' + ' . (float)$CreditiVersoControllantiEsigibiliEntroEsercizioSuccessivo . ' + ' . (float)$CreditiCreditiTributariEsigibiliEntroEsercizioSuccessivo . ' + ' . (float)$CreditiImposteAnticipateTotaleImposteAnticipate . ' + ' . (float)$CreditiVersoAltriEsigibiliEntroEsercizioSuccessivo . ' = ' . $TotaleDebitiEntroDodiciMesi;
 
@@ -265,6 +280,7 @@ class BilanciCalculationsHelperAdvanced
     {
 
         $TotaleDebitiEntroDodiciMesi = $this->getElementFromBalance('DebitiEsigibiliEntroEsercizioSuccessivo', 1, $indexName);
+
         if(!is_bool($TotaleDebitiEntroDodiciMesi)) {
             return $TotaleDebitiEntroDodiciMesi;
         } else {
@@ -301,6 +317,17 @@ class BilanciCalculationsHelperAdvanced
             (is_bool($DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo) && !$DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo)) {
             return false;
         }
+
+        if(count($this->_missingVoicesArray['Totale Debiti Entro Esercizio Successivo']) > 1) {
+            foreach($this->_missingVoicesArray['Totale Debiti Entro Esercizio Successivo'] as $singleMissingVoices) {
+                if(in_array('DebitiEsigibiliEntroEsercizioSuccessivo', $singleMissingVoices)) {
+                    unset($singleMissingVoices);
+                }
+            }
+        } else {
+            unset($this->_missingVoicesArray['Totale Debiti Entro Esercizio Successivo']);
+        }
+
     }
 
         $TotaleDebitiEntroDodiciMesi = (float)$DebitiAltriDebitiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoIstitutiPrevidenzaSicurezzaSocialeEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiTributariEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoControllantiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoImpreseCollegateEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoImpreseControllateEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiRappresentatiTitoliCreditoEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoFornitoriEsigibiliEntroEsercizioSuccessivo + (float)$DebitiAccontiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiObbligazioniEsigibiliEntroEsercizioSuccessivo + (float)$DebitiObbligazioniConvertibiliEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoSociFinanziamentiEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoBancheEsigibiliEntroEsercizioSuccessivo + (float)$DebitiDebitiVersoAltriFinanziatoriEsigibiliEntroEsercizioSuccessivo;
