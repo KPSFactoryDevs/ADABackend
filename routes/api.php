@@ -49,6 +49,8 @@ Route::group(['middleware' => ['cors', 'json.response']], function () {
 
     Route::get('/getSettori', 'App\Helpers\Bilanci\BilanciHelper@getSettori');
 
+    Route::post('/setting', 'App\Financial\Bilanci\Controllers\BilanciController@modalitySetting');
+
 
     // CENTRALE RISCHI
     Route::get('/crAndamentale/{period}/{data_inizio?}/{data_fine?}/{inputBanks?}', 'App\Http\Controllers\CentraleRischiController@crAndamentale');
@@ -62,7 +64,7 @@ Route::group(['middleware' => ['cors', 'json.response']], function () {
 
 
     // SISTEMA DI ALLERTA
-    Route::get('/generalAllerta/{id}/{idCr}', 'App\Http\Controllers\AllertaController@allertaGeneral');
+    Route::get('/generalAllerta/{id}/{idCr}/{userId}', 'App\Http\Controllers\AllertaController@allertaGeneral');
     Route::post('/questionarioAsis', 'App\Http\Controllers\AllertaController@questionarioSistemaAllerta');
     Route::post('/forwardlooking', 'App\Http\Controllers\AllertaController@forwardLooking');
 

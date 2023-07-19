@@ -32,5 +32,7 @@ class VerifyCsrfToken extends Middleware
         'api/analisiBilancioBasic',
         'api/missingVoices',
         'api/getBilanciDocuments',
+        'api/setting',
     ];
 }
+ 

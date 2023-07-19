@@ -196,16 +196,18 @@ class CentraleRischiController extends Controller
         }
 
         $processGetPages = new Process(['qpdf', '--show-npages', '/var/www/html/staging/public/centraleRischi/' . $storedFile]);
-
+        
         $processGetPages->setTimeout(120);
 
         try {
             $processGetPages->run();
+
             if (!$processGetPages->isSuccessful()) {
                 throw new ProcessFailedException($processGetPages);
             }
         } catch (ProcessFailedException $e) {
-            dd($e);
+            /* dd($e); */
+            return response()->json($e->getMessage());
         }
 
         $totalPages = $processGetPages->getOutput();

@@ -26,6 +26,8 @@ use Auth;
 use Exception;
 use App\Models\MissingVoice;
 use Laravel\Passport\Token;
+use App\Models\Company;
+
 class BilanciController extends Controller
 {
 
@@ -110,6 +112,7 @@ class BilanciController extends Controller
             $readXBRL = XBRL_Instance::FromInstanceDocument($filePath, $taxonomyPath, $emptyInstance);
 
             if($readXBRL) {
+                $userID = $request->userID;
                 $bilancioJSON = $readXBRL->toJSON();
                 $renderHTML = $bilanciHelper->generateHTMLRender($filePath, $taxonomyPath);
                 $period = $bilanciHelper->getPeriodFromContext(json_decode($bilancioJSON)->contexts);
@@ -132,7 +135,7 @@ class BilanciController extends Controller
                     'idDocumento' => $document->id,
                     'renderHTML' => $renderHTML,
                     'bilancioJSON' => $bilancioJSON,
-                    'bilancioAnalisi' => $bilanciHelper->getIndexesForBalanceTaxonomy($document->id, $filePath, $readXBRL, $document->codice_documento),
+                    'bilancioAnalisi' => $bilanciHelper->getIndexesForBalanceTaxonomy($document->id, $filePath, $readXBRL, $document->codice_documento, $userID),
                 ], 200);
             } else {
                 return response()->json([
@@ -297,6 +300,25 @@ class BilanciController extends Controller
                 'error' => true,
                 'message' => $e->getMessage(),
             ]);
+        }
+    }
+
+    public function modalitySetting(Request $request) 
+    {
+        try {
+            $userID = $request->userID;
+            $modality = $request->mod;
+
+            $currentUser = User::findOrFail($userID);
+            $currentUser->update(['modAnalisi' => $modality]);
+            
+            return response()->json([
+                'Message' => 'Modalità analisi cambiata correttamente.', 
+                'mod' => $modality
+            ]);
+
+        } catch(Exception $e) {
+            return response()->json($e->getMessage());
         }
     }
 }
