@@ -52,19 +52,22 @@ class BilanciHelper
         return $indexValue;
     }
 
-    public function getIndexesForBalanceTaxonomy($idBilancio, $filePath = false, $instance = false, $codiceDocumento = false, $userID) {
+    public function getIndexesForBalanceTaxonomy($idBilancio, $filePath = false, $instance = false, $codiceDocumento = false, $userID = false) {
    
         $vocis = Voci::pluck('name', 'extended_name')->all();
 
-        $user = User::findOrFail($userID);
-        $calculationHelper = new BilanciCalculationsHelperAdvanced; 
+        if($userID) {
+            $user = User::findOrFail($userID);
 
-        if($user->modAnalisi === 1) {
-            // Analisi semplificata
-            $calculationHelper = new BilanciCalculationsHelperSemplified();
+            if($user->modAnalisi === 1) {
+                // Analisi semplificata
+                $calculationHelper = new BilanciCalculationsHelperSemplified();
+            } else {
+                // Analisi avanzata
+                $calculationHelper = new BilanciCalculationsHelperAdvanced();
+            }
         } else {
-            // Analisi avanzata
-            $calculationHelper = new BilanciCalculationsHelperAdvanced();
+            $calculationHelper = new BilanciCalculationsHelperAdvanced; 
         }
 
         $calculationHelper->documentId = $idBilancio;
