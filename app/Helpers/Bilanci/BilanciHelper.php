@@ -21,7 +21,9 @@ use XBRL\XBRL_Global;
 use XBRL\XBRL_Types;
 use XBRL\XBRL_Instance;
 use App\Helpers\Bilanci\BilanciCalculationsHelperAdvanced;
+use App\Helpers\Bilanci\BilanciCalculationsHelperSemplified;
 use Laravel\Passport\Token;
+use App\Domains\Auth\Models\User;
 
 class BilanciHelper
 {
@@ -50,11 +52,21 @@ class BilanciHelper
         return $indexValue;
     }
 
-    public function getIndexesForBalanceTaxonomy($idBilancio, $filePath = false, $instance = false, $codiceDocumento = false) {
-
+    public function getIndexesForBalanceTaxonomy($idBilancio, $filePath = false, $instance = false, $codiceDocumento = false, $userID) {
+   
         $vocis = Voci::pluck('name', 'extended_name')->all();
 
-        $calculationHelper = new BilanciCalculationsHelperAdvanced;
+        $user = User::findOrFail($userID);
+        $calculationHelper = new BilanciCalculationsHelperAdvanced; 
+
+        if($user->modAnalisi === 1) {
+            // Analisi semplificata
+            $calculationHelper = new BilanciCalculationsHelperSemplified();
+        } else {
+            // Analisi avanzata
+            $calculationHelper = new BilanciCalculationsHelperAdvanced();
+        }
+
         $calculationHelper->documentId = $idBilancio;
         $calculationHelper->codice_documento = $codiceDocumento;
 

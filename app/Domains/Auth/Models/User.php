@@ -61,6 +61,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'provider',
         'provider_id',
         'profile_pic',
+        'modAnalisi',
     ];
 
     /**

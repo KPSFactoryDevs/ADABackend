@@ -15,12 +15,13 @@ use App\Helpers\CentraleRischi\CrExtractorHelper;
 use App\Helpers\Allerta\AllertaHelper;
 use App\Helpers\Bilanci\BilanciHelper;
 use DateTime;
+use Auth;
 
 class AllertaController extends Controller
 {
 
 
-    public function allertaGeneral($id, $idCr)
+    public function allertaGeneral($id, $idCr, $userId)
     {
         if (cr::where('document_id', $idCr)->get()->count() == 0 || !isset($idCr)) {
             return response()->json([
@@ -36,7 +37,6 @@ class AllertaController extends Controller
             ], 400);
         }
 
-
         $allertaHelper = new AllertaHelper;
         $allertaHelper->setDocumentId($idCr);
         $getDate = $allertaHelper->getDate($idCr);
@@ -47,7 +47,7 @@ class AllertaController extends Controller
         $allertaHelper->setCrExtractor($crHelper);
 
         $bilancioHelper = new BilanciHelper;
-        $bilancioData = $bilancioHelper->getIndexesForBalanceTaxonomy($id, false, false);
+        $bilancioData = $bilancioHelper->getIndexesForBalanceTaxonomy($id, false, false, false, $userId);
 
         $valutazioneBilancio = $bilancioHelper->valutazioneIndici($bilancioData['Indici']['Advanced'], 'Comemrcio', date('Y'));
 
