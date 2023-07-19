@@ -40,7 +40,7 @@ class PDFController extends Controller
 
 
 		$bilanciHelper = new BilanciHelper;
-		$bilancioAnalisi = $bilanciHelper->getIndexesForBalanceTaxonomy($document->id, $filePath, $readXBRL, $document->codice_documento);
+		$bilancioAnalisi = $bilanciHelper->getIndexesForBalanceTaxonomy($document->id, $filePath, $readXBRL, $document->codice_documento, false);
 		$renderHTML = $bilanciHelper->generateHTMLRender($filePath, $taxonomyPath);
 
 
@@ -392,7 +392,7 @@ class PDFController extends Controller
         $allertaHelper->setCrExtractor($crHelper);
 
         $bilancioHelper = new BilanciHelper;
-        $bilancioData = $bilancioHelper->getIndexesForBalanceTaxonomy($idBilancio, false, false);
+        $bilancioData = $bilancioHelper->getIndexesForBalanceTaxonomy($idBilancio, false, false, false, false);
 
         $valutazioneBilancio = $bilancioHelper->valutazioneIndici($bilancioData['Indici']['Advanced'], 'Comemrcio', date('Y'));
 
