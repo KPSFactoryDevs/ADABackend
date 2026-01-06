@@ -32,7 +32,7 @@ class PDFController extends Controller
 		$taxonomyName = $document->taxonomy;
 		$emptyInstance = false;
 		$taxonomyPath = base_path()."/taxonomies/2018-11-04/".$taxonomyName;
-		$readXBRL = \XBRL\XBRL_Instance::FromInstanceDocument($filePath, $taxonomyPath, $emptyInstance);
+		$readXBRL = \XBRL_Instance::FromInstanceDocument($filePath, $taxonomyPath, $emptyInstance);
 		$bilancioJSON = $readXBRL->toJSON();
 
 	 	$Elements = $readXBRL->getElements();

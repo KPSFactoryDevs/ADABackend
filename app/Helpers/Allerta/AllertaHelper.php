@@ -504,9 +504,13 @@ class AllertaHelper
                     "Anno" => (cr::selectRaw("SUM(accordato_operativo) as totAccordatoOperativo")->whereRaw("date between '" . $earlyYearDate->format('Y-m-01') . "' and '" . $lastMonthDate->format('Y-m-t') . "'")->where('document_id', $this->_documentId)->whereIn('categoria', $categories)->get()->toArray())[0]['totAccordatoOperativo'],
                     "Triennio" => ((cr::selectRaw("SUM(accordato_operativo) as totAccordatoOperativo")->whereRaw("date between '" . $threeYearsDate->format('Y-m-01') . "' and '" . $lastMonthDate->format('Y-m-t') . "'")->where('document_id', $this->_documentId)->whereIn('categoria', $categories)->get()->toArray())[0]['totAccordatoOperativo'] / 36) * 12,
                 );
-                if ((- (1 - $totAccordato["Anno"] / $totAccordato["Triennio"])) > 0) {
+                if ($totAccordato["Triennio"] != 0 && (- (1 - $totAccordato["Anno"] / $totAccordato["Triennio"])) > 0) {
                     return true;
+                } else {
+                    // Puoi gestire il caso in cui $totAccordato["Triennio"] è zero
+                    return false;  // O qualsiasi altro comportamento desiderato
                 }
+                
             }
         }
         if ($totGaranzie["Trimestre"] != 0) {
@@ -624,6 +628,7 @@ class AllertaHelper
 
     public function getAnalisiCRSette($lastYearPeriod)
     {
+        $accordatoMedioMensile = [];
         $allMonthsCount = $this->crExtractorHelper->getCountMonths();
         $categories = array(
             'RISCHI A REVOCA',

@@ -16,10 +16,10 @@ use App\Models\Document;
 use Exception;
 use App\Helpers\Bilanci\BilanciCalculationsHelper;
 use App\Models\CustomLog;
-use XBRL\XBRL_DFR;
-use XBRL\XBRL_Global;
+use XBRL_DFR;
+use XBRL_Global;
 use XBRL\XBRL_Types;
-use XBRL\XBRL_Instance;
+use XBRL_Instance;
 use App\Helpers\Bilanci\BilanciCalculationsHelperAdvanced;
 use App\Helpers\Bilanci\BilanciCalculationsHelperSemplified;
 use Laravel\Passport\Token;
@@ -142,6 +142,93 @@ class BilanciHelper
         );
     }
 
+    public function getIndexesForBalanceTaxonomyForAi($idBilancio, $filePath = false, $instance = false, $codiceDocumento = false, $userID = false) {
+   
+        $vocis = Voci::pluck('name', 'extended_name')->all();
+
+        if($userID) {
+            $user = User::findOrFail($userID);
+
+            if($user->modAnalisi === 1) {
+                // Analisi semplificata
+                $calculationHelper = new BilanciCalculationsHelperSemplified();
+            } else {
+                // Analisi avanzata
+                $calculationHelper = new BilanciCalculationsHelperAdvanced();
+            }
+        } else {
+            $calculationHelper = new BilanciCalculationsHelperAdvanced; 
+        }
+
+        $calculationHelper->documentId = $idBilancio;
+        $calculationHelper->codice_documento = $codiceDocumento;
+
+        if($instance == true) {
+            $calculationHelper->setCurrentInstance($instance);
+        } else {
+            $document = Document::findOrFail($idBilancio);
+            $filePath = base_path() . '/public/bilanci/' . $document->filename;
+            $taxonomyName = $document->taxonomy;
+            $taxonomyPath = base_path()."/taxonomies/2018-11-04/".$taxonomyName;
+
+            $readXBRL = XBRL_Instance::FromInstanceDocument($filePath, $taxonomyPath, $emptyInstance);
+            $calculationHelper->setCurrentInstance($readXBRL);
+        }
+
+        $indexFormattedValue = [
+            "Basic" => [
+                "Sostenibilità Oneri Finanziari" => $calculationHelper->getSostenibilitaOneriFinanziari(),
+                "Adeguatezza Patrimoniale" => $calculationHelper->getAdeguatezzaPatrimonialeEvaluation(),
+                "Liquidità" => $calculationHelper->getLiquiditaEvaluation(),
+                "Indebitamento Previdenziale Tributario" => $calculationHelper->getIndebitamentoPrevidenziale(),
+                "Ritorno Liquido Attivo" => $calculationHelper->getRitornoLiquidoAttivo(),
+                "Indice CNDCEC" => $calculationHelper->getIndiceCNDCEC(),
+            ],
+            "Advanced" => [
+                'OF Ricavi' => $calculationHelper->getOfRicavi(),
+                'Adeguatezza Patrimoniale' => $calculationHelper->getAdeguatezzaPatrimoniale(),
+                'Liqudità' => $calculationHelper->getLiquidita(),
+                'Andamento Del Fatturato' => $calculationHelper->getAndamentoDelFatturato(),
+                'Andamento Del Mol' => ($calculationHelper->getAndamentoDelMol('Andamento Del Mol')) ? $calculationHelper->getAndamentoDelMol('Andamento Del Mol')['AndamentoMOL'] : false,
+                'ROI' => $calculationHelper->getROI(),
+                'ROS' => $calculationHelper->getROS(),
+                'ROE' => $calculationHelper->getROE(),
+                'Ebitda Fatturato' => $calculationHelper->getEbitdaFatturato(),
+                'Andamento Dei Mezzi Propri' => $calculationHelper->getAndamentoDeiMezziPropri(),
+                'Margine Struttura Primario' => $calculationHelper->getMargineStrutturaPrimario(),
+                'Margine Struttura Secondario' => $calculationHelper->getMargineStrutturaSecondario(),
+                'Current Ratio' => $calculationHelper->getCurrentRatio(),
+                'Attivita Passivita A Breve' => ($calculationHelper->getAttivitaPassivitaABreve('Attivita Passivita A Breve')) ? $calculationHelper->getAttivitaPassivitaABreve('Attivita Passivita A Breve')['Attivita_a_breve_Passività_a_Breve_Ordinario'] : false,
+                'Acid Test' => $calculationHelper->getAcidTest(),
+                'Acid Test Ordinario' => $calculationHelper->getAcidTestOrdinario(),
+                'Autonomia Finanziaria' => $calculationHelper->getAutonomiaFinanziaria(),
+                'Livello Investimenti Aziendali' => $calculationHelper->getLivelloInvestimentiAziendali(),
+                'Pfn Ebitda' => $calculationHelper->getPfnEbitda(),
+                'Peso Oneri Finanziari' => $calculationHelper->getPesoOneriFinanziari(),
+                'Copertura Lorda Degli Oneri Finanziari' => $calculationHelper->getCoperturaLordaDegliOneriFinanziari(),
+                'Ebit Of' => $calculationHelper->getEbitOf(),
+                'Costo Del Personale' => $calculationHelper->getCostoDelPersonale(),
+                'Cf Attivo' => $calculationHelper->getCfAttivo(),
+                'Indice Di Indebitamento' => $calculationHelper->getIndiceDiIndebitamento(),
+                'Saldo Debiti Vs Fisco' => $calculationHelper->getSaldoDebitiVsFisco(),
+            ]
+        ];
+
+        $indexFormattedValue = $this->indexesToFormat($indexFormattedValue);
+
+        return array(
+            "Indici" => $indexFormattedValue,
+            'Questionari' => [
+                'Questionario DSCR' => $calculationHelper->getDSCRData(),
+                'Agenzia delle Entrate' => $calculationHelper->getAgenziaEntrateData(),
+                'INPS' => $calculationHelper->getInpsData(),
+                'Agente della Riscossione' => $calculationHelper->getRiscossioneData(),
+                'Debiti per Retribuzioni' => $calculationHelper->getRetribuzioniData(),
+                'Debiti verso Fornitori' => $calculationHelper->getFornitoriData()
+            ]
+        );
+    }
+
     public function valutazioneIndici($data, $tipoAzienda, $currentYear)
     {
 
@@ -226,10 +313,11 @@ class BilanciHelper
             $idBilancio = str_replace('"', '', $idBilancio);
         }
 
-        $calcoloDSCR = $this->getCalcoloDSCR($allData);
-        $dscrData = $this->getAnalisisDataFull($allData);
+       // $calcoloDSCR = $this->getCalcoloDSCR($allData);
+        $calcoloDSCR = null;
+       // $dscrData = $this->getAnalisisDataFull($allData);
 
-        if (isset($calcoloDSCR['error'])) {
+        if ($calcoloDSCR == null) {
             $dscrData['alertDSCR'] = "DSCR Non Calcolabile: dati mancanti";
         }
 
@@ -258,6 +346,7 @@ class BilanciHelper
 
     public function getPeriodFromContext($contexts)
     {
+     
         if(isset($contexts)) {
             foreach($contexts as $singleContext) {
                 $period[] = explode('-', $singleContext->period->startDate)[0];
@@ -297,96 +386,156 @@ class BilanciHelper
         }
     }
 
-    public function generateHTMLRender($instance, $taxonomy) {
+    public function generateHTMLRender($instance, $taxonomy)
+{
+    $cacheLocation     = __DIR__ . '/cache';
+    $compiledLocation  = $taxonomy;        // percorso tassonomia compilata
+    $languageCode      = 'it';
+    global $use_xbrl_functions;
+    $use_xbrl_functions = true;
 
-        $cacheLocation = __DIR__ . "/cache";
-        $compiledLocation = $taxonomy; // !!! Change this
-        $languageCode = 'it';
-        global $use_xbrl_functions;
-        $use_xbrl_functions = true;
+    try {
 
-        try
-        {
-            if ( ! file_exists( "$compiledLocation" ) ) {
-                return false;
-            }
-
-            global $reportModelStructureRuleViolations;
-            $reportModelStructureRuleViolations = false;
-            XBRL_Global::reset();
-            XBRL_Types::reset();
-            new \XBRL_IFRS();
-/*
- *
-            $context = XBRL_Global::getInstance();
-            if ( ! $context->useCache )
-            {
-                $context->useCache = true;
-                $context->cacheLocation = $cacheLocation;
-                $context->initializeCache();
-            }
-            */
-            $document = $instance;
-
-            if ( ! file_exists( $document ) )
-            {
-                 return false;
-            }
-
-            $schemaHRef = $this->getInstanceTaxonomyHRef( $document );
-            $compiledTaxonomyFilename = base_path()."/taxonomies/2018-11-04/".$schemaHRef;
-            $instance = XBRL_Instance::FromInstanceDocumentWithExtensionTaxonomy( $document, $compiledTaxonomyFilename );
-            $formulas = null;
-            $results = array();
-            $instanceTaxonomy = $instance->getInstanceTaxonomy();
-            $dfr = new XBRL_DFR( $instanceTaxonomy );
-            $presentationNetworks = $dfr->validateDFR( $formulas, true, $languageCode );
-            $dfr->includeCheckboxControls = false;
-            $dfr->includeComponent = false;
-            $dfr->includeSlicers = false;
-            $dfr->includeFactsTable = false;
-            $dfr->includeWidthcontrols = false;
-            $dfr->includeBusinessRules = false;
-            $renders = $dfr->renderPresentationNetworks( $presentationNetworks, $instance, $formulas, false, $languageCode, false, $results );
-
-            $indexHTML =
-                "<html>\n" .
-                "	<head>\n" .
-                "		<title>XBRL Rendered Views Index</title>\n" .
-             "		<link rel='stylesheet' id='render-report-css' href='https://piratebuy.it/xbrl-render-report.css'>\n" .
-
-                "		<script type='text/javascript' src='https://code.jquery.com/jquery-1.12.4.min.js'></script>\n" .
-
-                "	</head>\n" .
-                "	<body>\n" .
-
-                "";
-
-            $count = 0;
-            foreach ( $renders as $role => $render )
-            {
-                $count++;
-                if ( isset( $render['hasReport'] ) && ! $render['hasReport'] ) continue;
-
-                foreach ( $render['entities'] as $entity => $networkHTML )
-                {
-                    $indexHTML .=
-                        "		<div id='primary'>\n" . $networkHTML .
-                        "		</div>\n" ;
-                }
-            }
-            $indexHTML .=  "</html>";
-
-            return $indexHTML;
-        }
-        catch( \Exception $ex )
-        {
-            echo $ex;
-            //echo $ex->getMessage();
+        /* -----------------------------------------------------------
+         *  1) Verifiche preliminari sui file
+         * ----------------------------------------------------------*/
+        if ( ! file_exists($instance) ) {         // l’istanza XBRL DEVE esistere
             return false;
         }
-    }
+        // se vuoi che la funzione continui anche se la cartella
+        // criptata della tassonomia non esiste, commenta la riga seguente
+        if ( ! file_exists($compiledLocation) ) {
+            return false;
+        }
 
+        /* -----------------------------------------------------------
+         *  2) Reset + inizializzazione libreria
+         * ----------------------------------------------------------*/
+        global $reportModelStructureRuleViolations;
+        $reportModelStructureRuleViolations = false;
+
+        XBRL_Global::reset();
+        XBRL_Types::reset();
+        new \XBRL_IFRS();
+
+        /* -----------------------------------------------------------
+         *  3) Apertura istanza con estensione tassonomia compilata
+         * ----------------------------------------------------------*/
+        $schemaHRef               = $this->getInstanceTaxonomyHRef($instance);
+        $compiledTaxonomyFilename = base_path("/taxonomies/2018-11-04/{$schemaHRef}");
+
+        $instanceObj         = XBRL_Instance::FromInstanceDocumentWithExtensionTaxonomy(
+                                   $instance,
+                                   $compiledTaxonomyFilename
+                               );
+
+        $formulas            = null;
+        $results             = [];
+        $instanceTaxonomy    = $instanceObj->getInstanceTaxonomy();
+        $dfr                 = new XBRL_DFR($instanceTaxonomy);
+
+        /* -----------------------------------------------------------
+         *  4) Opzioni di rendering: mostriamo solo il necessario
+         * ----------------------------------------------------------*/
+        $dfr->includeCheckboxControls = false;
+        $dfr->includeComponent        = false;
+        $dfr->includeSlicers          = false;
+        $dfr->includeFactsTable       = false;
+        $dfr->includeWidthcontrols    = false;
+        $dfr->includeBusinessRules    = false;
+
+        // *** NEW ➜ nasconde header/label di servizio (Etichetta, Tipo periodo, …)
+        $dfr->showLabels              = false;     // se la versione della libreria supporta la proprietà
+        $dfr->showHeader              = false;     // idem
+
+        $presentationNetworks = $dfr->validateDFR($formulas, true, $languageCode);
+
+        $renders = $dfr->renderPresentationNetworks(
+            $presentationNetworks,
+            $instanceObj,
+            $formulas,
+            false,               // niente facts table
+            $languageCode,
+            false,
+            $results
+        );
+
+        /* -----------------------------------------------------------
+         *  5) Costruzione HTML + filtro righe/colonne indesiderate
+         * ----------------------------------------------------------*/
+        $indexHTML =
+            "<html>\n<head>\n" .
+            "  <title>XBRL Rendered Views</title>\n" .
+            "  <link rel='stylesheet' id='render-report-css' href='https://kpsfactory.com/wp-content/uploads/2024/xbrl-render-report.css'>\n" .
+
+            '<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+      integrity="sha512-Fo3rlrZj/k7ujTnHg4C+6x5a4v0jtF1Rn+aWdPFKWeW1Vlj6W1x+EzoCVx3l1Y+FznTlwptg8Eq97nM7yS3+CA=="
+      crossorigin="anonymous" referrerpolicy="no-referrer" />'.
+            // *** NEW ➜ piccolo CSS per nascondere eventuali colonne residue
+            "  <style>
+                 thead,                       /* header intero */
+                 th:nth-child(1), td:nth-child(1), /* colonna Etichetta */
+                 th:nth-child(3), td:nth-child(3), /* Tipo periodo / classe   */
+                 th:nth-child(4), td:nth-child(4)  /* Bilancio / NA ecc.      */
+                 {display:none;}
+                            div#primary {
+                    margin: 0 auto 0 auto!important;
+    max-width: 1000px!important;
+    }
+    .match: {
+display:none;
+}
+                  .structure-table {
+                 display:none!important;}
+                 .report-table {
+                     grid-template-columns: 600px repeat(1, minmax(300px, max-content))!important;
+    }
+               </style>\n" .
+            "  <script src='https://code.jquery.com/jquery-1.12.4.min.js'></script>\n" .
+            "</head>\n<body>\n";
+
+        foreach ($renders as $render) {
+
+            if (isset($render['hasReport']) && ! $render['hasReport']) {
+                continue;
+            }
+
+            foreach ($render['entities'] as $networkHTML) {
+
+                // *** NEW ➜ rimuove eventuale <thead> con regex, come “doppia
+                //          sicurezza” nel caso lo stile non basti.
+                $networkHTML = preg_replace(
+                    [
+                        '/<thead\b[^>]*>.*?<\/thead>/is',                                   // header
+                        '/<tr[^>]*>.*?(Etichetta|Fatto impostato tipo|Tipo di periodo).*?<\/tr>/is'  // righe service
+                    ],
+                    '',
+                    $networkHTML
+                );
+
+                $indexHTML .= "  <div id='primary'>\n{$networkHTML}\n  </div>\n";
+            }
+        }
+
+        $indexHTML .= "</body>\n</html>";
+
+        return $indexHTML;
+
+    } catch (\Throwable $ex) {
+
+        // *** NEW ➜ log esteso per debug
+        logger()->error('generateHTMLRender failed', [
+            'msg'  => $ex->getMessage(),
+            'file' => $ex->getFile().':'.$ex->getLine(),
+        ]);
+
+        return false;
+    }
+}
+
+
+    
 
 
     public function getInstanceTaxonomyHRef( $filename ) {
@@ -536,3 +685,10 @@ class BilanciHelper
         }
     }
 }
+
+
+
+
+
+
+

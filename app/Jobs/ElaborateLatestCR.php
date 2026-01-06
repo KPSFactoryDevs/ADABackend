@@ -42,6 +42,9 @@ class ElaborateLatestCR implements ShouldQueue
     public function handle()
     {
 
+
+        try {
+         
             $params = array();
             $params = [
                 'documentId' => $this->documentId,
@@ -50,6 +53,11 @@ class ElaborateLatestCR implements ShouldQueue
             ];
 
             app()->call(CentraleRischiController::class . '@' . 'recap',$params);
+        } catch (\Exception $e) {
+          dump($e->getMessage(), $e->getTraceAsString());
+        }
+
+        
 
     }
 

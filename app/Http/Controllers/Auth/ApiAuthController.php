@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use app\Domains\Auth\Models\User;
+use App\Domains\Auth\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -12,41 +12,34 @@ use Illuminate\Support\Str;
 
 class ApiAuthController extends Controller
 {
-    public function login(Request $request)
+     public function login(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
-            'email' => 'required|string|email|max:255',
+            'email'    => 'required|string|email|max:255',
             'password' => 'required|string|min:6',
         ]);
 
         if ($validator->fails()) {
-            return response(['errors' => $validator->errors()->all()], 422);
+            return response(['errors' => $validator->errors()], 422);
         }
 
         $user = User::where('email', $request->email)->first();
 
-        if ($user) {
-
-            if (Hash::check($request->password, $user->password)) {
-                $token = $user->createToken('Laravel Password Grant Client')->accessToken;
-                $response = ['token' => $token, 'user' => $user];
-                return response($response, 200);
-            } else {
-                $response = ["message" => "La password non è corretta"];
-                return response($response, 422);
-            }
-        } else {
-            $response = ["message" => 'L\'utente non esiste'];
-            return response($response, 422);
+        if (!$user) {
+            return response(['message' => 'Utente inesistente'], 422);
         }
+
+        if (!Hash::check($request->password, $user->password)) {
+            return response(['message' => 'Password errata'], 422);
+        }
+
+        $token = $user->createToken('ADA Personal Access Token')->accessToken;
+        return response(['token' => $token, 'user' => $user], 200);
     }
 
     public function logout(Request $request)
     {
-        $token = $request->user()->token();
-        $token->revoke();
-        $response = ['message' => 'Sei stato disconnesso correttamente!'];
-        return response($response, 200);
+        $request->user()->token()->revoke();
+        return response(['message' => 'Disconnessione effettuata'], 200);
     }
 }

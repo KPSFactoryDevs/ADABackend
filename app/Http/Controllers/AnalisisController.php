@@ -35,10 +35,11 @@ class AnalisisController extends Controller
         $allData = $request->all();
 
             $bilancioHelper = new BilanciHelper;
-            $calcoloDSCR = $bilancioHelper->getCalcoloDSCR($allData);
+                $bilancioHelperAdvanced = new BilanciCalculationsHelperAdvanced;
+           $calcoloDSCR = $bilancioHelperAdvanced->getCalcoloDSCR($allData);
             $dataBasic = $bilancioHelper->saveAnalisiBasicToDB($allData, $idBilancio);
-            $bilancioHelper->calculateRiscossione($allData);
-
+            $bilancioHelperAdvanced->calculateRiscossione($allData);
+/*
             if(isset($calcoloDSCR['error']) && $calcoloDSCR['error'] == true) {
                 return response()->json([
                     'error' => false,
@@ -48,7 +49,7 @@ class AnalisisController extends Controller
                     'DSCRError' => true
                 ], 200);
             }
-
+*/
             return response()->json([
                     'error' => false,
                     'Message' => $dataBasic['Message'],

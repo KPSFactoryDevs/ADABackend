@@ -20,7 +20,7 @@ use Illuminate\Notifications\Notifiable;
 use Lab404\Impersonate\Models\Impersonate;
 use Spatie\Permission\Traits\HasRoles;
 use Laravel\Passport\HasApiTokens;
-
+use App\Http\Models\Company;
 /**
  * Class User.
  */
@@ -160,4 +160,8 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return UserFactory::new();
     }
+
+    public function companies() {
+    return $this->hasMany(\App\Models\Company::class);
+}
 }

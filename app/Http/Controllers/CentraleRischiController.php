@@ -84,41 +84,58 @@ class CentraleRischiController extends Controller
         $process = new Process(['python3', base_path() . '/crExtractor.py', $filepath, $page]);
 
         $process->setTimeout(10000);
-
+      
         try {
             $process->run();
             if (!$process->isSuccessful()) {
+    
                 throw new ProcessFailedException($process);
             }
             $crFileToElaborate->status = $liveStatus;
             $crFileToElaborate->save();
         } catch (ProcessFailedException $e) {
+            
             $crFileToElaborate->status = $liveStatus;
             $crFileToElaborate->save();
-            dd($e);
+           
+
+
         }
 
         if (!$process->isSuccessful()) {
+      
             throw new ProcessFailedException($process);
         } else {
             $jsonData = $process->getOutput();
+ 
+
+      
             $jsonArray = json_decode($jsonData);
+    
+     
+ 
             $CentraleRischiAggregateData = new App\Helpers\CentraleRischi\CentraleRischiAggregateData();
+
+         
+    
             $dataToSave = $CentraleRischiAggregateData->crJsonToArray($jsonArray);
 
+       
 
+      
             $codiceDocumento = $crFileToElaborate->codice_documento;
             $companyId = $crFileToElaborate->company_id;
             $CentraleRischiStoreDataHelper = new App\Helpers\CentraleRischi\CentraleRischiStoreDataHelper();
 
 
+   
             foreach ($dataToSave as $anno => $months) {
                 foreach ($months as $mese => $data) {
                     foreach ($data as $singleBank => $keys) {
                         foreach ($keys as $index => $value) {
                             $mesiList = ["0" => "fuoriMese", "gennaio" => 1, 'febbraio' => 2, 'marzo' => 3, 'aprile' => 4, 'maggio' => 5, 'giugno' => 6, 'luglio' => 07, "agosto" => 8, 'settembre' => 9, 'ottobre' => 10, 'novembre' => 11, 'dicembre' => 12,];
                             $transformedMonth = $mesiList[$mese];
-
+                         
                             if ($index === 'Firma') {
                                 $CentraleRischiStoreDataHelper->saveFirma($value, $anno, $mese, $transformedMonth, $singleBank, $index, $codiceDocumento, $companyId);
                             }
@@ -131,11 +148,12 @@ class CentraleRischiController extends Controller
                                 $CentraleRischiStoreDataHelper->saveSofferenze($value, $anno, $mese, $transformedMonth, $singleBank, $index, $codiceDocumento, $companyId);
                             }
 
-                            if ($index === 'Cassa') {
+                            if ($index === 'Cassa') { 
                                 $CentraleRischiStoreDataHelper->saveCassa($value, $anno, $mese, $transformedMonth, $singleBank, $index, $codiceDocumento, $companyId);
                             }
 
                             if ($index === 'Informativa') {
+                         
                                 $CentraleRischiStoreDataHelper->saveInformativa($value, $anno, $mese, $transformedMonth, $singleBank, $index, $codiceDocumento, $companyId);
                             }
 
@@ -159,15 +177,22 @@ class CentraleRischiController extends Controller
      */
     public function store(Request $request)
     {
-        $base64CentraleRischi = $request->base64;
 
+
+        $base64CentraleRischi = $request->base64;
+ 
         $storedFile = Storage::disk('public')->putFile('', $base64CentraleRischi);
+      
+
         $storeFullPath = asset('centraleRischi') . '/' . $storedFile;
+     
+        $localPathFs = Storage::disk('public')->path($storedFile);
+
         $bilanciHelper = new BilanciHelper;
 
         $newDocumentData = [
             'filename' => time() . '_' . $base64CentraleRischi->getClientOriginalName(),
-            'path' => $storeFullPath,
+            'path' => $localPathFs,
             'type' => 'centrale rischi',
             'codice_documento' => rand(1, 999999999),
             'status' => 'Da Elaborare',
@@ -195,7 +220,7 @@ class CentraleRischiController extends Controller
             ], 500);
         }
 
-        $processGetPages = new Process(['qpdf', '--show-npages', '/var/www/html/staging/public/centraleRischi/' . $storedFile]);
+        $processGetPages = new Process(['qpdf', '--show-npages', '/Users/federicomegna/Projects/KPS/adabackend/public/centraleRischi/' . $storedFile]);
         
         $processGetPages->setTimeout(120);
 
@@ -237,6 +262,7 @@ class CentraleRischiController extends Controller
 
     public function crAndamentale($period, $data_inizio = false, $data_fine = false, $inputBanks = null)
     {
+      
         $crAndamentaleData['period'] = $period;
         $crAndamentaleData['data_inizio'] = $data_inizio;
         $crAndamentaleData['data_fine'] = $data_fine;
@@ -259,12 +285,12 @@ class CentraleRischiController extends Controller
 
             $crHelper = new CrExtractorHelper;
 
-            if (cr::select('date')->where('document_id', $crAndamentaleData['period'])->count() == 0) {
+       /*     if (cr::select('date')->where('document_id', $crAndamentaleData['period'])->count() == 0) {
                 return response()->json([
                     'error' => true,
                     'message' => 'Invalid period specified'
                 ], 400);
-            }
+            }*/
 
             if (!$crAndamentaleData['data_inizio'] || !$crAndamentaleData['data_fine']) {
                 $lastDate = new DateTime(
