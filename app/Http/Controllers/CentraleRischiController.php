@@ -285,7 +285,7 @@ public function store(Request $request)
                 ], 400);
             }*/
 
-                $crss=cr::all();
+                $crss=cr::where('document_id', $crAndamentaleData['period'])->get();
                 dd($crss);
             if (!$crAndamentaleData['data_inizio'] || !$crAndamentaleData['data_fine']) {
                 $lastDate = new DateTime(
