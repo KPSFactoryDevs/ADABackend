@@ -177,94 +177,113 @@ class CentraleRischiController extends Controller
 
 
 
+  
+
 public function store(Request $request)
 {
-    $base64 = $request->base64;
-
-    // 1) Decodifica base64 (gestisce anche data URL)
-    if (preg_match('/^data:(.*?);base64,(.*)$/', $base64, $m)) {
-        $mime = $m[1];
-        $raw  = base64_decode($m[2]);
-    } else {
-        $mime = null;
-        $raw  = base64_decode($base64);
-    }
-
-    if ($raw === false || $raw === '') {
-        return response()->json([
-            'error' => true,
-            'message' => 'Base64 non valido'
-        ], 422);
-    }
-
-    // 2) Estensione (qui assumo PDF; se vuoi supportare immagini lo estendiamo)
-    $ext = ($mime === 'application/pdf' || $mime === null) ? 'pdf' : 'bin';
-
-    // 3) Salvataggio su disk public
-    $filename = Str::uuid() . '.' . $ext;
-    $storedFile = 'centraleRischi/' . $filename;
-
-    Storage::disk('public')->put($storedFile, $raw);
-
-    // 4) Percorsi corretti
-    $storeFullPath = asset('storage/' . $storedFile);
-    $localPathFs   = Storage::disk('public')->path($storedFile);
+    // 1) Validazione: il campo si chiama "base64" ma è un FILE PDF
+    $request->validate([
+        'base64' => 'required|file|mimes:pdf|max:51200', // 50MB (cambia se vuoi)
+    ]);
 
     $bilanciHelper = new BilanciHelper;
 
+    // 2) Auth user
+    $userId = $bilanciHelper->getCurrentUserIdFromToken($request);
+    if ($userId === 'Unauthorized') {
+        return response()->json([
+            'exception' => true,
+            'message' => 'Unauthorized'
+        ], 401);
+    }
+
+    // 3) Prendo il file
+    /** @var \Illuminate\Http\UploadedFile $file */
+    $file = $request->file('base64');
+
+    // 4) Salvataggio su disk "public" dentro cartella centraleRischi
+    //    (assicurati di avere: php artisan storage:link)
+    $safeOriginalName = preg_replace('/[^a-zA-Z0-9._-]+/', '_', $file->getClientOriginalName());
+    $finalName = time() . '_' . Str::uuid() . '_' . $safeOriginalName;
+
+    $storedFile = $file->storeAs('centraleRischi', $finalName, 'public'); // es: centraleRischi/xxx.pdf
+
+    // 5) Path filesystem + URL pubblico
+    $localPathFs = Storage::disk('public')->path($storedFile);
+    $publicUrl   = asset('storage/' . $storedFile);
+
+    // 6) Dati documento
     $newDocumentData = [
-        'filename' => $filename, // niente getClientOriginalName()
+        'filename' => $finalName,
         'path' => $localPathFs,
         'type' => 'centrale rischi',
-        'codice_documento' => rand(1, 999999999),
+        'codice_documento' => random_int(1, 999999999),
         'status' => 'Da Elaborare',
         'company_id' => null,
-        'user_id' => null
+        'user_id' => $userId
     ];
 
-    if ($request->header('currentcompany') || $request->header('currentcompany') == 0) {
+    if ($request->header('currentcompany') !== null) {
         $newDocumentData["company_id"] = $request->header('currentcompany');
     }
 
-    $userId = $bilanciHelper->getCurrentUserIdFromToken($request);
-    if ($userId === 'Unauthorized') {
-        return response()->json(['exception' => true, 'message' => 'Unauthorized'], 401);
-    }
-    $newDocumentData['user_id'] = $userId;
-
+    // 7) Creo record DB
     try {
         $documentCreated = Document::create($newDocumentData);
     } catch (\Exception $e) {
-        return response()->json(['exception' => true, 'message' => $e->getMessage()], 500);
+        return response()->json([
+            'exception' => true,
+            'message' => $e->getMessage(),
+        ], 500);
     }
 
-    // 5) qpdf usa il path locale reale
-    $processGetPages = new Process(['qpdf', '--show-npages', $localPathFs]);
-    $processGetPages->setTimeout(120);
+    // 8) qpdf: conta pagine (senza symfony/process)
+    //    Assicurati che qpdf sia installato sulla macchina (yum/apt)
+    $cmd = 'qpdf --show-npages ' . escapeshellarg($localPathFs) . ' 2>&1';
+    $out = trim((string) shell_exec($cmd));
 
-    try {
-        $processGetPages->mustRun();
-    } catch (ProcessFailedException $e) {
-        return response()->json(['error' => true, 'message' => $e->getMessage()], 500);
+    // Se qpdf non c'è o fallisce, spesso l'output non è numerico
+    if ($out === '' || !ctype_digit($out)) {
+        return response()->json([
+            'error' => true,
+            'message' => 'qpdf error / output non valido',
+            'qpdf_output' => $out,
+            'file' => $storedFile,
+        ], 500);
     }
 
-    $totalPages = (int) trim($processGetPages->getOutput());
+    $totalPages = (int) $out;
 
+    // 9) Dispatch job per ogni pagina
     if ($totalPages > 0) {
         for ($pageToExtract = 1; $pageToExtract <= $totalPages; $pageToExtract++) {
             $liveStatus = round((($pageToExtract / $totalPages) * 100), 1) . "% processato";
-            if ($pageToExtract == $totalPages) $liveStatus = "Completato";
-            ElaborateLatestCR::dispatch($pageToExtract, $documentCreated["codice_documento"], $liveStatus);
+            if ($pageToExtract === $totalPages) {
+                $liveStatus = "Completato";
+            }
+
+            ElaborateLatestCR::dispatch(
+                $pageToExtract,
+                $documentCreated["codice_documento"],
+                $liveStatus
+            );
         }
     } else {
-        return response()->json(['error' => true, 'message' => "No pages detected on file"], 500);
+        return response()->json([
+            'error' => true,
+            'message' => "No pages detected on file"
+        ], 500);
     }
 
+    // 10) Risposta
     return response()->json([
         'newDocumentCreated' => $documentCreated,
-        'file_url' => $storeFullPath,
+        'storedFile' => $storedFile,
+        'fileUrl' => $publicUrl,
+        'pages' => $totalPages,
     ], 200);
 }
+
 
 
 
