@@ -71,6 +71,8 @@ class BilanciController extends Controller
 
         $bilanciHelper = new BilanciHelper();
         if($request->documentId) { 
+      
+      
             $document = Document::findOrFail($request->documentId);
 
             $filePath = base_path() . '/public/bilanci/' . $document->filename;
@@ -170,6 +172,7 @@ class BilanciController extends Controller
 
         $bilanciHelper = new BilanciHelper();
         if($documentId) {
+        
             $document = Document::findOrFail($documentId);
 
             $filePath = base_path() . '/public/bilanci/' . $document->filename;

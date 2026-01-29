@@ -2,6 +2,16 @@
 
 use Illuminate\Http\Request;
 use App\Jobs\ElaborateLatestCR;
+use App\Http\Controllers\CompaniesController;
+// routes/api.php
+use App\Http\Controllers\ClientsController;
+use App\Http\Controllers\FICOAuthController;
+use App\Http\Controllers\InvoicesController;
+use App\Http\Controllers\DbMetaController;
+use App\Http\Controllers\AIController;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\BankAccountController;
+use App\Http\Controllers\BankTransactionController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -18,7 +28,10 @@ use App\Jobs\ElaborateLatestCR;
 //});
 
 
+
 Route::group(['middleware' => ['cors', 'json.response']], function () {
+
+    Route::post('/assistant', [AIController::class, 'queryAI']);
 
     Route::post('/login', 'App\Http\Controllers\Auth\ApiAuthController@login')->name('login.api');
     Route::post('/logout', 'App\Http\Controllers\Auth\ApiAuthController@logout')->name('logout.api');
@@ -32,6 +45,10 @@ Route::group(['middleware' => ['cors', 'json.response']], function () {
     Route::post('/predefinito', 'App\Financial\Bilanci\Controllers\BilanciController@bilancioPredefinito');
     Route::post('/copiaBilancio', 'App\Financial\Bilanci\Controllers\BilanciController@copiaBilancio');
     Route::post('/recapBilancio', 'App\Financial\Bilanci\Controllers\BilanciController@recap');
+
+    Route::get('/recapForAi/{documentId}', 'App\Financial\Bilanci\Controllers\BilanciController@recapForAi');
+
+
     Route::post('/importBilancio', 'App\Financial\Bilanci\Controllers\BilanciController@store');
     Route::get('/getBilancio/{id}', 'App\Financial\Bilanci\Controllers\BilanciController@show');
     Route::get('/getAllBilanci', 'App\Financial\Bilanci\Controllers\BilanciController@index');
@@ -77,11 +94,60 @@ Route::group(['middleware' => ['cors', 'json.response']], function () {
     Route::get('/reportAllerta/{idBilancio}/{idCr}', 'App\Http\Controllers\PDFController@reportAllerta');
     Route::get('/reportAndamentale/{years}', 'App\Http\Controllers\PDFController@reportCrAndamentale');
 
-    // Companies
-    Route::get('/company', 'App\Http\Controllers\CompaniesController@index');
-    Route::get('/createCompany', 'App\Http\Controllers\CompaniesController@create');
-    Route::get('/showCompany/{company}', 'App\Http\Controllers\CompaniesController@show');
-    Route::post('/company', 'App\Http\Controllers\CompaniesController@store');
-    Route::post('/editCompany/{company}', 'App\Http\Controllers\CompaniesController@update');
-    Route::delete('/company/{company}', 'App\Http\Controllers\CompaniesController@destroy');
+ 
+});
+
+
+Route::group(['middleware' => ['cors','json.response','auth:api']], function () {
+    // Companies protette
+    Route::get('/company', [CompaniesController::class, 'index']);
+    Route::post('/company', [CompaniesController::class, 'store']);
+    Route::get('/company/{company}', [CompaniesController::class, 'show']);
+    Route::post('/company/{company}', [CompaniesController::class, 'update']);
+    Route::delete('/company/{company}', [CompaniesController::class, 'destroy']);
+});
+
+
+
+Route::middleware('auth:api')->group(function () {
+    Route::get('/clients', [ClientsController::class, 'index']);
+    Route::post('/clients', [ClientsController::class, 'store']);
+    Route::get('/clients/{client}', [ClientsController::class, 'show']);
+    Route::put('/clients/{client}', [ClientsController::class, 'update']);
+    Route::delete('/clients/{client}', [ClientsController::class, 'destroy']);
+});
+
+
+
+
+Route::middleware('auth:api')->group(function () {
+    Route::get('/invoices', [InvoicesController::class, 'index']);
+    Route::post('/invoices/import', [InvoicesController::class, 'importFromCloud']);
+});
+
+
+
+
+Route::middleware(['cors','json.response','auth:api'])->group(function () {
+    Route::post('/fic/prepare',   [\App\Http\Controllers\FICOAuthController::class, 'prepare']);
+    Route::get('/fic/status',     [\App\Http\Controllers\FICOAuthController::class, 'status']);
+    Route::post('/fic/import',    [\App\Http\Controllers\FICOAuthController::class, 'import']);
+    Route::post('/fic/disconnect',[\App\Http\Controllers\FICOAuthController::class, 'disconnect']);
+});
+
+
+Route::get('/db/schema', [DbMetaController::class, 'schema']); // puoi metterla sotto auth se preferisci
+Route::post('/assistant', [AIController::class, 'queryAI']);   // già ce l'hai
+
+
+Route::group(['middleware' => ['cors', 'json.response']], function () {
+    Route::post('/assistant', [\App\Http\Controllers\AIController::class, 'queryAI']);
+});
+
+
+
+Route::middleware('auth:api')->group(function () {
+    Route::get('/bank-accounts', [BankAccountController::class, 'index']);               // ?company_id=103
+    Route::get('/bank-accounts/{id}', [BankAccountController::class, 'show']);
+    Route::get('/bank-accounts/{id}/transactions', [BankTransactionController::class, 'index']); // filtri
 });

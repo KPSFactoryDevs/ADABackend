@@ -79,4 +79,14 @@ return [
         'client_secret' => env('TWITTER_CLIENT_SECRET'),
         'redirect' => env('TWITTER_REDIRECT'),
     ],
+
+ 'fic' => [
+        'base_url'      => env('FIC_BASE_URL'),
+        'auth_url'      => env('FIC_AUTH_URL'),
+        'token_url'     => env('FIC_TOKEN_URL'),
+        'client_id'     => env('FIC_CLIENT_ID'),
+        'client_secret' => env('FIC_CLIENT_SECRET'),
+        'redirect_uri'  => env('FIC_REDIRECT_URI'),
+        'scopes'        => env('FIC_SCOPES', 'user:companies:r'),
+    ],
 ];
