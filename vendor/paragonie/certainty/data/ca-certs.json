@@ -1,0 +1,130 @@
+[
+    {
+        "chronicle": "JB31eHJBKk8_rdK3KZsrV9qQR8tu6ZEgvbvJRYfOYi0=",
+        "date": "2024-03-11",
+        "file": "cacert-2024-03-11.pem",
+        "sha256": "1794c1d4f7055b7d02c2170337b61b48a2ef6c90d77e95444fd2596f4cac609f",
+        "signature": "4cec2f4dbafb3aa3cf7749e906881edfad14f38829a7aa6fcc9f4ded560fa7326e775b76429ddef4d2f853a6db9231f3704e759198c2b5ee5fd4197eceae4802",
+        "trust-channel": "Mozilla"
+    },
+    {
+        "chronicle": "SNm3W9LqMDJQYLlsIQDrQ_lFNGm0RwXG2hypl0jo8Ek=",
+        "date": "2023-12-12",
+        "file": "cacert-2023-12-12.pem",
+        "sha256": "ccbdfc2fe1a0d7bbbb9cc15710271acf1bb1afe4c8f1725fe95c4c7733fcbe5a",
+        "signature": "1cdf6e355df4399a6bac9a897e6285c1475ca79bc7da303c762471381a1d57e27bbff331c43c25a76fa08a476a390099e9761483688c15bbf0ebc0f3f19f3d0c",
+        "trust-channel": "Mozilla"
+    },
+    {
+        "chronicle": "o297WfvcA7ApK2pmFb9nKtMksdzyadhy6Gzdt2GyLdg=",
+        "date": "2023-08-22",
+        "file": "cacert-2023-08-22.pem",
+        "sha256": "23c2469e2a568362a62eecf1b49ed90a15621e6fa30e29947ded3436422de9b9",
+        "signature": "c544b6b11249ccaef5b05f6a33bdae6123c746bf2733d397a949e327af61a071fcd06fe586eb7de08e9261c9489d177618336d84cc021ec411ae3e1c4a763306",
+        "trust-channel": "Mozilla"
+    },
+    {
+        "chronicle": "87WBgxu1Yg0ElU9Dl3vUi1Wrin94iPkOm3jUffX4YeE=",
+        "date": "2023-05-30",
+        "file": "cacert-2023-05-30.pem",
+        "sha256": "5fadcae90aa4ae041150f8e2d26c37d980522cdb49f923fc1e1b5eb8d74e71ad",
+        "signature": "4577475f0b21c5da82f2bc323414f4c6ac1b0ef60e65af511bcdb82acf767aab3f1e38d64bc166612e047b6063d384230b016a3c1e8b5d0bc401587511e2d30a",
+        "trust-channel": "Mozilla"
+    },
+    {
+        "chronicle": "xociaMQZosyByFz_vHcjNLk15ajzMtJFFwsw5tVBGyo=",
+        "date": "2023-01-10",
+        "file": "cacert-2023-01-10.pem",
+        "sha256": "fb1ecd641d0a02c01bc9036d513cb658bbda62a75e246bedbc01764560a639f0",
+        "signature": "2b19d26379c46e9ee4f0b08b56610f72cd471ff1539024dd64233030df89e8aec7b65d64a3e1ce9369340bec8a86fee8a8053889af76e1d8393d2c29e729060c",
+        "trust-channel": "Mozilla"
+    },
+    {
+        "chronicle": "j_EHquKHXlOmGssLmaejhhsfGuQFb9g3YRz3Ih7QTJk=",
+        "date": "2022-10-11",
+        "file": "cacert-2022-10-11.pem",
+        "sha256": "2cff03f9efdaf52626bd1b451d700605dc1ea000c5da56bd0fc59f8f43071040",
+        "signature": "152a2d0b3d599589e6a762af3624a8d7ddf3ae55c004c3f6c6eecb78a89f6f1591ad81960185ea6218781a79ee3f422fd77540333a9321bfbf1bbe592ab4cf0e",
+        "trust-channel": "Mozilla"
+    },
+    {
+        "chronicle": "A3D3tp2AolZAxKuzm4oIdk_S6UlziFao9aLIHIHD0JA=",
+        "date": "2022-07-19",
+        "file": "cacert-2022-07-19.pem",
+        "sha256": "6ed95025fba2aef0ce7b647607225745624497f876d74ef6ec22b26e73e9de77",
+        "signature": "d89addce89dcb52fa549ee2dabd48dc8a931534e3060b151c29fc74ec779ce44e87863d44db9bdc2896dd2e5043bc3eadcdc1e978367742f1c1e7436b17efd01",
+        "trust-channel": "Mozilla"
+    },
+    {
+        "chronicle": "Oa7LYZPP78IgzhyIDbuWoggku-OUDDA8a7gCg7vDvPc=",
+        "date": "2022-04-26",
+        "file": "cacert-2022-04-26.pem",
+        "sha256": "08df40e8f528ed283b0e480ba4bcdbfdd2fdcf695a7ada1668243072d80f8b6f",
+        "signature": "6ae4816fb270451cd6ee30aff5988fa27e184e3c541e39cec3de3c630be2c83c9052028b50879fc89ff4a77a031ad97c66035cac12653399e6d7e2b678ac2502",
+        "trust-channel": "Mozilla"
+    },
+    {
+        "chronicle": "EEfqWci8H7OgiElBNrkPCwf9usR-zOKs7HzK-2Nfsh8=",
+        "date": "2022-03-18",
+        "file": "cacert-2022-03-18.pem",
+        "sha256": "2d0575e481482551a6a4f9152e7d2ab4bafaeaee5f2606edb829c2fdb3713336",
+        "signature": "d6c9c96d8aa474b6104d477563496ccdb80c07bb55414e81bc222fab260255a861c0af137758aad6fbd0715778d82de1800dc4e5c90ae3586aaeb7a3de8b5602",
+        "trust-channel": "Mozilla"
+    },
+    {
+        "chronicle": "BhRSfuEAN8SUEJdUZ3ASoh047gXolgymD5oPRxL3314=",
+        "date": "2022-02-01",
+        "file": "cacert-2022-02-01.pem",
+        "sha256": "1d9195b76d2ea25c2b5ae9bee52d05075244d78fcd9c58ee0b6fac47d395a5eb",
+        "signature": "1661125866b0ffaa15ecf9db75f653fbbc945da2b7b35e0ddee5cc8bd5a5fdb2d231219f4e06d683c5b700e3bf3c2ba6dea261bc865815824b666f2433afb501",
+        "trust-channel": "Mozilla"
+    },
+    {
+        "chronicle": "SRMxLDDpfaRCXWie4ihbBr5T0QMrVBHUrAfCqYHOFtw=",
+        "date": "2021-10-26",
+        "file": "cacert-2021-10-26.pem",
+        "sha256": "ae31ecb3c6e9ff3154cb7a55f017090448f88482f0e94ac927c0c67a1f33b9cf",
+        "signature": "249d82a2a70bdd149347fc06015ed9eb9903b1b8284dd2f147b18f7f9a95fed6d1c578ee481cd8db34a3ae2af9a4978b07852e421e9c064d3f7c1b6258e5db0f",
+        "trust-channel": "Mozilla"
+    },
+    {
+        "chronicle": "cZNwbjSoyq4PZ3mJfvYv0ZYU3Bouapr89UGA9pPRM_Q=",
+        "date": "2021-09-30",
+        "file": "cacert-2021-09-30.pem",
+        "sha256": "f524fc21859b776e18df01a87880efa198112214e13494275dbcbd9bcb71d976",
+        "signature": "8fa37f70c6fd391383edbc78a6ec89cf8942d0cf0f42dda51f5744eaefd876a7112dda0d1050c5db17f7a5ce828a8bc9e2e0564b0b79ab0a70c0faaf237d520d",
+        "trust-channel": "Mozilla"
+    },
+    {
+        "chronicle": "QqIcQ_u6EJ8i7LJnn2zSlgtkLC2nQ5lx1A8UpYXpw9c=",
+        "date": "2021-07-05",
+        "file": "cacert-2021-07-05.pem",
+        "sha256": "a3b534269c6974631db35f952e8d7c7dbf3d81ab329a232df575c2661de1214a",
+        "signature": "88219de6590f51ec45213249465a478b05b929b58443706637cc1be93bbe7b156ba82d3751d6f0c99d36bc228bbc09ca74f0cf6e9f0118c900f9f372cb75b80d",
+        "trust-channel": "Mozilla"
+    },
+    {
+        "chronicle": "97ZXamCrbirSheuYSn7XmjVCKHEE7lPTyHfr5zIwGr0=",
+        "date": "2021-05-25",
+        "file": "cacert-2021-05-25.pem",
+        "sha256": "3a32ad57e7f5556e36ede625b854057ac51f996d59e0952c207040077cbe48a9",
+        "signature": "f3ee82c034d0b3369302abd4d1c5b4ac1095fa60b0acd254167f2720dfcb0fc9b4d82d7c0f359b9002ab0dbf5b95055cb79e31d9bfc4830f351f4c4f59c0a207",
+        "trust-channel": "Mozilla"
+    },
+    {
+        "chronicle": "4r9MVTgwEPgfGeY2r7h_JR71M2PGcxmgBHDQvRKlucA=",
+        "date": "2021-04-13",
+        "file": "cacert-2021-04-13.pem",
+        "sha256": "533610ad2b004c1622a40622f86ced5e89762e1c0e4b3ae08b31b240d863e91f",
+        "signature": "0700bade0b87a673b5f5156793d102de4da1b982d34a975d0dbc8780c50b5e0a737c0169e9ee2cb7f39d66cfdc49d66cfc74743b1cb8bbbb3ff5e1e717ed810f",
+        "trust-channel": "Mozilla"
+    },
+    {
+        "chronicle": "06K9BhusfSdyMaL1bZexm81lQ5D0-dr73vnk3ZwClG0=",
+        "date": "2021-01-19",
+        "file": "cacert-2021-01-19.pem",
+        "sha256": "e010c0c071a2c79a76aa3c289dc7e4ac4ed38492bfda06d766a80b707ebd2f29",
+        "signature": "8ae1ab7de1bb955937a69094c70cdc3dd2f9470e8079c45749c385f9619ca5e6f01984c29e55648b1445c5fd3321b1bbf3422c16d91f970a25bf29e8d7949307",
+        "trust-channel": "Mozilla"
+    }
+]
