@@ -220,7 +220,7 @@ class CentraleRischiController extends Controller
             ], 500);
         }
 
-        $processGetPages = new Process(['qpdf', '--show-npages', '/Users/federicomegna/Projects/KPS/adabackend/public/centraleRischi/' . $storedFile]);
+        $processGetPages = new Process(['qpdf', '--show-npages', '/var/www/html/ADABackend/public/centraleRischi/' . $storedFile]);
         
         $processGetPages->setTimeout(120);
 
