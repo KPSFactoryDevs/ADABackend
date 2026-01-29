@@ -178,71 +178,51 @@ class CentraleRischiController extends Controller
 
 
   
-
 public function store(Request $request)
 {
-    // 1) Validazione: il campo si chiama "base64" ma è un FILE PDF
     $request->validate([
-        'base64' => 'required|file|mimes:pdf|max:51200', // 50MB (cambia se vuoi)
+        'base64' => 'required|file|mimes:pdf|max:51200',
     ]);
 
     $bilanciHelper = new BilanciHelper;
 
-    // 2) Auth user
     $userId = $bilanciHelper->getCurrentUserIdFromToken($request);
     if ($userId === 'Unauthorized') {
-        return response()->json([
-            'exception' => true,
-            'message' => 'Unauthorized'
-        ], 401);
+        return response()->json(['exception' => true, 'message' => 'Unauthorized'], 401);
     }
 
-    // 3) Prendo il file
-    /** @var \Illuminate\Http\UploadedFile $file */
     $file = $request->file('base64');
+    if (!$file || !$file->isValid()) {
+        return response()->json(['error' => true, 'message' => 'Upload non valido'], 422);
+    }
 
-    // 4) Salvataggio su disk "public" dentro cartella centraleRischi
-    //    (assicurati di avere: php artisan storage:link)
     $safeOriginalName = preg_replace('/[^a-zA-Z0-9._-]+/', '_', $file->getClientOriginalName());
     $finalName = time() . '_' . Str::uuid() . '_' . $safeOriginalName;
 
-    $storedFile = $file->storeAs('centraleRischi', $finalName, 'public'); // es: centraleRischi/xxx.pdf
+    $storedFile = $file->storeAs('centraleRischi', $finalName, 'public');
 
-    // 5) Path filesystem + URL pubblico
     $localPathFs = Storage::disk('public')->path($storedFile);
     $publicUrl   = asset('storage/' . $storedFile);
 
-    // 6) Dati documento
     $newDocumentData = [
         'filename' => $finalName,
         'path' => $localPathFs,
         'type' => 'centrale rischi',
         'codice_documento' => random_int(1, 999999999),
         'status' => 'Da Elaborare',
-        'company_id' => null,
+        'company_id' => $request->header('currentcompany'),
         'user_id' => $userId
     ];
 
-    if ($request->header('currentcompany') !== null) {
-        $newDocumentData["company_id"] = $request->header('currentcompany');
-    }
-
-    // 7) Creo record DB
     try {
         $documentCreated = Document::create($newDocumentData);
     } catch (\Exception $e) {
-        return response()->json([
-            'exception' => true,
-            'message' => $e->getMessage(),
-        ], 500);
+        return response()->json(['exception' => true, 'message' => $e->getMessage()], 500);
     }
 
-    // 8) qpdf: conta pagine (senza symfony/process)
-    //    Assicurati che qpdf sia installato sulla macchina (yum/apt)
     $cmd = 'qpdf --show-npages ' . escapeshellarg($localPathFs) . ' 2>&1';
     $out = trim((string) shell_exec($cmd));
 
-    // Se qpdf non c'è o fallisce, spesso l'output non è numerico
     if ($out === '' || !ctype_digit($out)) {
         return response()->json([
             'error' => true,
@@ -254,28 +234,13 @@ public function store(Request $request)
 
     $totalPages = (int) $out;
 
-    // 9) Dispatch job per ogni pagina
-    if ($totalPages > 0) {
-        for ($pageToExtract = 1; $pageToExtract <= $totalPages; $pageToExtract++) {
-            $liveStatus = round((($pageToExtract / $totalPages) * 100), 1) . "% processato";
-            if ($pageToExtract === $totalPages) {
-                $liveStatus = "Completato";
-            }
+    for ($pageToExtract = 1; $pageToExtract <= $totalPages; $pageToExtract++) {
+        $liveStatus = round((($pageToExtract / $totalPages) * 100), 1) . "% processato";
+        if ($pageToExtract === $totalPages) $liveStatus = "Completato";
 
-            ElaborateLatestCR::dispatch(
-                $pageToExtract,
-                $documentCreated["codice_documento"],
-                $liveStatus
-            );
-        }
-    } else {
-        return response()->json([
-            'error' => true,
-            'message' => "No pages detected on file"
-        ], 500);
+        ElaborateLatestCR::dispatch($pageToExtract, $documentCreated["codice_documento"], $liveStatus);
     }
 
-    // 10) Risposta
     return response()->json([
         'newDocumentCreated' => $documentCreated,
         'storedFile' => $storedFile,
@@ -283,6 +248,7 @@ public function store(Request $request)
         'pages' => $totalPages,
     ], 200);
 }
+
 
 
 
