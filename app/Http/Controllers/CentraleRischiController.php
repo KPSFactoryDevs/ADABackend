@@ -20,7 +20,8 @@ use Carbon\Carbon;
 use DateTime;
 use Storage;
 use Exception;
-use App\Helpers\Bilanci\BilanciHelper;
+use App\Helpers\Bilanci\BilanciHelper; 
+use Illuminate\Support\Str; 
 
 class CentraleRischiController extends Controller
 {
@@ -172,92 +173,98 @@ class CentraleRischiController extends Controller
         }
     }
 
-    /**
-     * @return mixed
-     */
-    public function store(Request $request)
-    {
 
+use Symfony\Component\Process\Exception\ProcessFailedException;
 
-        $base64CentraleRischi = $request->base64;
- 
-        $storedFile = Storage::disk('public')->putFile('', $base64CentraleRischi);
-      
+public function store(Request $request)
+{
+    $base64 = $request->base64;
 
-        $storeFullPath = asset('centraleRischi') . '/' . $storedFile;
-     
-        $localPathFs = Storage::disk('public')->path($storedFile);
-
-        $bilanciHelper = new BilanciHelper;
-
-        $newDocumentData = [
-            'filename' => time() . '_' . $base64CentraleRischi->getClientOriginalName(),
-            'path' => $localPathFs,
-            'type' => 'centrale rischi',
-            'codice_documento' => rand(1, 999999999),
-            'status' => 'Da Elaborare',
-            'company_id' => null,
-            'user_id' => null
-        ];
-
-        if ($request->header('currentcompany') || $request->header('currentcompany') == 0) {
-            $newDocumentData["company_id"] = $request->header('currentcompany');
-        }
-
-        if ($bilanciHelper->getCurrentUserIdFromToken($request) == 'Unauthorized')
-            return response()->json([
-                'exception' => true,
-                'message' => 'Unauthorized'
-            ], 401);
-
-        $newDocumentData['user_id'] = $bilanciHelper->getCurrentUserIdFromToken($request);
-
-        try {
-            $documentCreated = Document::create($newDocumentData);
-        } catch (Exception $e) {
-            return response()->json([
-                'exception' => $e,
-            ], 500);
-        }
-
-        $processGetPages = new Process(['qpdf', '--show-npages', '/var/www/html/ADABackend/public/centraleRischi/' . $storedFile]);
-        
-        $processGetPages->setTimeout(120);
-
-        try {
-            $processGetPages->run();
-
-            if (!$processGetPages->isSuccessful()) {
-                throw new ProcessFailedException($processGetPages);
-            }
-        } catch (ProcessFailedException $e) {
-            /* dd($e); */
-            return response()->json($e->getMessage());
-        }
-
-        $totalPages = $processGetPages->getOutput();
-        $totalPages = str_replace('/n', '', $totalPages);
-        $totalPages = (int)$totalPages;
-
-        if ($totalPages > 0 && is_int($totalPages)) {
-            for ($pageToExtract = 1; $pageToExtract <= $totalPages; $pageToExtract++) {
-                $liveStatus = round((($pageToExtract / $totalPages) * 100), 1) . "% processato";
-                if ($pageToExtract == $totalPages) {
-                    $liveStatus = "Completato";
-                }
-                ElaborateLatestCR::dispatch($pageToExtract, $documentCreated["codice_documento"], $liveStatus);
-            }
-        } else {
-            return response()->json([
-                'error' => true,
-                'message' => "No pages detected on file"
-            ], 500);
-        }
-
-        return response()->json([
-            'newDocumentCreated' => $documentCreated,
-        ], 200);
+    // 1) Decodifica base64 (gestisce anche data URL)
+    if (preg_match('/^data:(.*?);base64,(.*)$/', $base64, $m)) {
+        $mime = $m[1];
+        $raw  = base64_decode($m[2]);
+    } else {
+        $mime = null;
+        $raw  = base64_decode($base64);
     }
+
+    if ($raw === false || $raw === '') {
+        return response()->json([
+            'error' => true,
+            'message' => 'Base64 non valido'
+        ], 422);
+    }
+
+    // 2) Estensione (qui assumo PDF; se vuoi supportare immagini lo estendiamo)
+    $ext = ($mime === 'application/pdf' || $mime === null) ? 'pdf' : 'bin';
+
+    // 3) Salvataggio su disk public
+    $filename = Str::uuid() . '.' . $ext;
+    $storedFile = 'centraleRischi/' . $filename;
+
+    Storage::disk('public')->put($storedFile, $raw);
+
+    // 4) Percorsi corretti
+    $storeFullPath = asset('storage/' . $storedFile);
+    $localPathFs   = Storage::disk('public')->path($storedFile);
+
+    $bilanciHelper = new BilanciHelper;
+
+    $newDocumentData = [
+        'filename' => $filename, // niente getClientOriginalName()
+        'path' => $localPathFs,
+        'type' => 'centrale rischi',
+        'codice_documento' => rand(1, 999999999),
+        'status' => 'Da Elaborare',
+        'company_id' => null,
+        'user_id' => null
+    ];
+
+    if ($request->header('currentcompany') || $request->header('currentcompany') == 0) {
+        $newDocumentData["company_id"] = $request->header('currentcompany');
+    }
+
+    $userId = $bilanciHelper->getCurrentUserIdFromToken($request);
+    if ($userId === 'Unauthorized') {
+        return response()->json(['exception' => true, 'message' => 'Unauthorized'], 401);
+    }
+    $newDocumentData['user_id'] = $userId;
+
+    try {
+        $documentCreated = Document::create($newDocumentData);
+    } catch (\Exception $e) {
+        return response()->json(['exception' => true, 'message' => $e->getMessage()], 500);
+    }
+
+    // 5) qpdf usa il path locale reale
+    $processGetPages = new Process(['qpdf', '--show-npages', $localPathFs]);
+    $processGetPages->setTimeout(120);
+
+    try {
+        $processGetPages->mustRun();
+    } catch (ProcessFailedException $e) {
+        return response()->json(['error' => true, 'message' => $e->getMessage()], 500);
+    }
+
+    $totalPages = (int) trim($processGetPages->getOutput());
+
+    if ($totalPages > 0) {
+        for ($pageToExtract = 1; $pageToExtract <= $totalPages; $pageToExtract++) {
+            $liveStatus = round((($pageToExtract / $totalPages) * 100), 1) . "% processato";
+            if ($pageToExtract == $totalPages) $liveStatus = "Completato";
+            ElaborateLatestCR::dispatch($pageToExtract, $documentCreated["codice_documento"], $liveStatus);
+        }
+    } else {
+        return response()->json(['error' => true, 'message' => "No pages detected on file"], 500);
+    }
+
+    return response()->json([
+        'newDocumentCreated' => $documentCreated,
+        'file_url' => $storeFullPath,
+    ], 200);
+}
+
 
 
     public function crAndamentale($period, $data_inizio = false, $data_fine = false, $inputBanks = null)
