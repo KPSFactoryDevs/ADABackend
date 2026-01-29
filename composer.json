@@ -11,15 +11,13 @@
     ],
     "license": "MIT",
     "require": {
-        "php": "^7.4",
+        "php": "^8.0",
         "arcanedev/log-viewer": "8.x",
         "fideloper/proxy": "^4.4",
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
         "inertiajs/inertia-laravel": "^0.3.4",
         "intervention/image": "^2.7",
-        "kpsfactory/utilities": "master",
-        "kpsfactory/xbrl": "^1.0",
         "lab404/laravel-impersonate": "^1.6",
         "langleyfoxall/laravel-nist-password-rules": "^4.1",
         "laravel/framework": "^8.12",
@@ -29,17 +27,20 @@
         "laravel/socialite": "^5.0",
         "laravel/tinker": "^2.5",
         "laravel/ui": "^3.0",
+        "lyquidity/utilities": "dev-master",
+        "lyquidity/xbrl": "dev-master",
+        "lyquidity/xml": "dev-master",
+        "lyquidity/xpath2": "dev-master",
         "psr/log": "^1.0",
         "spatie/laravel-activitylog": "^3.14",
         "spatie/laravel-permission": "^3.11",
         "symfony/process": "^5.2",
         "symfony/symfony": "5.4.x"
     },
-    "repositories":
-    [
+    "repositories": [
         {
             "type": "composer",
-            "url": "https:\/\/repo.packagist.org"
+            "url": "https://repo.packagist.org"
         },
         {
             "type": "vcs",
@@ -63,10 +64,8 @@
         "preferred-install": "dist",
         "sort-packages": true,
         "allow-plugins": {
-            "treeware/plant": true
-        },
-        "platform": {
-            "php": "7.4.30"
+            "treeware/plant": true,
+            "php-http/discovery": true
         }
     },
     "extra": {
