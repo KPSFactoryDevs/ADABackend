@@ -10,54 +10,73 @@ class printpdf
 {
 	public $baseUrl;
 	public $currentPayload = false;
-	
-	function __construct() {
+
+	function __construct()
+	{
 		$this->baseUrl = "https://api.pdfmonkey.io/api/v1/documents/";
 	}
 
-	private function getBearerToken() {
+	private function getBearerToken()
+	{
 		$token = "HXC-K3sK3Pcp7sC3LXgJ";
 		return $token;
 	}
 
-	public function generateDocument($type, $idDocument = false, $years = 1) 
-	{	
+	public function generateDocument($type, $idDocument = false, $years = 1)
+	{
 		$token = $this->getBearerToken();
 		$body = $this->getBody($type, $idDocument, $years);
-		
+
 		$response = Http::withHeaders([
-		'Authorization' => 'Bearer '.$token,
-		'Content-Type' => 'application/json'
+			'Authorization' => 'Bearer ' . $token,
+			'Content-Type' => 'application/json'
 		])->post($this->baseUrl, $body);
 
-		$idDocument = $response['document']['id'];
+		$json = $response->json();
+		if (!isset($json['document']) || !isset($json['document']['id'])) {
+			throw new \Exception("PDFMonkey generate error: " . $response->body());
+		}
 
-	  	return $idDocument;
+		$idDocument = $json['document']['id'];
+
+		return $idDocument;
 	}
-	
-	public function getDocumentData($documentId) {
+
+	public function getDocumentData($documentId)
+	{
 		$token = $this->getBearerToken();
 		$getDocument = Http::withHeaders([
-		'Authorization' => 'Bearer '.$token,
-		'Content-Type' => 'application/json'
-		])->get($this->baseUrl.$documentId);
+			'Authorization' => 'Bearer ' . $token,
+			'Content-Type' => 'application/json'
+		])->get($this->baseUrl . $documentId);
 
-			$fileContent = file_get_contents($getDocument['document']['download_url']);
+		$json = $getDocument->json();
+		if (!isset($json['document']) || !isset($json['document']['download_url']) || empty($json['document']['download_url'])) {
+			if (isset($json['document']) && $json['document']['status'] == 'pending') {
+				// Retry fetching if it's pending. But currently this is synchronous sleep(5) in the controller.
+				// For now throw so it's visible.
+				throw new \Exception("PDFMonkey get error: Document is pending or URL missing. Response: " . $getDocument->body());
+			}
+			throw new \Exception("PDFMonkey get error: " . $getDocument->body());
+		}
 
-			$fileName = time().'.pdf';
+		$fileContent = file_get_contents($json['document']['download_url']);
 
-			file_put_contents(base_path() . '/public/crdocument/'.$fileName, $fileContent);
-		 
-	 		$file = base_path().'/public/crdocument/'.$fileName;
-	 
-	     	$headers = array(
-              'Content-Type: application/pdf',
-            );
-	 
-			return Response::download($file, $fileName, $headers);
+		$fileName = time() . '.pdf';
+
+		file_put_contents(base_path() . '/public/crdocument/' . $fileName, $fileContent);
+
+		$file = base_path() . '/public/crdocument/' . $fileName;
+
+		$headers = array(
+			'Content-Type: application/pdf',
+		);
+
+		return Response::download($file, $fileName, $headers);
 	}
-	
-	private function getTemplateId($type) {
+
+	private function getTemplateId($type)
+	{
 		switch ($type) {
 			case "bilancio":
 				return "4B9C1CE4-B36E-4371-9385-778BB9CEA134";
@@ -70,31 +89,33 @@ class printpdf
 				break;
 		}
 	}
-	
- 
-	private function getBody($type, $idBilancio, $years) {
+
+
+	private function getBody($type, $idBilancio, $years)
+	{
 		$templateId = $this->getTemplateId($type);
 		$payload = $this->getPayload($type, $idBilancio, $years);
 
 		return [
-			  "document" => [
+			"document" => [
 				"document_template_id" => $templateId,
-				 "status" => "pending",
+				"status" => "pending",
 				"payload" => $payload,
 				"meta" => [
-				  "clientId" => "ABC1234-DE",
-				  "_filename" => $type."_".time().".pdf"
+					"clientId" => "ABC1234-DE",
+					"_filename" => $type . "_" . time() . ".pdf"
 				]
-			  ]
+			]
 		];
 	}
-	
-	private function getPayload($type, $idBilancio, $years) {
-		
-		if(!$this->currentPayload) {
+
+	private function getPayload($type, $idBilancio, $years)
+	{
+
+		if (!$this->currentPayload) {
 			return "No Payload";
-		} 
-	
+		}
+
 		return $this->currentPayload;
 	}
 

@@ -48,7 +48,7 @@ class BilanciController extends Controller
             $singleBilancio->company_name = json_decode($singleBilancio->json_data_anag)->DatiAnagraficiDenominazione;
             $singleBilancio->annoFormatted = date('Y', strtotime($year));
 
-            if(isset($singleBilancio->year)) {
+            if (isset($singleBilancio->year)) {
                 $singleBilancio->annoFormatted = $singleBilancio->year;
             }
         }
@@ -65,14 +65,14 @@ class BilanciController extends Controller
      * @return mixed
      */
     public function recap(Request $request)
-    { 
+    {
         global $use_xbrl_functions;
         $use_xbrl_functions = true;
 
         $bilanciHelper = new BilanciHelper();
-        if($request->documentId) { 
-      
-      
+        if ($request->documentId) {
+
+
             $document = Document::findOrFail($request->documentId);
 
             $filePath = base_path() . '/public/bilanci/' . $document->filename;
@@ -91,21 +91,21 @@ class BilanciController extends Controller
                     'exception' => true,
                     'message' => 'Unauthorized'
                 ], 401);
-        
-                $document = Document::create([
-                    'filename' => $fileName,
-                    'path' => asset('bilanci') . '/' . $fileName,
-                    'type' => 'bilancio',
-                    'taxonomy' => $taxonomyName,
-                    'codice_documento' => rand(1, 999999999),
-                    'company_id' => $request->header('currentcompany'),
-                    'forma_giuridica' => $request->forma_giuridica,
-                    'tipo_azienda' => $request->tipo_azienda,
-                    'user_id' => $currentUserId
-                ]);
+
+            $document = Document::create([
+                'filename' => $fileName,
+                'path' => asset('bilanci') . '/' . $fileName,
+                'type' => 'bilancio',
+                'taxonomy' => $taxonomyName,
+                'codice_documento' => rand(1, 999999999),
+                'company_id' => $request->header('currentcompany'),
+                'forma_giuridica' => $request->forma_giuridica,
+                'tipo_azienda' => $request->tipo_azienda,
+                'user_id' => $currentUserId
+            ]);
         }
 
-            $taxonomyPath = base_path()."/taxonomies/2018-11-04/".$taxonomyName;
+        $taxonomyPath = base_path() . "/taxonomies/2018-11-04/" . $taxonomyName;
 
 
         try {
@@ -113,16 +113,16 @@ class BilanciController extends Controller
             $emptyInstance = false;
             $readXBRL = XBRL_Instance::FromInstanceDocument($filePath, $taxonomyPath, $emptyInstance);
 
-            if($readXBRL) {
+            if ($readXBRL) {
                 $userID = $request->userID;
                 $bilancioJSON = $readXBRL->toJSON();
 
-          
+
                 $renderHTML = $bilanciHelper->generateHTMLRender($filePath, $taxonomyPath);
                 $period = $bilanciHelper->getPeriodFromContext(json_decode($bilancioJSON)->contexts);
                 $nomeAzienda = $bilanciHelper->getNomeAziendaFromElements(json_decode($bilancioJSON)->elements->DatiAnagraficiDenominazione);
 
-                if($nomeAzienda && $period) {
+                if ($nomeAzienda && $period) {
                     $document = Document::find($document->id);
                     $document->update([
                         'nome_azienda' => $nomeAzienda,
@@ -149,8 +149,8 @@ class BilanciController extends Controller
             }
 
 
-        } catch(Exception $e) {
-      
+        } catch (Exception $e) {
+
             return response()->json([
                 'exception' => true,
                 'message' => $e->getMessage()
@@ -171,8 +171,8 @@ class BilanciController extends Controller
         $use_xbrl_functions = true;
 
         $bilanciHelper = new BilanciHelper();
-        if($documentId) {
-        
+        if ($documentId) {
+
             $document = Document::findOrFail($documentId);
 
             $filePath = base_path() . '/public/bilanci/' . $document->filename;
@@ -191,38 +191,38 @@ class BilanciController extends Controller
                     'exception' => true,
                     'message' => 'Unauthorized'
                 ], 401);
-        
-                $document = Document::create([
-                    'filename' => $fileName,
-                    'path' => asset('bilanci') . '/' . $fileName,
-                    'type' => 'bilancio',
-                    'taxonomy' => $taxonomyName,
-                    'codice_documento' => rand(1, 999999999),
-                    'company_id' => $request->header('currentcompany'),
-                    'forma_giuridica' => $request->forma_giuridica,
-                    'tipo_azienda' => $request->tipo_azienda,
-                    'user_id' => $currentUserId
-                ]);
+
+            $document = Document::create([
+                'filename' => $fileName,
+                'path' => asset('bilanci') . '/' . $fileName,
+                'type' => 'bilancio',
+                'taxonomy' => $taxonomyName,
+                'codice_documento' => rand(1, 999999999),
+                'company_id' => $request->header('currentcompany'),
+                'forma_giuridica' => $request->forma_giuridica,
+                'tipo_azienda' => $request->tipo_azienda,
+                'user_id' => $currentUserId
+            ]);
         }
 
-            $taxonomyPath = base_path()."/taxonomies/2018-11-04/".$taxonomyName;
+        $taxonomyPath = base_path() . "/taxonomies/2018-11-04/" . $taxonomyName;
 
 
         try {
 
-            $emptyInstance = false; 
+            $emptyInstance = false;
             $readXBRL = XBRL_Instance::FromInstanceDocument($filePath, $taxonomyPath, $emptyInstance);
 
-            if($readXBRL) {
+            if ($readXBRL) {
                 $userID = $request->userID;
                 $bilancioJSON = $readXBRL->toJSON();
 
-          
-              //  $renderHTML = $bilanciHelper->generateHTMLRender($filePath, $taxonomyPath);
+
+                //  $renderHTML = $bilanciHelper->generateHTMLRender($filePath, $taxonomyPath);
                 $period = $bilanciHelper->getPeriodFromContext(json_decode($bilancioJSON)->contexts);
                 $nomeAzienda = $bilanciHelper->getNomeAziendaFromElements(json_decode($bilancioJSON)->elements->DatiAnagraficiDenominazione);
 
-                if($nomeAzienda && $period) {
+                if ($nomeAzienda && $period) {
                     $document = Document::find($document->id);
                     $document->update([
                         'nome_azienda' => $nomeAzienda,
@@ -231,13 +231,13 @@ class BilanciController extends Controller
                     ]);
                 }
 
-              /*  return response()->json([
-                    'exception' => false,
-                    'nome_azienda' => $nomeAzienda,
-                    'period' => $period,   
-               //     'bilancioJSON' => $bilancioJSON,
-                    'bilancioAnalisi' => $bilanciHelper->getIndexesForBalanceTaxonomyForAi($document->id, $filePath, $readXBRL, $document->codice_documento, $userID),
-                ], 200);*/
+                /*  return response()->json([
+                      'exception' => false,
+                      'nome_azienda' => $nomeAzienda,
+                      'period' => $period,   
+                 //     'bilancioJSON' => $bilancioJSON,
+                      'bilancioAnalisi' => $bilanciHelper->getIndexesForBalanceTaxonomyForAi($document->id, $filePath, $readXBRL, $document->codice_documento, $userID),
+                  ], 200);*/
 
 
                 $bilancioAnalisi = json_encode($bilanciHelper->getIndexesForBalanceTaxonomyForAi($document->id, $filePath, $readXBRL, $document->codice_documento, $userID));
@@ -252,13 +252,13 @@ Attraverso report dettagliati e approfonditi, offri suggerimenti concreti e appl
 Utilizzi un italiano formale ma non rigido, arricchito da termini tecnici spiegati con chiarezza per garantire una comprensione completa. Il tuo tono riflette la tua competenza e il tuo impegno nel costruire relazioni professionali solide e di fiducia con i tuoi clienti. L'obiettivo finale è offrire un valore tangibile, contribuendo al successo e alla crescita sostenibile delle imprese con cui collabori.
                 
                 Nome Azienda: " . $nomeAzienda . "\n" .
-                "Periodo Analizzato preso in considerazione: " . json_encode($period) . "\n" .
-                "Bilancio Analisi: " . $bilancioAnalisi . "\n" .
-                "Bilancio Tassonomia Italiana (Dati estratti): " . json_encode($vocidibilanciocomplete, JSON_PRETTY_PRINT);
-                
-// Restituzione della risposta come stringa
-return response($responseString, 200)
-          ->header('Content-Type', 'text/plain');
+                    "Periodo Analizzato preso in considerazione: " . json_encode($period) . "\n" .
+                    "Bilancio Analisi: " . $bilancioAnalisi . "\n" .
+                    "Bilancio Tassonomia Italiana (Dati estratti): " . json_encode($vocidibilanciocomplete, JSON_PRETTY_PRINT);
+
+                // Restituzione della risposta come stringa
+                return response($responseString, 200)
+                    ->header('Content-Type', 'text/plain');
 
             } else {
                 return response()->json([
@@ -268,7 +268,7 @@ return response($responseString, 200)
             }
 
 
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             dd($e);
             return response()->json([
                 'exception' => true,
@@ -279,28 +279,29 @@ return response($responseString, 200)
     }
 
 
-    public function cleanBilancioData($bilancioJSON) {
+    public function cleanBilancioData($bilancioJSON)
+    {
         // Decodifica il JSON
         $decodedData = json_decode($bilancioJSON, true);
-        
+
         // Assicurati che esista la proprietà "elements"
         if (!isset($decodedData['elements'])) {
             return [];
         }
-    
+
         // Funzione ricorsiva per attraversare la struttura e pulire i valori
         $cleanedData = [];
- 
+
         // Iteriamo sugli elementi
-     //   dd($decodedData['elements']);
+        //   dd($decodedData['elements']);
         foreach ($decodedData['elements'] as $key => $value) {
             // Se l'elemento è un array (nel tuo caso sembra esserlo), attraversiamo ricorsivamente
             if (is_array($value)) {
-          
-                foreach($value as $innerArray) {
-                    
+
+                foreach ($value as $innerArray) {
+
                     if (array_key_exists('value', $innerArray)) {
-   
+
                         $result[$key] = empty($innerArray['value']) ? 0 : $innerArray['value'];
                     } else {
                         // Unisci i risultati interni nel risultato principale
@@ -308,9 +309,9 @@ return response($responseString, 200)
                     }
                 }
                 // Se troviamo un 'value', lo salviamo
-            
+
             }
-        } 
+        }
         return $result;
     }
     public function missingVoices(Request $request)
@@ -326,15 +327,26 @@ return response($responseString, 200)
 
         try {
 
-            foreach($request->voci as $key => $singleVoice) {
+            foreach ($request->voci as $key => $singleVoice) {
+                if (preg_match('/^(.*)_(\d+)$/', $key, $matches)) {
+                    $voiceFullName = $matches[1];
+                    $period = $matches[2];
+                } else {
+                    $voiceFullName = $key;
+                    $period = 1;
+                }
 
-                MissingVoice::create([
-                    'documentId' => $documentId,
-                    'voiceFullName' => explode('_', $key)[0],
-                    'voiceLabel' => false,
-                    'voiceValue' => $singleVoice,
-                    'period' => 1
-                ]);
+                MissingVoice::updateOrCreate(
+                    [
+                        'documentId' => $documentId,
+                        'voiceFullName' => $voiceFullName,
+                        'period' => $period
+                    ],
+                    [
+                        'voiceLabel' => false,
+                        'voiceValue' => $singleVoice,
+                    ]
+                );
             }
 
 
@@ -344,7 +356,7 @@ return response($responseString, 200)
                 'data' => "Voci mancanti salvate"
             ]);
 
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'error' => true,
                 'data' => $e->getMessage()
@@ -366,16 +378,33 @@ return response($responseString, 200)
 
         try {
 
-            foreach($request->voci as $key => $singleVoice) {
-                MissingVoice::where('documentId', $documentId)->where('voiceFullName', explode('_', $key)[0])->update(['voiceValue' => $singleVoice]);
+            foreach ($request->voci as $key => $singleVoice) {
+                if (preg_match('/^(.*)_(\d+)$/', $key, $matches)) {
+                    $voiceFullName = $matches[1];
+                    $period = $matches[2];
+                } else {
+                    $voiceFullName = $key;
+                    $period = 1;
+                }
+
+                MissingVoice::updateOrCreate(
+                    [
+                        'documentId' => $documentId,
+                        'voiceFullName' => $voiceFullName,
+                        'period' => $period
+                    ],
+                    [
+                        'voiceValue' => $singleVoice
+                    ]
+                );
             }
 
             return response()->json([
                 'error' => false,
                 'data' => "Voci aggiornate correttamente"
-            ]); 
+            ]);
 
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'error' => true,
                 'data' => $e->getMessage()
@@ -388,7 +417,7 @@ return response($responseString, 200)
     {
         if (!$idBilancio) {
 
-           // CustomLog::addToLogBilanci('Bilanci destroy', 'ID non specificato');
+            // CustomLog::addToLogBilanci('Bilanci destroy', 'ID non specificato');
 
             return response()->json([
                 'error' => true,
@@ -399,15 +428,15 @@ return response($responseString, 200)
             $bilancio = Document::findOrFail($idBilancio);
             $bilancio->delete();
 
-           // CustomLog::addToLogBilanci('Bilanci destroy', 'Eliminato');
+            // CustomLog::addToLogBilanci('Bilanci destroy', 'Eliminato');
 
             return response()->json([
                 'error' => false,
                 'message' => 'Bilancio eliminato correttamente',
             ]);
-        } catch (Excepton $e) {
+        } catch (Exception $e) {
 
-           // CustomLog::addToLogBilanci('Bilanci destroy', 'Exception: '.$e.'.');
+            // CustomLog::addToLogBilanci('Bilanci destroy', 'Exception: '.$e.'.');
 
             return response()->json([
                 'error' => false,
@@ -448,12 +477,13 @@ return response($responseString, 200)
                 $singleDocument['status'] = ucfirst(str_replace('_', ' ', $singleDocument['status']));
                 $singleDocument['type'] = ucfirst($singleDocument['type']);
                 $singleDocument['availableMonths'] = $textPeriodAvailable;
+                $singleDocument['predefinito'] = (bool) $singleDocument['predefinito'];
             }
 
             return response()->json([
                 $documentsCr,
             ]);
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'error' => true,
                 'message' => $e->getMessage(),
@@ -461,7 +491,7 @@ return response($responseString, 200)
         }
     }
 
-    public function modalitySetting(Request $request) 
+    public function modalitySetting(Request $request)
     {
         try {
             $userID = $request->userID;
@@ -469,14 +499,61 @@ return response($responseString, 200)
 
             $currentUser = User::findOrFail($userID);
             $currentUser->update(['modAnalisi' => $modality]);
-            
+
             return response()->json([
-                'Message' => 'Modalità analisi cambiata correttamente.', 
+                'Message' => 'Modalità analisi cambiata correttamente.',
                 'mod' => $modality
             ]);
 
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             return response()->json($e->getMessage());
+        }
+    }
+
+    public function setPredefinito(Request $request, $id)
+    {
+        try {
+            $bilanciHelper = new BilanciHelper;
+            $currentUserId = $bilanciHelper->getCurrentUserIdFromToken($request);
+
+            if ($currentUserId == 'Unauthorized') {
+                return response()->json([
+                    'exception' => true,
+                    'message' => 'Unauthorized'
+                ], 401);
+            }
+
+            $currentCompany = $request->header('currentcompany') ?: 0;
+
+            $document = Document::where('id', $id)
+                ->where('type', 'bilancio')
+                ->where('user_id', $currentUserId)
+                ->firstOrFail();
+
+            if ($currentCompany) {
+                Document::where('type', 'bilancio')
+                    ->where('company_id', $currentCompany)
+                    ->where('user_id', $currentUserId)
+                    ->update(['predefinito' => false]);
+            } else {
+                Document::where('type', 'bilancio')
+                    ->where('user_id', $currentUserId)
+                    ->update(['predefinito' => false]);
+            }
+
+            $document->predefinito = true;
+            $document->save();
+
+            return response()->json([
+                'error' => false,
+                'message' => 'Bilancio impostato come predefinito.'
+            ], 200);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => $e->getMessage(),
+            ], 500);
         }
     }
 }

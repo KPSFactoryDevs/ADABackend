@@ -20,8 +20,8 @@ use Carbon\Carbon;
 use DateTime;
 use Storage;
 use Exception;
-use App\Helpers\Bilanci\BilanciHelper; 
-use Illuminate\Support\Str;   
+use App\Helpers\Bilanci\BilanciHelper;
+use Illuminate\Support\Str;
 
 
 class CentraleRischiController extends Controller
@@ -57,6 +57,7 @@ class CentraleRischiController extends Controller
             $singleDocument['status'] = ucfirst(str_replace('_', ' ', $singleDocument['status']));
             $singleDocument['type'] = ucfirst($singleDocument['type']);
             $singleDocument['availableMonths'] = $textPeriodAvailable;
+            $singleDocument['predefinito'] = (bool) $singleDocument['predefinito'];
         }
 
         return response()->json([
@@ -83,61 +84,62 @@ class CentraleRischiController extends Controller
         $filepath = $crFileToElaborate->path;
 
 
-        $process = new Process(['python3', base_path() . '/crExtractor.py', $filepath, $page]);
+        $pythonPath = env('PYTHON_PATH', '/usr/local/opt/python@3.11/bin/python3.11');
+        $process = new Process([$pythonPath, base_path() . '/crExtractor.py', $filepath, $page]);
 
         $process->setTimeout(10000);
-      
+
         try {
             $process->run();
             if (!$process->isSuccessful()) {
-    
+
                 throw new ProcessFailedException($process);
             }
             $crFileToElaborate->status = $liveStatus;
             $crFileToElaborate->save();
         } catch (ProcessFailedException $e) {
-            
+
             $crFileToElaborate->status = $liveStatus;
             $crFileToElaborate->save();
-           
+
 
 
         }
 
         if (!$process->isSuccessful()) {
-      
+
             throw new ProcessFailedException($process);
         } else {
             $jsonData = $process->getOutput();
- 
 
-      
+
+
             $jsonArray = json_decode($jsonData);
-    
-     
- 
+
+
+
             $CentraleRischiAggregateData = new App\Helpers\CentraleRischi\CentraleRischiAggregateData();
 
-         
-    
+
+
             $dataToSave = $CentraleRischiAggregateData->crJsonToArray($jsonArray);
 
-       
 
-      
+
+
             $codiceDocumento = $crFileToElaborate->codice_documento;
             $companyId = $crFileToElaborate->company_id;
             $CentraleRischiStoreDataHelper = new App\Helpers\CentraleRischi\CentraleRischiStoreDataHelper();
 
 
-   
+
             foreach ($dataToSave as $anno => $months) {
                 foreach ($months as $mese => $data) {
                     foreach ($data as $singleBank => $keys) {
                         foreach ($keys as $index => $value) {
                             $mesiList = ["0" => "fuoriMese", "gennaio" => 1, 'febbraio' => 2, 'marzo' => 3, 'aprile' => 4, 'maggio' => 5, 'giugno' => 6, 'luglio' => 07, "agosto" => 8, 'settembre' => 9, 'ottobre' => 10, 'novembre' => 11, 'dicembre' => 12,];
                             $transformedMonth = $mesiList[$mese];
-                         
+
                             if ($index === 'Firma') {
                                 $CentraleRischiStoreDataHelper->saveFirma($value, $anno, $mese, $transformedMonth, $singleBank, $index, $codiceDocumento, $companyId);
                             }
@@ -150,12 +152,12 @@ class CentraleRischiController extends Controller
                                 $CentraleRischiStoreDataHelper->saveSofferenze($value, $anno, $mese, $transformedMonth, $singleBank, $index, $codiceDocumento, $companyId);
                             }
 
-                            if ($index === 'Cassa') { 
+                            if ($index === 'Cassa') {
                                 $CentraleRischiStoreDataHelper->saveCassa($value, $anno, $mese, $transformedMonth, $singleBank, $index, $codiceDocumento, $companyId);
                             }
 
                             if ($index === 'Informativa') {
-                         
+
                                 $CentraleRischiStoreDataHelper->saveInformativa($value, $anno, $mese, $transformedMonth, $singleBank, $index, $codiceDocumento, $companyId);
                             }
 
@@ -177,77 +179,78 @@ class CentraleRischiController extends Controller
 
 
 
-  
-public function store(Request $request)
-{
-    $request->validate([
-        'base64' => 'required|file|mimes:pdf|max:51200',
-    ]);
 
-    $bilanciHelper = new BilanciHelper;
+    public function store(Request $request)
+    {
+        $request->validate([
+            'base64' => 'required|file|mimes:pdf|max:51200',
+        ]);
 
-    $userId = $bilanciHelper->getCurrentUserIdFromToken($request);
-    if ($userId === 'Unauthorized') {
-        return response()->json(['exception' => true, 'message' => 'Unauthorized'], 401);
-    }
+        $bilanciHelper = new BilanciHelper;
 
-    $file = $request->file('base64');
-    if (!$file || !$file->isValid()) {
-        return response()->json(['error' => true, 'message' => 'Upload non valido'], 422);
-    }
+        $userId = $bilanciHelper->getCurrentUserIdFromToken($request);
+        if ($userId === 'Unauthorized') {
+            return response()->json(['exception' => true, 'message' => 'Unauthorized'], 401);
+        }
 
-    $safeOriginalName = preg_replace('/[^a-zA-Z0-9._-]+/', '_', $file->getClientOriginalName());
-    $finalName = time() . '_' . Str::uuid() . '_' . $safeOriginalName;
+        $file = $request->file('base64');
+        if (!$file || !$file->isValid()) {
+            return response()->json(['error' => true, 'message' => 'Upload non valido'], 422);
+        }
 
-    $storedFile = $file->storeAs('centraleRischi', $finalName, 'public');
+        $safeOriginalName = preg_replace('/[^a-zA-Z0-9._-]+/', '_', $file->getClientOriginalName());
+        $finalName = time() . '_' . Str::uuid() . '_' . $safeOriginalName;
 
-    $localPathFs = Storage::disk('public')->path($storedFile);
-    $publicUrl   = asset('storage/' . $storedFile);
+        $storedFile = $file->storeAs('centraleRischi', $finalName, 'public');
 
-    $newDocumentData = [
-        'filename' => $finalName,
-        'path' => $localPathFs,
-        'type' => 'centrale rischi',
-        'codice_documento' => random_int(1, 999999999),
-        'status' => 'Da Elaborare',
-        'company_id' => $request->header('currentcompany'),
-        'user_id' => $userId
-    ];
+        $localPathFs = Storage::disk('public')->path($storedFile);
+        $publicUrl = asset('storage/' . $storedFile);
 
-    try {
-        $documentCreated = Document::create($newDocumentData);
-    } catch (\Exception $e) {
-        return response()->json(['exception' => true, 'message' => $e->getMessage()], 500);
-    }
+        $newDocumentData = [
+            'filename' => $finalName,
+            'path' => $localPathFs,
+            'type' => 'centrale rischi',
+            'codice_documento' => random_int(1, 999999999),
+            'status' => 'Da Elaborare',
+            'company_id' => $request->header('currentcompany'),
+            'user_id' => $userId
+        ];
 
-    $cmd = 'qpdf --show-npages ' . escapeshellarg($localPathFs) . ' 2>&1';
-    $out = trim((string) shell_exec($cmd));
+        try {
+            $documentCreated = Document::create($newDocumentData);
+        } catch (\Exception $e) {
+            return response()->json(['exception' => true, 'message' => $e->getMessage()], 500);
+        }
 
-    if ($out === '' || !ctype_digit($out)) {
+        $cmd = 'qpdf --show-npages ' . escapeshellarg($localPathFs) . ' 2>&1';
+        $out = trim((string) shell_exec($cmd));
+
+        if ($out === '' || !ctype_digit($out)) {
+            return response()->json([
+                'error' => true,
+                'message' => 'qpdf error / output non valido',
+                'qpdf_output' => $out,
+                'file' => $storedFile,
+            ], 500);
+        }
+
+        $totalPages = (int) $out;
+
+        for ($pageToExtract = 1; $pageToExtract <= $totalPages; $pageToExtract++) {
+            $liveStatus = round((($pageToExtract / $totalPages) * 100), 1) . "% processato";
+            if ($pageToExtract === $totalPages)
+                $liveStatus = "Completato";
+
+            ElaborateLatestCR::dispatch($pageToExtract, $documentCreated["codice_documento"], $liveStatus);
+        }
+
         return response()->json([
-            'error' => true,
-            'message' => 'qpdf error / output non valido',
-            'qpdf_output' => $out,
-            'file' => $storedFile,
-        ], 500);
+            'newDocumentCreated' => $documentCreated,
+            'storedFile' => $storedFile,
+            'fileUrl' => $publicUrl,
+            'pages' => $totalPages,
+        ], 200);
     }
-
-    $totalPages = (int) $out;
-
-    for ($pageToExtract = 1; $pageToExtract <= $totalPages; $pageToExtract++) {
-        $liveStatus = round((($pageToExtract / $totalPages) * 100), 1) . "% processato";
-        if ($pageToExtract === $totalPages) $liveStatus = "Completato";
-
-        ElaborateLatestCR::dispatch($pageToExtract, $documentCreated["codice_documento"], $liveStatus);
-    }
-
-    return response()->json([
-        'newDocumentCreated' => $documentCreated,
-        'storedFile' => $storedFile,
-        'fileUrl' => $publicUrl,
-        'pages' => $totalPages,
-    ], 200);
-}
 
 
 
@@ -255,7 +258,7 @@ public function store(Request $request)
 
     public function crAndamentale($period, $data_inizio = false, $data_fine = false, $inputBanks = null)
     {
-      
+
         $crAndamentaleData['period'] = $period;
         $crAndamentaleData['data_inizio'] = $data_inizio;
         $crAndamentaleData['data_fine'] = $data_fine;
@@ -278,14 +281,14 @@ public function store(Request $request)
 
             $crHelper = new CrExtractorHelper;
 
-       /*     if (cr::select('date')->where('document_id', $crAndamentaleData['period'])->count() == 0) {
-                return response()->json([
-                    'error' => true,
-                    'message' => 'Invalid period specified'
-                ], 400);
-            }*/
+            /*     if (cr::select('date')->where('document_id', $crAndamentaleData['period'])->count() == 0) {
+                     return response()->json([
+                         'error' => true,
+                         'message' => 'Invalid period specified'
+                     ], 400);
+                 }*/
 
-          
+
             if (!$crAndamentaleData['data_inizio'] || !$crAndamentaleData['data_fine']) {
                 $lastDate = new DateTime(
                     cr::select('date')->where('document_id', $crAndamentaleData['period'])->orderBy('date', 'desc')->first()->date
@@ -399,7 +402,7 @@ public function store(Request $request)
                 'Scoring' => [
                     'Panoramica' => [
                         'PeriodoRiferimento' => [
-                            'Inizio' =>  ucFirst($inizioPeriodo),
+                            'Inizio' => ucFirst($inizioPeriodo),
                             'Fine' => ucFirst($finePeriodo),
                         ],
                         'NumeroIntermediari' => $intermediari,
@@ -608,12 +611,59 @@ public function store(Request $request)
                 'error' => false,
                 'message' => 'Bilancio eliminato correttamente',
             ]);
-        } catch (Excepton $e) {
+        } catch (\Exception $e) {
             return response()->json([
                 'error' => false,
                 'type' => 'Eccezione',
                 'message' => $e,
             ]);
+        }
+    }
+
+    public function setPredefinito(Request $request, $id)
+    {
+        try {
+            $bilanciHelper = new BilanciHelper;
+            $currentUserId = $bilanciHelper->getCurrentUserIdFromToken($request);
+
+            if ($currentUserId == 'Unauthorized') {
+                return response()->json([
+                    'exception' => true,
+                    'message' => 'Unauthorized'
+                ], 401);
+            }
+
+            $currentCompany = $request->header('currentcompany') ?: 0;
+
+            $document = Document::where('id', $id)
+                ->where('type', 'centrale rischi')
+                ->where('user_id', $currentUserId)
+                ->firstOrFail();
+
+            if ($currentCompany) {
+                Document::where('type', 'centrale rischi')
+                    ->where('company_id', $currentCompany)
+                    ->where('user_id', $currentUserId)
+                    ->update(['predefinito' => false]);
+            } else {
+                Document::where('type', 'centrale rischi')
+                    ->where('user_id', $currentUserId)
+                    ->update(['predefinito' => false]);
+            }
+
+            $document->predefinito = true;
+            $document->save();
+
+            return response()->json([
+                'error' => false,
+                'message' => 'Centrale Rischi impostata come predefinita.'
+            ], 200);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => $e->getMessage(),
+            ], 500);
         }
     }
 }

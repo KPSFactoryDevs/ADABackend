@@ -55,6 +55,7 @@ Route::group(['middleware' => ['cors', 'json.response']], function () {
     Route::get('/getLatestYears', 'App\Financial\Bilanci\Controllers\BilanciController@getLatestYears');
     Route::delete('/bilancio/{idBilancio}', 'App\Financial\Bilanci\Controllers\BilanciController@destroy');
     Route::get('/getBilanciDocuments', 'App\Financial\Bilanci\Controllers\BilanciController@getDocuments');
+    Route::put('/bilancio/{id}/predefinito', 'App\Financial\Bilanci\Controllers\BilanciController@setPredefinito');
     Route::post('/missingVoices', 'App\Financial\Bilanci\Controllers\BilanciController@missingVoices');
     Route::post('/updateMissingVoices', 'App\Financial\Bilanci\Controllers\BilanciController@updateMissingVoices');
     Route::post('/getDSCRAnalisi', 'App\Http\Controllers\AnalisisController@getDSCRAnalisi');
@@ -76,6 +77,7 @@ Route::group(['middleware' => ['cors', 'json.response']], function () {
     Route::post('/importCr', 'App\Http\Controllers\CentraleRischiController@store');
     Route::get('/getCrDocuments', 'App\Http\Controllers\CentraleRischiController@getDocuments');
     Route::get('/getDocuments/{id}', 'App\Http\Controllers\CentraleRischiController@getDocumentsById');
+    Route::put('/cr/{id}/predefinito', 'App\Http\Controllers\CentraleRischiController@setPredefinito');
     Route::delete('/deleteDocument/{idDocument}', 'App\Http\Controllers\CentraleRischiController@destroy');
 
 
@@ -83,6 +85,7 @@ Route::group(['middleware' => ['cors', 'json.response']], function () {
     // SISTEMA DI ALLERTA
     Route::get('/generalAllerta/{id}/{idCr}/{userId}', 'App\Http\Controllers\AllertaController@allertaGeneral');
     Route::post('/questionarioAsis', 'App\Http\Controllers\AllertaController@questionarioSistemaAllerta');
+    Route::get('/questionari', 'App\Http\Controllers\AllertaController@getQuestionari');
     Route::post('/forwardlooking', 'App\Http\Controllers\AllertaController@forwardLooking');
 
 
@@ -94,11 +97,11 @@ Route::group(['middleware' => ['cors', 'json.response']], function () {
     Route::get('/reportAllerta/{idBilancio}/{idCr}', 'App\Http\Controllers\PDFController@reportAllerta');
     Route::get('/reportAndamentale/{years}', 'App\Http\Controllers\PDFController@reportCrAndamentale');
 
- 
+
 });
 
 
-Route::group(['middleware' => ['cors','json.response','auth:api']], function () {
+Route::group(['middleware' => ['cors', 'json.response', 'auth:api']], function () {
     // Companies protette
     Route::get('/company', [CompaniesController::class, 'index']);
     Route::post('/company', [CompaniesController::class, 'store']);
@@ -128,11 +131,11 @@ Route::middleware('auth:api')->group(function () {
 
 
 
-Route::middleware(['cors','json.response','auth:api'])->group(function () {
-    Route::post('/fic/prepare',   [\App\Http\Controllers\FICOAuthController::class, 'prepare']);
-    Route::get('/fic/status',     [\App\Http\Controllers\FICOAuthController::class, 'status']);
-    Route::post('/fic/import',    [\App\Http\Controllers\FICOAuthController::class, 'import']);
-    Route::post('/fic/disconnect',[\App\Http\Controllers\FICOAuthController::class, 'disconnect']);
+Route::middleware(['cors', 'json.response', 'auth:api'])->group(function () {
+    Route::post('/fic/prepare', [\App\Http\Controllers\FICOAuthController::class, 'prepare']);
+    Route::get('/fic/status', [\App\Http\Controllers\FICOAuthController::class, 'status']);
+    Route::post('/fic/import', [\App\Http\Controllers\FICOAuthController::class, 'import']);
+    Route::post('/fic/disconnect', [\App\Http\Controllers\FICOAuthController::class, 'disconnect']);
 });
 
 

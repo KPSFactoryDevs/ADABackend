@@ -24,158 +24,154 @@ use App\Models\Document;
 
 class PDFController extends Controller
 {
-	public function templateReportBasic($id)
-	{
-		$document = Document::find($id);
+    public function templateReportBasic($id)
+    {
+        $document = Document::findOrFail($id);
 
-		$filePath = base_path() . '/public/bilanci/' . $document->filename;
-		$taxonomyName = $document->taxonomy;
-		$emptyInstance = false;
-		$taxonomyPath = base_path()."/taxonomies/2018-11-04/".$taxonomyName;
-		$readXBRL = \XBRL_Instance::FromInstanceDocument($filePath, $taxonomyPath, $emptyInstance);
-		$bilancioJSON = $readXBRL->toJSON();
+        $filePath = base_path() . '/public/bilanci/' . $document->filename;
+        $taxonomyName = $document->taxonomy;
+        $emptyInstance = false;
+        $taxonomyPath = base_path() . "/taxonomies/2018-11-04/" . $taxonomyName;
+        $readXBRL = \XBRL_Instance::FromInstanceDocument($filePath, $taxonomyPath, $emptyInstance);
+        $bilancioJSON = $readXBRL->toJSON();
 
-	 	$Elements = $readXBRL->getElements();
-		$elements = $Elements->getElements();
-
-
-		$bilanciHelper = new BilanciHelper;
-		$bilancioAnalisi = $bilanciHelper->getIndexesForBalanceTaxonomy($document->id, $filePath, $readXBRL, $document->codice_documento, false);
-		$renderHTML = $bilanciHelper->generateHTMLRender($filePath, $taxonomyPath);
+        $Elements = $readXBRL->getElements();
+        $elements = $Elements->getElements();
 
 
+        $bilanciHelper = new BilanciHelper;
+        $bilancioAnalisi = $bilanciHelper->getIndexesForBalanceTaxonomy($document->id, $filePath, $readXBRL, $document->codice_documento, false);
+        $renderHTML = $bilanciHelper->generateHTMLRender($filePath, $taxonomyPath);
 
-		$nomeAzienda = $document->nome_azienda;
-		$formaGiuridica = $document->forma_giuridica;
-		$tipoAzienda = $document->tipo_azienda;
-		$annoInizio = $document->anno_inizio;
-		$annoFine = $document->anno_fine;
 
-		$datiImpresa = [
-			'ragione_sociale' => $nomeAzienda,
-			'tipologia_impresa' => $formaGiuridica,
-			'settore' => $tipoAzienda,
-			'data_chiusura' => $annoInizio,
-			'data_ultima' => $annoFine,
-			'bilancioAnalisi' => $bilancioAnalisi,
-			'renderHTML' => $renderHTML,
-		];
 
-		$pdf = PDF::loadView('frontend.reportBasic',['datiImpresa' => $datiImpresa])->setPaper('A4');;
-		return $pdf->stream('result.pdf', array('Attachment'=>0));
-	}
-	public function reportBasicPdf($idBilancio)
-	{
-		$bilanciHelper = new BilanciHelper;
-		$getAnalisiBilancio = $bilanciHelper->getAnalisiBilancio($idBilancio);
+        $nomeAzienda = $document->nome_azienda;
+        $formaGiuridica = $document->forma_giuridica;
+        $tipoAzienda = $document->tipo_azienda;
+        $annoInizio = $document->anno_inizio;
+        $annoFine = $document->anno_fine;
 
-		$bilancio = Bilanci::findOrFail($idBilancio);
+        $datiImpresa = [
+            'ragione_sociale' => $nomeAzienda,
+            'tipologia_impresa' => $formaGiuridica,
+            'settore' => $tipoAzienda,
+            'data_chiusura' => $annoInizio,
+            'data_ultima' => $annoFine,
+            'bilancioAnalisi' => $bilancioAnalisi,
+            'renderHTML' => $renderHTML,
+        ];
 
-		$nomeAzienda = json_decode($bilancio->json_data_anag)->DatiAnagraficiDenominazione;
+        $pdf = PDF::loadView('frontend.reportBasic', ['datiImpresa' => $datiImpresa])->setPaper('A4');
+        return $pdf->stream('result.pdf', array('Attachment' => 0));
+    }
+    public function reportBasicPdf($idBilancio)
+    {
+        $bilanciHelper = new BilanciHelper;
+        $getAnalisiBilancio = $bilanciHelper->getIndexesForBalanceTaxonomy($idBilancio);
 
-		$tipoAzienda = $bilancio->tipo_azienda;
+        $bilancio = Bilanci::findOrFail($idBilancio);
 
-		$patrimonioNettoSiNo = false;
-		$DSCR6Mesi = "No";
-		if ($getAnalisiBilancio['AnalisiAdvanced']['Indici']['PATRIMONIO_NETTO'] < 0) {
-			$patrimonioNettoSiNo = "Si";
-			if (isset($getAnalisiBilancio['AnalisiBasic']['InputData']) && $getAnalisiBilancio['AnalisiBasic']['InputData']['DSCR'] == 0) {
-				$DSCR6Mesi = "No";
-			} else {
-				$DSCR6Mesi = "Si";
-			}
-		} else {
-			$patrimonioNettoSiNo = "No";
-		}
+        $nomeAzienda = json_decode($bilancio->json_data_anag)->DatiAnagraficiDenominazione;
 
-		$pdfBilancioData = [
-			'currentDate' => date('d/m/y'),
-			'nomeAzienda' => $nomeAzienda,
-			'DSCR' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->DSCR : null,
-			'DSCR6MesiAttendibile' => $DSCR6Mesi,
-			'DSCRDate' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->DSCRDate : null,
-			'DSCRdispLiquida' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->DSCRdispLiquida : null,
-			'riscossione' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->riscossione : null,
-			'alertRiscossione' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->alertRiscossione : null,
-			'rischioAzienda' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->alertDSCR : null,
-			'patrimonioNetto' => $patrimonioNettoSiNo,
-			'soglie' => [
-				"Indici" => [
-					'Sostenibilità Oneri Finanziari' => $getAnalisiBilancio['AnalisiBasic']['Soglie']['Sostenibilità Oneri Finanziari'],
-					'Adeguatezza Patrimoniale' => $getAnalisiBilancio['AnalisiBasic']['Soglie']['Adeguatezza Patrimoniale'],
-					'Liquidità' => $getAnalisiBilancio['AnalisiBasic']['Soglie']['Liquidità'],
-					'Indebitamento Previdenziale Tributario' => $getAnalisiBilancio['AnalisiBasic']['Soglie']['Indebitamento Previdenziale Tributario'],
-					'Ritorno Liquido Attivo' => $getAnalisiBilancio['AnalisiBasic']['Soglie']['Ritorno Liquido Attivo'],
-				],
-				"Valori" => [
-					'Sostenibilità Oneri Finanziari' => $getAnalisiBilancio['AnalisiBasic']['Valori']['Sostenibilità Oneri Finanziari'],
-					'Adeguatezza Patrimoniale' => $getAnalisiBilancio['AnalisiBasic']['Valori']['Adeguatezza Patrimoniale'],
-					'Liquidità' => $getAnalisiBilancio['AnalisiBasic']['Valori']['Liquidità'],
-					'Indebitamento Previdenziale Tributario' => $getAnalisiBilancio['AnalisiBasic']['Valori']['Indebitamento Previdenziale Tributario'],
-					'Ritorno Liquido Attivo' => $getAnalisiBilancio['AnalisiBasic']['Valori']['Ritorno Liquido Attivo'],
-				]
-			],
-			'entrateDSCRCF' => [
-				'DSCRCFmese1' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->entrataDSCRCFmese1 : null,
-				'DSCRCFmese2' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->entrataDSCRCFmese2 : null,
-				'DSCRCFmese3' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->entrataDSCRCFmese3 : null,
-				'DSCRCFmese4' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->entrataDSCRCFmese4 : null,
-				'DSCRCFmese5' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->entrataDSCRCFmese5 : null,
-				'DSCRCFmese6' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->entrataDSCRCFmese6 : null,
-			],
-			'uscitaDSCRCF' => [
-				'DSCRCFmese1' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->uscitaDSCRCFmese1 : null,
-				'DSCRCFmese2' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->uscitaDSCRCFmese2 : null,
-				'DSCRCFmese3' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->uscitaDSCRCFmese3 : null,
-				'DSCRCFmese4' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->uscitaDSCRCFmese4 : null,
-				'DSCRCFmese5' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->uscitaDSCRCFmese5 : null,
-				'DSCRCFmese6' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->uscitaDSCRCFmese6 : null,
-			],
-			'rimborsoDSCR' => [
-				'DSCRmese1' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->rimborsoDSCRmese1 : null,
-				'DSCRmese2' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->rimborsoDSCRmese2 : null,
-				'DSCRmese3' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->rimborsoDSCRmese3 : null,
-				'DSCRmese4' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->rimborsoDSCRmese4 : null,
-				'DSCRmese5' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->rimborsoDSCRmese5 : null,
-				'DSCRmese6' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->rimborsoDSCRmese6 : null,
-			],
-			'agenziaEntrate' => [
-				'agenziaEntrate1' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->agenziaEntrate1 : null,
-				'agenziaEntrate2' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->agenziaEntrate2 : null,
-				'agenziaEntrate3' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->agenziaEntrate3 : null,
-				'agenziaEntrate4' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->agenziaEntrate4 : null,
-				'alertAgenziaEntrate' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->alertAgenziaEntrate : null,
-			],
-			'INPS' => [
-				'INPS1' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->INPS1 : null,
-				'INPS2' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->INPS2 : null,
-				'INPS3' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->INPS3 : null,
-				'alertINPS' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->alertINPS : null,
-			],
-			'retribuzioni' => [
-				'retribuzioni1' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->retribuzioni1 : null,
-				'retribuzioni2' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->retribuzioni2 : null,
-				'retribuzioni3' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->retribuzioni3 : null,
-				'alertRetribuzioni' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->alertRetribuzioni : null,
-			],
-			'fornitori' => [
-				'fornitori1' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->fornitori1 : null,
-				'fornitori2' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->fornitori2 : null,
-				'alertFornitori' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->alertFornitori : null,
-			],
-		];
+        $tipoAzienda = $bilancio->tipo_azienda;
 
-		$printPDF = new printpdf;
-		$printPDF->currentPayload = $pdfBilancioData;
-		$documentId = $printPDF->generateDocument('bilancio');
-		sleep(5);
+        $patrimonioNettoSiNo = false;
+        $DSCR6Mesi = "No";
+        if ($getAnalisiBilancio['AnalisiAdvanced']['Indici']['PATRIMONIO_NETTO'] < 0) {
+            $patrimonioNettoSiNo = "Si";
+            if (isset($getAnalisiBilancio['AnalisiBasic']['InputData']) && $getAnalisiBilancio['AnalisiBasic']['InputData']['DSCR'] == 0) {
+                $DSCR6Mesi = "No";
+            } else {
+                $DSCR6Mesi = "Si";
+            }
+        } else {
+            $patrimonioNettoSiNo = "No";
+        }
 
-		return $printPDF->getDocumentData($documentId);
-	}
+        $pdfBilancioData = [
+            'currentDate' => date('d/m/y'),
+            'nomeAzienda' => $nomeAzienda,
+            'DSCR' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->DSCR : null,
+            'DSCR6MesiAttendibile' => $DSCR6Mesi,
+            'DSCRDate' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->DSCRDate : null,
+            'DSCRdispLiquida' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->DSCRdispLiquida : null,
+            'riscossione' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->riscossione : null,
+            'alertRiscossione' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->alertRiscossione : null,
+            'rischioAzienda' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->alertDSCR : null,
+            'patrimonioNetto' => $patrimonioNettoSiNo,
+            'soglie' => [
+                "Indici" => [
+                    'Sostenibilità Oneri Finanziari' => $getAnalisiBilancio['AnalisiBasic']['Soglie']['Sostenibilità Oneri Finanziari'],
+                    'Adeguatezza Patrimoniale' => $getAnalisiBilancio['AnalisiBasic']['Soglie']['Adeguatezza Patrimoniale'],
+                    'Liquidità' => $getAnalisiBilancio['AnalisiBasic']['Soglie']['Liquidità'],
+                    'Indebitamento Previdenziale Tributario' => $getAnalisiBilancio['AnalisiBasic']['Soglie']['Indebitamento Previdenziale Tributario'],
+                    'Ritorno Liquido Attivo' => $getAnalisiBilancio['AnalisiBasic']['Soglie']['Ritorno Liquido Attivo'],
+                ],
+                "Valori" => [
+                    'Sostenibilità Oneri Finanziari' => $getAnalisiBilancio['AnalisiBasic']['Valori']['Sostenibilità Oneri Finanziari'],
+                    'Adeguatezza Patrimoniale' => $getAnalisiBilancio['AnalisiBasic']['Valori']['Adeguatezza Patrimoniale'],
+                    'Liquidità' => $getAnalisiBilancio['AnalisiBasic']['Valori']['Liquidità'],
+                    'Indebitamento Previdenziale Tributario' => $getAnalisiBilancio['AnalisiBasic']['Valori']['Indebitamento Previdenziale Tributario'],
+                    'Ritorno Liquido Attivo' => $getAnalisiBilancio['AnalisiBasic']['Valori']['Ritorno Liquido Attivo'],
+                ]
+            ],
+            'entrateDSCRCF' => [
+                'DSCRCFmese1' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->entrataDSCRCFmese1 : null,
+                'DSCRCFmese2' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->entrataDSCRCFmese2 : null,
+                'DSCRCFmese3' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->entrataDSCRCFmese3 : null,
+                'DSCRCFmese4' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->entrataDSCRCFmese4 : null,
+                'DSCRCFmese5' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->entrataDSCRCFmese5 : null,
+                'DSCRCFmese6' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->entrataDSCRCFmese6 : null,
+            ],
+            'uscitaDSCRCF' => [
+                'DSCRCFmese1' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->uscitaDSCRCFmese1 : null,
+                'DSCRCFmese2' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->uscitaDSCRCFmese2 : null,
+                'DSCRCFmese3' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->uscitaDSCRCFmese3 : null,
+                'DSCRCFmese4' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->uscitaDSCRCFmese4 : null,
+                'DSCRCFmese5' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->uscitaDSCRCFmese5 : null,
+                'DSCRCFmese6' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->uscitaDSCRCFmese6 : null,
+            ],
+            'rimborsoDSCR' => [
+                'DSCRmese1' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->rimborsoDSCRmese1 : null,
+                'DSCRmese2' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->rimborsoDSCRmese2 : null,
+                'DSCRmese3' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->rimborsoDSCRmese3 : null,
+                'DSCRmese4' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->rimborsoDSCRmese4 : null,
+                'DSCRmese5' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->rimborsoDSCRmese5 : null,
+                'DSCRmese6' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->rimborsoDSCRmese6 : null,
+            ],
+            'agenziaEntrate' => [
+                'agenziaEntrate1' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->agenziaEntrate1 : null,
+                'agenziaEntrate2' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->agenziaEntrate2 : null,
+                'agenziaEntrate3' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->agenziaEntrate3 : null,
+                'agenziaEntrate4' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->agenziaEntrate4 : null,
+                'alertAgenziaEntrate' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->alertAgenziaEntrate : null,
+            ],
+            'INPS' => [
+                'INPS1' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->INPS1 : null,
+                'INPS2' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->INPS2 : null,
+                'INPS3' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->INPS3 : null,
+                'alertINPS' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->alertINPS : null,
+            ],
+            'retribuzioni' => [
+                'retribuzioni1' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->retribuzioni1 : null,
+                'retribuzioni2' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->retribuzioni2 : null,
+                'retribuzioni3' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->retribuzioni3 : null,
+                'alertRetribuzioni' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->alertRetribuzioni : null,
+            ],
+            'fornitori' => [
+                'fornitori1' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->fornitori1 : null,
+                'fornitori2' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->fornitori2 : null,
+                'alertFornitori' => (isset($getAnalisiBilancio['AnalisiBasic']['InputData'][0])) ? $getAnalisiBilancio['AnalisiBasic']['InputData'][0]->alertFornitori : null,
+            ],
+        ];
 
-	public function reportCrAndamentale($period, $data_inizio = false, $data_fine = false, $inputBanks = null)
-	{
-		$crAndamentaleData['period'] = $period;
+        $pdf = PDF::loadView('frontend.reportBasic', ['datiImpresa' => $pdfBilancioData])->setPaper('A4');
+        return $pdf->stream('result.pdf', array('Attachment' => 0));
+    }
+
+    public function reportCrAndamentale($period, $data_inizio = false, $data_fine = false, $inputBanks = null)
+    {
+        $crAndamentaleData['period'] = $period;
         $crAndamentaleData['data_inizio'] = $data_inizio;
         $crAndamentaleData['data_fine'] = $data_fine;
 
@@ -307,15 +303,15 @@ class PDFController extends Controller
             $lastAvailableDate = new DateTime($lastAvailableDate);
             $firstAvailableDate = new DateTime($firstAvailableDate);
 
-			// dd($totaleAffidamentiTable);
-			foreach($totaleAffidamentiTable as $key => $singleAffidamento) {
-					$totaleAffidamentiTable[$key]['totAccordatoOperativo'] = number_format($singleAffidamento['totAccordatoOperativo'], 2, ',', '.');
-					$totaleAffidamentiTable[$key]['totUtilizzato'] = number_format($singleAffidamento['totUtilizzato'], 2, ',', '.');
-					$totaleAffidamentiTable[$key]['PesoAccordatoOperativo'] = number_format($singleAffidamento['PesoAccordatoOperativo'], 2, ',', '.');
-					$totaleAffidamentiTable[$key]['PesoUtilizzato'] = number_format($singleAffidamento['PesoUtilizzato'], 2, ',', '.');
-			}
-			$scoreCR = number_format($scoreCR, 2, ',', '.');
-			$finalScoreMoltiplied = (float)str_replace(',', '.', $scoreCR)*10;
+            // dd($totaleAffidamentiTable);
+            foreach ($totaleAffidamentiTable as $key => $singleAffidamento) {
+                $totaleAffidamentiTable[$key]['totAccordatoOperativo'] = number_format($singleAffidamento['totAccordatoOperativo'], 2, ',', '.');
+                $totaleAffidamentiTable[$key]['totUtilizzato'] = number_format($singleAffidamento['totUtilizzato'], 2, ',', '.');
+                $totaleAffidamentiTable[$key]['PesoAccordatoOperativo'] = number_format($singleAffidamento['PesoAccordatoOperativo'], 2, ',', '.');
+                $totaleAffidamentiTable[$key]['PesoUtilizzato'] = number_format($singleAffidamento['PesoUtilizzato'], 2, ',', '.');
+            }
+            $scoreCR = number_format($scoreCR, 2, ',', '.');
+            $finalScoreMoltiplied = (float) str_replace(',', '.', $scoreCR) * 10;
 
             $generalDates = [
                 'periodoMinimoDisponibile' => $lastAvailableDate->format('U'),
@@ -326,7 +322,7 @@ class PDFController extends Controller
                 'Scoring' => [
                     'Panoramica' => [
                         'PeriodoRiferimento' => [
-                            'Inizio' =>  ucFirst($inizioPeriodo),
+                            'Inizio' => ucFirst($inizioPeriodo),
                             'Fine' => ucFirst($finePeriodo),
                         ],
                         'NumeroIntermediari' => $intermediari,
@@ -358,15 +354,14 @@ class PDFController extends Controller
             ];
 
 
-            $pdf = PDF::loadView('frontend.reportAndamentale',['response' => $response])->setPaper('A4');;
-            return $pdf->stream('result.pdf', array('Attachment'=>0));
+            $pdf = PDF::loadView('frontend.reportAndamentale', ['response' => $response])->setPaper('A4');
+            return $pdf->stream('result.pdf', array('Attachment' => 0));
+        }
+    }
 
-		}
-	}
 
-
-	public function reportAllerta($idBilancio, $idCr)
-	{
+    public function reportAllerta($idBilancio, $idCr)
+    {
         if (cr::where('document_id', $idCr)->get()->count() == 0 || !isset($idCr)) {
             return response()->json([
                 'error' => true,
@@ -477,13 +472,13 @@ class PDFController extends Controller
                 'Minacce rapporti commerciali' => $getScoreHelper['resultMinacceRapportiCommerciali'],
                 'Minacce gestione aziendale' => $getScoreHelper['resultMinacceGestioneAziendale'],
                 'Minacce da eventi pregiudizievoli' => $getScoreHelper['resultMinacceEventiPregiudizievoli'],
-                'Minacce erariali e rischi caratteristici' =>  $getScoreHelper['resultMinacceRischiCaratteristici'],
+                'Minacce erariali e rischi caratteristici' => $getScoreHelper['resultMinacceRischiCaratteristici'],
                 'Profilo rischio AS IS' => $getScoreHelper['ASISScore'],
                 'Questionario TO BE' => $getScoreHelper['scoreGiudizioFL'],
             ],
         ];
-				$printPDF = new printpdf;
-				$printPDF->currentPayload = $dataAllerta;
+        $printPDF = new printpdf;
+        $printPDF->currentPayload = $dataAllerta;
 
         $arrayAnwersForwarLooking = [
             "forwardLooking1" => [
@@ -546,9 +541,9 @@ class PDFController extends Controller
                 3 => "No"
             ]
         ];
-        $pdf = PDF::loadView('frontend.reportAllerta',['dati' => $dataAllerta, 'risposte' => $arrayAnwersForwarLooking])->setPaper('A4');
-        return $pdf->stream('result.pdf', array('Attachment'=>0));
+        $pdf = PDF::loadView('frontend.reportAllerta', ['dati' => $dataAllerta, 'risposte' => $arrayAnwersForwarLooking])->setPaper('A4');
+        return $pdf->stream('result.pdf', array('Attachment' => 0));
 
 
-	}
+    }
 }
