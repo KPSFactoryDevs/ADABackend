@@ -13,14 +13,12 @@ class MakeAlertFieldsNullableInBasicTable extends Migration
      */
     public function up()
     {
-        Schema::table('basic', function (Blueprint $table) {
-            $table->string('alertDSCR')->nullable()->change();
-            $table->string('alertAgenziaEntrate')->nullable()->change();
-            $table->string('alertINPS')->nullable()->change();
-            $table->string('alertRiscossione')->nullable()->change();
-            $table->string('alertRetribuzioni')->nullable()->change();
-            $table->string('alertFornitori')->nullable()->change();
-        });
+        \Illuminate\Support\Facades\DB::statement('ALTER TABLE basic MODIFY COLUMN alertDSCR VARCHAR(255) NULL;');
+        \Illuminate\Support\Facades\DB::statement('ALTER TABLE basic MODIFY COLUMN alertAgenziaEntrate VARCHAR(255) NULL;');
+        \Illuminate\Support\Facades\DB::statement('ALTER TABLE basic MODIFY COLUMN alertINPS VARCHAR(255) NULL;');
+        \Illuminate\Support\Facades\DB::statement('ALTER TABLE basic MODIFY COLUMN alertRiscossione VARCHAR(255) NULL;');
+        \Illuminate\Support\Facades\DB::statement('ALTER TABLE basic MODIFY COLUMN alertRetribuzioni VARCHAR(255) NULL;');
+        \Illuminate\Support\Facades\DB::statement('ALTER TABLE basic MODIFY COLUMN alertFornitori VARCHAR(255) NULL;');
     }
 
     /**
