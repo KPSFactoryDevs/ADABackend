@@ -1251,7 +1251,7 @@ class BilanciCalculationsHelperAdvanced
     {
         if (!isset($allData['INPS1']) || !isset($allData['INPS2'])) {
             $alert = "Dati Mancanti";
-        } elseif ($allData['INPS1'] == 0 || $allData['INPS2'] == 0) {
+        } elseif (!is_numeric($allData['INPS1']) || !is_numeric($allData['INPS2'])) {
             return false;
         } else {
             $alert = "No";
@@ -1270,8 +1270,8 @@ class BilanciCalculationsHelperAdvanced
                 }
             }
         } /* else {
-          $inps3 = "NON CALCOLABILE";
-      } */
+      $inps3 = "NON CALCOLABILE";
+  } */
 
         $data = [
             'alert' => $alert,
@@ -1467,35 +1467,26 @@ class BilanciCalculationsHelperAdvanced
     {
         if (!isset($allData['retribuzioni1']) || !isset($allData['retribuzioni2'])) {
             $alert = "Dati Mancanti";
-        } elseif ($allData['retribuzioni1'] == 0 || $allData['retribuzioni2'] == 0) {
+        } elseif (!is_numeric($allData['retribuzioni1']) || !is_numeric($allData['retribuzioni2'])) {
             return false;
         } else {
             $alert = "No";
         }
 
         if ($alert != "Dati Mancanti" && $alert != false) {
-            if (str_contains($allData['retribuzioni1'], ',') || str_contains($allData['retribuzioni2'], ',')) {
-                if ((str_replace(',', '.', str_replace('.', '', $allData['retribuzioni1'])) / str_replace(',', '.', str_replace('.', '', $allData['retribuzioni2']))) * 100 >= 50) {
-                    $alert = "Si";
-                } else {
-                    $alert = "No";
-                }
-                /*               if (is_finite(str_replace(',', '.', str_replace('.', '', $allData['retribuzioni1'])) / str_replace(',', '.', str_replace('.', '', $allData['retribuzioni2'])))) {
-                                  $cleanData['retribuzioni3'] = number_format(((str_replace(',', '.', str_replace('.', '', $allData['retribuzioni1'])) / str_replace(',', '.', str_replace('.', '', $allData['retribuzioni2']))) * 100), 2, ".", ",");
-                              } else {
-                                  $cleanData['retribuzioni3'] = "NON CALCOLABILE";
-                              } */
+            $val1 = (float) str_replace(',', '.', str_replace('.', '', $allData['retribuzioni1']));
+            $val2 = (float) str_replace(',', '.', str_replace('.', '', $allData['retribuzioni2']));
+
+            if ($val1 == 0) {
+                $alert = "No";
+            } else if ($val2 == 0) {
+                return false;
             } else {
-                if ((str_replace(',', '.', str_replace('.', '', $allData['retribuzioni1'])) / str_replace(',', '.', str_replace('.', '', $allData['retribuzioni2']))) * 100 >= 50) {
+                if (($val1 / $val2) * 100 >= 50) {
                     $alert = "Si";
                 } else {
                     $alert = "No";
                 }
-                /*                 if (is_finite(str_replace(',', '.', str_replace('.', '', $allData['retribuzioni1'])) / str_replace(',', '.', str_replace('.', '', $allData['retribuzioni2'])))) {
-                                    $cleanData['retribuzioni3'] = number_format(((str_replace(',', '.', str_replace('.', '', $allData['retribuzioni1'])) / str_replace(',', '.', str_replace('.', '', $allData['retribuzioni2']))) * 100), 2, ".", ",");
-                                } else {
-                                    $cleanData['retribuzioni3'] = "NON CALCOLABILE";
-                                } */
             }
         }
 
@@ -1589,7 +1580,7 @@ class BilanciCalculationsHelperAdvanced
 
     public function getAgenziaEntrateData()
     {
-        $agenziaEntrateData = AnalisiAgenziaEntrate::where('document_id', $this->documentId)->latest()->first();
+        $agenziaEntrateData = AnalisiAgenziaEntrate::where('document_id', $this->codice_documento)->latest()->first();
 
         if ($agenziaEntrateData != null) {
             $agenziaEntrateData['alert'] = $agenziaEntrateData['alertAgenziaEntrate'];
@@ -1685,7 +1676,7 @@ class BilanciCalculationsHelperAdvanced
 
         if (!isset($allData['agenziaEntrate1']) || !isset($allData['agenziaEntrate2'])) {
             $alert = "Dati Mancanti";
-        } elseif ($allData['agenziaEntrate1'] == 0 || $allData['agenziaEntrate2'] == 0) {
+        } elseif (!is_numeric($allData['agenziaEntrate1']) || !is_numeric($allData['agenziaEntrate2'])) {
             return false;
         } else {
             $alert = "No";
