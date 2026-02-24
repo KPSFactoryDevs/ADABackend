@@ -132,35 +132,42 @@ class AllertaController extends Controller
                 'Minacce rapporti commerciali' => $getScoreHelper['resultMinacceRapportiCommerciali'],
                 'Minacce gestione aziendale' => $getScoreHelper['resultMinacceGestioneAziendale'],
                 'Minacce da eventi pregiudizievoli' => $getScoreHelper['resultMinacceEventiPregiudizievoli'],
-                'Minacce erariali e rischi caratteristici' =>  $getScoreHelper['resultMinacceRischiCaratteristici'],
+                'Minacce erariali e rischi caratteristici' => $getScoreHelper['resultMinacceRischiCaratteristici'],
                 'Profilo rischio AS IS' => $getScoreHelper['ASISScore'],
                 'Questionario TO BE' => $getScoreHelper['scoreGiudizioFL'],
             ],
         ]);
     }
 
+    public function getQuestionari()
+    {
+        $allertaHelper = new AllertaHelper;
+        $arrayQuestionario = $allertaHelper->getArrayQuestionarioAsIs(null, null);
+        $arrayForwardLooking = $allertaHelper->getArrayQuestionarioToBe(null, null);
+
+        return response()->json([
+            'error' => false,
+            'asIs' => $arrayQuestionario,
+            'toBe' => $arrayForwardLooking,
+        ]);
+    }
+
     public function questionarioSistemaAllerta(Request $request)
     {
 
-        $documentId = $request->document_id;
-        $bilancioId = $request->bilancio_id;
+        $userId = Auth::id();
         $arrayQuestionario = $request->questionario;
 
-
-        $questionarioAsIs = DB::table('questionario')->where('document_id', $documentId)->where('bilancio_id', $bilancioId)->get();
-
-        if (count($questionarioAsIs) > 0) {
-            DB::table('questionario')->where('document_id', $documentId)->where('bilancio_id', $bilancioId)->delete();
-        }
+        DB::table('user_questionari')->where('user_id', $userId)->where('type', 'asis')->delete();
 
         foreach ($arrayQuestionario as $domanda => $risposta) {
-            DB::table('questionario')->insert([
-                'result' => $risposta['response'],
+            DB::table('user_questionari')->insert([
+                'user_id' => $userId,
+                'type' => 'asis',
+                'result' => $risposta['response'] ?? '',
                 'parameter' => $domanda,
-                'details' => $risposta['details'],
-                'date' => date("Y/m/d"),
-                'document_id' => $documentId,
-                'bilancio_id' =>  $bilancioId
+                'details' => $risposta['details'] ?? '',
+                'date' => date("Y/m/d")
             ]);
         }
 
@@ -174,26 +181,26 @@ class AllertaController extends Controller
     public function forwardLooking(Request $request)
     {
 
-        if(!isset($request) || !isset($request->document_id) || !isset($request->bilancio_id)) {
+        if (!isset($request->forwardlooking)) {
             return response()->json([
                 'error' => true,
-                'data' => 'Id Documenti Mancanti',
+                'data' => 'Dati mancanti',
             ], 400);
         }
 
-        $documentId = $request->document_id;
-        $bilancioId = $request->bilancio_id;
+        $userId = Auth::id();
         $arrayForwarLooking = $request->forwardlooking;
-
         unset($arrayForwarLooking['_token']);
 
+        DB::table('user_questionari')->where('user_id', $userId)->where('type', 'tobe')->delete();
+
         foreach ($arrayForwarLooking as $index => $singleAnswer) {
-            DB::table('forwardlooking')->insert([
-                'question' => $index,
-                'answer' => $singleAnswer,
-                'date' => date("Y/m/d"),
-                'document_id' => $documentId,
-                'bilancio_id' => $bilancioId
+            DB::table('user_questionari')->insert([
+                'user_id' => $userId,
+                'type' => 'tobe',
+                'parameter' => $index,
+                'result' => $singleAnswer ?? '',
+                'date' => date("Y/m/d")
             ]);
         }
 

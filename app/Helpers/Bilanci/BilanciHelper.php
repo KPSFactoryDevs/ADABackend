@@ -29,19 +29,19 @@ class BilanciHelper
 {
     public function indexesToFormat($indexValue)
     {
-        if(isset($indexValue['Basic'])) {
-            foreach($indexValue['Basic'] as $key => $singleIndexBasic) {
-                if(isset($singleIndexBasic['value'])) {
+        if (isset($indexValue['Basic'])) {
+            foreach ($indexValue['Basic'] as $key => $singleIndexBasic) {
+                if (isset($singleIndexBasic['value'])) {
                     $indexValue['Basic'][$key]['value'] = number_format($singleIndexBasic['value'], 2, ',', '.');
                 }
             }
         }
 
-        if(isset($indexValue['Advanced'])) {
-            foreach($indexValue['Advanced'] as $key => $singleIndexAdvanced) {
-                if(isset($singleIndexAdvanced['value'])) {
+        if (isset($indexValue['Advanced'])) {
+            foreach ($indexValue['Advanced'] as $key => $singleIndexAdvanced) {
+                if (isset($singleIndexAdvanced['value'])) {
                     $indexValue['Advanced'][$key]['value'] = number_format($singleIndexAdvanced['value'], 2, ',', '.');
-                } elseif(!$indexValue['Advanced'][$key]) {
+                } elseif (!$indexValue['Advanced'][$key]) {
                     $indexValue['Advanced'][$key] = false;
                 } else {
                     $indexValue['Advanced'][$key] = number_format($singleIndexAdvanced, 2, ',', '.');
@@ -52,14 +52,15 @@ class BilanciHelper
         return $indexValue;
     }
 
-    public function getIndexesForBalanceTaxonomy($idBilancio, $filePath = false, $instance = false, $codiceDocumento = false, $userID = false) {
-   
+    public function getIndexesForBalanceTaxonomy($idBilancio, $filePath = false, $instance = false, $codiceDocumento = false, $userID = false)
+    {
+
         $vocis = Voci::pluck('name', 'extended_name')->all();
 
-        if($userID) {
+        if ($userID) {
             $user = User::findOrFail($userID);
 
-            if($user->modAnalisi === 1) {
+            if ($user->modAnalisi === 1) {
                 // Analisi semplificata
                 $calculationHelper = new BilanciCalculationsHelperSemplified();
             } else {
@@ -67,19 +68,19 @@ class BilanciHelper
                 $calculationHelper = new BilanciCalculationsHelperAdvanced();
             }
         } else {
-            $calculationHelper = new BilanciCalculationsHelperAdvanced; 
+            $calculationHelper = new BilanciCalculationsHelperAdvanced;
         }
 
         $calculationHelper->documentId = $idBilancio;
         $calculationHelper->codice_documento = $codiceDocumento;
 
-        if($instance == true) {
+        if ($instance == true) {
             $calculationHelper->setCurrentInstance($instance);
         } else {
             $document = Document::findOrFail($idBilancio);
             $filePath = base_path() . '/public/bilanci/' . $document->filename;
             $taxonomyName = $document->taxonomy;
-            $taxonomyPath = base_path()."/taxonomies/2018-11-04/".$taxonomyName;
+            $taxonomyPath = base_path() . "/taxonomies/2018-11-04/" . $taxonomyName;
 
             $readXBRL = XBRL_Instance::FromInstanceDocument($filePath, $taxonomyPath, $emptyInstance);
             $calculationHelper->setCurrentInstance($readXBRL);
@@ -97,7 +98,7 @@ class BilanciHelper
             "Advanced" => [
                 'OF Ricavi' => $calculationHelper->getOfRicavi(),
                 'Adeguatezza Patrimoniale' => $calculationHelper->getAdeguatezzaPatrimoniale(),
-                'Liqudità' => $calculationHelper->getLiquidita(),
+                'Liquidità' => $calculationHelper->getLiquidita(),
                 'Andamento Del Fatturato' => $calculationHelper->getAndamentoDelFatturato(),
                 'Andamento Del Mol' => ($calculationHelper->getAndamentoDelMol('Andamento Del Mol')) ? $calculationHelper->getAndamentoDelMol('Andamento Del Mol')['AndamentoMOL'] : false,
                 'ROI' => $calculationHelper->getROI(),
@@ -108,10 +109,10 @@ class BilanciHelper
                 'Margine Struttura Primario' => $calculationHelper->getMargineStrutturaPrimario(),
                 'Margine Struttura Secondario' => $calculationHelper->getMargineStrutturaSecondario(),
                 'Current Ratio' => $calculationHelper->getCurrentRatio(),
-                'Attivita Passivita A Breve' => ($calculationHelper->getAttivitaPassivitaABreve('Attivita Passivita A Breve')) ? $calculationHelper->getAttivitaPassivitaABreve('Attivita Passivita A Breve')['Attivita_a_breve_Passività_a_Breve_Ordinario'] : false,
+                'Attivita Passivita a Breve' => ($calculationHelper->getAttivitaPassivitaABreve('Attivita Passivita a Breve')) ? $calculationHelper->getAttivitaPassivitaABreve('Attivita Passivita a Breve')['Attivita_a_breve_Passività_a_Breve_Ordinario'] : false,
                 'Acid Test' => $calculationHelper->getAcidTest(),
                 'Acid Test Ordinario' => $calculationHelper->getAcidTestOrdinario(),
-                'Autonomia Finanziaria' => $calculationHelper->getAutonomiaFinanziaria(),
+                'Autonomia Finanziari' => $calculationHelper->getAutonomiaFinanziaria(),
                 'Livello Investimenti Aziendali' => $calculationHelper->getLivelloInvestimentiAziendali(),
                 'Pfn Ebitda' => $calculationHelper->getPfnEbitda(),
                 'Peso Oneri Finanziari' => $calculationHelper->getPesoOneriFinanziari(),
@@ -142,14 +143,15 @@ class BilanciHelper
         );
     }
 
-    public function getIndexesForBalanceTaxonomyForAi($idBilancio, $filePath = false, $instance = false, $codiceDocumento = false, $userID = false) {
-   
+    public function getIndexesForBalanceTaxonomyForAi($idBilancio, $filePath = false, $instance = false, $codiceDocumento = false, $userID = false)
+    {
+
         $vocis = Voci::pluck('name', 'extended_name')->all();
 
-        if($userID) {
+        if ($userID) {
             $user = User::findOrFail($userID);
 
-            if($user->modAnalisi === 1) {
+            if ($user->modAnalisi === 1) {
                 // Analisi semplificata
                 $calculationHelper = new BilanciCalculationsHelperSemplified();
             } else {
@@ -157,19 +159,19 @@ class BilanciHelper
                 $calculationHelper = new BilanciCalculationsHelperAdvanced();
             }
         } else {
-            $calculationHelper = new BilanciCalculationsHelperAdvanced; 
+            $calculationHelper = new BilanciCalculationsHelperAdvanced;
         }
 
         $calculationHelper->documentId = $idBilancio;
         $calculationHelper->codice_documento = $codiceDocumento;
 
-        if($instance == true) {
+        if ($instance == true) {
             $calculationHelper->setCurrentInstance($instance);
         } else {
             $document = Document::findOrFail($idBilancio);
             $filePath = base_path() . '/public/bilanci/' . $document->filename;
             $taxonomyName = $document->taxonomy;
-            $taxonomyPath = base_path()."/taxonomies/2018-11-04/".$taxonomyName;
+            $taxonomyPath = base_path() . "/taxonomies/2018-11-04/" . $taxonomyName;
 
             $readXBRL = XBRL_Instance::FromInstanceDocument($filePath, $taxonomyPath, $emptyInstance);
             $calculationHelper->setCurrentInstance($readXBRL);
@@ -187,7 +189,7 @@ class BilanciHelper
             "Advanced" => [
                 'OF Ricavi' => $calculationHelper->getOfRicavi(),
                 'Adeguatezza Patrimoniale' => $calculationHelper->getAdeguatezzaPatrimoniale(),
-                'Liqudità' => $calculationHelper->getLiquidita(),
+                'Liquidità' => $calculationHelper->getLiquidita(),
                 'Andamento Del Fatturato' => $calculationHelper->getAndamentoDelFatturato(),
                 'Andamento Del Mol' => ($calculationHelper->getAndamentoDelMol('Andamento Del Mol')) ? $calculationHelper->getAndamentoDelMol('Andamento Del Mol')['AndamentoMOL'] : false,
                 'ROI' => $calculationHelper->getROI(),
@@ -198,10 +200,10 @@ class BilanciHelper
                 'Margine Struttura Primario' => $calculationHelper->getMargineStrutturaPrimario(),
                 'Margine Struttura Secondario' => $calculationHelper->getMargineStrutturaSecondario(),
                 'Current Ratio' => $calculationHelper->getCurrentRatio(),
-                'Attivita Passivita A Breve' => ($calculationHelper->getAttivitaPassivitaABreve('Attivita Passivita A Breve')) ? $calculationHelper->getAttivitaPassivitaABreve('Attivita Passivita A Breve')['Attivita_a_breve_Passività_a_Breve_Ordinario'] : false,
+                'Attivita Passivita a Breve' => ($calculationHelper->getAttivitaPassivitaABreve('Attivita Passivita a Breve')) ? $calculationHelper->getAttivitaPassivitaABreve('Attivita Passivita a Breve')['Attivita_a_breve_Passività_a_Breve_Ordinario'] : false,
                 'Acid Test' => $calculationHelper->getAcidTest(),
                 'Acid Test Ordinario' => $calculationHelper->getAcidTestOrdinario(),
-                'Autonomia Finanziaria' => $calculationHelper->getAutonomiaFinanziaria(),
+                'Autonomia Finanziari' => $calculationHelper->getAutonomiaFinanziaria(),
                 'Livello Investimenti Aziendali' => $calculationHelper->getLivelloInvestimentiAziendali(),
                 'Pfn Ebitda' => $calculationHelper->getPfnEbitda(),
                 'Peso Oneri Finanziari' => $calculationHelper->getPesoOneriFinanziari(),
@@ -248,30 +250,32 @@ class BilanciHelper
         }
 
         foreach ($data as $label => $value) {
-            if(!$value) {
+            if (!$value) {
                 $arrayGiudizi[$label] = false;
                 continue;
             }
 
-            $value = (float)str_replace(',', '.', $value);
+            $value = (float) str_replace(',', '.', $value);
             $arrayIndici[$label] = $value / 100;
 
             if ($label == 'ROE') {
-                $tassoInflazione = (float)Roe::where('year', $currentYear)->get()->first()->value / 100;
+                $roeRow = Roe::where('year', '<=', $currentYear)->orderBy('year', 'desc')->first();
+                $tassoInflazione = $roeRow ? (float) $roeRow->value / 100 : 0.005; // 0.5% default se mancano del tutto
+
                 $value /= 100;
                 if ($value < $tassoInflazione + 0.02) {
                     $scoringAreaBilancio += 0.0426 * 0.1;
                     $arrayGiudizi[$label]['Scoring'] = 0.0426 * 0.1;
                     $arrayGiudizi[$label]['Giudizio'] = 'Rischio Elevato';
-                } else if ($value >= $tassoInflazione + 0.02 && $value  < $tassoInflazione + 0.03) {
+                } else if ($value >= $tassoInflazione + 0.02 && $value < $tassoInflazione + 0.03) {
                     $scoringAreaBilancio += 0.0426 * 0.3;
                     $arrayGiudizi[$label]['Scoring'] = 0.0426 * 0.3;
                     $arrayGiudizi[$label]['Giudizio'] = 'Situazione Critica';
-                } else if ($value >= $tassoInflazione + 0.03 && $value  < $tassoInflazione + 0.05) {
+                } else if ($value >= $tassoInflazione + 0.03 && $value < $tassoInflazione + 0.05) {
                     $scoringAreaBilancio += 0.0426 * 0.6;
                     $arrayGiudizi[$label]['Scoring'] = 0.0426 * 0.6;
                     $arrayGiudizi[$label]['Giudizio'] = 'Buono';
-                } else if ($value  >= $tassoInflazione + 0.05) {
+                } else if ($value >= $tassoInflazione + 0.05) {
                     $scoringAreaBilancio += 0.0426 * 1;
                     $arrayGiudizi[$label]['Scoring'] = 0.0426 * 1;
                     $arrayGiudizi[$label]['Giudizio'] = 'Ottimo';
@@ -280,12 +284,12 @@ class BilanciHelper
 
 
 
-        //  $arraySoglie[$label] = range::where([['range_min', '<', $arrayIndici[$label]], ['range_max', '>', $arrayIndici[$label]], ['indice', '=', $label], ['tipo_azienda', '=', $tipoAzienda]])->with('pesi')->get();
+            //  $arraySoglie[$label] = range::where([['range_min', '<', $arrayIndici[$label]], ['range_max', '>', $arrayIndici[$label]], ['indice', '=', $label], ['tipo_azienda', '=', $tipoAzienda]])->with('pesi')->get();
             $arraySoglie[$label] = range::where(
                 [['range_min', '<', $arrayIndici[$label]], ['range_max', '>', $arrayIndici[$label]], ['indice', '=', $label], ['tipo_azienda', '=', 'Generica']]
             )->with('pesi')
-            ->get()
-            ->first();
+                ->get()
+                ->first();
 
 
             if ($arraySoglie[$label]) {
@@ -296,7 +300,7 @@ class BilanciHelper
                 $arrayGiudizi[$label] = false;
             }
 
-            if(isset($arrayGiudizi[$label]['Scoring'])) {
+            if (isset($arrayGiudizi[$label]['Scoring'])) {
                 $arrayGiudizi[$label]['Scoring'] = number_format($arrayGiudizi[$label]['Scoring'], 2, ',', '.');
             }
 
@@ -309,13 +313,13 @@ class BilanciHelper
 
     public function saveAnalisiBasicToDB($allData, $idBilancio)
     {
-        if(str_contains($idBilancio, '"')) {
+        if (str_contains($idBilancio, '"')) {
             $idBilancio = str_replace('"', '', $idBilancio);
         }
 
-       // $calcoloDSCR = $this->getCalcoloDSCR($allData);
+        // $calcoloDSCR = $this->getCalcoloDSCR($allData);
         $calcoloDSCR = null;
-       // $dscrData = $this->getAnalisisDataFull($allData);
+        // $dscrData = $this->getAnalisisDataFull($allData);
 
         if ($calcoloDSCR == null) {
             $dscrData['alertDSCR'] = "DSCR Non Calcolabile: dati mancanti";
@@ -327,7 +331,7 @@ class BilanciHelper
             $dscrData['alertDSCR'] = 'Azienda a rischio';
         }
 
-        $dscrData['bilancio_id'] = (int)$idBilancio;
+        $dscrData['bilancio_id'] = (int) $idBilancio;
 
         $balance = Basic::where('bilancio_id', $idBilancio)->get();
 
@@ -346,15 +350,15 @@ class BilanciHelper
 
     public function getPeriodFromContext($contexts)
     {
-     
-        if(isset($contexts)) {
-            foreach($contexts as $singleContext) {
+
+        if (isset($contexts)) {
+            foreach ($contexts as $singleContext) {
                 $period[] = explode('-', $singleContext->period->startDate)[0];
             }
 
             rsort($period, SORT_NUMERIC);
 
-            if(isset($period[3])) {
+            if (isset($period[3])) {
                 $annoInizio = $period[3];
             } else {
                 $annoInizio = $period[1];
@@ -375,8 +379,8 @@ class BilanciHelper
 
     public function getNomeAziendaFromElements($jsonData)
     {
-        if(isset($jsonData)) {
-            foreach($jsonData as $singleJson) {
+        if (isset($jsonData)) {
+            foreach ($jsonData as $singleJson) {
                 $nomeAzienda = $singleJson->value;
             }
 
@@ -387,93 +391,93 @@ class BilanciHelper
     }
 
     public function generateHTMLRender($instance, $taxonomy)
-{
-    $cacheLocation     = __DIR__ . '/cache';
-    $compiledLocation  = $taxonomy;        // percorso tassonomia compilata
-    $languageCode      = 'it';
-    global $use_xbrl_functions;
-    $use_xbrl_functions = true;
+    {
+        $cacheLocation = __DIR__ . '/cache';
+        $compiledLocation = $taxonomy;        // percorso tassonomia compilata
+        $languageCode = 'it';
+        global $use_xbrl_functions;
+        $use_xbrl_functions = true;
 
-    try {
+        try {
 
-        /* -----------------------------------------------------------
-         *  1) Verifiche preliminari sui file
-         * ----------------------------------------------------------*/
-        if ( ! file_exists($instance) ) {         // l’istanza XBRL DEVE esistere
-            return false;
-        }
-        // se vuoi che la funzione continui anche se la cartella
-        // criptata della tassonomia non esiste, commenta la riga seguente
-        if ( ! file_exists($compiledLocation) ) {
-            return false;
-        }
+            /* -----------------------------------------------------------
+             *  1) Verifiche preliminari sui file
+             * ----------------------------------------------------------*/
+            if (!file_exists($instance)) {         // l’istanza XBRL DEVE esistere
+                return false;
+            }
+            // se vuoi che la funzione continui anche se la cartella
+            // criptata della tassonomia non esiste, commenta la riga seguente
+            if (!file_exists($compiledLocation)) {
+                return false;
+            }
 
-        /* -----------------------------------------------------------
-         *  2) Reset + inizializzazione libreria
-         * ----------------------------------------------------------*/
-        global $reportModelStructureRuleViolations;
-        $reportModelStructureRuleViolations = false;
+            /* -----------------------------------------------------------
+             *  2) Reset + inizializzazione libreria
+             * ----------------------------------------------------------*/
+            global $reportModelStructureRuleViolations;
+            $reportModelStructureRuleViolations = false;
 
-        XBRL_Global::reset();
-        XBRL_Types::reset();
-        new \XBRL_IFRS();
+            XBRL_Global::reset();
+            XBRL_Types::reset();
+            new \XBRL_IFRS();
 
-        /* -----------------------------------------------------------
-         *  3) Apertura istanza con estensione tassonomia compilata
-         * ----------------------------------------------------------*/
-        $schemaHRef               = $this->getInstanceTaxonomyHRef($instance);
-        $compiledTaxonomyFilename = base_path("/taxonomies/2018-11-04/{$schemaHRef}");
+            /* -----------------------------------------------------------
+             *  3) Apertura istanza con estensione tassonomia compilata
+             * ----------------------------------------------------------*/
+            $schemaHRef = $this->getInstanceTaxonomyHRef($instance);
+            $compiledTaxonomyFilename = base_path("/taxonomies/2018-11-04/{$schemaHRef}");
 
-        $instanceObj         = XBRL_Instance::FromInstanceDocumentWithExtensionTaxonomy(
-                                   $instance,
-                                   $compiledTaxonomyFilename
-                               );
+            $instanceObj = XBRL_Instance::FromInstanceDocumentWithExtensionTaxonomy(
+                $instance,
+                $compiledTaxonomyFilename
+            );
 
-        $formulas            = null;
-        $results             = [];
-        $instanceTaxonomy    = $instanceObj->getInstanceTaxonomy();
-        $dfr                 = new XBRL_DFR($instanceTaxonomy);
+            $formulas = null;
+            $results = [];
+            $instanceTaxonomy = $instanceObj->getInstanceTaxonomy();
+            $dfr = new XBRL_DFR($instanceTaxonomy);
 
-        /* -----------------------------------------------------------
-         *  4) Opzioni di rendering: mostriamo solo il necessario
-         * ----------------------------------------------------------*/
-        $dfr->includeCheckboxControls = false;
-        $dfr->includeComponent        = false;
-        $dfr->includeSlicers          = false;
-        $dfr->includeFactsTable       = false;
-        $dfr->includeWidthcontrols    = false;
-        $dfr->includeBusinessRules    = false;
+            /* -----------------------------------------------------------
+             *  4) Opzioni di rendering: mostriamo solo il necessario
+             * ----------------------------------------------------------*/
+            $dfr->includeCheckboxControls = false;
+            $dfr->includeComponent = false;
+            $dfr->includeSlicers = false;
+            $dfr->includeFactsTable = false;
+            $dfr->includeWidthcontrols = false;
+            $dfr->includeBusinessRules = false;
 
-        // *** NEW ➜ nasconde header/label di servizio (Etichetta, Tipo periodo, …)
-        $dfr->showLabels              = false;     // se la versione della libreria supporta la proprietà
-        $dfr->showHeader              = false;     // idem
+            // *** NEW ➜ nasconde header/label di servizio (Etichetta, Tipo periodo, …)
+            $dfr->showLabels = false;     // se la versione della libreria supporta la proprietà
+            $dfr->showHeader = false;     // idem
 
-        $presentationNetworks = $dfr->validateDFR($formulas, true, $languageCode);
+            $presentationNetworks = $dfr->validateDFR($formulas, true, $languageCode);
 
-        $renders = $dfr->renderPresentationNetworks(
-            $presentationNetworks,
-            $instanceObj,
-            $formulas,
-            false,               // niente facts table
-            $languageCode,
-            false,
-            $results
-        );
+            $renders = $dfr->renderPresentationNetworks(
+                $presentationNetworks,
+                $instanceObj,
+                $formulas,
+                false,               // niente facts table
+                $languageCode,
+                false,
+                $results
+            );
 
-        /* -----------------------------------------------------------
-         *  5) Costruzione HTML + filtro righe/colonne indesiderate
-         * ----------------------------------------------------------*/
-        $indexHTML =
-            "<html>\n<head>\n" .
-            "  <title>XBRL Rendered Views</title>\n" .
-            "  <link rel='stylesheet' id='render-report-css' href='https://kpsfactory.com/wp-content/uploads/2024/xbrl-render-report.css'>\n" .
+            /* -----------------------------------------------------------
+             *  5) Costruzione HTML + filtro righe/colonne indesiderate
+             * ----------------------------------------------------------*/
+            $indexHTML =
+                "<html>\n<head>\n" .
+                "  <title>XBRL Rendered Views</title>\n" .
+                "  <link rel='stylesheet' id='render-report-css' href='https://kpsfactory.com/wp-content/uploads/2024/xbrl-render-report.css'>\n" .
 
-            '<link rel="stylesheet"
+                '<link rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
       integrity="sha512-Fo3rlrZj/k7ujTnHg4C+6x5a4v0jtF1Rn+aWdPFKWeW1Vlj6W1x+EzoCVx3l1Y+FznTlwptg8Eq97nM7yS3+CA=="
-      crossorigin="anonymous" referrerpolicy="no-referrer" />'.
-            // *** NEW ➜ piccolo CSS per nascondere eventuali colonne residue
-            "  <style>
+      crossorigin="anonymous" referrerpolicy="no-referrer" />' .
+                // *** NEW ➜ piccolo CSS per nascondere eventuali colonne residue
+                "  <style>
                  thead,                       /* header intero */
                  th:nth-child(1), td:nth-child(1), /* colonna Etichetta */
                  th:nth-child(3), td:nth-child(3), /* Tipo periodo / classe   */
@@ -492,70 +496,72 @@ display:none;
                      grid-template-columns: 600px repeat(1, minmax(300px, max-content))!important;
     }
                </style>\n" .
-            "  <script src='https://code.jquery.com/jquery-1.12.4.min.js'></script>\n" .
-            "</head>\n<body>\n";
+                "  <script src='https://code.jquery.com/jquery-1.12.4.min.js'></script>\n" .
+                "</head>\n<body>\n";
 
-        foreach ($renders as $render) {
+            foreach ($renders as $render) {
 
-            if (isset($render['hasReport']) && ! $render['hasReport']) {
-                continue;
+                if (isset($render['hasReport']) && !$render['hasReport']) {
+                    continue;
+                }
+
+                foreach ($render['entities'] as $networkHTML) {
+
+                    // *** NEW ➜ rimuove eventuale <thead> con regex, come “doppia
+                    //          sicurezza” nel caso lo stile non basti.
+                    $networkHTML = preg_replace(
+                        [
+                            '/<thead\b[^>]*>.*?<\/thead>/is',                                   // header
+                            '/<tr[^>]*>.*?(Etichetta|Fatto impostato tipo|Tipo di periodo).*?<\/tr>/is'  // righe service
+                        ],
+                        '',
+                        $networkHTML
+                    );
+
+                    $indexHTML .= "  <div id='primary'>\n{$networkHTML}\n  </div>\n";
+                }
             }
 
-            foreach ($render['entities'] as $networkHTML) {
+            $indexHTML .= "</body>\n</html>";
 
-                // *** NEW ➜ rimuove eventuale <thead> con regex, come “doppia
-                //          sicurezza” nel caso lo stile non basti.
-                $networkHTML = preg_replace(
-                    [
-                        '/<thead\b[^>]*>.*?<\/thead>/is',                                   // header
-                        '/<tr[^>]*>.*?(Etichetta|Fatto impostato tipo|Tipo di periodo).*?<\/tr>/is'  // righe service
-                    ],
-                    '',
-                    $networkHTML
-                );
+            return $indexHTML;
 
-                $indexHTML .= "  <div id='primary'>\n{$networkHTML}\n  </div>\n";
-            }
+        } catch (\Throwable $ex) {
+
+            // *** NEW ➜ log esteso per debug
+            logger()->error('generateHTMLRender failed', [
+                'msg' => $ex->getMessage(),
+                'file' => $ex->getFile() . ':' . $ex->getLine(),
+            ]);
+
+            return false;
         }
-
-        $indexHTML .= "</body>\n</html>";
-
-        return $indexHTML;
-
-    } catch (\Throwable $ex) {
-
-        // *** NEW ➜ log esteso per debug
-        logger()->error('generateHTMLRender failed', [
-            'msg'  => $ex->getMessage(),
-            'file' => $ex->getFile().':'.$ex->getLine(),
-        ]);
-
-        return false;
     }
-}
 
 
-    
 
 
-    public function getInstanceTaxonomyHRef( $filename ) {
+
+    public function getInstanceTaxonomyHRef($filename)
+    {
         try {
             $dom = new \DOMDocument();
 
             $dom->load(html_entity_decode($filename, ENT_COMPAT, "UTF-8"));
 
-            $domXPath = new \DOMXPath( $dom );
-            $domXPath->registerNamespace( 'xbrli', "http://www.xbrl.org/2003/instance" );
-            $domXPath->registerNamespace( 'link', "http://www.w3.org/1999/xlink" );
+            $domXPath = new \DOMXPath($dom);
+            $domXPath->registerNamespace('xbrli', "http://www.xbrl.org/2003/instance");
+            $domXPath->registerNamespace('link', "http://www.w3.org/1999/xlink");
             $nodes = $domXPath->query("/xbrli:xbrl/link:schemaRef");
             /** @var $domElement DOMElement */
             $domElement = $nodes[0];
-            if( $domElement) {
-               return $domElement->getAttribute('xlink:href');;
+            if ($domElement) {
+                return $domElement->getAttribute('xlink:href');
+                ;
             } else {
                 return "itcc-ci-abb-2018-11-04.xsd";
             }
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             return "itcc-ci-abb-2018-11-04.xsd";
         }
     }
@@ -568,7 +574,8 @@ display:none;
      * @param int $error_line Contains the line number the error was raised at, as an integer.
      * @param array $error_context An array that points to the active symbol table at the point the error occurred
      */
-    public function errorHandler( $error_level, $error_message, $error_file, $error_line, $error_context ) {
+    public function errorHandler($error_level, $error_message, $error_file, $error_line, $error_context)
+    {
         $error = array(
             "level" => $error_level,
             "message" => $error_message,
@@ -576,8 +583,7 @@ display:none;
             "line" => $error_line,
         );
 
-        switch ( $error_level )
-        {
+        switch ($error_level) {
             case E_ERROR:
             case E_CORE_ERROR:
             case E_COMPILE_ERROR:
@@ -612,8 +618,8 @@ display:none;
                 $error['class'] = "warn";
         }
 
-        print_r( $error );
-        error_log( print_r( $error, true ) );
+        print_r($error);
+        error_log(print_r($error, true));
     }
 
 
@@ -680,7 +686,7 @@ display:none;
             $user = Token::findOrFail($token_id)->user;
 
             return $user->id;
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             return 'Unauthorized';
         }
     }

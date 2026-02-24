@@ -235,7 +235,7 @@ class AllertaHelper
             ->first())->date;
         $dateVar = explode('-', $lastDate);
 
-        $ultimoAnno = ((int)$dateVar[0] - 1) . '-' . $dateVar[1] . '-' . $dateVar[2];
+        $ultimoAnno = ((int) $dateVar[0] - 1) . '-' . $dateVar[1] . '-' . $dateVar[2];
 
         $annoQuery = json_decode(DB::table('crs')
             ->select('anno', 'mese', 'date')
@@ -268,13 +268,13 @@ class AllertaHelper
         foreach ($period as $index => $queryPeriodArray) {
             $CentraleRischiModel =
                 cr::selectRaw('utilizzato, anno, mese, nome_banca, categoria')
-                ->where('document_id', $this->_documentId)
-                ->whereIn('nome_banca', $banks)
-                ->whereIn('categoria', $categories)
-                ->whereRaw('CAST(utilizzato as SIGNED) >= 0')
-                ->where('sezione', 'Cassa')
-                ->groupBy(array('utilizzato', 'anno', 'mese', 'nome_banca', 'categoria'))
-                ->get();
+                    ->where('document_id', $this->_documentId)
+                    ->whereIn('nome_banca', $banks)
+                    ->whereIn('categoria', $categories)
+                    ->whereRaw('CAST(utilizzato as SIGNED) >= 0')
+                    ->where('sezione', 'Cassa')
+                    ->groupBy(array('utilizzato', 'anno', 'mese', 'nome_banca', 'categoria'))
+                    ->get();
 
             foreach ($CentraleRischiModel as $singleIndex => $singleModel) {
                 $affidamenti[$singleModel->nome_banca] = isset($affidamenti[$singleModel->nome_banca]) ? $affidamenti[$singleModel->nome_banca] + $singleModel->utilizzato : $singleModel->utilizzato;
@@ -288,16 +288,16 @@ class AllertaHelper
         foreach ($period as $index => $queryPeriodArray) {
             $CentraleRischiModel =
                 cr::selectRaw('nome_banca, accordato_operativo, utilizzato')
-                ->where('document_id', $this->_documentId)
-                ->whereIn('nome_banca', array_keys($affidamenti))
-                ->whereIn('categoria', $categories)
-                ->whereRaw('CAST(utilizzato as SIGNED) > CAST(accordato_operativo as SIGNED)')
-                ->where('sezione', 'Cassa')
-                ->get();
+                    ->where('document_id', $this->_documentId)
+                    ->whereIn('nome_banca', array_keys($affidamenti))
+                    ->whereIn('categoria', $categories)
+                    ->whereRaw('CAST(utilizzato as SIGNED) > CAST(accordato_operativo as SIGNED)')
+                    ->where('sezione', 'Cassa')
+                    ->get();
 
 
             foreach ($CentraleRischiModel as $singleIndex => $singleModel) {
-                if (((float)$singleModel->accordato_operativo - (float)$singleModel->utilizzato) > ($affidamenti[$singleModel->nome_banca] / 100)) {
+                if (((float) $singleModel->accordato_operativo - (float) $singleModel->utilizzato) > ($affidamenti[$singleModel->nome_banca] / 100)) {
                     return true;
                 }
             }
@@ -499,27 +499,27 @@ class AllertaHelper
         );
 
         if ($totGaranzie["Triennio"] != 0) {
-            if ((- (1 - $totGaranzie["Anno"] / $totGaranzie["Triennio"])) > 0.10) {
+            if ((-(1 - $totGaranzie["Anno"] / $totGaranzie["Triennio"])) > 0.10) {
                 $totAccordato = array(
                     "Anno" => (cr::selectRaw("SUM(accordato_operativo) as totAccordatoOperativo")->whereRaw("date between '" . $earlyYearDate->format('Y-m-01') . "' and '" . $lastMonthDate->format('Y-m-t') . "'")->where('document_id', $this->_documentId)->whereIn('categoria', $categories)->get()->toArray())[0]['totAccordatoOperativo'],
                     "Triennio" => ((cr::selectRaw("SUM(accordato_operativo) as totAccordatoOperativo")->whereRaw("date between '" . $threeYearsDate->format('Y-m-01') . "' and '" . $lastMonthDate->format('Y-m-t') . "'")->where('document_id', $this->_documentId)->whereIn('categoria', $categories)->get()->toArray())[0]['totAccordatoOperativo'] / 36) * 12,
                 );
-                if ($totAccordato["Triennio"] != 0 && (- (1 - $totAccordato["Anno"] / $totAccordato["Triennio"])) > 0) {
+                if ($totAccordato["Triennio"] != 0 && (-(1 - $totAccordato["Anno"] / $totAccordato["Triennio"])) > 0) {
                     return true;
                 } else {
                     // Puoi gestire il caso in cui $totAccordato["Triennio"] è zero
                     return false;  // O qualsiasi altro comportamento desiderato
                 }
-                
+
             }
         }
         if ($totGaranzie["Trimestre"] != 0) {
-            if ((- (1 - $totGaranzie["UltimoMese"] / $totGaranzie["Trimestre"])) > 0.10) {
+            if ((-(1 - $totGaranzie["UltimoMese"] / $totGaranzie["Trimestre"])) > 0.10) {
                 $totAccordato = array(
                     "Trimestre" => ((cr::selectRaw("SUM(accordato_operativo) as totAccordatoOperativo")->whereRaw("date between '" . $trimestreYearDate->format('Y-m-01') . "' and '" . $lastMonthDate->format('Y-m-t') . "'")->whereIn('categoria', $categories)->where('document_id', $this->_documentId)->get()->toArray())[0]['totAccordatoOperativo'] / $this->getMonthsCountFromPeriod($trimestrePeriod)),
                     "UltimoMese" => (cr::selectRaw("SUM(accordato_operativo) as totAccordatoOperativo")->where("anno", $latestYear)->where('mese', $latestMonth)->whereIn('categoria', $categories)->where('document_id', $this->_documentId)->get()->toArray()[0]['totAccordatoOperativo'])
                 );
-                if ((- (1 - $totAccordato["UltimoMese"] / $totAccordato["Trimestre"])) > 0) {
+                if ((-(1 - $totAccordato["UltimoMese"] / $totAccordato["Trimestre"])) > 0) {
                     return true;
                 }
             }
@@ -551,7 +551,7 @@ class AllertaHelper
 
                 foreach ($joins as $label => $singleJoin) {
                     if ($singleJoin->coint1 == $singleJoin->coint2 && $singleJoin->loc1 == $singleJoin->loc2 && $singleJoin->nomeGarantito1 == $singleJoin->nomeGarantito2 && $singleJoin->statoRapporto1 == $singleJoin->statoRapporto2 && $singleJoin->tipoGaranzia1 == $singleJoin->tipoGaranzia2) {
-                        if ((float)str_replace('.', '', $singleJoin->garantito2) > (float)str_replace('.', '', $singleJoin->garantito1)) {
+                        if ((float) str_replace('.', '', $singleJoin->garantito2) > (float) str_replace('.', '', $singleJoin->garantito1)) {
                             $aumentiGaranzie[$singleJoin->banca][$singleJoin->date1] = isset($aumentiGaranzie[$singleJoin->banca][$singleJoin->date1]) ? ($aumentiGaranzie[$singleJoin->banca][$singleJoin->date1]) + 1 : 1;
                             if ($aumentiGaranzie[$singleJoin->banca] > 2) {
                                 return true;
@@ -602,11 +602,11 @@ class AllertaHelper
                     ->get();
 
                 foreach ($joins as $label => $singleJoin) {
-                    $impagatiPerBanca[$singleJoin->banca] = isset($impagatiPerBanca[$singleJoin->banca]) ? ($impagatiPerBanca[$singleJoin->banca]) + ((float)$singleJoin->garantito1) : (float)$singleJoin->garantito1;
+                    $impagatiPerBanca[$singleJoin->banca] = isset($impagatiPerBanca[$singleJoin->banca]) ? ($impagatiPerBanca[$singleJoin->banca]) + ((float) $singleJoin->garantito1) : (float) $singleJoin->garantito1;
 
                     if ($singleJoin->divisa1 == $singleJoin->divisa2 && $singleJoin->loc1 == $singleJoin->loc2) {
 
-                        if ((float)$singleJoin->garantito2 > (float)$singleJoin->garantito1) {
+                        if ((float) $singleJoin->garantito2 > (float) $singleJoin->garantito1) {
                             $aumentiImpagati[$singleJoin->banca] = isset($aumentiImpagati[$singleJoin->banca]) ? ($aumentiImpagati[$singleJoin->banca]) + 1 : 1;
                             if ($aumentiImpagati[$singleJoin->banca] > 2) {
                                 return true;
@@ -678,8 +678,8 @@ class AllertaHelper
 
                     foreach ($joins as $label => $singleJoin) {
                         if ($singleJoin->divisa1 == $singleJoin->divisa2 && $singleJoin->loc1 == $singleJoin->loc2) {
-                            if ((float)$singleJoin->accordato2 > (float)$singleJoin->accordato1) {
-                                if (((float)$singleJoin->accordato2 - (float)$singleJoin->accordato1) > ($accordatoMedioMensile[$singleJoin->banca] / 5)) {
+                            if ((float) $singleJoin->accordato2 > (float) $singleJoin->accordato1) {
+                                if (((float) $singleJoin->accordato2 - (float) $singleJoin->accordato1) > ($accordatoMedioMensile[$singleJoin->banca] / 5)) {
                                     return true;
                                 }
                                 $aumentiAccordato[$singleJoin->banca] = isset($aumentiAccordato[$singleJoin->banca]) ? ($aumentiAccordato[$singleJoin->banca]) + 1 : 1;
@@ -753,8 +753,8 @@ class AllertaHelper
             ->where('sezione', 'Cassa')
             ->get()->first()->somma / 36) * 12;
 
-        $rapportoTrimestrale = $accordatoScadenzaTrimestre == 0 ? 1 : - (1 - ($accordatoScadenzaUltimoMese / $accordatoScadenzaTrimestre));
-        $rapportoTriennale = $accordatoScadenzaUltimiTreAnni == 0 ? 1 : - (1 - ($accordatoScadenzaUltimoAnno / $accordatoScadenzaUltimiTreAnni));
+        $rapportoTrimestrale = $accordatoScadenzaTrimestre == 0 ? 1 : -(1 - ($accordatoScadenzaUltimoMese / $accordatoScadenzaTrimestre));
+        $rapportoTriennale = $accordatoScadenzaUltimiTreAnni == 0 ? 1 : -(1 - ($accordatoScadenzaUltimoAnno / $accordatoScadenzaUltimiTreAnni));
 
         return ($rapportoTrimestrale > 0.20 || $rapportoTriennale > 0.20);
     }
@@ -788,10 +788,10 @@ class AllertaHelper
 
                     foreach ($joins as $label => $singleJoin) {
                         if ($singleJoin->divisa1 == $singleJoin->divisa2 && $singleJoin->loc1 == $singleJoin->loc2) {
-                            if ((float)$singleJoin->utilizzato2 > (float)$singleJoin->utilizzato1) {
+                            if ((float) $singleJoin->utilizzato2 > (float) $singleJoin->utilizzato1) {
                                 $aumentiUtilizzato[$singleJoin->banca] = isset($aumentiUtilizzato[$singleJoin->banca]) ? ($aumentiUtilizzato[$singleJoin->banca]) + 1 : 1;
 
-                                $importiAumenti[$singleJoin->banca][] = (float)$singleJoin->utilizzato1 == 0 ? 100 : (((float)$singleJoin->utilizzato2 - (float)$singleJoin->utilizzato1) / (float)$singleJoin->utilizzato1) * 100;
+                                $importiAumenti[$singleJoin->banca][] = (float) $singleJoin->utilizzato1 == 0 ? 100 : (((float) $singleJoin->utilizzato2 - (float) $singleJoin->utilizzato1) / (float) $singleJoin->utilizzato1) * 100;
                             }
                         }
                     }
@@ -859,7 +859,7 @@ class AllertaHelper
                             'Divisa' => $sortedModel[$currentMonth->format('Y')][$currentMonth->format('m')][$singleBank]->divisa,
                             'Localizzazione' => $sortedModel[$currentMonth->format('Y')][$currentMonth->format('m')][$singleBank]->localizzazione,
                             'Categoria' => $sortedModel[$currentMonth->format('Y')][$currentMonth->format('m')][$singleBank]->categoria,
-                            'Utilizzato' => (float)$sortedModel[$currentMonth->format('Y')][$currentMonth->format('m')][$singleBank]->utilizzato
+                            'Utilizzato' => (float) $sortedModel[$currentMonth->format('Y')][$currentMonth->format('m')][$singleBank]->utilizzato
                         );
 
                         $nextBankModel = array(
@@ -867,7 +867,7 @@ class AllertaHelper
                             'Divisa' => $sortedModel[$nextMonth->format('Y')][$nextMonth->format('m')][$singleBank]->divisa,
                             'Localizzazione' => $sortedModel[$nextMonth->format('Y')][$nextMonth->format('m')][$singleBank]->localizzazione,
                             'Categoria' => $sortedModel[$nextMonth->format('Y')][$nextMonth->format('m')][$singleBank]->categoria,
-                            'Utilizzato' => (float)$sortedModel[$nextMonth->format('Y')][$nextMonth->format('m')][$singleBank]->utilizzato
+                            'Utilizzato' => (float) $sortedModel[$nextMonth->format('Y')][$nextMonth->format('m')][$singleBank]->utilizzato
                         );
 
                         if ($currentBankModel['Banca'] == $nextBankModel['Banca'] && $currentBankModel['Divisa'] == $nextBankModel['Divisa'] && $currentBankModel['Localizzazione'] == $nextBankModel['Localizzazione'] && $currentBankModel['Categoria'] == $nextBankModel['Categoria']) {
@@ -879,8 +879,8 @@ class AllertaHelper
                             }
                         }
                     }
-                    if ((float)$singleBankData->accordato_operativo != 0) {
-                        $rapportoAffidamenti[$singleBank] = isset($rapportoAffidamenti[$singleBank]) ? ($rapportoAffidamenti[$singleBank]) + ((float)$singleBankData->utilizzato / (float)$singleBankData->accordato_operativo) : ((float)$singleBankData->utilizzato / (float)$singleBankData->accordato_operativo);
+                    if ((float) $singleBankData->accordato_operativo != 0) {
+                        $rapportoAffidamenti[$singleBank] = isset($rapportoAffidamenti[$singleBank]) ? ($rapportoAffidamenti[$singleBank]) + ((float) $singleBankData->utilizzato / (float) $singleBankData->accordato_operativo) : ((float) $singleBankData->utilizzato / (float) $singleBankData->accordato_operativo);
                     }
                 }
             }
@@ -904,13 +904,13 @@ class AllertaHelper
         $accordatoRevocaUltimoMese = $this->getMediaAccordatoOperativoGeneral(array($latestYear => array($latestMonth => null)), $categories, 1);
 
         if ($accordatoRevocaTriennio != 0) {
-            if (- (1 - ($accordatoRevocaAnno / $accordatoRevocaTriennio)) > 0.05) {
+            if (-(1 - ($accordatoRevocaAnno / $accordatoRevocaTriennio)) > 0.05) {
                 return true;
             }
         }
 
         if ($accordatoRevocaTrimestre != 0) {
-            if (- (1 - ($accordatoRevocaUltimoMese / $accordatoRevocaTrimestre)) > 0.05) {
+            if (-(1 - ($accordatoRevocaUltimoMese / $accordatoRevocaTrimestre)) > 0.05) {
                 return true;
             }
         }
@@ -1039,7 +1039,7 @@ class AllertaHelper
     {
 
 
-        $punteggioCR= (float)str_replace(',', '.', $punteggioCR);
+        $punteggioCR = (float) str_replace(',', '.', $punteggioCR);
         if ($punteggioCR >= 0 && $punteggioCR < 0.14) {
             $resultCentraleRischi = "Default";
         } else if ($punteggioCR >= 0.14 && $punteggioCR < 0.28) {
@@ -1057,7 +1057,7 @@ class AllertaHelper
         }
 
         $resultAnalisiBilancio = "N/A";
-        $bilancioData['Score'] = (float)str_replace(',', '.', $bilancioData['Score']);
+        $bilancioData['Score'] = (float) str_replace(',', '.', $bilancioData['Score']);
 
         if ($bilancioData['Score'] >= 0 && $bilancioData['Score'] < 0.14) {
             $resultAnalisiBilancio = "Default";
@@ -1075,7 +1075,7 @@ class AllertaHelper
             $resultAnalisiBilancio = "Solidità";
         }
 
-        $scoreASIS['1'] = (float)str_replace(',', '.', $scoreASIS['1'] );
+        $scoreASIS['1'] = (float) str_replace(',', '.', $scoreASIS['1']);
         if ($scoreASIS['1'] >= 0 && $scoreASIS['1'] < 0.14) {
             $resultMinacceRapportiCommerciali = "Default";
         } else if ($scoreASIS['1'] >= 0.14 && $scoreASIS['1'] < 0.28) {
@@ -1095,7 +1095,7 @@ class AllertaHelper
         }
 
 
-        $scoreASIS['2'] = (float)str_replace(',', '.', $scoreASIS['2'] );
+        $scoreASIS['2'] = (float) str_replace(',', '.', $scoreASIS['2']);
         if ($scoreASIS['2'] >= 0 && $scoreASIS['2'] < 0.14) {
             $resultMinacceGestioneAziendale = "Default";
         } else if ($scoreASIS['2'] >= 0.14 && $scoreASIS['2'] < 0.28) {
@@ -1115,7 +1115,7 @@ class AllertaHelper
         }
 
 
-        $scoreASIS['3'] = (float)str_replace(',', '.', $scoreASIS['3'] );
+        $scoreASIS['3'] = (float) str_replace(',', '.', $scoreASIS['3']);
         if ($scoreASIS['3'] >= 0 && $scoreASIS['3'] < 0.14) {
             $resultMinacceEventiPregiudizievoli = "Default";
         } else if ($scoreASIS['3'] >= 0.14 && $scoreASIS['3'] < 0.28) {
@@ -1135,7 +1135,7 @@ class AllertaHelper
         }
 
 
-        $scoreASIS['4'] = (float)str_replace(',', '.', $scoreASIS['4'] );
+        $scoreASIS['4'] = (float) str_replace(',', '.', $scoreASIS['4']);
         if ($scoreASIS['4'] >= 0 && $scoreASIS['4'] < 0.14) {
             $resultMinacceRischiCaratteristici = "Default";
         } else if ($scoreASIS['4'] >= 0.14 && $scoreASIS['4'] < 0.28) {
@@ -1184,16 +1184,16 @@ class AllertaHelper
 
     public function getAsIsFinalScore($bilancioData, $scoreCR, $scoreASIS)
     {
-        $scoreBilacioData = (float)str_replace(',', '.', $bilancioData['Score']);
+        $scoreBilacioData = (float) str_replace(',', '.', $bilancioData['Score']);
 
         $ASISfinalScore = array(
             "Score" => (
-                (float)$scoreBilacioData * 0.25) +
-                ((float)$scoreCR * 0.25) +
-                ((float)$scoreASIS['1'] * 0.1) +
-                ((float)$scoreASIS['2'] * 0.1) +
-                ((float)$scoreASIS['3'] * 0.15) +
-                ((float)$scoreASIS['4'] * 0.15)
+                (float) $scoreBilacioData * 0.25) +
+                ((float) $scoreCR * 0.25) +
+                ((float) $scoreASIS['1'] * 0.1) +
+                ((float) $scoreASIS['2'] * 0.1) +
+                ((float) $scoreASIS['3'] * 0.15) +
+                ((float) $scoreASIS['4'] * 0.15)
         );
 
         $rangeGiudizi = array(
@@ -1213,7 +1213,7 @@ class AllertaHelper
             }
         }
 
-        if(isset($ASISfinalScore["Score"])) {
+        if (isset($ASISfinalScore["Score"])) {
             $ASISfinalScore["Score"] = number_format($ASISfinalScore["Score"], 2, ',', '.');
         }
 
@@ -1223,7 +1223,7 @@ class AllertaHelper
 
     public function getGeneralScore($bilancioData, $scoreCR, $scoreASIS, $scoreFL)
     {
-        $ASISfinalScore =  $this->getAsIsFinalScore($bilancioData, $scoreCR, $scoreASIS);
+        $ASISfinalScore = $this->getAsIsFinalScore($bilancioData, $scoreCR, $scoreASIS);
         $rangeGiudizi = array(
             0 => array("Min" => 0, "Max" => 0.14, "Giudizio" => "Default"),
             1 => array("Min" => 0.14, "Max" => 0.28, "Giudizio" => "Situazione Grave"),
@@ -1236,7 +1236,7 @@ class AllertaHelper
         $generalScore = array();
 
 
-        $scoreASIS['4'] = (float)str_replace(',', '.', $scoreASIS['4'] );
+        $scoreASIS['4'] = (float) str_replace(',', '.', $scoreASIS['4']);
 
         if ($scoreASIS['4'] < 0.75) {
             $generalScore["Giudizio"] = $rangeGiudizi[$ASISfinalScore["Index"] - 1]['Giudizio'];
@@ -1421,7 +1421,8 @@ class AllertaHelper
             ]
         ];
 
-        $questionario = DB::table('questionario')->where('document_id', $idCr)->where('bilancio_id', $id)->get();
+        $userId = \Illuminate\Support\Facades\Auth::id();
+        $questionario = DB::table('user_questionari')->where('user_id', $userId)->where('type', 'asis')->get();
 
         foreach ($questionario as $item => $data) {
             $arrayQuestionario[$data->parameter]['Result'] = $data->result;
@@ -1448,11 +1449,11 @@ class AllertaHelper
             "forwardLooking12" => 1
         );
 
-        $forwardLooking = DB::table('forwardlooking')->where('document_id', $idCr)->where('bilancio_id', $id)->get();
-
+        $userId = \Illuminate\Support\Facades\Auth::id();
+        $forwardLooking = DB::table('user_questionari')->where('user_id', $userId)->where('type', 'tobe')->get();
 
         foreach ($forwardLooking as $item => $data) {
-            $arrayForwardLooking[$data->question] = $data->answer;
+            $arrayForwardLooking[$data->parameter] = $data->result;
         }
 
         return $arrayForwardLooking;
@@ -1496,11 +1497,11 @@ class AllertaHelper
 
         foreach ($arrayQuestionario as $label => $result) {
             $explodedLabel = explode('-', $label)[0];
-            if(!isset($scoreASIS[$explodedLabel])) {
+            if (!isset($scoreASIS[$explodedLabel])) {
                 $scoreASIS[$explodedLabel] = 0;
             }
             $value = $pesi[$label]['peso'] * $pesi[$label]['score'][$result['Result']];
-            $scoreASIS[$explodedLabel] = $scoreASIS[$explodedLabel]+$value;
+            $scoreASIS[$explodedLabel] = $scoreASIS[$explodedLabel] + $value;
         }
 
         return $scoreASIS;
@@ -1543,7 +1544,7 @@ class AllertaHelper
             "4-6" => array("peso" => 0.166, "score" => array("Si" => -0.5, "No" => 1))
         );
         */
-$score = array("Si" => 0, "No" => 1);
+        $score = array("Si" => 0, "No" => 1);
         return array(
             "1-1" => array("peso" => 0.09, "score" => $score),
             "1-2" => array("peso" => 0.15, "score" => $score),
@@ -1558,24 +1559,24 @@ $score = array("Si" => 0, "No" => 1);
             "2-2" => array("peso" => 0.1, "score" => $score),
             "2-3" => array("peso" => 0.1, "score" => $score),
             "2-4" => array("peso" => 0.11, "score" => $score),
-            "2-5" => array("peso" => 0.1, "score" =>  $score),
-            "2-6" => array("peso" => 0.11, "score" =>  $score),
-            "2-7" => array("peso" => 0.1, "score" =>  $score),
-            "2-8" => array("peso" => 0.0, "score" =>  $score),
-            "2-9" => array("peso" => 0.1, "score" =>  $score),
-            "2-10" => array("peso" => 0.1, "score" =>  $score),
+            "2-5" => array("peso" => 0.1, "score" => $score),
+            "2-6" => array("peso" => 0.11, "score" => $score),
+            "2-7" => array("peso" => 0.1, "score" => $score),
+            "2-8" => array("peso" => 0.0, "score" => $score),
+            "2-9" => array("peso" => 0.1, "score" => $score),
+            "2-10" => array("peso" => 0.1, "score" => $score),
 
-            "3-1" => array("peso" => 0.3, "score" =>  $score),
+            "3-1" => array("peso" => 0.3, "score" => $score),
             "3-2" => array("peso" => 0.3, "score" => $score),
-            "3-3" => array("peso" => 0.2, "score" =>  $score),
-            "3-4" => array("peso" => 0.2, "score" =>  $score),
+            "3-3" => array("peso" => 0.2, "score" => $score),
+            "3-4" => array("peso" => 0.2, "score" => $score),
 
-            "4-1" => array("peso" => 0.166, "score" =>  $score),
-            "4-2" => array("peso" => 0.166, "score" =>  $score),
-            "4-3" => array("peso" => 0.156, "score" =>  $score),
-            "4-4" => array("peso" => 0.166, "score" =>  $score),
+            "4-1" => array("peso" => 0.166, "score" => $score),
+            "4-2" => array("peso" => 0.166, "score" => $score),
+            "4-3" => array("peso" => 0.156, "score" => $score),
+            "4-4" => array("peso" => 0.166, "score" => $score),
             "4-5" => array("peso" => 0.18, "score" => $score),
-            "4-6" => array("peso" => 0.166, "score" =>  $score),
+            "4-6" => array("peso" => 0.166, "score" => $score),
         );
     }
 }
