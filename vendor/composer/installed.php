@@ -1,11 +1,11 @@
 <?php return array(
     'root' => array(
-        'pretty_version' => 'dev-master',
-        'version' => 'dev-master',
+        'pretty_version' => 'dev-main',
+        'version' => 'dev-main',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => 'de0128b5dbf5d35c41e14168e8f80fab45667a0b',
+        'reference' => 'fdd828da7374d11f631aaf38fc7c5822f25892ce',
         'name' => 'kpsfactory/kpsfintech',
         'dev' => true,
     ),
@@ -44,6 +44,15 @@
             'install_path' => __DIR__ . '/../bacon/bacon-qr-code',
             'aliases' => array(),
             'reference' => '8674e51bb65af933a5ffaf1c308a660387c35c22',
+            'dev_requirement' => false,
+        ),
+        'barryvdh/laravel-dompdf' => array(
+            'pretty_version' => 'v2.2.0',
+            'version' => '2.2.0.0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../barryvdh/laravel-dompdf',
+            'aliases' => array(),
+            'reference' => 'c96f90c97666cebec154ca1ffb67afed372114d8',
             'dev_requirement' => false,
         ),
         'brick/math' => array(
@@ -173,12 +182,12 @@
             'dev_requirement' => true,
         ),
         'doctrine/deprecations' => array(
-            'pretty_version' => '1.1.3',
-            'version' => '1.1.3.0',
+            'pretty_version' => '1.1.6',
+            'version' => '1.1.6.0',
             'type' => 'library',
             'install_path' => __DIR__ . '/../doctrine/deprecations',
             'aliases' => array(),
-            'reference' => 'dfbaa3c2d2e9a9df1118213f3b8b0c597bb99fab',
+            'reference' => 'd4fe3e6fd9bb9e72557a19674f44d8ac7db4c6ca',
             'dev_requirement' => false,
         ),
         'doctrine/event-manager' => array(
@@ -224,6 +233,15 @@
             'install_path' => __DIR__ . '/../doctrine/persistence',
             'aliases' => array(),
             'reference' => 'b337726451f5d530df338fc7f68dee8781b49779',
+            'dev_requirement' => false,
+        ),
+        'dompdf/dompdf' => array(
+            'pretty_version' => 'v2.0.8',
+            'version' => '2.0.8.0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../dompdf/dompdf',
+            'aliases' => array(),
+            'reference' => 'c20247574601700e1f7c8dab39310fca1964dc52',
             'dev_requirement' => false,
         ),
         'dragonmantank/cron-expression' => array(
@@ -593,12 +611,12 @@
             'dev_requirement' => false,
         ),
         'kpsfactory/kpsfintech' => array(
-            'pretty_version' => 'dev-master',
-            'version' => 'dev-master',
+            'pretty_version' => 'dev-main',
+            'version' => 'dev-main',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => 'de0128b5dbf5d35c41e14168e8f80fab45667a0b',
+            'reference' => 'fdd828da7374d11f631aaf38fc7c5822f25892ce',
             'dev_requirement' => false,
         ),
         'lab404/laravel-impersonate' => array(
@@ -867,6 +885,15 @@
             'reference' => '2fe8db237b47858d08f3ed899abf5e7d1459b35c',
             'dev_requirement' => false,
         ),
+        'masterminds/html5' => array(
+            'pretty_version' => '2.10.0',
+            'version' => '2.10.0.0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../masterminds/html5',
+            'aliases' => array(),
+            'reference' => 'fcf91eb64359852f00d921887b219479b4f21251',
+            'dev_requirement' => false,
+        ),
         'mobiledetect/mobiledetectlib' => array(
             'pretty_version' => '2.8.45',
             'version' => '2.8.45.0',
@@ -1040,6 +1067,24 @@
             'aliases' => array(),
             'reference' => '4f7fd7836c6f332bb2933569e566a0d6c4cbed74',
             'dev_requirement' => true,
+        ),
+        'phenx/php-font-lib' => array(
+            'pretty_version' => '0.5.6',
+            'version' => '0.5.6.0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../phenx/php-font-lib',
+            'aliases' => array(),
+            'reference' => 'a1681e9793040740a405ac5b189275059e2a9863',
+            'dev_requirement' => false,
+        ),
+        'phenx/php-svg-lib' => array(
+            'pretty_version' => '0.5.4',
+            'version' => '0.5.4.0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../phenx/php-svg-lib',
+            'aliases' => array(),
+            'reference' => '46b25da81613a9cf43c83b2a8c2c1bdab27df691',
+            'dev_requirement' => false,
         ),
         'php-cs-fixer/diff' => array(
             'pretty_version' => 'v1.3.1',
@@ -1230,8 +1275,8 @@
         'psr/http-client-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
-                0 => '*',
-                1 => '1.0',
+                0 => '1.0',
+                1 => '*',
             ),
         ),
         'psr/http-factory' => array(
@@ -1246,8 +1291,8 @@
         'psr/http-factory-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
-                0 => '*',
-                1 => '1.0',
+                0 => '1.0',
+                1 => '*',
             ),
         ),
         'psr/http-message' => array(
@@ -1262,8 +1307,8 @@
         'psr/http-message-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
-                0 => '*',
-                1 => '1.0',
+                0 => '1.0',
+                1 => '*',
             ),
         ),
         'psr/link' => array(
@@ -1354,6 +1399,15 @@
             'replaced' => array(
                 0 => '4.7.6',
             ),
+        ),
+        'sabberworm/php-css-parser' => array(
+            'pretty_version' => 'v8.9.0',
+            'version' => '8.9.0.0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../sabberworm/php-css-parser',
+            'aliases' => array(),
+            'reference' => 'd8e916507b88e389e26d4ab03c904a082aa66bb9',
+            'dev_requirement' => false,
         ),
         'sebastian/cli-parser' => array(
             'pretty_version' => '1.0.2',

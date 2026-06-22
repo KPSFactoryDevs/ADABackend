@@ -110,6 +110,14 @@ class BilanciController extends Controller
 
         try {
 
+            // Clean up XBRL instance document before parsing to prevent xml errors
+            if (file_exists($filePath)) {
+                $data = file_get_contents($filePath);
+                $data = mb_convert_encoding($data, 'UTF-8', 'UTF-8, ISO-8859-1, Windows-1252');
+                $data = str_replace(['&euro;', '&nbsp;', '&agrave;', '&egrave;', '&igrave;', '&ograve;', '&ugrave;', '&Agrave;', '&Egrave;', '&Igrave;', '&Ograve;', '&Ugrave;', '&deg;', '&apos;'], ['€', ' ', 'à', 'è', 'ì', 'ò', 'ù', 'À', 'È', 'Ì', 'Ò', 'Ù', '°', '\''], $data);
+                file_put_contents($filePath, $data);
+            }
+
             $emptyInstance = false;
             $readXBRL = XBRL_Instance::FromInstanceDocument($filePath, $taxonomyPath, $emptyInstance);
 
@@ -209,6 +217,14 @@ class BilanciController extends Controller
 
 
         try {
+
+            // Clean up XBRL instance document before parsing to prevent xml errors
+            if (file_exists($filePath)) {
+                $data = file_get_contents($filePath);
+                $data = mb_convert_encoding($data, 'UTF-8', 'UTF-8, ISO-8859-1, Windows-1252');
+                $data = str_replace(['&euro;', '&nbsp;', '&agrave;', '&egrave;', '&igrave;', '&ograve;', '&ugrave;', '&Agrave;', '&Egrave;', '&Igrave;', '&Ograve;', '&Ugrave;', '&deg;', '&apos;'], ['€', ' ', 'à', 'è', 'ì', 'ò', 'ù', 'À', 'È', 'Ì', 'Ò', 'Ù', '°', '\''], $data);
+                file_put_contents($filePath, $data);
+            }
 
             $emptyInstance = false;
             $readXBRL = XBRL_Instance::FromInstanceDocument($filePath, $taxonomyPath, $emptyInstance);

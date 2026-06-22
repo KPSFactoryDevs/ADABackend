@@ -13,6 +13,8 @@
     "require": {
         "php": "^8.0",
         "arcanedev/log-viewer": "8.x",
+        "barryvdh/laravel-dompdf": "^2.0.0",
+        "dompdf/dompdf": "^2.0.0",
         "fideloper/proxy": "^4.4",
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",

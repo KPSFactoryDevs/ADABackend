@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use PhpCsFixer\Fixer\Whitespace\ArrayIndentationFixer;
 use phpDocumentor\Reflection\Types\This;
+use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Log;
 
 class CentraleRischiStoreDataHelper
 {
@@ -22,8 +24,8 @@ class CentraleRischiStoreDataHelper
     {
 
         $array = $value;
-        $arraytmp = [];
         foreach ($array as $key => $val) {
+            $arraytmp = [];
             foreach ($val as $chiave => $valore) {
                 $chiave = str_replace(array("\r\n", "\n", "\r"), ' ', $chiave);
                 $valore = str_replace(array("\r\n", "\n", "\r"), ' ', $valore);
@@ -49,10 +51,13 @@ class CentraleRischiStoreDataHelper
             $codiceCoint = isset($arraytmp['Cointestazione']) ? $arraytmp['Cointestazione'] : null;
 
             $cr = new cr;
-            $buildDate = $anno . ' ' . $transformedMonth;
+            $buildDate = trim($anno) . ' ' . trim($transformedMonth);
 
 
             $createdDate = date_create_from_format("Y n", $buildDate);
+            if (!$createdDate) {
+                $createdDate = date_create_from_format("Y-m-d", trim($anno) . "-01-01");
+            }
 
             $cr->date = $createdDate;
             $cr->anno = $anno;
@@ -89,8 +94,8 @@ class CentraleRischiStoreDataHelper
     public function saveGaranzie($value, $anno, $mese, $transformedMonth, $singleBank, $index, $codiceDocumento, $companyId)
     {
         $array = $value;
-        $arraytmp = [];
         foreach ($array as $key => $val) {
+            $arraytmp = [];
             foreach ($val as $chiave => $valore) {
                 $chiave = str_replace(array("\r\n", "\n", "\r"), ' ', $chiave);
                 $valore = str_replace(array("\r\n", "\n", "\r"), ' ', $valore);
@@ -118,9 +123,12 @@ class CentraleRischiStoreDataHelper
 
 
             $cr = new cr;
-            $buildDate = $anno . ' ' . $transformedMonth;
+            $buildDate = trim($anno) . ' ' . trim($transformedMonth);
 
             $createdDate = date_create_from_format("Y n", $buildDate);
+            if (!$createdDate) {
+                $createdDate = date_create_from_format("Y-m-d", trim($anno) . "-01-01");
+            }
 
             $cr->date = $createdDate;
             $cr->anno = $anno;
@@ -156,8 +164,8 @@ class CentraleRischiStoreDataHelper
     public function saveSofferenze($value, $anno, $mese, $transformedMonth, $singleBank, $index, $codiceDocumento, $companyId)
     {
         $array = $value;
-        $arraytmp = [];
         foreach ($array as $key => $val) {
+            $arraytmp = [];
             foreach ($val as $chiave => $valore) {
                 $chiave = str_replace(array("\r\n", "\n", "\r"), ' ', $chiave);
                 $valore = str_replace(array("\r\n", "\n", "\r"), ' ', $valore);
@@ -182,9 +190,12 @@ class CentraleRischiStoreDataHelper
             $codiceCoint = isset($arraytmp['Cointestazione']) ? $arraytmp['Cointestazione'] : null;
 
             $cr = new cr;
-            $buildDate = $anno . ' ' . $transformedMonth;
+            $buildDate = trim($anno) . ' ' . trim($transformedMonth);
 
             $createdDate = date_create_from_format("Y n", $buildDate);
+            if (!$createdDate) {
+                $createdDate = date_create_from_format("Y-m-d", trim($anno) . "-01-01");
+            }
 
             $cr->date = $createdDate;
             $cr->anno = $anno;
@@ -217,37 +228,37 @@ class CentraleRischiStoreDataHelper
 
     public function saveCassa($value, $anno, $mese, $transformedMonth, $singleBank, $index, $codiceDocumento, $companyId)
     {
-     
+
         $array = $value;
-        $arraytmp = [];
-        
+
         foreach ($array as $key => $val) {
+            $arraytmp = [];
             foreach ($val as $chiave => $valore) {
                 $chiave = str_replace(array("\r\n", "\n", "\r"), ' ', $chiave);
                 $valore = str_replace(array("\r\n", "\n", "\r"), ' ', $valore);
                 $arraytmp[$chiave] = $valore;
             }
-    
+
             if (!isset($arraytmp['Accordato'])) {
-                
+
                 continue;
             }
 
             $accordatoOperativo = null;
 
-if (isset($arraytmp['Accordato Operativo']) && $arraytmp['Accordato Operativo'] !== '') {
-    $accordatoOperativo = $arraytmp['Accordato Operativo'];
-} elseif (isset($arraytmp['Operativo']) && $arraytmp['Operativo'] !== '') {
-    $accordatoOperativo = $arraytmp['Operativo'];
-}
+            if (isset($arraytmp['Accordato Operativo']) && $arraytmp['Accordato Operativo'] !== '') {
+                $accordatoOperativo = $arraytmp['Accordato Operativo'];
+            } elseif (isset($arraytmp['Operativo']) && $arraytmp['Operativo'] !== '') {
+                $accordatoOperativo = $arraytmp['Operativo'];
+            }
 
- 
-     
+
+
             $categoria = $arraytmp['Categoria'];
             $accordato = str_replace('.', '', $arraytmp['Accordato']);
             $accordatoOperativo = $accordatoOperativo !== null
-            ? str_replace('.', '', $accordatoOperativo)
-            : '';
+                ? str_replace('.', '', $accordatoOperativo)
+                : '';
             $utilizzato = str_replace('.', '', $arraytmp['Utilizzato']);
             $durataResidua = isset($arraytmp['Durata Residua']) ? $arraytmp['Durata Residua'] : '';
             $durataOriginaria = isset($arraytmp['Durata Originaria']) ? $arraytmp['Durata Originaria'] : '';
@@ -261,12 +272,15 @@ if (isset($arraytmp['Accordato Operativo']) && $arraytmp['Accordato Operativo'] 
             $saldo_medio = isset($arraytmp['Saldo Medio']) ? $arraytmp['Saldo Medio'] : 'N/A';
             $importo_garantito = isset($arraytmp['Importo Garantito']) ? $arraytmp['Importo Garantito'] : 'N/A';
             $codiceCoint = isset($arraytmp['Cointestazione']) ? $arraytmp['Cointestazione'] : null;
-           
+
             if ($arraytmp['Categoria'] != 'LA CENTRALE DEI RISCHI' && !str_contains($arraytmp['Accordato'], 'Assenza')) {
                 $cr = new cr;
-                $buildDate = $anno . ' ' . $transformedMonth;
+                $buildDate = trim($anno) . ' ' . trim($transformedMonth);
 
                 $createdDate = date_create_from_format("Y n", $buildDate);
+                if (!$createdDate) {
+                    $createdDate = date_create_from_format("Y-m-d", trim($anno) . "-01-01");
+                }
 
 
                 $cr->date = $createdDate;
@@ -295,26 +309,25 @@ if (isset($arraytmp['Accordato Operativo']) && $arraytmp['Accordato Operativo'] 
                 $cr->document_id = $codiceDocumento;
                 $cr->company_id = $companyId;
                 try {
-               
+
                     $cr->save();                     // <‑‑ qui il salvataggio
-              
-            
-                } catch (QueryException $e) {  
-                  
+
+
+                } catch (QueryException $e) {
+
                     Log::error('Errore SQL nel salvataggio della credit request', [
-                        'sql_state' => $e->getSqlState(),
-                        'code'      => $e->getCode(),
-                        'message'   => $e->getMessage(),
+                        'sql_state' => $e->errorInfo ?? null,
+                        'code' => $e->getCode(),
+                        'message' => $e->getMessage(),
                     ]);
                     return response()->json([
                         'message' => 'Errore durante il salvataggio (DB)',
                     ], 500);
-            
-                } catch (\Throwable $e) {   
-                    dd('salnon vato');           // qualsiasi altra eccezione
+
+                } catch (\Throwable $e) {
                     Log::critical('Errore generico nel salvataggio credit request', [
                         'message' => $e->getMessage(),
-                        'trace'   => $e->getTraceAsString(),
+                        'trace' => $e->getTraceAsString(),
                     ]);
                     return response()->json([
                         'message' => 'Si è verificato un errore imprevisto',
@@ -326,8 +339,13 @@ if (isset($arraytmp['Accordato Operativo']) && $arraytmp['Accordato Operativo'] 
 
     public function saveInformativa(
         array $value,
-        $anno, $mese, $transformedMonth,
-        $singleBank, $index, $codiceDocumento, $companyId
+        $anno,
+        $mese,
+        $transformedMonth,
+        $singleBank,
+        $index,
+        $codiceDocumento,
+        $companyId
     ) {
         // categorie da salvare come "Informativa"
         $categorieInformativa = [
@@ -335,18 +353,18 @@ if (isset($arraytmp['Accordato Operativo']) && $arraytmp['Accordato Operativo'] 
             'SOFFERENZE - CREDITI PASSATI A PERDITA',
             'CREDITI ACQUISITI DA CLIENTELA DIVERSA DA INTERMEDIARI - DEBITORI CEDUTI',
         ];
-    
+
         foreach ($value as $riga) {
-    
+
             // 1) azzera buffer
             $arraytmp = [];
-    
+
             // 2) normalizza chiavi/valori
             foreach ($riga as $k => $v) {
-                $k              = str_replace(["\r", "\n"], ' ', $k);
-                $arraytmp[$k]   = str_replace(["\r", "\n"], ' ', $v);
+                $k = str_replace(["\r", "\n"], ' ', $k);
+                $arraytmp[$k] = str_replace(["\r", "\n"], ' ', $v);
             }
-    
+
             // 3) se la categoria non è tra quelle che ci interessano → salta
             if (
                 empty($arraytmp['Categoria']) ||
@@ -354,48 +372,51 @@ if (isset($arraytmp['Accordato Operativo']) && $arraytmp['Accordato Operativo'] 
             ) {
                 continue;
             }
-    
+
             /* --------- mapping campi ----------------------------------------------------------- */
-            $categoria          = $arraytmp['Categoria'];
-            $localizzazione     = $arraytmp['Localizzazione']  ?? '';
-            $statoRapporto      = $arraytmp['Stato Rapporto']  ?? '';
-            $saldo_medio        = $arraytmp['Saldo Medio']     ?? 'N/A';
-            $importo            = $arraytmp['Importo']         ?? 'N/A';
-            $importo_garantito  = str_replace('.', '', $importo);
-            $codiceCoint        = $arraytmp['Cointestazione']  ?? null;
-    
+            $categoria = $arraytmp['Categoria'];
+            $localizzazione = $arraytmp['Localizzazione'] ?? '';
+            $statoRapporto = $arraytmp['Stato Rapporto'] ?? '';
+            $saldo_medio = $arraytmp['Saldo Medio'] ?? 'N/A';
+            $importo = $arraytmp['Importo'] ?? 'N/A';
+            $importo_garantito = str_replace('.', '', $importo);
+            $codiceCoint = $arraytmp['Cointestazione'] ?? null;
+
             // altri campi non presenti in questa sezione
             $accordato = $accordatoOperativo = $utilizzato = '';
             $durataResidua = $durataOriginaria = $divisa = $tipoGaranzia = '';
-            $tipoAttivita  = $ruoloAffidato = $importExport = '';
-    
+            $tipoAttivita = $ruoloAffidato = $importExport = '';
+
             /* --------- salva ------------------------------------------------------------------- */
             $cr = new cr;
-            $buildDate   = $anno.' '.$transformedMonth;
-            $cr->date    = date_create_from_format('Y n', $buildDate);
-            $cr->anno    = $anno;
-            $cr->mese    = $mese;
-            $cr->account_id        = 1;
-            $cr->nome_banca        = $singleBank;
-            $cr->sezione           = $index;        // "Informativa"
-            $cr->categoria         = $categoria;
-            $cr->accordato         = $accordato;
+            $buildDate = trim($anno) . ' ' . trim($transformedMonth);
+            $cr->date = date_create_from_format('Y n', $buildDate);
+            if (!$cr->date) {
+                $cr->date = date_create_from_format("Y-m-d", trim($anno) . "-01-01");
+            }
+            $cr->anno = $anno;
+            $cr->mese = $mese;
+            $cr->account_id = 1;
+            $cr->nome_banca = $singleBank;
+            $cr->sezione = $index;        // "Informativa"
+            $cr->categoria = $categoria;
+            $cr->accordato = $accordato;
             $cr->accordato_operativo = $accordatoOperativo;
-            $cr->utilizzato        = $utilizzato;
-            $cr->durata_residua    = $durataResidua;
+            $cr->utilizzato = $utilizzato;
+            $cr->durata_residua = $durataResidua;
             $cr->durata_originaria = $durataOriginaria;
-            $cr->localizzazione    = $localizzazione;
-            $cr->divisa            = $divisa;
-            $cr->tipo_garanzia     = $tipoGaranzia;
-            $cr->stato_rapporto    = $statoRapporto;
-            $cr->tipo_attivita     = $tipoAttivita;
-            $cr->ruolo_affidato    = $ruoloAffidato;
-            $cr->import_export     = $importExport;
-            $cr->saldo_medio       = $saldo_medio;
+            $cr->localizzazione = $localizzazione;
+            $cr->divisa = $divisa;
+            $cr->tipo_garanzia = $tipoGaranzia;
+            $cr->stato_rapporto = $statoRapporto;
+            $cr->tipo_attivita = $tipoAttivita;
+            $cr->ruolo_affidato = $ruoloAffidato;
+            $cr->import_export = $importExport;
+            $cr->saldo_medio = $saldo_medio;
             $cr->importo_garantito = $importo_garantito;
-            $cr->codice_coint      = $codiceCoint;
-            $cr->document_id       = $codiceDocumento;
-            $cr->company_id        = $companyId;
+            $cr->codice_coint = $codiceCoint;
+            $cr->document_id = $codiceDocumento;
+            $cr->company_id = $companyId;
             $cr->save();
         }
     }
@@ -404,79 +425,76 @@ if (isset($arraytmp['Accordato Operativo']) && $arraytmp['Accordato Operativo'] 
     {
 
         $array = $value;
-        $arraytmp = [];
         foreach ($array as $key => $val) {
+            $arraytmp = [];
             foreach ($val as $chiave => $valore) {
                 $chiave = str_replace(array("\r\n", "\n", "\r"), ' ', $chiave);
                 $valore = str_replace(array("\r\n", "\n", "\r"), ' ', $valore);
                 $arraytmp[$chiave] = $valore;
             }
 
-            if (isset($arraytmp['Garante'])) {
-                if (isset($arraytmp['Valore Garanzia']) && isset($arraytmp['Importo Garantito'])) {
-                    if (($arraytmp['Valore Garanzia'] !== false && $arraytmp['Importo Garantito'] !== false) && ($arraytmp['Valore Garanzia'] !== "" && $arraytmp['Importo Garantito'] !== "")) {
-                        $nome_garante = $arraytmp['Garante'];
-                        $categoria = '';
-                        $accordato = '';
-                        $accordatoOperativo = '';
-                        $utilizzato = '';
-                        $durataResidua = '';
-                        $durataOriginaria = '';
-                        $localizzazione = '';
-                        $divisa = '';
-                        $tipoGaranzia = '';
-                        $statoRapporto = '';
-                        $tipoAttivita = '';
-                        $ruoloAffidato = '';
-                        $importExport = '';
-                        $saldo_medio = isset($arraytmp['Saldo Medio']) ? $arraytmp['Saldo Medio'] : 'N/A';
-                        $importo_garantito = isset($arraytmp['Importo']) ? $arraytmp['Importo'] : 'N/A';
-                        // if ($statoRapporto == 'Crediti pagati' || $statoRapporto == 'Crediti impagati' || str_contains($categoria, 'A PERDITA')) {
-                        $importo = isset($arraytmp['Importo Garantito']) ? $arraytmp['Importo Garantito'] : 'N/A';
+            if (isset($arraytmp['Garante']) && $arraytmp['Garante'] !== "") {
+                $nome_garante = $arraytmp['Garante'];
+                $categoria = '';
+                $accordato = '';
+                $accordatoOperativo = '';
+                $utilizzato = '';
+                $durataResidua = '';
+                $durataOriginaria = '';
+                $localizzazione = '';
+                $divisa = '';
+                $tipoGaranzia = '';
+                $statoRapporto = '';
+                $tipoAttivita = '';
+                $ruoloAffidato = '';
+                $importExport = '';
+                $saldo_medio = isset($arraytmp['Saldo Medio']) ? $arraytmp['Saldo Medio'] : '';
+                $importo_garantito = isset($arraytmp['Importo']) ? $arraytmp['Importo'] : '';
 
-                        $valoreGaranzia = isset($arraytmp['Valore Garanzia']) ? $arraytmp['Valore Garanzia'] : 'N/A';
-                        $valoreGaranzia = str_replace('.', '', $valoreGaranzia);
+                $importo = isset($arraytmp['Importo Garantito']) ? $arraytmp['Importo Garantito'] : '';
 
-                        $importo_garantito = str_replace('.', '', $importo);
-                        $codiceCoint = isset($arraytmp['Cointestazione']) ? $arraytmp['Cointestazione'] : null;
+                $valoreGaranzia = isset($arraytmp['Valore Garanzia']) ? $arraytmp['Valore Garanzia'] : '';
+                $valoreGaranzia = str_replace('.', '', $valoreGaranzia);
 
-                        // }
+                $importo_garantito = str_replace('.', '', $importo);
+                $codiceCoint = isset($arraytmp['Cointestazione']) ? $arraytmp['Cointestazione'] : null;
 
-                        $cr = new cr;
-                        $buildDate = $anno . ' ' . $transformedMonth;
+                $cr = new cr;
+                $buildDate = trim($anno) . ' ' . trim($transformedMonth);
 
-                        $createdDate = date_create_from_format("Y n", $buildDate);
-                        $cr->date = $createdDate;
-                        $cr->nome_garante = $nome_garante;
-                        $cr->anno = $anno;
-                        $cr->mese = $mese;
-                        $cr->account_id = 1;
-                        $cr->nome_banca = $singleBank;
-                        $cr->sezione = $index;
-                        $cr->categoria = $categoria;
-                        $cr->accordato = $accordato;
-                        $cr->accordato_operativo = $accordatoOperativo;
-                        $cr->utilizzato = $utilizzato;
-                        $cr->durata_residua = $durataResidua;
-                        $cr->durata_originaria = $durataOriginaria;
-                        $cr->localizzazione = $localizzazione;
-                        $cr->divisa = $divisa;
-                        $cr->tipo_garanzia = $tipoGaranzia;
-                        $cr->stato_rapporto = $statoRapporto;
-                        $cr->tipo_attivita = $tipoAttivita;
-                        $cr->ruolo_affidato = $ruoloAffidato;
-                        $cr->import_export = $importExport;
-                        $cr->saldo_medio = $saldo_medio;
-                        $cr->codice_coint = $codiceCoint;
-
-                        $cr->importo_garantito = $valoreGaranzia;
-                        $cr->garanzia = $importo_garantito;
-                        //new data
-                        $cr->document_id = $codiceDocumento;
-                        $cr->company_id = $companyId;
-                        $cr->save();
-                    }
+                $createdDate = date_create_from_format("Y n", $buildDate);
+                if (!$createdDate) {
+                    $createdDate = date_create_from_format("Y-m-d", trim($anno) . "-01-01");
                 }
+                $cr->date = $createdDate;
+                $cr->nome_garante = $nome_garante;
+                $cr->anno = $anno;
+                $cr->mese = $mese;
+                $cr->account_id = 1;
+                $cr->nome_banca = $singleBank;
+                $cr->sezione = $index;
+                $cr->categoria = $categoria;
+                $cr->accordato = $accordato;
+                $cr->accordato_operativo = $accordatoOperativo;
+                $cr->utilizzato = $utilizzato;
+                $cr->durata_residua = $durataResidua;
+                $cr->durata_originaria = $durataOriginaria;
+                $cr->localizzazione = $localizzazione;
+                $cr->divisa = $divisa;
+                $cr->tipo_garanzia = $tipoGaranzia;
+                $cr->stato_rapporto = $statoRapporto;
+                $cr->tipo_attivita = $tipoAttivita;
+                $cr->ruolo_affidato = $ruoloAffidato;
+                $cr->import_export = $importExport;
+                $cr->saldo_medio = $saldo_medio;
+                $cr->codice_coint = $codiceCoint;
+
+                $cr->importo_garantito = $valoreGaranzia;
+                $cr->garanzia = $importo_garantito;
+                //new data
+                $cr->document_id = $codiceDocumento;
+                $cr->company_id = $companyId;
+                $cr->save();
             }
         }
     }

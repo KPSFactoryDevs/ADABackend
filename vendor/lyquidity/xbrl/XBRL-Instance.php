@@ -23,7 +23,6 @@ use lyquidity\xml\schema\SchemaTypes;
 use lyquidity\xml\QName;
 
 use XBRL\XBRL_Types;
-use XBRL\XBRL_Log;
 use Utilities\TupleDictionary;
  
 /**

@@ -80,13 +80,19 @@ return [
         'redirect' => env('TWITTER_REDIRECT'),
     ],
 
- 'fic' => [
-        'base_url'      => env('FIC_BASE_URL'),
-        'auth_url'      => env('FIC_AUTH_URL'),
-        'token_url'     => env('FIC_TOKEN_URL'),
-        'client_id'     => env('FIC_CLIENT_ID'),
+    'fic' => [
+        'base_url' => env('FIC_BASE_URL'),
+        'auth_url' => env('FIC_AUTH_URL'),
+        'token_url' => env('FIC_TOKEN_URL'),
+        'client_id' => env('FIC_CLIENT_ID'),
         'client_secret' => env('FIC_CLIENT_SECRET'),
-        'redirect_uri'  => env('FIC_REDIRECT_URI'),
-        'scopes'        => env('FIC_SCOPES', 'user:companies:r'),
+        'redirect_uri' => env('FIC_REDIRECT_URI'),
+        'scopes' => env('FIC_SCOPES', 'user:companies:r'),
+    ],
+
+    'openai' => [
+        'key' => env('OPENAI_API_KEY'),
+        'model' => env('OPENAI_MODEL', 'gpt-4o-mini'),
+        'base_url' => env('OPENAI_API_BASE', 'https://api.openai.com/v1'),
     ],
 ];

@@ -32,5 +32,7 @@ class AppServiceProvider extends ServiceProvider
         Schema::defaultStringLength(191);
         Paginator::useBootstrap();
 
+        // Fix for lyquidity/xbrl namespace bug
+        class_alias('XBRL_Log', 'XBRL\XBRL_Log');
     }
 }
