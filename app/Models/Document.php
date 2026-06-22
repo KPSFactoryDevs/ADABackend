@@ -40,7 +40,8 @@ class Document extends Model
                   'anno_inizio', 
                   'anno_fine',
                   'forma_giuridica',
-                  'tipo_azienda'
+                  'tipo_azienda',
+                  'predefinito'
               ];
 
 

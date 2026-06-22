@@ -302,6 +302,16 @@ class CentraleRischiController extends Controller
         // 4. Salvataggio tramite Helpers
         $codiceDocumento = $crFileToElaborate->codice_documento;
         $companyId = $crFileToElaborate->company_id;
+        if (is_null($companyId)) {
+            $company = \App\Models\Company::where('user_id', $crFileToElaborate->user_id)->first();
+            if ($company) {
+                $companyId = $company->id;
+                $crFileToElaborate->company_id = $companyId;
+                $crFileToElaborate->save();
+            } else {
+                $companyId = 0;
+            }
+        }
         $CentraleRischiStoreDataHelper = new App\Helpers\CentraleRischi\CentraleRischiStoreDataHelper();
 
         foreach ($dataToSave as $anno => $months) {
