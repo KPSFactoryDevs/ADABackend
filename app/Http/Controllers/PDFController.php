@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 use App\Helpers\Bilanci\BilanciHelper;
 use App\Helpers\Allerta\AllertaHelper;
 use DateTime;
-use PDF;
+use Barryvdh\DomPDF\Facade\Pdf as PDF;
 use Illuminate\Support\Facades\Http;
 use GuzzleHttp\Client;
 use Response;
