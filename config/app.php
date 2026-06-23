@@ -235,4 +235,13 @@ return [
         'PDF' => Barryvdh\DomPDF\Facade\Pdf::class,
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | SSO Configuration
+    |--------------------------------------------------------------------------
+    */
+    'sso_secret' => env('SSO_SECRET', 'kps-sso-shared-secret-change-me'),
+    'kps_suites_login_url' => env('KPS_SUITES_LOGIN_URL', 'http://localhost:8000/login'),
+    'frontend_url' => env('FRONTEND_URL', 'http://localhost:5173'),
+
 ];
