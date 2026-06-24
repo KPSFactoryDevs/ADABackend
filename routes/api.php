@@ -162,8 +162,8 @@ Route::middleware('auth:api')->group(function () {
 });
 
 
-// ===== FACTORING (Cessione del Credito) =====
-Route::middleware('auth:api')->prefix('factoring')->group(function () {
+// ===== CREDITO (Cessione del Credito) =====
+Route::middleware(['cors', 'json.response', 'auth:api'])->prefix('credito')->group(function () {
     Route::get('/clients', [FactoringController::class, 'clientsIndex']);
     Route::post('/invoices/upload-xml', [FactoringController::class, 'uploadInvoiceXml']);
     Route::post('/clients/{client}/documents', [FactoringController::class, 'uploadDocument']);
