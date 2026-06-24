@@ -7,6 +7,7 @@ use App\Http\Controllers\CompaniesController;
 use App\Http\Controllers\ClientsController;
 use App\Http\Controllers\FICOAuthController;
 use App\Http\Controllers\InvoicesController;
+use App\Http\Controllers\FactoringController;
 use App\Http\Controllers\DbMetaController;
 use App\Http\Controllers\AIController;
 use Illuminate\Support\Facades\Route;
@@ -97,6 +98,11 @@ Route::group(['middleware' => ['cors', 'json.response']], function () {
     Route::get('/reportAllerta/{idBilancio}/{idCr}', 'App\Http\Controllers\PDFController@reportAllerta');
     Route::get('/reportAndamentale/{years}', 'App\Http\Controllers\PDFController@reportCrAndamentale');
 
+    // PDF FORMALI — RELAZIONI SU CARTA INTESTATA ADA
+    Route::get('/reportBilancioFormale/{id}', 'App\Http\Controllers\PDFController@reportBilancioFormale');
+    Route::get('/reportCRFormale/{period}/{data_inizio?}/{data_fine?}', 'App\Http\Controllers\PDFController@reportCRFormale');
+    Route::get('/reportAllertaFormale/{idBilancio}/{idCr}', 'App\Http\Controllers\PDFController@reportAllertaFormale');
+
 
 });
 
@@ -153,4 +159,13 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/bank-accounts', [BankAccountController::class, 'index']);               // ?company_id=103
     Route::get('/bank-accounts/{id}', [BankAccountController::class, 'show']);
     Route::get('/bank-accounts/{id}/transactions', [BankTransactionController::class, 'index']); // filtri
+});
+
+
+// ===== FACTORING (Cessione del Credito) =====
+Route::middleware('auth:api')->prefix('factoring')->group(function () {
+    Route::get('/clients', [FactoringController::class, 'clientsIndex']);
+    Route::post('/invoices/upload-xml', [FactoringController::class, 'uploadInvoiceXml']);
+    Route::post('/clients/{client}/documents', [FactoringController::class, 'uploadDocument']);
+    Route::post('/clients/{client}/evaluate', [FactoringController::class, 'sendForEvaluation']);
 });
