@@ -334,23 +334,26 @@ SYS;
 
         // ══════════════════════════════════════════════════════════════
         // 5. Ricostruisci saldi giornalieri
-        //    Priorità: saldo_iniziale (forward) > saldo_finale (backward) > da 0
+        //    PRIORITÀ: saldo_finale (backward) > saldo_iniziale (forward)
+        //    Il backward dal saldo_finale produce saldi intermedi più accurati
+        //    perché l'errore cumulativo dei movimenti estratti dall'AI non si
+        //    propaga dall'inizio verso la fine.
         // ══════════════════════════════════════════════════════════════
-        if ($saldoIniziale !== null) {
-            // PRIORITÀ 1: Ricostruisci in avanti dal saldo iniziale ufficiale
+        if ($saldoFinale !== null) {
+            // PRIORITÀ 1: Ricostruisci all'indietro dal saldo finale ufficiale
+            $runSaldo = $saldoFinale;
+            for ($i = count($dailyArr) - 1; $i >= 0; $i--) {
+                $dailyArr[$i]['saldo'] = round($runSaldo, 2);
+                $runSaldo = $runSaldo - $dailyArr[$i]['avere_tot'] + $dailyArr[$i]['dare_tot'];
+            }
+        } elseif ($saldoIniziale !== null) {
+            // PRIORITÀ 2: Ricostruisci in avanti dal saldo iniziale
             $runSaldo = $saldoIniziale;
             foreach ($dailyArr as &$d) {
                 $runSaldo = $runSaldo + $d['avere_tot'] - $d['dare_tot'];
                 $d['saldo'] = round($runSaldo, 2);
             }
             unset($d);
-        } elseif ($saldoFinale !== null) {
-            // PRIORITÀ 2: Ricostruisci all'indietro dal saldo finale
-            $runSaldo = $saldoFinale;
-            for ($i = count($dailyArr) - 1; $i >= 0; $i--) {
-                $dailyArr[$i]['saldo'] = round($runSaldo, 2);
-                $runSaldo = $runSaldo - $dailyArr[$i]['avere_tot'] + $dailyArr[$i]['dare_tot'];
-            }
         } else {
             // Nessuna ancora disponibile: ricostruisci cumulativamente da 0
             $runSaldo = 0;
@@ -362,7 +365,7 @@ SYS;
         }
 
         // ══════════════════════════════════════════════════════════════
-        // 5. Calcolo utilizzo fido per ogni giornata
+        // 6. Calcolo utilizzo fido per ogni giornata
         // ══════════════════════════════════════════════════════════════
         foreach ($dailyArr as &$d) {
             if ($hasFido && $d['saldo'] !== null) {
@@ -379,25 +382,36 @@ SYS;
         unset($d);
 
         // ══════════════════════════════════════════════════════════════
-        // 6. KPI saldi (calcolati dai saldi ricostruiti)
+        // 7. KPI saldi — calcolati su TUTTI i giorni del calendario
+        //    (carry-forward del saldo nei giorni senza movimenti)
         // ══════════════════════════════════════════════════════════════
-        $saldi = array_filter(array_column($dailyArr, 'saldo'), fn($v) => $v !== null);
-        $saldoMedio = !empty($saldi) ? round(array_sum($saldi) / count($saldi), 2) : 0;
-        $saldoMin   = !empty($saldi) ? round(min($saldi), 2) : 0;
-        $saldoMax   = !empty($saldi) ? round(max($saldi), 2) : 0;
+        // Mappa saldi per data (dai giorni con movimenti)
+        $saldoByDate = [];
+        foreach ($dailyArr as $d) {
+            if ($d['saldo'] !== null) {
+                $saldoByDate[$d['date']] = $d['saldo'];
+            }
+        }
 
-        // Utilizzo fido medio
-        $utilizzoValues = array_filter(array_column($dailyArr, 'utilizzo_fido'), fn($v) => $v !== null);
-        $utilizzoMedio  = !empty($utilizzoValues) ? round(array_sum($utilizzoValues) / count($utilizzoValues), 2) : 0;
-        $utilizzoMax    = !empty($utilizzoValues) ? max($utilizzoValues) : 0;
-
-        // Giorni sconfinamento
-        $giorniSconfinamento = count(array_filter($dailyArr, fn($d) => $d['sconfinamento']));
-
-        // Giorni analizzati: dalle date del periodo
+        // Genera tutti i giorni del calendario nel periodo
+        $allDaysSaldi = [];
         if ($statement->date_from && $statement->date_to) {
             $giorniTotali = (int) $statement->date_from->diffInDays($statement->date_to) + 1;
+            $current = $statement->date_from->copy();
+            $lastSaldo = $saldoIniziale ?? ($saldoByDate[array_key_first($saldoByDate)] ?? 0);
+
+            for ($day = 0; $day < $giorniTotali; $day++) {
+                $dateStr = $current->format('Y-m-d');
+                if (isset($saldoByDate[$dateStr])) {
+                    $lastSaldo = $saldoByDate[$dateStr];
+                }
+                // Nei giorni senza movimenti, il saldo resta uguale al giorno precedente
+                $allDaysSaldi[] = $lastSaldo;
+                $current->addDay();
+            }
         } else {
+            // Fallback: usa solo i giorni con movimenti
+            $allDaysSaldi = array_filter(array_column($dailyArr, 'saldo'), fn($v) => $v !== null);
             $dates = array_column($dailyArr, 'date');
             if (count($dates) >= 2) {
                 $first = new \DateTime(min($dates));
@@ -408,7 +422,19 @@ SYS;
             }
         }
 
-        // Turnover ratio
+        $saldoMedio = !empty($allDaysSaldi) ? round(array_sum($allDaysSaldi) / count($allDaysSaldi), 2) : 0;
+        $saldoMin   = !empty($allDaysSaldi) ? round(min($allDaysSaldi), 2) : 0;
+        $saldoMax   = !empty($allDaysSaldi) ? round(max($allDaysSaldi), 2) : 0;
+
+        // Utilizzo fido medio
+        $utilizzoValues = array_filter(array_column($dailyArr, 'utilizzo_fido'), fn($v) => $v !== null);
+        $utilizzoMedio  = !empty($utilizzoValues) ? round(array_sum($utilizzoValues) / count($utilizzoValues), 2) : 0;
+        $utilizzoMax    = !empty($utilizzoValues) ? max($utilizzoValues) : 0;
+
+        // Giorni sconfinamento
+        $giorniSconfinamento = count(array_filter($dailyArr, fn($d) => $d['sconfinamento']));
+
+        // Turnover ratio (usa saldo medio ponderato su tutti i giorni)
         $turnover = $totalDare + $totalAvere;
         $turnoverRatio = $saldoMedio != 0
             ? round($turnover / abs($saldoMedio), 2)
