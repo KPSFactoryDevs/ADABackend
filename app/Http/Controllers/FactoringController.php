@@ -26,8 +26,13 @@ class FactoringController extends Controller
         $userId    = Auth::guard('api')->id();
         $companyId = (int) $request->header('CurrentCompany');
 
+        // Fallback: se manca l'header, prendi la prima company dell'utente
         if (!$companyId) {
-            return response()->json(['message' => 'Missing CurrentCompany header'], 422);
+            $company = Company::where('user_id', $userId)->first();
+            if (!$company) {
+                return response()->json([], 200); // nessuna azienda → lista vuota
+            }
+            $companyId = $company->id;
         }
 
         $clients = Client::where('user_id', $userId)
@@ -74,8 +79,13 @@ class FactoringController extends Controller
         $userId    = Auth::guard('api')->id();
         $companyId = (int) $request->header('CurrentCompany');
 
+        // Fallback: se manca l'header, prendi la prima company dell'utente
         if (!$companyId) {
-            return response()->json(['message' => 'Missing CurrentCompany header'], 422);
+            $company = Company::where('user_id', $userId)->first();
+            if (!$company) {
+                return response()->json(['message' => 'Crea prima un\'azienda dalle impostazioni'], 422);
+            }
+            $companyId = $company->id;
         }
 
         $results = [];
@@ -265,6 +275,27 @@ class FactoringController extends Controller
             'message' => 'Valutazione inviata con successo',
             'client'  => $client->fresh(),
         ]);
+    }
+
+    /**
+     * DELETE /credito/clients/{client}
+     * Elimina un cliente e tutti i dati collegati (fatture, documenti).
+     */
+    public function destroyClient(Client $client)
+    {
+        // Elimina documenti dal filesystem
+        foreach ($client->documents as $doc) {
+            if ($doc->file_path) {
+                Storage::delete($doc->file_path);
+            }
+        }
+
+        // Elimina documenti, fatture e il client stesso
+        $client->documents()->delete();
+        $client->invoices()->delete();
+        $client->delete();
+
+        return response()->json(['message' => 'Cliente eliminato con successo.']);
     }
 
     /* ========================================================================

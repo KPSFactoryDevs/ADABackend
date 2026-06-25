@@ -165,6 +165,7 @@ Route::middleware('auth:api')->group(function () {
 // ===== CREDITO (Cessione del Credito) =====
 Route::middleware(['cors', 'json.response', 'auth:api'])->prefix('credito')->group(function () {
     Route::get('/clients', [FactoringController::class, 'clientsIndex']);
+    Route::delete('/clients/{client}', [FactoringController::class, 'destroyClient']);
     Route::post('/invoices/upload-xml', [FactoringController::class, 'uploadInvoiceXml']);
     Route::post('/clients/{client}/documents', [FactoringController::class, 'uploadDocument']);
     Route::post('/clients/{client}/evaluate', [FactoringController::class, 'sendForEvaluation']);
