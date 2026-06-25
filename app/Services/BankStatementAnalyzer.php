@@ -229,14 +229,15 @@ SYS;
 
     /**
      * Calcola l'analisi finanziaria completa dall'estratto conto.
+     * Tutti i calcoli sono basati sui movimenti reali estratti, NON su valori AI.
      */
     private function computeAnalysis(BankStatement $statement): array
     {
-        $entries = $statement->entries()
+        $allEntries = $statement->entries()
             ->orderBy('date_operazione')
             ->get();
 
-        if ($entries->isEmpty()) {
+        if ($allEntries->isEmpty()) {
             return [
                 'summary'   => ['message' => 'Nessun movimento trovato'],
                 'daily'     => [],
@@ -248,9 +249,47 @@ SYS;
         $fido = (float) ($statement->fido_accordato ?? 0);
         $hasFido = $fido > 0;
 
-        // ── Saldi giornalieri ──
+        // ══════════════════════════════════════════════════════════════
+        // 1. Separa voci di SALDO (iniziale/finale) dai movimenti reali
+        // ══════════════════════════════════════════════════════════════
+        $saldoIniziale = null;
+        $saldoFinale   = null;
+        $realEntries   = [];
+
+        foreach ($allEntries as $entry) {
+            $desc = strtoupper(trim($entry->descrizione ?? ''));
+
+            // Identifica SALDO INIZIALE
+            if (preg_match('/\bSALDO\s*(INIZIALE|INIZIO|PRECEDENTE|LIQUIDO\s*PRECEDENTE|CONTABILE\s*INIZIALE|A\s*RIPORTARE)\b/i', $desc)) {
+                $bal = $this->extractBalanceFromSaldoEntry($entry, $desc);
+                if ($bal !== null) $saldoIniziale = $bal;
+                continue; // non contare come movimento
+            }
+
+            // Identifica SALDO FINALE
+            if (preg_match('/\bSALDO\s*(FINALE|FINE|CONTABILE\s*FINALE|LIQUIDO\s*FINALE)\b/i', $desc)) {
+                $bal = $this->extractBalanceFromSaldoEntry($entry, $desc);
+                if ($bal !== null) $saldoFinale = $bal;
+                continue; // non contare come movimento
+            }
+
+            $realEntries[] = $entry;
+        }
+
+        $entries = collect($realEntries);
+
+        // ══════════════════════════════════════════════════════════════
+        // 2. KPI calcolati dai soli movimenti reali
+        // ══════════════════════════════════════════════════════════════
+        $totalDare    = round($entries->sum('dare'), 2);
+        $totalAvere   = round($entries->sum('avere'), 2);
+        $numMovimenti = $entries->count();
+
+        // ══════════════════════════════════════════════════════════════
+        // 3. Raggruppa movimenti per giornata
+        // ══════════════════════════════════════════════════════════════
         $daily = [];
-        foreach ($entries as $entry) {
+        foreach ($realEntries as $entry) {
             $dateStr = $entry->date_operazione->format('Y-m-d');
             if (!isset($daily[$dateStr])) {
                 $daily[$dateStr] = [
@@ -264,50 +303,33 @@ SYS;
             $daily[$dateStr]['dare_tot']  += $entry->dare;
             $daily[$dateStr]['avere_tot'] += $entry->avere;
             $daily[$dateStr]['movimenti']++;
-
-            // Usa l'ultimo saldo disponibile per la giornata
-            if ($entry->saldo !== null) {
-                $daily[$dateStr]['saldo'] = $entry->saldo;
-            }
         }
 
-        // Ricostruisci saldi se mancanti - Forward pass
         $dailyArr = array_values($daily);
         usort($dailyArr, fn($a, $b) => strcmp($a['date'], $b['date']));
 
-        $lastKnownSaldo = null;
-        foreach ($dailyArr as &$d) {
-            if ($d['saldo'] !== null) {
-                $lastKnownSaldo = $d['saldo'];
-            } elseif ($lastKnownSaldo !== null) {
-                // Ricostruisci: saldo precedente + avere - dare
-                $lastKnownSaldo = $lastKnownSaldo + $d['avere_tot'] - $d['dare_tot'];
-                $d['saldo'] = round($lastKnownSaldo, 2);
+        // ══════════════════════════════════════════════════════════════
+        // 4. Ricostruisci saldi giornalieri dai movimenti + ancore
+        //    NON usa i valori saldo forniti dall'AI per singolo movimento
+        // ══════════════════════════════════════════════════════════════
+        if ($saldoFinale !== null) {
+            // Ricostruisci all'indietro dal saldo finale
+            $runSaldo = $saldoFinale;
+            for ($i = count($dailyArr) - 1; $i >= 0; $i--) {
+                $dailyArr[$i]['saldo'] = round($runSaldo, 2);
+                // Annulla i movimenti del giorno per ottenere il saldo di fine giorno precedente
+                $runSaldo = $runSaldo - $dailyArr[$i]['avere_tot'] + $dailyArr[$i]['dare_tot'];
             }
-        }
-        unset($d);
-
-        // Backward pass: ricostruisci saldi andando all'indietro da un saldo noto
-        $nextKnownSaldo = null;
-        for ($i = count($dailyArr) - 1; $i >= 0; $i--) {
-            if ($dailyArr[$i]['saldo'] !== null) {
-                $nextKnownSaldo = $dailyArr[$i]['saldo'];
-            } elseif ($nextKnownSaldo !== null) {
-                // saldo_precedente = saldo_successivo - avere + dare del giorno successivo
-                // Ma qui siamo al giorno i, il giorno i+1 ha saldo noto
-                // saldo[i] = saldo[i+1] - avere[i+1] + dare[i+1]
-                $nextDay = $dailyArr[$i + 1];
-                $nextKnownSaldo = $nextKnownSaldo - $nextDay['avere_tot'] + $nextDay['dare_tot'];
-                $dailyArr[$i]['saldo'] = round($nextKnownSaldo, 2);
+        } elseif ($saldoIniziale !== null) {
+            // Ricostruisci in avanti dal saldo iniziale
+            $runSaldo = $saldoIniziale;
+            foreach ($dailyArr as &$d) {
+                $runSaldo = $runSaldo + $d['avere_tot'] - $d['dare_tot'];
+                $d['saldo'] = round($runSaldo, 2);
             }
-        }
-
-        // Fallback: se ancora nessun saldo è noto, ricostruisci tutto cumulativamente da 0
-        $anySaldo = false;
-        foreach ($dailyArr as $d) {
-            if ($d['saldo'] !== null) { $anySaldo = true; break; }
-        }
-        if (!$anySaldo && !empty($dailyArr)) {
+            unset($d);
+        } else {
+            // Nessuna ancora disponibile: ricostruisci cumulativamente da 0
             $runSaldo = 0;
             foreach ($dailyArr as &$d) {
                 $runSaldo = $runSaldo + $d['avere_tot'] - $d['dare_tot'];
@@ -316,12 +338,11 @@ SYS;
             unset($d);
         }
 
-        // ── Calcolo utilizzo fido per ogni giornata ──
+        // ══════════════════════════════════════════════════════════════
+        // 5. Calcolo utilizzo fido per ogni giornata
+        // ══════════════════════════════════════════════════════════════
         foreach ($dailyArr as &$d) {
             if ($hasFido && $d['saldo'] !== null) {
-                // Utilizzo = quanto del fido è "usato"
-                // Se saldo è negativo → il conto è in scoperto
-                // Utilizzo fido = max(0, -saldo) / fido * 100
                 $utilizzo = $d['saldo'] < 0
                     ? min(100, (abs($d['saldo']) / $fido) * 100)
                     : 0;
@@ -334,15 +355,13 @@ SYS;
         }
         unset($d);
 
-        // ── KPI ──
+        // ══════════════════════════════════════════════════════════════
+        // 6. KPI saldi (calcolati dai saldi ricostruiti)
+        // ══════════════════════════════════════════════════════════════
         $saldi = array_filter(array_column($dailyArr, 'saldo'), fn($v) => $v !== null);
         $saldoMedio = !empty($saldi) ? round(array_sum($saldi) / count($saldi), 2) : 0;
-        $saldoMin   = !empty($saldi) ? min($saldi) : 0;
-        $saldoMax   = !empty($saldi) ? max($saldi) : 0;
-
-        $totalDare  = $entries->sum('dare');
-        $totalAvere = $entries->sum('avere');
-        $numMovimenti = $entries->count();
+        $saldoMin   = !empty($saldi) ? round(min($saldi), 2) : 0;
+        $saldoMax   = !empty($saldi) ? round(max($saldi), 2) : 0;
 
         // Utilizzo fido medio
         $utilizzoValues = array_filter(array_column($dailyArr, 'utilizzo_fido'), fn($v) => $v !== null);
@@ -352,11 +371,10 @@ SYS;
         // Giorni sconfinamento
         $giorniSconfinamento = count(array_filter($dailyArr, fn($d) => $d['sconfinamento']));
 
-        // Giorni analizzati: usa le date del periodo se disponibili, altrimenti conta i giorni con movimenti
+        // Giorni analizzati: dalle date del periodo
         if ($statement->date_from && $statement->date_to) {
             $giorniTotali = (int) $statement->date_from->diffInDays($statement->date_to) + 1;
         } else {
-            // Fallback: differenza tra prima e ultima data di movimento
             $dates = array_column($dailyArr, 'date');
             if (count($dates) >= 2) {
                 $first = new \DateTime(min($dates));
@@ -367,7 +385,7 @@ SYS;
             }
         }
 
-        // ── Turnover ratio (per conti senza fido) ──
+        // Turnover ratio
         $turnover = $totalDare + $totalAvere;
         $turnoverRatio = $saldoMedio != 0
             ? round($turnover / abs($saldoMedio), 2)
@@ -377,7 +395,6 @@ SYS;
         $alerts = [];
 
         if ($hasFido) {
-            // Alert sovrautilizzo fido
             if ($utilizzoMedio > 90) {
                 $alerts[] = [
                     'type'    => 'danger',
@@ -425,7 +442,6 @@ SYS;
                 ];
             }
         } else {
-            // Alert movimentazione rapida (senza fido)
             if ($turnoverRatio > 20) {
                 $alerts[] = [
                     'type'    => 'danger',
@@ -473,8 +489,8 @@ SYS;
                 'saldo_medio'            => $saldoMedio,
                 'saldo_min'              => $saldoMin,
                 'saldo_max'              => $saldoMax,
-                'totale_dare'            => round($totalDare, 2),
-                'totale_avere'           => round($totalAvere, 2),
+                'totale_dare'            => $totalDare,
+                'totale_avere'           => $totalAvere,
                 'num_movimenti'          => $numMovimenti,
                 'giorni_analizzati'      => $giorniTotali,
                 'utilizzo_fido_medio'    => $hasFido ? $utilizzoMedio : null,
@@ -485,6 +501,38 @@ SYS;
             'daily'  => $dailyArr,
             'alerts' => $alerts,
         ];
+    }
+
+    /**
+     * Estrae il valore di saldo da una voce SALDO INIZIALE/FINALE.
+     * "A VS. DEBITO" → saldo negativo, "A VS. CREDITO" → saldo positivo.
+     */
+    private function extractBalanceFromSaldoEntry($entry, string $desc): ?float
+    {
+        $isDebito  = (bool) preg_match('/DEBITO/i', $desc);
+        $isCredito = (bool) preg_match('/CREDITO/i', $desc);
+
+        $dare  = (float) ($entry->dare ?? 0);
+        $avere = (float) ($entry->avere ?? 0);
+        $amount = max($dare, $avere);
+
+        // Se l'AI ha fornito un saldo diretto e non c'è importo dare/avere
+        if ($amount == 0 && $entry->saldo !== null) {
+            return (float) $entry->saldo;
+        }
+
+        if ($amount == 0) return null;
+
+        // "A VS. DEBITO" → il saldo è negativo (conto in rosso)
+        if ($isDebito)  return -$amount;
+        // "A VS. CREDITO" → il saldo è positivo
+        if ($isCredito) return $amount;
+
+        // Default: dare = debito (negativo), avere = credito (positivo)
+        if ($dare > 0) return -$dare;
+        if ($avere > 0) return $avere;
+
+        return null;
     }
 
     /**
