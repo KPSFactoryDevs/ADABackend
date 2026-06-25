@@ -169,3 +169,14 @@ Route::middleware(['cors', 'json.response', 'auth:api'])->prefix('credito')->gro
     Route::post('/clients/{client}/documents', [FactoringController::class, 'uploadDocument']);
     Route::post('/clients/{client}/evaluate', [FactoringController::class, 'sendForEvaluation']);
 });
+
+
+// ===== ESTRATTI CONTO (Analisi Fido) =====
+Route::middleware(['cors', 'json.response'])->group(function () {
+    Route::get('/bank-statements', [\App\Http\Controllers\BankStatementController::class, 'index']);
+    Route::post('/bank-statements/upload', [\App\Http\Controllers\BankStatementController::class, 'upload']);
+    Route::post('/bank-statements/{id}/analyze', [\App\Http\Controllers\BankStatementController::class, 'analyze']);
+    Route::get('/bank-statements/{id}', [\App\Http\Controllers\BankStatementController::class, 'show']);
+    Route::put('/bank-statements/{id}', [\App\Http\Controllers\BankStatementController::class, 'update']);
+    Route::delete('/bank-statements/{id}', [\App\Http\Controllers\BankStatementController::class, 'destroy']);
+});
