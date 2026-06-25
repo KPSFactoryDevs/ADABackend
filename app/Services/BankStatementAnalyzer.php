@@ -35,8 +35,8 @@ class BankStatementAnalyzer
                 'date_to'        => $parsed['periodo_a'] ?? null,
             ]);
 
-            // 5. Calcola analisi finanziaria
-            $analysis = $this->computeAnalysis($statement);
+            // 5. Calcola analisi finanziaria (usa riepilogo ufficiale del documento)
+            $analysis = $this->computeAnalysis($statement, $parsed);
 
             // 6. Salva risultati
             $statement->update([
@@ -131,6 +131,12 @@ Il JSON deve avere questa struttura:
   "fido_accordato": numero o null (il limite di credito/fido/affidamento concesso, in euro),
   "periodo_da": "YYYY-MM-DD",
   "periodo_a": "YYYY-MM-DD",
+  "riepilogo": {
+    "saldo_iniziale": numero (saldo di apertura del periodo, NEGATIVO se a debito),
+    "saldo_finale": numero (saldo di chiusura del periodo, NEGATIVO se a debito),
+    "totale_dare": numero (totale delle uscite/addebiti del periodo dal riepilogo della banca),
+    "totale_avere": numero (totale delle entrate/accrediti del periodo dal riepilogo della banca)
+  },
   "movimenti": [
     {
       "date_operazione": "YYYY-MM-DD",
@@ -143,10 +149,18 @@ Il JSON deve avere questa struttura:
   ]
 }
 
-REGOLE IMPORTANTI:
+REGOLE IMPORTANTI PER IL RIEPILOGO:
+- Cerca il "Riepilogo Generale", "Quadro di Sintesi", "Saldo iniziale", "Saldo finale", "Totale dare", "Totale avere" nella prima pagina o nell'intestazione del documento.
+- Il saldo_iniziale è il saldo di apertura del periodo (es. "Saldo al 31.07.2008" o "Saldo precedente"). Se è a debito/VS. DEBITO, deve essere NEGATIVO.
+- Il saldo_finale è il saldo di chiusura (es. "Saldo al 31.08.2008" o "Saldo finale"). Se è a debito/VS. DEBITO, deve essere NEGATIVO.
+- totale_dare e totale_avere sono i totali UFFICIALI del documento (dal riepilogo), NON la somma dei movimenti.
+- QUESTI VALORI SONO FONDAMENTALI: la quadratura è saldo_iniziale - totale_dare + totale_avere = saldo_finale.
+
+REGOLE IMPORTANTI PER I MOVIMENTI:
 - I movimenti devono essere in ordine cronologico (dal più vecchio al più recente)
 - "dare" = uscite/addebiti (importi positivi, non negativi)
 - "avere" = entrate/accrediti (importi positivi, non negativi)
+- NON includere le righe di "Saldo iniziale" o "Saldo finale" come movimenti
 - Il fido/affidamento è la linea di credito concessa dalla banca, spesso indicata come "fido", "affidamento", "linea di credito", "castelletto", o nei dettagli del conto. Cercalo accuratamente nel documento.
 - Se trovi un "saldo competenze", "scalare interessi" con voci come "numeri creditori/debitori" o "fido accordato", estrai il fido da lì.
 - Le date devono essere in formato YYYY-MM-DD
@@ -229,9 +243,11 @@ SYS;
 
     /**
      * Calcola l'analisi finanziaria completa dall'estratto conto.
-     * Tutti i calcoli sono basati sui movimenti reali estratti, NON su valori AI.
+     * I KPI principali (totale dare/avere, saldo iniziale/finale) vengono dal
+     * Riepilogo Generale del documento bancario (fonte ufficiale).
+     * I movimenti estratti servono per il dettaglio giornaliero e la tabella.
      */
-    private function computeAnalysis(BankStatement $statement): array
+    private function computeAnalysis(BankStatement $statement, array $parsed = []): array
     {
         $allEntries = $statement->entries()
             ->orderBy('date_operazione')
@@ -242,7 +258,6 @@ SYS;
                 'summary'   => ['message' => 'Nessun movimento trovato'],
                 'daily'     => [],
                 'alerts'    => [],
-                'kpi'       => [],
             ];
         }
 
@@ -250,43 +265,52 @@ SYS;
         $hasFido = $fido > 0;
 
         // ══════════════════════════════════════════════════════════════
-        // 1. Separa voci di SALDO (iniziale/finale) dai movimenti reali
+        // 1. Riepilogo ufficiale dal documento (fonte di verità per i KPI)
         // ══════════════════════════════════════════════════════════════
-        $saldoIniziale = null;
-        $saldoFinale   = null;
+        $riepilogo = $parsed['riepilogo'] ?? [];
+        $docSaldoIniziale = isset($riepilogo['saldo_iniziale']) ? (float) $riepilogo['saldo_iniziale'] : null;
+        $docSaldoFinale   = isset($riepilogo['saldo_finale'])   ? (float) $riepilogo['saldo_finale']   : null;
+        $docTotaleDare    = isset($riepilogo['totale_dare'])     ? (float) $riepilogo['totale_dare']     : null;
+        $docTotaleAvere   = isset($riepilogo['totale_avere'])    ? (float) $riepilogo['totale_avere']    : null;
+
+        // ══════════════════════════════════════════════════════════════
+        // 2. Filtra voci SALDO INIZIALE/FINALE dalle entry (non sono movimenti)
+        // ══════════════════════════════════════════════════════════════
         $realEntries   = [];
+        $entrySaldoIniziale = null;
+        $entrySaldoFinale   = null;
 
         foreach ($allEntries as $entry) {
             $desc = strtoupper(trim($entry->descrizione ?? ''));
 
-            // Identifica SALDO INIZIALE
             if (preg_match('/\bSALDO\s*(INIZIALE|INIZIO|PRECEDENTE|LIQUIDO\s*PRECEDENTE|CONTABILE\s*INIZIALE|A\s*RIPORTARE)\b/i', $desc)) {
-                $bal = $this->extractBalanceFromSaldoEntry($entry, $desc);
-                if ($bal !== null) $saldoIniziale = $bal;
-                continue; // non contare come movimento
+                $entrySaldoIniziale = $this->extractBalanceFromSaldoEntry($entry, $desc);
+                continue;
             }
 
-            // Identifica SALDO FINALE
             if (preg_match('/\bSALDO\s*(FINALE|FINE|CONTABILE\s*FINALE|LIQUIDO\s*FINALE)\b/i', $desc)) {
-                $bal = $this->extractBalanceFromSaldoEntry($entry, $desc);
-                if ($bal !== null) $saldoFinale = $bal;
-                continue; // non contare come movimento
+                $entrySaldoFinale = $this->extractBalanceFromSaldoEntry($entry, $desc);
+                continue;
             }
 
             $realEntries[] = $entry;
         }
 
         $entries = collect($realEntries);
-
-        // ══════════════════════════════════════════════════════════════
-        // 2. KPI calcolati dai soli movimenti reali
-        // ══════════════════════════════════════════════════════════════
-        $totalDare    = round($entries->sum('dare'), 2);
-        $totalAvere   = round($entries->sum('avere'), 2);
         $numMovimenti = $entries->count();
 
         // ══════════════════════════════════════════════════════════════
-        // 3. Raggruppa movimenti per giornata
+        // 3. KPI: Usa valori ufficiali del documento, fallback su movimenti
+        // ══════════════════════════════════════════════════════════════
+        $totalDare  = $docTotaleDare  ?? round($entries->sum('dare'), 2);
+        $totalAvere = $docTotaleAvere ?? round($entries->sum('avere'), 2);
+
+        // Saldo iniziale/finale: riepilogo > entry > null
+        $saldoIniziale = $docSaldoIniziale ?? $entrySaldoIniziale;
+        $saldoFinale   = $docSaldoFinale   ?? $entrySaldoFinale;
+
+        // ══════════════════════════════════════════════════════════════
+        // 4. Raggruppa movimenti per giornata
         // ══════════════════════════════════════════════════════════════
         $daily = [];
         foreach ($realEntries as $entry) {
@@ -309,25 +333,24 @@ SYS;
         usort($dailyArr, fn($a, $b) => strcmp($a['date'], $b['date']));
 
         // ══════════════════════════════════════════════════════════════
-        // 4. Ricostruisci saldi giornalieri dai movimenti + ancore
-        //    NON usa i valori saldo forniti dall'AI per singolo movimento
+        // 5. Ricostruisci saldi giornalieri
+        //    Priorità: saldo_iniziale (forward) > saldo_finale (backward) > da 0
         // ══════════════════════════════════════════════════════════════
-        if ($saldoFinale !== null) {
-            // Ricostruisci all'indietro dal saldo finale
-            $runSaldo = $saldoFinale;
-            for ($i = count($dailyArr) - 1; $i >= 0; $i--) {
-                $dailyArr[$i]['saldo'] = round($runSaldo, 2);
-                // Annulla i movimenti del giorno per ottenere il saldo di fine giorno precedente
-                $runSaldo = $runSaldo - $dailyArr[$i]['avere_tot'] + $dailyArr[$i]['dare_tot'];
-            }
-        } elseif ($saldoIniziale !== null) {
-            // Ricostruisci in avanti dal saldo iniziale
+        if ($saldoIniziale !== null) {
+            // PRIORITÀ 1: Ricostruisci in avanti dal saldo iniziale ufficiale
             $runSaldo = $saldoIniziale;
             foreach ($dailyArr as &$d) {
                 $runSaldo = $runSaldo + $d['avere_tot'] - $d['dare_tot'];
                 $d['saldo'] = round($runSaldo, 2);
             }
             unset($d);
+        } elseif ($saldoFinale !== null) {
+            // PRIORITÀ 2: Ricostruisci all'indietro dal saldo finale
+            $runSaldo = $saldoFinale;
+            for ($i = count($dailyArr) - 1; $i >= 0; $i--) {
+                $dailyArr[$i]['saldo'] = round($runSaldo, 2);
+                $runSaldo = $runSaldo - $dailyArr[$i]['avere_tot'] + $dailyArr[$i]['dare_tot'];
+            }
         } else {
             // Nessuna ancora disponibile: ricostruisci cumulativamente da 0
             $runSaldo = 0;
