@@ -546,4 +546,288 @@ class PDFController extends Controller
 
 
     }
+
+
+    /* ============================================================
+     *  RELAZIONI FORMALI SU CARTA INTESTATA ADA
+     * ============================================================ */
+
+    /**
+     * Relazione Formale — Analisi di Bilancio
+     */
+    public function reportBilancioFormale($id)
+    {
+        $document = Document::findOrFail($id);
+
+        $filePath = base_path() . '/public/bilanci/' . $document->filename;
+        $taxonomyName = $document->taxonomy;
+        $emptyInstance = false;
+        $taxonomyPath = base_path() . "/taxonomies/2018-11-04/" . $taxonomyName;
+        $readXBRL = \XBRL_Instance::FromInstanceDocument($filePath, $taxonomyPath, $emptyInstance);
+
+        $bilanciHelper = new BilanciHelper;
+        $bilancioAnalisi = $bilanciHelper->getIndexesForBalanceTaxonomy($document->id, $filePath, $readXBRL, $document->codice_documento, false);
+
+        $nomeAzienda = $document->nome_azienda;
+        $formaGiuridica = $document->forma_giuridica;
+        $tipoAzienda = $document->tipo_azienda;
+        $annoInizio = $document->anno_inizio;
+        $annoFine = $document->anno_fine;
+
+        $datiImpresa = [
+            'idDocumento' => $id,
+            'ragione_sociale' => $nomeAzienda,
+            'tipologia_impresa' => $formaGiuridica,
+            'settore' => $tipoAzienda,
+            'data_chiusura' => $annoInizio,
+            'data_ultima' => $annoFine,
+            'bilancioAnalisi' => $bilancioAnalisi,
+        ];
+
+        $pdf = PDF::loadView('frontend.reportBilancioFormale', ['datiImpresa' => $datiImpresa])->setPaper('A4');
+        return $pdf->stream('Relazione_Bilancio_' . $id . '.pdf', array('Attachment' => 0));
+    }
+
+    /**
+     * Relazione Formale — Centrale Rischi Andamentale
+     */
+    public function reportCRFormale($period, $data_inizio = false, $data_fine = false, $inputBanks = null)
+    {
+        $crAndamentaleData['period'] = $period;
+        $crAndamentaleData['data_inizio'] = $data_inizio;
+        $crAndamentaleData['data_fine'] = $data_fine;
+
+        unset($crAndamentaleData['_token']);
+
+        if (!isset($crAndamentaleData['period'])) {
+            return response()->json(['error' => true, 'message' => 'Invalid period specified'], 400);
+        }
+
+        $categories = array('RISCHI A SCADENZA', 'RISCHI AUTOLIQUIDANTI', 'RISCHI A REVOCA', 'SOFFERENZE');
+        $crHelper = new CrExtractorHelper;
+
+        if (cr::select('date')->where('document_id', $crAndamentaleData['period'])->count() == 0) {
+            return response()->json(['error' => true, 'message' => 'Invalid period specified'], 400);
+        }
+
+        if (!$crAndamentaleData['data_inizio'] || !$crAndamentaleData['data_fine']) {
+            $lastDate = new DateTime(cr::select('date')->where('document_id', $crAndamentaleData['period'])->orderBy('date', 'desc')->first()->date);
+            $lastDate = $lastDate->modify('last day of this month')->format('Y-m-d');
+            $earlierDate = new DateTime(cr::select('date')->where('document_id', $crAndamentaleData['period'])->orderBy('date', 'desc')->first()->date);
+            $earlierDate = $earlierDate->modify('-12 months')->modify('first day of this month');
+        } else {
+            if (!is_numeric($crAndamentaleData['data_inizio']) || !is_numeric($crAndamentaleData['data_fine'])) {
+                return response()->json(['error' => true, 'message' => 'Invalid data range specified'], 400);
+            }
+            $earlierDate = new DateTime('@' . $crAndamentaleData['data_inizio']);
+            $earlierDate = $earlierDate->modify('first day of this month')->format('Y-m-d');
+            $lastDate = new DateTime('@' . $crAndamentaleData['data_fine']);
+            $lastDate = $lastDate->modify('last day of this month')->format('Y-m-d');
+        }
+
+        $lastAvailableDate = new DateTime(cr::select('date')->where('document_id', $crAndamentaleData['period'])->orderBy('date', 'asc')->first()->date);
+        $lastAvailableDate = $lastAvailableDate->modify('first day of this month')->format('Y-m-d');
+        $firstAvailableDate = new DateTime(cr::select('date')->where('document_id', $crAndamentaleData['period'])->orderBy('date', 'desc')->first()->date);
+        $firstAvailableDate = $firstAvailableDate->modify('last day of this month')->format('Y-m-d');
+
+        $unrefinedPeriods = json_decode(DB::table('crs')
+            ->select('anno', 'mese', 'date')
+            ->where("date", '>', $earlierDate)->where("date", '<', $lastDate)
+            ->where('document_id', $crAndamentaleData['period'])
+            ->groupBy('date', 'anno', 'mese')
+            ->orderBy('date')
+            ->get(), true);
+
+        if (empty($unrefinedPeriods)) {
+            return response()->json(['error' => true, 'message' => 'No data available in this period range']);
+        }
+
+        $periods = $crHelper->getCleanPeriods($unrefinedPeriods);
+        $crHelper->setPeriod($periods);
+        $periodsCorrect = $crHelper->buildPeriodArray();
+        $crHelper->setDocumentId($crAndamentaleData['period']);
+        $banks = $crHelper->getGeneratedbanks($inputBanks, $crAndamentaleData, $periodsCorrect, $categories);
+
+        $latestYear = array_key_last($periods);
+        $latestMonth = array_key_last($periods[$latestYear]);
+        $earliestYear = array_key_first($periods);
+        $earliestMonth = array_key_first($periods[$earliestYear]);
+        $finePeriodo = $latestMonth . ' ' . $latestYear;
+        $inizioPeriodo = $earliestMonth . ' ' . $earliestYear;
+
+        $intermediari = $crHelper->getCountBanks($banks);
+        $numeroSconfiniTotali = $crHelper->getTotaleSconfini($banks);
+        $sofferenze = $crHelper->getSofferenze($banks);
+        $creditiPassatiPerdita = $crHelper->getCreditiPassatiPerdita($banks);
+        $scoreCR = $crHelper->getScoring($banks, $intermediari, $numeroSconfiniTotali, $sofferenze, $creditiPassatiPerdita);
+        $creditiContestati = $crHelper->getCreditiContestati($banks);
+        $numeroRapportiContestati = count($creditiContestati);
+        $impagati = $crHelper->getAlertImpagati($banks);
+        $garanzieEsitoNegativo = $crHelper->getGaranzieEsitoNegativo($banks);
+
+        $scoreCR = number_format($scoreCR, 2, ',', '.');
+        $finalScoreMoltiplied = (float) str_replace(',', '.', $scoreCR) * 10;
+
+        $response = [
+            'Scoring' => [
+                'Panoramica' => [
+                    'PeriodoRiferimento' => [
+                        'Inizio' => ucFirst($inizioPeriodo),
+                        'Fine' => ucFirst($finePeriodo),
+                    ],
+                    'NumeroIntermediari' => $intermediari,
+                    'NumeroPosizioniContestate' => $numeroRapportiContestati,
+                    'FinalScore' => number_format($finalScoreMoltiplied, 2, ',', '.')
+                ],
+                'AnomalieUtilizzi' => [
+                    'TensioneAutoliquidanti' => $numeroSconfiniTotali['Tensioni']['RISCHI AUTOLIQUIDANTI'],
+                    'TensioneRevoca' => $numeroSconfiniTotali['Tensioni']['RISCHI A REVOCA'],
+                    'TensioneScadenza' => $numeroSconfiniTotali['Tensioni']['RISCHI A SCADENZA'],
+                ],
+                'AnomalieLievi' => [
+                    'Impagati' => $impagati,
+                    'Sconfini' => $numeroSconfiniTotali['PresenzaSconfini'],
+                    'NumeroSconfiniPerTipo' => $numeroSconfiniTotali['CountSconfiniPerCategoria'],
+                ],
+                'AnomalieQuasiPregiudizievoli' => [
+                    'SconfiniEntroNovantaGiorni' => (!empty($numeroSconfiniTotali['SconfiniEntro90Giorni'])),
+                    'SconfiniEntroCentoOttantaGiorni' => (!empty($numeroSconfiniTotali['SconfiniOltre90Giorni'])),
+                    'SconfiniOltreCentoOttantaGiorni' => (!empty($numeroSconfiniTotali['SconfiniOltre180Giorni'])),
+                ],
+                'AnomaliePregiudizievoli' => [
+                    'GaranzieAttivateEsitoNegativo' => ($garanzieEsitoNegativo > 0),
+                    'Sofferenze' => (!empty($sofferenze)),
+                    'CreditiPassatiPerdita' => (!empty($creditiPassatiPerdita)),
+                ],
+            ],
+        ];
+
+        $pdf = PDF::loadView('frontend.reportCRFormale', ['response' => $response])->setPaper('A4');
+        return $pdf->stream('Relazione_CR_' . $period . '.pdf', array('Attachment' => 0));
+    }
+
+    /**
+     * Relazione Formale — Analisi di Allerta
+     */
+    public function reportAllertaFormale($idBilancio, $idCr)
+    {
+        if (cr::where('document_id', $idCr)->get()->count() == 0 || !isset($idCr)) {
+            return response()->json(['error' => true, 'message' => 'Non è stata trovata nessuna Centrale Rischi'], 400);
+        }
+
+        if (Document::where('id', $idBilancio)->where('type', 'bilancio')->get()->count() == 0 || !isset($idBilancio)) {
+            return response()->json(['error' => true, 'message' => 'Non è stato trovato nessun Bilancio'], 400);
+        }
+
+        $allertaHelper = new AllertaHelper;
+        $allertaHelper->setDocumentId($idCr);
+        $getDate = $allertaHelper->getDate($idCr);
+
+        $crHelper = new CrExtractorHelper;
+        $crHelper->setPeriod($getDate['periods']);
+        $crHelper->setDocumentId($idCr);
+        $allertaHelper->setCrExtractor($crHelper);
+
+        $bilancioHelper = new BilanciHelper;
+        $bilancioData = $bilancioHelper->getIndexesForBalanceTaxonomy($idBilancio, false, false, false, false);
+        $valutazioneBilancio = $bilancioHelper->valutazioneIndici($bilancioData['Indici']['Advanced'], 'Comemrcio', date('Y'));
+        $bilancioData['ValutazioneGenerale'] = $valutazioneBilancio;
+
+        $ASISfinalScore = false;
+        $scoreASIS = array('1' => 0, '2' => 0, '3' => 0, '4' => 0);
+        $scoreFL = array('Giudizio' => '', 'Valore' => '0');
+
+        $periods = $getDate['periods'];
+        $latestYear = $getDate['latestYear'];
+        $latestMonth = $getDate['latestMonth'];
+        $categories = $getDate['categories'];
+        $upperBoundDate = $getDate['upperBoundDate'];
+        $lowerBoundDate = $getDate['lowerBoundDate'];
+        $lastYearPeriod = $periods;
+        $banks = cr::select('nome_banca')->where('document_id', $idCr)->where('date', '>=', $lowerBoundDate->format('Y-m-d'))->where('date', '<=', $upperBoundDate->format('Y-m-d'))->distinct()->get()->pluck('nome_banca')->toArray();
+
+        $trimestrePeriod = $allertaHelper->getTrimestrePeriod($periods);
+        $triennioPeriod = $allertaHelper->getTriennioPeriod($periods, $banks);
+        $crHelper->setPeriod($lastYearPeriod);
+        $sofferenze = $crHelper->getSofferenze($banks);
+        $sconfini = $crHelper->getTotaleSconfini($banks);
+        $countBanks = $crHelper->getCountBanks($banks);
+        $creditiPassatiPerdita = $crHelper->getCreditiPassatiPerdita($banks);
+        $scoreCR = $crHelper->getScoring($banks, $countBanks, $sconfini, $sofferenze, $creditiPassatiPerdita);
+
+        // ALERTS CENTRALE RISCHI GENERAL
+        $alerts = array();
+        $alerts['1'] = $allertaHelper->getAnalisiCRUno($banks);
+        $alerts['2'] = $allertaHelper->getAnalisiCRDue($banks);
+        $alerts['3'] = $allertaHelper->getAnalisiCRTre($banks);
+        $alerts['4'] = $allertaHelper->getAnalisiCRQuattro($triennioPeriod, $trimestrePeriod, $latestYear, $latestMonth, $categories);
+        $alerts['5'] = $allertaHelper->getAnalisiCRCinque($periods);
+        $alerts['6'] = $allertaHelper->getAnalisiCRSei($lastYearPeriod, array('RISCHI AUTOLIQUIDANTI'), $banks);
+        $alerts['7'] = $allertaHelper->getAnalisiCRSette($lastYearPeriod);
+        $alerts['8'] = $allertaHelper->getAnalisiCROtto($lastYearPeriod, $latestYear, $latestMonth, $trimestrePeriod, $triennioPeriod);
+        $alerts['9'] = $allertaHelper->getAnalisiCRNove($lastYearPeriod, $latestYear, $latestMonth);
+        $alerts['10'] = $allertaHelper->getAnalisiCRDieci($triennioPeriod, $latestYear, $latestMonth);
+        $alerts['11'] = $allertaHelper->getAnalisiCRUndici($triennioPeriod, $trimestrePeriod, $lastYearPeriod, $latestYear, $latestMonth, array('RISCHI A REVOCA'));
+        $alerts['12'] = $allertaHelper->getAnalisiCRDodici($triennioPeriod, $trimestrePeriod, $lastYearPeriod, $latestYear, $latestMonth, array('RISCHI AUTOLIQUIDANTI', 'RISCHI AUTOLIQUIDANTI - CREDITI SCADUTI'), $banks);
+        $alerts['13'] = $allertaHelper->getAnalisiCRTredici($triennioPeriod, $trimestrePeriod, $lastYearPeriod, $latestYear, $latestMonth, $categories, $banks);
+        $alerts['14'] = $allertaHelper->getAnalisiCRQuattordici($banks);
+        $alerts['15'] = $allertaHelper->getAnalisiCRQuindici($banks);
+        $alerts['16'] = $allertaHelper->getAnalisiCRSedici($banks);
+        $punteggioCR = $allertaHelper->getPunteggioCR($alerts);
+
+        $arrayQuestionario = $allertaHelper->getArrayQuestionarioAsIs($idBilancio, $idCr);
+        $arrayForwardLooking = $allertaHelper->getArrayQuestionarioToBe($idBilancio, $idCr);
+
+        if (count($arrayQuestionario) > 0) {
+            $scoreASIS = $allertaHelper->valutazioneQuestionarioQualitativo($arrayQuestionario);
+        }
+
+        if (count($arrayForwardLooking) == 12) {
+            $scoreFL = $allertaHelper->valutazioneFL($arrayForwardLooking);
+        }
+
+        $ASISfinalScore = $allertaHelper->getAsIsFinalScore($bilancioData['ValutazioneGenerale'], $scoreCR, $scoreASIS);
+        $getScoreHelper = $allertaHelper->getScores($punteggioCR, $bilancioData['ValutazioneGenerale'], $scoreASIS, $ASISfinalScore, $scoreFL);
+
+        $dataAllerta = [
+            'error' => false,
+            'pageData' => [
+                'scoreCR' => number_format($scoreCR, 2, ',', '.'),
+                'crAlerts' => $alerts,
+                'arrayQuestionarioAsIs' => $arrayQuestionario,
+                'arrayForwardLookingToBe' => $arrayForwardLooking,
+                'bilancioData' => $bilancioData,
+                'ValutazioneGeneraleBilancio' => $bilancioData['ValutazioneGenerale'],
+                'FinalScore' => $getScoreHelper['FinalScore']
+            ],
+            'GeneralScore' => [
+                'Giudizio Centrale Rischi' => $getScoreHelper['resultCentraleRischi'],
+                'Giudizio Bilancio' => $getScoreHelper['resultAnalisiBilancio'],
+                'Minacce rapporti commerciali' => $getScoreHelper['resultMinacceRapportiCommerciali'],
+                'Minacce gestione aziendale' => $getScoreHelper['resultMinacceGestioneAziendale'],
+                'Minacce da eventi pregiudizievoli' => $getScoreHelper['resultMinacceEventiPregiudizievoli'],
+                'Minacce erariali e rischi caratteristici' => $getScoreHelper['resultMinacceRischiCaratteristici'],
+                'Profilo rischio AS IS' => $getScoreHelper['ASISScore'],
+                'Questionario TO BE' => $getScoreHelper['scoreGiudizioFL'],
+            ],
+        ];
+
+        $arrayAnwersForwarLooking = [
+            "forwardLooking1" => [1 => "Costante", 2 => "In aumento", 3 => "In diminuizione"],
+            "forwardLooking2" => [1 => "Si, per nuovi investimenti", 2 => "Si, perchè serve liquidità", 3 => "No"],
+            "forwardLooking3" => [1 => "Costante", 2 => "In aumento", 3 => "In diminuizione"],
+            "forwardLooking4" => [1 => "Fra 10 e 30", 2 => "Più di 30", 3 => "Meno di 10"],
+            "forwardLooking5" => [1 => "Su base pluriennale", 2 => "Su base annuale", 3 => "No"],
+            "forwardLooking6" => [1 => "Si, ma non rilevanti", 2 => "Si", 3 => "No"],
+            "forwardLooking7" => [1 => "Si, per aumento previsto di utilizzi", 2 => "Si, li usiamo sempre al limite", 3 => "No"],
+            "forwardLooking8" => [1 => "Si", 2 => "Forse si, ma potrebbero esserci difficoltà", 3 => "No, serve sicuramente liquidità"],
+            "forwardLooking9" => [1 => "Si", 2 => "No", 3 => "Probabilmente si"],
+            "forwardLooking10" => [1 => "Si, i tempi di pagamento ai fornitori sono più corti", 2 => "No"],
+            "forwardLooking11" => [1 => "Si", 2 => "Si, ma evitabili", 3 => "No"],
+            "forwardLooking12" => [1 => "Si, usiamo sempre al limite le disponibilità", 2 => "Si, prevediamo maggior utilizzo", 3 => "No"]
+        ];
+
+        $pdf = PDF::loadView('frontend.reportAllertaFormale', ['dati' => $dataAllerta, 'risposte' => $arrayAnwersForwarLooking])->setPaper('A4');
+        return $pdf->stream('Relazione_Allerta_' . $idBilancio . '_' . $idCr . '.pdf', array('Attachment' => 0));
+    }
 }
