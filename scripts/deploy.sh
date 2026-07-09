@@ -59,6 +59,9 @@ do_deploy() {
     $PHP artisan view:cache 2>&1 || true
     $PHP artisan storage:link 2>&1 || true
 
+    # Restart queue worker per caricare nuovo codice
+    sudo systemctl restart ada-queue-worker 2>&1 || true
+
     echo "${LOG_PREFIX} ✅ Deploy OK → $(git rev-parse --short HEAD)"
     echo "───────────────────────────────────────"
 }
