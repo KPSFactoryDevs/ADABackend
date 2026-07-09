@@ -139,6 +139,14 @@ class BilanciController extends Controller
                     ]);
                 }
 
+                $bilancioAnalisi = $bilanciHelper->getIndexesForBalanceTaxonomy($document->id, $filePath, $readXBRL, $document->codice_documento, $userID);
+
+                // Calcola lo score complessivo (scala 0-1) e aggiungilo alla response
+                $valutazione = $bilanciHelper->valutazioneComplessivaBilancio($bilancioAnalisi, 'Commercio', date('Y'));
+                $bilancioAnalisi['Score'] = $valutazione['Score'];
+                $bilancioAnalisi['Giudizio'] = $valutazione['Giudizio'];
+                $bilancioAnalisi['ScoreDettaglio'] = $valutazione['Dettaglio'] ?? null;
+
                 return response()->json([
                     'exception' => false,
                     'nome_azienda' => $nomeAzienda,
@@ -147,7 +155,7 @@ class BilanciController extends Controller
                     'idDocumento' => $document->id,
                     'renderHTML' => $renderHTML,
                     'bilancioJSON' => $bilancioJSON,
-                    'bilancioAnalisi' => $bilanciHelper->getIndexesForBalanceTaxonomy($document->id, $filePath, $readXBRL, $document->codice_documento, $userID),
+                    'bilancioAnalisi' => $bilancioAnalisi,
                 ], 200);
             } else {
                 return response()->json([

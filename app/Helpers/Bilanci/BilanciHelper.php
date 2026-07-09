@@ -99,29 +99,29 @@ class BilanciHelper
                 'OF Ricavi' => $calculationHelper->getOfRicavi(),
                 'Adeguatezza Patrimoniale' => $calculationHelper->getAdeguatezzaPatrimoniale(),
                 'Liquidità' => $calculationHelper->getLiquidita(),
-                'Andamento Del Fatturato' => $calculationHelper->getAndamentoDelFatturato(),
-                'Andamento Del Mol' => ($calculationHelper->getAndamentoDelMol('Andamento Del Mol')) ? $calculationHelper->getAndamentoDelMol('Andamento Del Mol')['AndamentoMOL'] : false,
+                'Andamento del fatturato' => $calculationHelper->getAndamentoDelFatturato(),
+                'Andamento del MOL' => ($calculationHelper->getAndamentoDelMol('Andamento Del Mol')) ? $calculationHelper->getAndamentoDelMol('Andamento Del Mol')['AndamentoMOL'] : false,
                 'ROI' => $calculationHelper->getROI(),
                 'ROS' => $calculationHelper->getROS(),
                 'ROE' => $calculationHelper->getROE(),
-                'Ebitda Fatturato' => $calculationHelper->getEbitdaFatturato(),
-                'Andamento Dei Mezzi Propri' => $calculationHelper->getAndamentoDeiMezziPropri(),
+                'EBITDA Fatturato' => $calculationHelper->getEbitdaFatturato(),
+                'Andamento dei mezzi propri' => $calculationHelper->getAndamentoDeiMezziPropri(),
                 'Margine Struttura Primario' => $calculationHelper->getMargineStrutturaPrimario(),
                 'Margine Struttura Secondario' => $calculationHelper->getMargineStrutturaSecondario(),
                 'Current Ratio' => $calculationHelper->getCurrentRatio(),
                 'Attivita Passivita a Breve' => ($calculationHelper->getAttivitaPassivitaABreve('Attivita Passivita a Breve')) ? $calculationHelper->getAttivitaPassivitaABreve('Attivita Passivita a Breve')['Attivita_a_breve_Passività_a_Breve_Ordinario'] : false,
                 'Acid Test' => $calculationHelper->getAcidTest(),
                 'Acid Test Ordinario' => $calculationHelper->getAcidTestOrdinario(),
-                'Autonomia Finanziari' => $calculationHelper->getAutonomiaFinanziaria(),
-                'Livello Investimenti Aziendali' => $calculationHelper->getLivelloInvestimentiAziendali(),
-                'Pfn Ebitda' => $calculationHelper->getPfnEbitda(),
+                'Autonomia Finanziaria' => $calculationHelper->getAutonomiaFinanziaria(),
+                'Livello investimenti aziendali' => $calculationHelper->getLivelloInvestimentiAziendali(),
+                'PFN EBITDA' => $calculationHelper->getPfnEbitda(),
                 'Peso Oneri Finanziari' => $calculationHelper->getPesoOneriFinanziari(),
-                'Copertura Lorda Degli Oneri Finanziari' => $calculationHelper->getCoperturaLordaDegliOneriFinanziari(),
-                'Ebit Of' => $calculationHelper->getEbitOf(),
+                'Copertura Lorda OF' => $calculationHelper->getCoperturaLordaDegliOneriFinanziari(),
+                'EBIT OF' => $calculationHelper->getEbitOf(),
                 'Costo Del Personale' => $calculationHelper->getCostoDelPersonale(),
-                'Cf Attivo' => $calculationHelper->getCfAttivo(),
-                'Indice Di Indebitamento' => $calculationHelper->getIndiceDiIndebitamento(),
-                'Saldo Debiti Vs Fisco' => $calculationHelper->getSaldoDebitiVsFisco(),
+                'CF Attivo' => $calculationHelper->getCfAttivo(),
+                'Indice di Indebitamento' => $calculationHelper->getIndiceDiIndebitamento(),
+                'Saldo dei Debiti verso il Fisco' => $calculationHelper->getSaldoDebitiVsFisco(),
             ]
         ];
 
@@ -190,29 +190,29 @@ class BilanciHelper
                 'OF Ricavi' => $calculationHelper->getOfRicavi(),
                 'Adeguatezza Patrimoniale' => $calculationHelper->getAdeguatezzaPatrimoniale(),
                 'Liquidità' => $calculationHelper->getLiquidita(),
-                'Andamento Del Fatturato' => $calculationHelper->getAndamentoDelFatturato(),
-                'Andamento Del Mol' => ($calculationHelper->getAndamentoDelMol('Andamento Del Mol')) ? $calculationHelper->getAndamentoDelMol('Andamento Del Mol')['AndamentoMOL'] : false,
+                'Andamento del fatturato' => $calculationHelper->getAndamentoDelFatturato(),
+                'Andamento del MOL' => ($calculationHelper->getAndamentoDelMol('Andamento Del Mol')) ? $calculationHelper->getAndamentoDelMol('Andamento Del Mol')['AndamentoMOL'] : false,
                 'ROI' => $calculationHelper->getROI(),
                 'ROS' => $calculationHelper->getROS(),
                 'ROE' => $calculationHelper->getROE(),
-                'Ebitda Fatturato' => $calculationHelper->getEbitdaFatturato(),
-                'Andamento Dei Mezzi Propri' => $calculationHelper->getAndamentoDeiMezziPropri(),
+                'EBITDA Fatturato' => $calculationHelper->getEbitdaFatturato(),
+                'Andamento dei mezzi propri' => $calculationHelper->getAndamentoDeiMezziPropri(),
                 'Margine Struttura Primario' => $calculationHelper->getMargineStrutturaPrimario(),
                 'Margine Struttura Secondario' => $calculationHelper->getMargineStrutturaSecondario(),
                 'Current Ratio' => $calculationHelper->getCurrentRatio(),
                 'Attivita Passivita a Breve' => ($calculationHelper->getAttivitaPassivitaABreve('Attivita Passivita a Breve')) ? $calculationHelper->getAttivitaPassivitaABreve('Attivita Passivita a Breve')['Attivita_a_breve_Passività_a_Breve_Ordinario'] : false,
                 'Acid Test' => $calculationHelper->getAcidTest(),
                 'Acid Test Ordinario' => $calculationHelper->getAcidTestOrdinario(),
-                'Autonomia Finanziari' => $calculationHelper->getAutonomiaFinanziaria(),
-                'Livello Investimenti Aziendali' => $calculationHelper->getLivelloInvestimentiAziendali(),
-                'Pfn Ebitda' => $calculationHelper->getPfnEbitda(),
+                'Autonomia Finanziaria' => $calculationHelper->getAutonomiaFinanziaria(),
+                'Livello investimenti aziendali' => $calculationHelper->getLivelloInvestimentiAziendali(),
+                'PFN EBITDA' => $calculationHelper->getPfnEbitda(),
                 'Peso Oneri Finanziari' => $calculationHelper->getPesoOneriFinanziari(),
-                'Copertura Lorda Degli Oneri Finanziari' => $calculationHelper->getCoperturaLordaDegliOneriFinanziari(),
-                'Ebit Of' => $calculationHelper->getEbitOf(),
+                'Copertura Lorda OF' => $calculationHelper->getCoperturaLordaDegliOneriFinanziari(),
+                'EBIT OF' => $calculationHelper->getEbitOf(),
                 'Costo Del Personale' => $calculationHelper->getCostoDelPersonale(),
-                'Cf Attivo' => $calculationHelper->getCfAttivo(),
-                'Indice Di Indebitamento' => $calculationHelper->getIndiceDiIndebitamento(),
-                'Saldo Debiti Vs Fisco' => $calculationHelper->getSaldoDebitiVsFisco(),
+                'CF Attivo' => $calculationHelper->getCfAttivo(),
+                'Indice di Indebitamento' => $calculationHelper->getIndiceDiIndebitamento(),
+                'Saldo dei Debiti verso il Fisco' => $calculationHelper->getSaldoDebitiVsFisco(),
             ]
         ];
 
@@ -250,7 +250,7 @@ class BilanciHelper
         }
 
         foreach ($data as $label => $value) {
-            if (!$value) {
+            if ($value === false || $value === null) {
                 $arrayGiudizi[$label] = false;
                 continue;
             }
@@ -280,10 +280,12 @@ class BilanciHelper
                     $arrayGiudizi[$label]['Scoring'] = 0.0426 * 1;
                     $arrayGiudizi[$label]['Giudizio'] = 'Ottimo';
                 }
+
+                if (isset($arrayGiudizi[$label]['Scoring'])) {
+                    $arrayGiudizi[$label]['Scoring'] = number_format($arrayGiudizi[$label]['Scoring'], 2, ',', '.');
+                }
+                continue; // ROE ha logica custom, skip DB lookup
             }
-
-
-
             //  $arraySoglie[$label] = range::where([['range_min', '<', $arrayIndici[$label]], ['range_max', '>', $arrayIndici[$label]], ['indice', '=', $label], ['tipo_azienda', '=', $tipoAzienda]])->with('pesi')->get();
             $arraySoglie[$label] = range::where(
                 [['range_min', '<', $arrayIndici[$label]], ['range_max', '>', $arrayIndici[$label]], ['indice', '=', $label], ['tipo_azienda', '=', 'Generica']]
@@ -309,6 +311,144 @@ class BilanciHelper
         return array("Score" => number_format($scoringAreaBilancio, 2, ',', '.'), "Giudizi" => $arrayGiudizi);
     }
 
+    /**
+     * Valutazione complessiva del bilancio su scala 0-1.
+     *
+     * Combina quattro componenti con i seguenti pesi:
+     *   - Indici Basic  (CNDCEC)       → peso 0.45
+     *   - Indici Advanced               → peso 0.25
+     *   - Questionari Allerta           → peso 0.20
+     *   - Completezza dati             → peso 0.10
+     *
+     * @param array  $bilancioData   Risultato di getIndexesForBalanceTaxonomy()
+     * @param string $tipoAzienda    Tipo azienda (Commercio, Industria, Servizi)
+     * @param string $currentYear    Anno corrente
+     * @return array  ['Score' => string(0-1), 'Giudizio' => string, 'Giudizi' => array, 'Dettaglio' => array]
+     */
+    public function valutazioneComplessivaBilancio($bilancioData, $tipoAzienda, $currentYear)
+    {
+        $basicIndices  = $bilancioData['Indici']['Basic'] ?? [];
+        $advIndices    = $bilancioData['Indici']['Advanced'] ?? [];
+        $questionari   = $bilancioData['Questionari'] ?? [];
+
+        // ── 1) Indici Basic (peso 0.45) ──
+        // Ogni indice Basic restituisce { fuoriSoglia: bool, value: mixed } o false
+        $basicEvaluable = 0;
+        $basicOk = 0;
+        foreach ($basicIndices as $label => $indexData) {
+            if ($label === 'Indice CNDCEC') continue; // È l'indice riassuntivo, trattato a parte
+            if ($indexData === false || $indexData === null) continue;
+            if (!is_array($indexData)) continue;
+
+            $basicEvaluable++;
+            if (isset($indexData['fuoriSoglia']) && $indexData['fuoriSoglia'] === false) {
+                $basicOk++;
+            }
+        }
+
+        // L'indice CNDCEC ha peso doppio (come nel frontend)
+        $summaryWeight = 0;
+        $summaryOk = 0;
+        if (isset($basicIndices['Indice CNDCEC']) && $basicIndices['Indice CNDCEC'] !== false) {
+            $cndcec = $basicIndices['Indice CNDCEC'];
+            $summaryWeight = 2;
+            if (is_array($cndcec) && isset($cndcec['fuoriSoglia'])) {
+                $summaryOk = $cndcec['fuoriSoglia'] ? 0 : 2;
+            }
+        }
+
+        $basicTotal = $basicEvaluable + $summaryWeight;
+        $basicScore = $basicTotal > 0
+            ? (($basicOk + $summaryOk) / $basicTotal)
+            : 0;
+
+        // ── 2) Indici Advanced (peso 0.25) ──
+        // Riusa la valutazioneIndici esistente per coerenza col DB dei range/pesi
+        $advValutazione = $this->valutazioneIndici($advIndices, $tipoAzienda, $currentYear);
+        $advRawScore = (float) str_replace(',', '.', $advValutazione['Score']);
+        // Normalizza a 0-1: il max teorico di valutazioneIndici è ~1.0
+        $advScore = min(1.0, $advRawScore);
+
+        // ── 3) Questionari Allerta (peso 0.20) ──
+        // Questionari: Agenzia delle Entrate, INPS, Agente della Riscossione,
+        //              Debiti per Retribuzioni, Debiti verso Fornitori
+        $qKeys = ['Agenzia delle Entrate', 'INPS', 'Agente della Riscossione', 'Debiti per Retribuzioni', 'Debiti verso Fornitori'];
+        $qEvaluable = 0;
+        $qOk = 0;
+        foreach ($qKeys as $qKey) {
+            if (!isset($questionari[$qKey]) || $questionari[$qKey] === false) continue;
+            $qData = $questionari[$qKey];
+            if (!is_array($qData) && !is_object($qData)) continue;
+
+            // Cerca il campo alert
+            $alertVal = null;
+            if (is_object($qData)) $qData = (array) $qData;
+            $alertVal = $qData['alert'] ?? $qData['alertAgenziaEntrate'] ?? $qData['alertINPS']
+                ?? $qData['alertRiscossione'] ?? $qData['alertRetribuzioni'] ?? $qData['alertFornitori'] ?? null;
+
+            if ($alertVal === null || strtolower((string) $alertVal) === 'dati mancanti') continue;
+
+            $qEvaluable++;
+            if (strtolower((string) $alertVal) === 'no') {
+                $qOk++;
+            }
+        }
+        $qScore = $qEvaluable > 0 ? ($qOk / $qEvaluable) : 0;
+
+        // ── 4) Completezza dati (peso 0.10) ──
+        // Proporzione di indici non mancanti + proporzione questionari compilati
+        $totalIndices = count($basicIndices) + count($advIndices);
+        $totalMissing = 0;
+        foreach ($basicIndices as $v) {
+            if ($v === false || $v === null) $totalMissing++;
+        }
+        foreach ($advIndices as $v) {
+            if ($v === false || $v === null) $totalMissing++;
+        }
+        $totalCompiled = $totalIndices - $totalMissing;
+        $dataCompleteness = $totalIndices > 0 ? ($totalCompiled / $totalIndices) : 0;
+        $qCompleteness = count($qKeys) > 0 ? ($qEvaluable / count($qKeys)) : 0;
+        $completenessScore = ($dataCompleteness * 0.6) + ($qCompleteness * 0.4); // contributo relativo
+
+        // ── Composizione finale (scala 0-1) ──
+        $compositeScore = ($basicScore * 0.45)
+                        + ($advScore * 0.25)
+                        + ($qScore * 0.20)
+                        + ($completenessScore * 0.10);
+
+        $compositeScore = max(0, min(1, $compositeScore));
+
+        // ── Classificazione ──
+        $rangeGiudizi = [
+            ['Min' => 0,    'Max' => 0.14, 'Giudizio' => 'Default'],
+            ['Min' => 0.14, 'Max' => 0.28, 'Giudizio' => 'Situazione Grave'],
+            ['Min' => 0.28, 'Max' => 0.42, 'Giudizio' => 'Alert'],
+            ['Min' => 0.42, 'Max' => 0.56, 'Giudizio' => 'Rischio alert'],
+            ['Min' => 0.56, 'Max' => 0.70, 'Giudizio' => 'Fragilità elevata'],
+            ['Min' => 0.70, 'Max' => 0.85, 'Giudizio' => 'Fragilità'],
+            ['Min' => 0.85, 'Max' => 1.01, 'Giudizio' => 'Solidità'],
+        ];
+
+        $giudizio = 'N/A';
+        foreach ($rangeGiudizi as $range) {
+            if ($compositeScore >= $range['Min'] && $compositeScore < $range['Max']) {
+                $giudizio = $range['Giudizio'];
+                break;
+            }
+        }
+
+        return [
+            'Score' => number_format($compositeScore, 2, ',', '.'),
+            'Giudizio' => $giudizio,
+            'Giudizi' => $advValutazione['Giudizi'],
+            'Dettaglio' => [
+                'basicScore' => round($basicScore, 4),
+                'advScore' => round($advScore, 4),
+                'qScore' => round($qScore, 4),
+                'completenessScore' => round($completenessScore, 4),
+            ],
+        ];
+    }
 
 
     public function saveAnalisiBasicToDB($allData, $idBilancio)
