@@ -35,3 +35,5 @@ npm-debug.log
 output.txt
 Thumbs.db
 yarn-error.log
+deploy.lock
+storage/logs/deploy.log
