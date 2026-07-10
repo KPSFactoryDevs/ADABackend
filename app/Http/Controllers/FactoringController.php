@@ -8,6 +8,7 @@ use App\Models\ClientDocument;
 use App\Models\Company;
 use App\Models\Invoice;
 use App\Services\FatturaPaParser;
+use App\Services\InvoicePdfExtractor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -96,67 +97,7 @@ class FactoringController extends Controller
                 $xmlContent = file_get_contents($file->getRealPath());
                 $parsed     = $parser->parse($xmlContent);
 
-                DB::transaction(function () use ($parsed, $userId, $companyId, $file, &$results) {
-                    // Il cessionario/committente è il cliente a cui è indirizzata la fattura
-                    $clientData = $parsed['cessionario'];
-
-                    // Cerca o crea il cliente
-                    $client = $this->findOrCreateClient($clientData, $userId, $companyId);
-
-                    // Salva le fatture
-                    $savedInvoices = [];
-                    foreach ($parsed['fatture'] as $fattura) {
-                        $invoice = Invoice::updateOrCreate(
-                            [
-                                'company_id' => $companyId,
-                                'direction'  => 'issued',
-                                'number'     => $fattura['numero'],
-                                'date'       => $fattura['data'],
-                                'client_vat' => $clientData['piva'],
-                            ],
-                            [
-                                'user_id'         => $userId,
-                                'client_id'       => $client->id,
-                                'document_number' => $fattura['numero'],
-                                'client_name'     => $clientData['nome'],
-                                'amount_net'      => $fattura['importo_netto'],
-                                'amount_gross'    => $fattura['importo_lordo'],
-                                'due_date'        => $fattura['scadenza'] ?: null,
-                                'payment_method'  => $fattura['metodo_pagamento'],
-                                'status'          => 'Esigibile',
-                            ]
-                        );
-                        $savedInvoices[] = $invoice;
-                    }
-
-                    // Salva il file XML come documento del cliente
-                    $storedPath = $file->store("client_documents/{$client->id}", 'local');
-
-                    ClientDocument::create([
-                        'client_id'         => $client->id,
-                        'user_id'           => $userId,
-                        'company_id'        => $companyId,
-                        'type'              => 'fattura_xml',
-                        'filename'          => basename($storedPath),
-                        'original_filename' => $file->getClientOriginalName(),
-                        'path'              => $storedPath,
-                        'mime_type'         => $file->getMimeType() ?: 'text/xml',
-                        'size'              => $file->getSize(),
-                        'extracted_data'    => $parsed,
-                    ]);
-
-                    // Aggiorna flag
-                    $client->update(['has_invoices' => true]);
-
-                    $results[] = [
-                        'file'           => $file->getClientOriginalName(),
-                        'client'         => $client->nome,
-                        'client_id'      => $client->id,
-                        'client_piva'    => $client->piva,
-                        'invoices_count' => count($savedInvoices),
-                        'cedente'        => $parsed['cedente']['nome'] ?? null,
-                    ];
-                });
+                $this->processAndSaveInvoice($parsed, $file, $userId, $companyId, 'fattura_xml', $results);
             } catch (\Exception $e) {
                 $errors[] = [
                     'file'    => $file->getClientOriginalName(),
@@ -171,6 +112,127 @@ class FactoringController extends Controller
             'results'  => $results,
             'failures' => $errors,
         ]);
+    }
+
+    /**
+     * POST /credito/invoices/upload-pdf
+     * Upload multiplo di PDF fattura → estrazione AI → creazione fatture + clienti.
+     */
+    public function uploadInvoicePdf(Request $request, InvoicePdfExtractor $extractor)
+    {
+        $request->validate([
+            'files'   => 'required|array|min:1',
+            'files.*' => 'required|file|mimes:pdf|max:20480', // max 20MB each
+        ]);
+
+        $userId    = Auth::guard('api')->id();
+        $companyId = (int) $request->header('CurrentCompany');
+
+        if (!$companyId) {
+            $company = Company::where('user_id', $userId)->first();
+            if (!$company) {
+                return response()->json(['message' => 'Crea prima un\'azienda dalle impostazioni'], 422);
+            }
+            $companyId = $company->id;
+        }
+
+        $results = [];
+        $errors  = [];
+
+        foreach ($request->file('files') as $file) {
+            try {
+                $parsed = $extractor->extract($file->getRealPath());
+
+                $this->processAndSaveInvoice($parsed, $file, $userId, $companyId, 'fattura_pdf', $results);
+            } catch (\Exception $e) {
+                $errors[] = [
+                    'file'    => $file->getClientOriginalName(),
+                    'message' => $e->getMessage(),
+                ];
+            }
+        }
+
+        return response()->json([
+            'success'  => count($results),
+            'errors'   => count($errors),
+            'results'  => $results,
+            'failures' => $errors,
+        ]);
+    }
+
+    /**
+     * Logica condivisa: salva i dati estratti (da XML o PDF) come Client + Invoice + ClientDocument.
+     */
+    private function processAndSaveInvoice(
+        array $parsed,
+        \Illuminate\Http\UploadedFile $file,
+        int $userId,
+        int $companyId,
+        string $docType,
+        array &$results
+    ): void {
+        DB::transaction(function () use ($parsed, $userId, $companyId, $file, $docType, &$results) {
+            // Il cessionario/committente è il cliente a cui è indirizzata la fattura
+            $clientData = $parsed['cessionario'];
+
+            // Cerca o crea il cliente
+            $client = $this->findOrCreateClient($clientData, $userId, $companyId);
+
+            // Salva le fatture
+            $savedInvoices = [];
+            foreach ($parsed['fatture'] as $fattura) {
+                $invoice = Invoice::updateOrCreate(
+                    [
+                        'company_id' => $companyId,
+                        'direction'  => 'issued',
+                        'number'     => $fattura['numero'],
+                        'date'       => $fattura['data'],
+                        'client_vat' => $clientData['piva'],
+                    ],
+                    [
+                        'user_id'         => $userId,
+                        'client_id'       => $client->id,
+                        'document_number' => $fattura['numero'],
+                        'client_name'     => $clientData['nome'],
+                        'amount_net'      => $fattura['importo_netto'],
+                        'amount_gross'    => $fattura['importo_lordo'],
+                        'due_date'        => $fattura['scadenza'] ?: null,
+                        'payment_method'  => $fattura['metodo_pagamento'],
+                        'status'          => 'Esigibile',
+                    ]
+                );
+                $savedInvoices[] = $invoice;
+            }
+
+            // Salva il file come documento del cliente
+            $storedPath = $file->store("client_documents/{$client->id}", 'local');
+
+            ClientDocument::create([
+                'client_id'         => $client->id,
+                'user_id'           => $userId,
+                'company_id'        => $companyId,
+                'type'              => $docType,
+                'filename'          => basename($storedPath),
+                'original_filename' => $file->getClientOriginalName(),
+                'path'              => $storedPath,
+                'mime_type'         => $file->getMimeType() ?: ($docType === 'fattura_pdf' ? 'application/pdf' : 'text/xml'),
+                'size'              => $file->getSize(),
+                'extracted_data'    => $parsed,
+            ]);
+
+            // Aggiorna flag
+            $client->update(['has_invoices' => true]);
+
+            $results[] = [
+                'file'           => $file->getClientOriginalName(),
+                'client'         => $client->nome,
+                'client_id'      => $client->id,
+                'client_piva'    => $client->piva,
+                'invoices_count' => count($savedInvoices),
+                'cedente'        => $parsed['cedente']['nome'] ?? null,
+                'source'         => $docType === 'fattura_pdf' ? 'AI' : 'XML',
+            ];
+        });
     }
 
     /**
