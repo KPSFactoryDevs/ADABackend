@@ -389,7 +389,7 @@ class PDFController extends Controller
         $bilancioHelper = new BilanciHelper;
         $bilancioData = $bilancioHelper->getIndexesForBalanceTaxonomy($idBilancio, false, false, false, false);
 
-        $valutazioneBilancio = $bilancioHelper->valutazioneComplessivaBilancio($bilancioData, 'Commercio', date('Y'));
+        $valutazioneBilancio = $bilancioHelper->valutazioneIndici($bilancioData['Indici']['Advanced'], 'Commercio', date('Y'));
 
         $bilancioData['ValutazioneGenerale'] = $valutazioneBilancio;
 
@@ -730,7 +730,7 @@ class PDFController extends Controller
 
         $bilancioHelper = new BilanciHelper;
         $bilancioData = $bilancioHelper->getIndexesForBalanceTaxonomy($idBilancio, false, false, false, false);
-        $valutazioneBilancio = $bilancioHelper->valutazioneComplessivaBilancio($bilancioData, 'Commercio', date('Y'));
+        $valutazioneBilancio = $bilancioHelper->valutazioneIndici($bilancioData['Indici']['Advanced'], 'Commercio', date('Y'));
         $bilancioData['ValutazioneGenerale'] = $valutazioneBilancio;
 
         $ASISfinalScore = false;

@@ -141,11 +141,11 @@ class BilanciController extends Controller
 
                 $bilancioAnalisi = $bilanciHelper->getIndexesForBalanceTaxonomy($document->id, $filePath, $readXBRL, $document->codice_documento, $userID);
 
-                // Calcola lo score complessivo (scala 0-1) e aggiungilo alla response
-                $valutazione = $bilanciHelper->valutazioneComplessivaBilancio($bilancioAnalisi, 'Commercio', date('Y'));
-                $bilancioAnalisi['Score'] = $valutazione['Score'];
-                $bilancioAnalisi['Giudizio'] = $valutazione['Giudizio'];
-                $bilancioAnalisi['ScoreDettaglio'] = $valutazione['Dettaglio'] ?? null;
+                // Calcola lo score Advanced (stessa logica dell'allerta/dashboard)
+                $valutazioneAdv = $bilanciHelper->valutazioneIndici($bilancioAnalisi['Indici']['Advanced'] ?? [], 'Commercio', date('Y'));
+                $bilancioAnalisi['AdvancedScore'] = $valutazioneAdv['Score'];
+                $bilancioAnalisi['AdvancedGiudizio'] = $this->classifyAdvScore($valutazioneAdv['Score']);
+                $bilancioAnalisi['AdvancedGiudizi'] = $valutazioneAdv['Giudizi'];
 
                 return response()->json([
                     'exception' => false,
@@ -579,5 +579,20 @@ Utilizzi un italiano formale ma non rigido, arricchito da termini tecnici spiega
                 'message' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    /**
+     * Classifica lo score Advanced su scala 0-1 con le stesse soglie dell'allerta.
+     */
+    private function classifyAdvScore($scoreRaw)
+    {
+        $score = (float) str_replace(',', '.', $scoreRaw);
+        if ($score >= 0.85) return 'Solidità';
+        if ($score >= 0.70) return 'Fragilità';
+        if ($score >= 0.56) return 'Fragilità elevata';
+        if ($score >= 0.42) return 'Rischio alert';
+        if ($score >= 0.28) return 'Alert';
+        if ($score >= 0.14) return 'Situazione Grave';
+        return 'Default';
     }
 }
