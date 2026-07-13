@@ -15,7 +15,7 @@ import logging
 import os
 import tempfile
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -58,7 +58,7 @@ app.add_middleware(
 
 class QueryRequest(BaseModel):
     question: str
-    company_id: int | str
+    company_id: Union[int, str]
     history: Optional[List[Dict[str, str]]] = None
     doc_type: Optional[str] = None
     top_k: Optional[int] = None
