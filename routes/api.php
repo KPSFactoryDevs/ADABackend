@@ -191,4 +191,5 @@ Route::middleware(['cors', 'json.response'])->prefix('agent')->group(function ()
     Route::post('/ingest', [AgentController::class, 'ingestDocument']);
     Route::delete('/document/{id}', [AgentController::class, 'deleteDocument']);
     Route::get('/health', [AgentController::class, 'health']);
+    Route::post('/reindex', [AgentController::class, 'reindex']);
 });

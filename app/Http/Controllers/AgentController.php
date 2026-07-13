@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Services\RagService;
+use App\Models\Document;
+use App\Helpers\Bilanci\BilanciHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -10,9 +12,6 @@ class AgentController extends Controller
 {
     /**
      * POST /api/agent/chat
-     *
-     * Receives a user question, forwards it to the RAG microservice,
-     * and returns the AI-generated answer with sources.
      */
     public function chat(Request $request)
     {
@@ -32,7 +31,6 @@ class AgentController extends Controller
 
         $rag = new RagService();
 
-        // Check service availability
         if (!$rag->isHealthy()) {
             return response()->json([
                 'ok'      => false,
@@ -65,13 +63,11 @@ class AgentController extends Controller
 
     /**
      * POST /api/agent/ingest
-     *
-     * Manually trigger document ingestion into the vector store.
      */
     public function ingestDocument(Request $request)
     {
         $request->validate([
-            'file'        => 'required|file|max:20480', // max 20MB
+            'file'        => 'required|file|max:20480',
             'document_id' => 'required|string',
             'company_id'  => 'required|integer',
             'doc_type'    => 'nullable|string',
@@ -105,8 +101,6 @@ class AgentController extends Controller
 
     /**
      * DELETE /api/agent/document/{id}
-     *
-     * Remove a document from the vector store.
      */
     public function deleteDocument(Request $request, $id)
     {
@@ -123,9 +117,116 @@ class AgentController extends Controller
     }
 
     /**
-     * GET /api/agent/health
+     * POST /api/agent/reindex
      *
-     * Check the RAG service status.
+     * Re-index all existing documents (bilanci + CR) for a company.
+     * Useful for bootstrapping the vector store with pre-existing data.
+     */
+    public function reindex(Request $request)
+    {
+        $companyId = (int) ($request->input('company_id') ?: $request->header('CurrentCompany', 0));
+        if (!$companyId) {
+            return response()->json(['ok' => false, 'message' => 'company_id is required'], 422);
+        }
+
+        $rag = new RagService();
+        $indexed = [];
+        $errors = [];
+
+        // ── Bilanci ──
+        $bilanci = Document::where('company_id', $companyId)
+            ->where('type', 'bilancio')
+            ->get();
+
+        foreach ($bilanci as $doc) {
+            try {
+                global $use_xbrl_functions;
+                $use_xbrl_functions = true;
+
+                $filePath = base_path() . '/public/bilanci/' . $doc->filename;
+                if (!file_exists($filePath)) {
+                    $errors[] = ['type' => 'bilancio', 'id' => $doc->id, 'error' => 'File not found'];
+                    continue;
+                }
+
+                $bilanciHelper = new BilanciHelper();
+                $taxonomyPath = base_path() . "/taxonomies/2018-11-04/" . $doc->taxonomy;
+
+                $emptyInstance = false;
+                $readXBRL = \XBRL_Instance::FromInstanceDocument($filePath, $taxonomyPath, $emptyInstance);
+                if (!$readXBRL) {
+                    $errors[] = ['type' => 'bilancio', 'id' => $doc->id, 'error' => 'XBRL parse failed'];
+                    continue;
+                }
+
+                $bilancioJSON = $readXBRL->toJSON();
+                $nomeAzienda = $doc->nome_azienda ?? 'N/D';
+                $period = ['anno_inizio' => $doc->anno_inizio, 'anno_fine' => $doc->anno_fine];
+
+                $bilancioAnalisi = $bilanciHelper->getIndexesForBalanceTaxonomy(
+                    $doc->id, $filePath, $readXBRL, $doc->codice_documento, null
+                );
+
+                $bilController = new \App\Financial\Bilanci\Controllers\BilanciController();
+                $ragText = "BILANCIO - {$nomeAzienda}\n"
+                    . "Periodo: " . json_encode($period) . "\n"
+                    . "Analisi Indici: " . json_encode($bilancioAnalisi, JSON_UNESCAPED_UNICODE) . "\n"
+                    . "Voci di Bilancio: " . json_encode(
+                        $bilController->cleanBilancioData($bilancioJSON),
+                        JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT
+                    );
+
+                $rag->ingestText(
+                    $ragText,
+                    'bilancio_' . $doc->id,
+                    $companyId,
+                    'bilancio',
+                    'Bilancio ' . $nomeAzienda . ' ' . ($period['anno_fine'] ?? '')
+                );
+
+                $indexed[] = ['type' => 'bilancio', 'id' => $doc->id, 'name' => $nomeAzienda];
+            } catch (\Throwable $e) {
+                $errors[] = ['type' => 'bilancio', 'id' => $doc->id, 'error' => $e->getMessage()];
+            }
+        }
+
+        // ── Centrale Rischi (PDF) ──
+        $crDocs = Document::where('company_id', $companyId)
+            ->where('type', 'centrale rischi')
+            ->get();
+
+        foreach ($crDocs as $doc) {
+            try {
+                $filePath = $doc->path ?: base_path() . '/public/crdocument/' . $doc->filename;
+                if (!file_exists($filePath)) {
+                    $errors[] = ['type' => 'centrale_rischi', 'id' => $doc->id, 'error' => 'File not found'];
+                    continue;
+                }
+
+                $rag->ingest(
+                    $filePath,
+                    'cr_' . $doc->id,
+                    $companyId,
+                    'centrale_rischi',
+                    'Centrale Rischi ' . $doc->filename
+                );
+
+                $indexed[] = ['type' => 'centrale_rischi', 'id' => $doc->id, 'name' => $doc->filename];
+            } catch (\Throwable $e) {
+                $errors[] = ['type' => 'centrale_rischi', 'id' => $doc->id, 'error' => $e->getMessage()];
+            }
+        }
+
+        return response()->json([
+            'ok'      => true,
+            'indexed' => count($indexed),
+            'errors'  => count($errors),
+            'details' => ['indexed' => $indexed, 'errors' => $errors],
+        ]);
+    }
+
+    /**
+     * GET /api/agent/health
      */
     public function health()
     {

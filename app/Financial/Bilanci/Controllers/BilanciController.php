@@ -27,6 +27,7 @@ use Exception;
 use App\Models\MissingVoice;
 use Laravel\Passport\Token;
 use App\Models\Company;
+use App\Services\RagService;
 
 class BilanciController extends Controller
 {
@@ -141,11 +142,36 @@ class BilanciController extends Controller
 
                 $bilancioAnalisi = $bilanciHelper->getIndexesForBalanceTaxonomy($document->id, $filePath, $readXBRL, $document->codice_documento, $userID);
 
-                // Calcola lo score Advanced (stessa logica dell'allerta/dashboard)
-                $valutazioneAdv = $bilanciHelper->valutazioneIndici($bilancioAnalisi['Indici']['Advanced'] ?? [], 'Commercio', date('Y'));
-                $bilancioAnalisi['AdvancedScore'] = $valutazioneAdv['Score'];
-                $bilancioAnalisi['AdvancedGiudizio'] = $this->classifyAdvScore($valutazioneAdv['Score']);
+                // Calcola lo score complessivo (Basic 45% + Advanced 25% + Questionari 20% + Completezza 10%)
+                $valutazioneAdv = $bilanciHelper->valutazioneComplessivaBilancio($bilancioAnalisi, 'Commercio', date('Y'));
+                $rawScore = (float) str_replace(',', '.', $valutazioneAdv['Score']);
+                $bilancioAnalisi['AdvancedScore'] = number_format($rawScore * 100, 2, ',', '.');
+                $bilancioAnalisi['AdvancedGiudizio'] = $valutazioneAdv['Giudizio'];
                 $bilancioAnalisi['AdvancedGiudizi'] = $valutazioneAdv['Giudizi'];
+                $bilancioAnalisi['AdvancedDettaglio'] = $valutazioneAdv['Dettaglio'] ?? null;
+
+                // --- RAG: indicizza il bilancio nel vector store ---
+                try {
+                    $companyId = $document->company_id ?? $request->header('currentcompany');
+                    if ($companyId) {
+                        $ragText = "BILANCIO - {$nomeAzienda}\n"
+                            . "Periodo: " . json_encode($period) . "\n"
+                            . "Analisi Indici: " . json_encode($bilancioAnalisi, JSON_UNESCAPED_UNICODE) . "\n"
+                            . "Voci di Bilancio: " . json_encode($this->cleanBilancioData($bilancioJSON), JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+
+                        $rag = new RagService();
+                        $rag->ingestText(
+                            $ragText,
+                            'bilancio_' . $document->id,
+                            $companyId,
+                            'bilancio',
+                            'Bilancio ' . ($nomeAzienda ?? '') . ' ' . ($period['anno_fine'] ?? '')
+                        );
+                    }
+                } catch (\Throwable $e) {
+                    Log::warning('RAG ingest bilancio failed', ['doc' => $document->id, 'err' => $e->getMessage()]);
+                }
+                // --- fine RAG ---
 
                 return response()->json([
                     'exception' => false,

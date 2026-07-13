@@ -24,6 +24,7 @@ use App\Helpers\Bilanci\BilanciHelper;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Services\RagService;
 
 
 class CentraleRischiController extends Controller
@@ -79,10 +80,30 @@ class CentraleRischiController extends Controller
 
 
     public function recap(Request $request, $documentId, $liveStatus, $page = "all")
+    // NOTE: $page is 1-indexed. Only page 1 contains the real Intestatario (company name).
     {
         $crFileToElaborate = Document::where('codice_documento', $documentId)->first();
         if (!$crFileToElaborate) {
             return response()->json(['error' => true, 'message' => 'Document not found'], 404);
+        }
+
+        // ── LEGENDA STOP: skip pages at or after the LEGENDA section ──
+        // The LEGENDA and all subsequent pages are illustrative/explanatory
+        // and contain no useful CR data. Skipping them avoids garbage extraction.
+        $currentPage = (int) $page;
+        $otherDataCheck = json_decode($crFileToElaborate->other_data_json, true) ?: [];
+        $legendaPage = $otherDataCheck['legenda_start_page'] ?? null;
+        if ($legendaPage !== null && $currentPage >= (int) $legendaPage) {
+            Log::info("CR page {$page} skipped: LEGENDA was found at page {$legendaPage}", [
+                'document_id' => $documentId
+            ]);
+            // Still update progress status so the frontend shows correct %
+            $crFileToElaborate->status = $liveStatus;
+            $crFileToElaborate->save();
+            return response()->json([
+                'error' => false,
+                'data' => 'Pagina ' . $page . ' saltata (dopo LEGENDA)'
+            ]);
         }
 
         // 1. Convert page to image
@@ -156,19 +177,19 @@ class CentraleRischiController extends Controller
                 "properties" => [
                     "inizio_legenda" => [
                         "type" => "boolean",
-                        "description" => "true se in questa pagina inizia o è presente la sezione o intestino 'LEGENDA' della Centrale Rischi, false altrimenti. Se la pagina contiene prevalentemente la legenda scartarla attivando questo flag."
+                        "description" => "true se la pagina contiene SOLO testo esplicativo della LEGENDA senza alcun dato tabellare, false altrimenti. Questo campo è puramente informativo."
                     ],
                     "dati_anagrafici_presenti" => [
                         "type" => "boolean",
-                        "description" => "true se in questa pagina sono presenti i DATI ANAGRAFICI DELL'INTESTATARIO"
+                        "description" => "true SOLO se in questa pagina sono presenti i DATI ANAGRAFICI DELL'INTESTATARIO nella sezione iniziale del documento (tipicamente la prima pagina), dove compaiono insieme: Intestatario, Codice Fiscale e Codice Intestatario. NON considerare 'Intestatario' se appare solo come etichetta ripetuta nelle pagine successive senza i dati anagrafici completi."
                     ],
                     "ragione_sociale_intestatario" => [
                         "type" => "string",
-                        "description" => "Ragione Sociale o Nome esatto dell'intestatario (se presenti, altrimenti stringa vuota '')"
+                        "description" => "Ragione Sociale o Nome esatto dell'intestatario, DA ESTRARRE SOLO dalla sezione 'Dati Anagrafici dell'Intestatario' che si trova nella prima pagina del documento e che riporta Intestatario, Codice Fiscale e Codice Intestatario. Se questa sezione non è presente nella pagina corrente, restituire stringa vuota ''."
                     ],
                     "codice_fiscale_intestatario" => [
                         "type" => "string",
-                        "description" => "Codice Fiscale o Partita IVA dell'intestatario (se presenti, altrimenti stringa vuota '')"
+                        "description" => "Codice Fiscale o Partita IVA dell'intestatario, DA ESTRARRE SOLO dalla sezione 'Dati Anagrafici dell'Intestatario' (prima pagina). Se questa sezione non è presente nella pagina corrente, restituire stringa vuota ''."
                     ],
                     "dati" => [
                         "type" => "array",
@@ -222,7 +243,7 @@ class CentraleRischiController extends Controller
                             'content' => [
                                 [
                                     'type' => 'text',
-                                    'text' => 'Estrai minuziosamente i dati. Fai attenzione ai DATI ANAGRAFICI DELL\'INTESTATARIO. "RISCHI A SCADENZA", "RISCHI A REVOCA", "AUTOLIQUIDANTI" vanno in "Cassa". Le righe in "Informazioni sui garanti" vanno in array "Garanti" con "Garante" (nome per intero o "Cointestazione..."), "Valore Garanzia" e "Importo Garantito". NON saltare valori di "Accordato" e "Utilizzato" per pigrizia! Ignora la zona LEGENDA attivando il flag apposito.'
+                                    'text' => 'Estrai minuziosamente i dati. ATTENZIONE per i DATI ANAGRAFICI DELL\'INTESTATARIO: l\'Intestatario corretto è SOLO quello che appare nella PRIMA PAGINA del documento, nella sezione "Dati Anagrafici dell\'Intestatario", dove sono riportati insieme Intestatario, Codice Fiscale e Codice Intestatario. Se questa pagina NON contiene quella sezione specifica, imposta dati_anagrafici_presenti=false e lascia ragione_sociale_intestatario e codice_fiscale_intestatario come stringhe vuote. NON estrarre nomi che appaiono come etichette ripetute nelle pagine successive. "RISCHI A SCADENZA", "RISCHI A REVOCA", "AUTOLIQUIDANTI" vanno in "Cassa". Le righe in "Informazioni sui garanti" vanno in array "Garanti" con "Garante" (nome per intero o "Cointestazione..."), "Valore Garanzia" e "Importo Garantito". NON saltare valori di "Accordato" e "Utilizzato" per pigrizia! Ignora la zona LEGENDA attivando il flag apposito.'
                                 ],
                                 [
                                     'type' => 'image_url',
@@ -258,20 +279,30 @@ class CentraleRischiController extends Controller
         $content = $response->json('choices.0.message.content');
         $result = json_decode($content, true);
 
-        // Even if inizio_legenda is true, if ChatGPT extracted valid dati we keep them!
         $dati = $result['dati'] ?? [];
-        if (($result['inizio_legenda'] ?? false) === true && empty($dati)) {
-            $dati = [];
-        }
 
-        if (($result['dati_anagrafici_presenti'] ?? false) === true) {
-            $otherData = json_decode($crFileToElaborate->other_data_json, true) ?: [];
-            $otherData['anagrafica_cr'] = [
-                'ragione_sociale' => $result['ragione_sociale_intestatario'] ?? '',
-                'codice_fiscale' => $result['codice_fiscale_intestatario'] ?? ''
-            ];
-            $crFileToElaborate->other_data_json = json_encode($otherData);
-            $crFileToElaborate->save();
+        // NOTE: LEGENDA detection is now handled deterministically in store()
+        // via pdftotext. The inizio_legenda flag from OpenAI is ignored because
+        // it proved too unreliable (false positives on data pages).
+
+        // Save anagrafica ONLY from page 1 (the first page of the PDF, where the real
+        // Intestatario is printed alongside Codice Fiscale and Codice Intestatario).
+        // Subsequent pages may contain "Intestatario" labels but they are NOT the company name.
+        $isFirstPage = ((int) $page === 1) || ($page === 'all');
+        if ($isFirstPage && ($result['dati_anagrafici_presenti'] ?? false) === true) {
+            $ragioneSociale = trim($result['ragione_sociale_intestatario'] ?? '');
+            $codiceFiscale  = trim($result['codice_fiscale_intestatario'] ?? '');
+
+            // Only save if we actually got a non-empty company name
+            if ($ragioneSociale !== '') {
+                $otherData = json_decode($crFileToElaborate->other_data_json, true) ?: [];
+                $otherData['anagrafica_cr'] = [
+                    'ragione_sociale' => $ragioneSociale,
+                    'codice_fiscale'  => $codiceFiscale
+                ];
+                $crFileToElaborate->other_data_json = json_encode($otherData);
+                $crFileToElaborate->save();
+            }
         }
 
         $dataToSave = [];
@@ -413,13 +444,71 @@ class CentraleRischiController extends Controller
 
         $totalPages = (int) $out;
 
-        for ($pageToExtract = 1; $pageToExtract <= $totalPages; $pageToExtract++) {
-            $liveStatus = round((($pageToExtract / $totalPages) * 100), 1) . "% processato";
-            if ($pageToExtract === $totalPages)
+        // ── Deterministic LEGENDA detection via pdftotext ──
+        // Scan each page of the PDF for the literal text "LEGENDA" + "CATEGORIE"
+        // + "VARIABILI DI CLASSIFICAZIONE" (the explanatory section at the end).
+        // All pages from the LEGENDA onward are illustrative and must be skipped.
+        $legendaStartPage = null;
+        $pdftotextBin = trim((string) shell_exec('which pdftotext 2>/dev/null'));
+
+        if ($pdftotextBin && file_exists($pdftotextBin)) {
+            for ($scanPage = 1; $scanPage <= $totalPages; $scanPage++) {
+                $pdfTextCmd = escapeshellarg($pdftotextBin) . ' -f ' . $scanPage . ' -l ' . $scanPage
+                    . ' ' . escapeshellarg($localPathFs) . ' - 2>/dev/null';
+                $pageText = (string) shell_exec($pdfTextCmd);
+
+                if (
+                    stripos($pageText, 'LEGENDA') !== false
+                    && stripos($pageText, 'CATEGORIE') !== false
+                    && stripos($pageText, 'VARIABILI DI CLASSIFICAZIONE') !== false
+                ) {
+                    $legendaStartPage = $scanPage;
+                    Log::info("CR LEGENDA found at page {$scanPage} via pdftotext", [
+                        'document_id' => $documentCreated['codice_documento']
+                    ]);
+                    break;
+                }
+            }
+        } else {
+            Log::warning("pdftotext not found — LEGENDA detection skipped. Install poppler to enable it.");
+        }
+
+        // Save the legenda page in other_data_json so recap() jobs can skip it
+        if ($legendaStartPage !== null) {
+            $otherData = json_decode($documentCreated->other_data_json, true) ?: [];
+            $otherData['legenda_start_page'] = $legendaStartPage;
+            $documentCreated->other_data_json = json_encode($otherData);
+            $documentCreated->save();
+        }
+
+        // Only dispatch jobs for pages before the LEGENDA
+        $lastDataPage = $legendaStartPage ? ($legendaStartPage - 1) : $totalPages;
+
+        for ($pageToExtract = 1; $pageToExtract <= $lastDataPage; $pageToExtract++) {
+            $liveStatus = round((($pageToExtract / $lastDataPage) * 100), 1) . "% processato";
+            if ($pageToExtract === $lastDataPage)
                 $liveStatus = "Completato";
 
             ElaborateLatestCR::dispatch($pageToExtract, $documentCreated["codice_documento"], $liveStatus);
         }
+
+        // --- RAG: indicizza il PDF della CR nel vector store ---
+        try {
+            $companyId = $request->header('currentcompany');
+            if ($companyId && file_exists($localPathFs)) {
+                $rag = new RagService();
+                $rag->ingest(
+                    $localPathFs,
+                    'cr_' . $documentCreated->id,
+                    $companyId,
+                    'centrale_rischi',
+                    'Centrale Rischi ' . $safeOriginalName
+                );
+            }
+        } catch (\Throwable $e) {
+            Log::warning('RAG ingest CR failed', ['doc' => $documentCreated->id, 'err' => $e->getMessage()]);
+        }
+        // --- fine RAG ---
 
         return response()->json([
             'newDocumentCreated' => $documentCreated,
