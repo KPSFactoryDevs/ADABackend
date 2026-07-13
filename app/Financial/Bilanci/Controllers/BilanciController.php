@@ -165,7 +165,8 @@ class BilanciController extends Controller
                             'bilancio_' . $document->id,
                             $companyId,
                             'bilancio',
-                            'Bilancio ' . ($nomeAzienda ?? '') . ' ' . ($period['anno_fine'] ?? '')
+                            'Bilancio ' . ($nomeAzienda ?? '') . ' ' . ($period['anno_fine'] ?? ''),
+                            true // structured=true for larger chunks on financial data
                         );
                     }
                 } catch (\Throwable $e) {

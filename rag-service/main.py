@@ -5,6 +5,7 @@ Endpoints
 ---------
 POST /query      — ask the AI agent a question (RAG + optional SQL)
 POST /ingest     — ingest a document into the vector store
+POST /ingest-text — ingest raw text (no file upload)
 DELETE /document  — remove a document from the vector store
 GET  /health     — health check
 GET  /stats      — vector store statistics
@@ -40,7 +41,7 @@ logger = logging.getLogger("rag-service")
 # ---------------------------------------------------------------------------
 app = FastAPI(
     title="ADA RAG Service",
-    version="1.0.0",
+    version="2.0.0",
     description="Retrieval-Augmented Generation microservice for ADA CRM",
 )
 
@@ -56,12 +57,20 @@ app.add_middleware(
 # Request / Response models
 # ---------------------------------------------------------------------------
 
+class PageContext(BaseModel):
+    """Structured page context from the CRM frontend."""
+    page: Optional[str] = None
+    summary: Optional[str] = None
+    data: Optional[Any] = None
+
+
 class QueryRequest(BaseModel):
     question: str
     company_id: Union[int, str]
     history: Optional[List[Dict[str, str]]] = None
     doc_type: Optional[str] = None
     top_k: Optional[int] = None
+    page_context: Optional[PageContext] = None
 
 
 class QueryResponse(BaseModel):
@@ -91,12 +100,18 @@ async def query_agent(req: QueryRequest):
     if not req.question.strip():
         raise HTTPException(422, "question is required")
 
+    # Convert page_context Pydantic model to dict if present
+    page_ctx = None
+    if req.page_context:
+        page_ctx = req.page_context.model_dump(exclude_none=True)
+
     result = rag_chain.query(
         question=req.question,
         company_id=req.company_id,
         history=req.history,
         top_k=req.top_k,
         doc_type=req.doc_type,
+        page_context=page_ctx,
     )
     return QueryResponse(**result)
 
@@ -148,15 +163,23 @@ async def ingest_text(
     company_id: str = Form(...),
     doc_type: str = Form("documento"),
     filename: str = Form(""),
+    structured: str = Form("false"),
 ):
     """
     Ingest raw text directly (no file upload needed).
     Useful when the Laravel backend has already extracted the text.
+    
+    Set structured=true for JSON/tabular data to use larger chunks.
     """
     if not text.strip():
         raise HTTPException(400, "text is required")
 
-    chunks = dp.split_text(text)
+    # Use structured chunking for financial/JSON data
+    if structured.lower() in ("true", "1", "yes"):
+        chunks = dp.split_structured_text(text)
+    else:
+        chunks = dp.split_text(text)
+
     metadata = {
         "doc_type": doc_type,
         "filename": filename or document_id,
@@ -178,6 +201,8 @@ async def health():
     return {
         "status": "ok",
         "service": "ada-rag-service",
+        "version": "2.0.0",
+        "model": config.OPENAI_MODEL,
         "openai_configured": bool(config.OPENAI_API_KEY),
     }
 
@@ -225,6 +250,6 @@ def _index_knowledge_base():
 
 @app.on_event("startup")
 async def on_startup():
-    logger.info("ADA RAG Service starting up…")
+    logger.info("ADA RAG Service v2.0.0 starting up…")
     _index_knowledge_base()
-    logger.info("Ready.")
+    logger.info("Ready. Model: %s, Top-K: %d", config.OPENAI_MODEL, config.TOP_K)

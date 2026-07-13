@@ -32,20 +32,27 @@ class RagService
      *
      * @param string     $question
      * @param int|string $companyId
-     * @param array      $history   Previous messages [{role, content}, ...]
-     * @param string|null $docType  Optional filter by document type
+     * @param array      $history     Previous messages [{role, content}, ...]
+     * @param string|null $docType    Optional filter by document type
+     * @param array|null  $pageContext Structured page context {page, summary, data}
      * @return array {answer, sources, chunks_used}
      */
-    public function query(string $question, $companyId, array $history = [], ?string $docType = null): array
+    public function query(string $question, $companyId, array $history = [], ?string $docType = null, ?array $pageContext = null): array
     {
         try {
+            $payload = [
+                'question'   => $question,
+                'company_id' => (int) $companyId,
+                'history'    => $history,
+                'doc_type'   => $docType,
+            ];
+
+            if ($pageContext) {
+                $payload['page_context'] = $pageContext;
+            }
+
             $response = $this->client->post('query', [
-                'json' => [
-                    'question'   => $question,
-                    'company_id' => (int) $companyId,
-                    'history'    => $history,
-                    'doc_type'   => $docType,
-                ],
+                'json' => $payload,
             ]);
 
             return json_decode((string) $response->getBody(), true) ?: [];
@@ -105,9 +112,10 @@ class RagService
      * @param int|string $companyId
      * @param string     $docType
      * @param string     $filename
+     * @param bool       $structured  Whether to use larger chunks for JSON/tabular data
      * @return array
      */
-    public function ingestText(string $text, string $documentId, $companyId, string $docType = 'documento', string $filename = ''): array
+    public function ingestText(string $text, string $documentId, $companyId, string $docType = 'documento', string $filename = '', bool $structured = false): array
     {
         try {
             $response = $this->client->post('ingest-text', [
@@ -117,6 +125,7 @@ class RagService
                     'company_id'  => (string) $companyId,
                     'doc_type'    => $docType,
                     'filename'    => $filename,
+                    'structured'  => $structured ? 'true' : 'false',
                 ],
                 'headers' => ['Content-Type' => 'application/x-www-form-urlencoded'],
             ]);

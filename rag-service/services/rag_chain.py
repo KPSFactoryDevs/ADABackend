@@ -5,11 +5,12 @@ Workflow:
   1. Receive a user question (+ optional conversation history)
   2. Semantic-search the vector store for relevant chunks
   3. Build a prompt with system instructions + retrieved context
-  4. Call GPT-4o-mini for the final answer
+  4. Call GPT-4o for the final answer
   5. Return the answer together with the sources used
 """
 from __future__ import annotations
 
+import json
 import logging
 from typing import Any, Dict, List, Optional
 
@@ -43,8 +44,8 @@ Sei **ADA AI**, l'assistente intelligente della piattaforma ADA — un software 
 - Usa TUTTI i dati disponibili: sia il contesto recuperato dai documenti, sia i dati della pagina visibile dall'utente.
 
 ### Fonti dati (in ordine di priorità)
-1. **Dati visibili in pagina**: La domanda dell'utente può contenere un blocco `[Contesto pagina: ...]` con `Dati visibili: {...}`. Questi sono i dati REALI che l'utente sta guardando — usa questi come fonte PRIMARIA per rispondere.
-2. **Documenti indicizzati**: I chunks recuperati dal database vettoriale.
+1. **Dati visibili in pagina**: Se presenti nella sezione "DATI PAGINA", questi sono i dati REALI che l'utente sta guardando — usa questi come fonte PRIMARIA per rispondere.
+2. **Documenti indicizzati**: I chunks recuperati dal database vettoriale nella sezione "DOCUMENTI".
 3. Se nessuna fonte contiene i dati richiesti, dillo chiaramente — non inventare.
 
 ### Regole
@@ -54,7 +55,8 @@ Sei **ADA AI**, l'assistente intelligente della piattaforma ADA — un software 
 4. Per dati numerici, usa la formattazione italiana (es. 1.234.567,89 €).
 5. Se l'utente chiede qualcosa fuori ambito finanziario/ADA, declina educatamente.
 6. Mai inventare numeri o dati finanziari.
-7. Quando la domanda contiene dati visibili della pagina, USALI per rispondere — sono dati reali dell'utente.
+7. Quando i dati della pagina sono disponibili, USALI per rispondere — sono dati reali dell'utente.
+8. Se la domanda riguarda dati che vedi nei DATI PAGINA, rispondi DIRETTAMENTE da lì senza esitazione.
 """
 
 
@@ -68,9 +70,26 @@ def query(
     history: Optional[List[Dict[str, str]]] = None,
     top_k: int | None = None,
     doc_type: Optional[str] = None,
+    page_context: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
     Run the full RAG pipeline.
+
+    Parameters
+    ----------
+    question : str
+        The user's question (clean, without injected context).
+    company_id : int | str
+        The company to search documents for.
+    history : list, optional
+        Previous conversation messages.
+    top_k : int, optional
+        Number of chunks to retrieve.
+    doc_type : str, optional
+        Filter by document type.
+    page_context : dict, optional
+        Structured page context with keys: page, summary, data.
+        This is the data the user is currently looking at in the CRM.
 
     Returns
     -------
@@ -78,25 +97,57 @@ def query(
     """
     k = top_k or TOP_K
 
-    # 1) Retrieve
+    # 1) Retrieve from vector store
     chunks = vs_search(question, company_id=company_id, top_k=k, doc_type=doc_type)
     logger.info("Retrieved %d chunks for question: %.80s…", len(chunks), question)
 
-    # 2) Build context block
+    # 2) Build context block from retrieved documents
     if chunks:
         context_parts: list[str] = []
         for i, c in enumerate(chunks, 1):
             meta = c.get("metadata", {})
             source_label = meta.get("filename", meta.get("document_id", f"chunk {i}"))
             doc_type_label = meta.get("doc_type", "documento")
+            dist = c.get("distance", "?")
             context_parts.append(
-                f"--- Fonte {i}: {source_label} ({doc_type_label}) ---\n{c['text']}"
+                f"--- Fonte {i}: {source_label} ({doc_type_label}) [dist={dist}] ---\n{c['text']}"
             )
         context_block = "\n\n".join(context_parts)
     else:
         context_block = "(Nessun documento rilevante trovato nel database.)"
 
-    # 3) Assemble messages
+    # 3) Build page context block (structured, no regex needed)
+    page_context_block = ""
+    if page_context and isinstance(page_context, dict):
+        page_name = page_context.get("page", "Pagina")
+        page_summary = page_context.get("summary", "")
+        page_data = page_context.get("data", {})
+
+        page_context_block = (
+            f"### 🔴 DATI PAGINA — {page_name}\n"
+            f"Questi sono i dati REALI che l'utente sta guardando in questo momento. "
+            f"USALI come fonte PRIMARIA per rispondere.\n"
+        )
+        if page_summary:
+            page_context_block += f"Riepilogo: {page_summary}\n"
+
+        if page_data:
+            # Format data as readable key-value pairs
+            if isinstance(page_data, dict):
+                page_context_block += "\nDati:\n"
+                page_context_block += _format_page_data(page_data)
+            else:
+                page_context_block += f"\nDati: {json.dumps(page_data, ensure_ascii=False)}\n"
+
+        logger.info(
+            "Page context provided: page=%s, summary=%s, data_keys=%s",
+            page_name, page_summary[:50] if page_summary else "none",
+            list(page_data.keys()) if isinstance(page_data, dict) else "non-dict",
+        )
+    else:
+        logger.info("No page context provided")
+
+    # 4) Assemble messages
     messages: list[dict] = [{"role": "system", "content": SYSTEM_PROMPT}]
 
     # Add conversation history (last 10 messages max)
@@ -106,47 +157,29 @@ def query(
             if role in ("user", "assistant"):
                 messages.append({"role": role, "content": msg["content"]})
 
-    # Extract inline page context from the enriched question
-    import re
-    page_context_block = ""
-    clean_question = question
-    page_match = re.match(
-        r'\[Contesto pagina:\s*([^\]]*)\]\s*\n?(?:Dati visibili:\s*(.*?)\n)?Domanda utente:\s*(.*)',
-        question,
-        re.DOTALL
-    )
-    if page_match:
-        page_label = page_match.group(1).strip()
-        page_data = page_match.group(2) or ""
-        clean_question = page_match.group(3).strip()
-        page_context_block = (
-            f"### DATI DELLA PAGINA ATTUALMENTE VISUALIZZATA DALL'UTENTE ({page_label})\n"
-            f"Questi sono i dati REALI che l'utente sta guardando. USALI per rispondere.\n"
-            f"{page_data.strip()}\n"
-        )
-        logger.info("Extracted page context: %s (data len=%d)", page_label, len(page_data))
-
     # User message with context — page data FIRST (highest priority)
     parts = []
     if page_context_block:
         parts.append(page_context_block)
-    parts.append(f"### Contesto recuperato dai documenti\n{context_block}")
-    parts.append(f"### Domanda dell'utente\n{clean_question}")
+    parts.append(f"### DOCUMENTI (dal database vettoriale)\n{context_block}")
+    parts.append(f"### DOMANDA DELL'UTENTE\n{question}")
     user_msg = "\n\n".join(parts)
     messages.append({"role": "user", "content": user_msg})
 
-    # 4) Call GPT
+    logger.info("Prompt assembled: %d messages, user_msg length=%d", len(messages), len(user_msg))
+
+    # 5) Call GPT
     client = _get_openai()
     response = client.chat.completions.create(
         model=OPENAI_MODEL,
         messages=messages,
         temperature=0.3,
-        max_tokens=2048,
+        max_tokens=4096,
     )
 
     answer = response.choices[0].message.content or ""
 
-    # 5) Build sources list
+    # 6) Build sources list
     sources: list[dict] = []
     seen_docs: set[str] = set()
     for c in chunks:
@@ -165,3 +198,33 @@ def query(
         "sources": sources,
         "chunks_used": len(chunks),
     }
+
+
+def _format_page_data(data: dict, indent: int = 0) -> str:
+    """
+    Recursively format a dict of page data into readable key-value text.
+    Handles nested dicts and lists of dicts.
+    """
+    lines: list[str] = []
+    prefix = "  " * indent
+
+    for key, value in data.items():
+        if value is None:
+            continue
+        elif isinstance(value, dict):
+            lines.append(f"{prefix}• {key}:")
+            lines.append(_format_page_data(value, indent + 1))
+        elif isinstance(value, list):
+            lines.append(f"{prefix}• {key}: ({len(value)} elementi)")
+            for i, item in enumerate(value[:20]):  # cap at 20 items
+                if isinstance(item, dict):
+                    item_str = ", ".join(f"{k}={v}" for k, v in item.items() if v is not None)
+                    lines.append(f"{prefix}  [{i+1}] {item_str}")
+                else:
+                    lines.append(f"{prefix}  [{i+1}] {item}")
+            if len(value) > 20:
+                lines.append(f"{prefix}  ... e altri {len(value) - 20} elementi")
+        else:
+            lines.append(f"{prefix}• {key}: {value}")
+
+    return "\n".join(lines)

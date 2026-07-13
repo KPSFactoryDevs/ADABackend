@@ -22,12 +22,17 @@ class AgentController extends Controller
             'history.*.role'    => 'required_with:history|string|in:user,assistant',
             'history.*.content' => 'required_with:history|string',
             'doc_type'   => 'nullable|string',
+            'page_context'        => 'nullable|array',
+            'page_context.page'   => 'nullable|string',
+            'page_context.summary' => 'nullable|string',
+            'page_context.data'   => 'nullable',
         ]);
 
-        $question  = trim($request->input('question'));
-        $companyId = (int) $request->input('company_id');
-        $history   = $request->input('history', []);
-        $docType   = $request->input('doc_type');
+        $question    = trim($request->input('question'));
+        $companyId   = (int) $request->input('company_id');
+        $history     = $request->input('history', []);
+        $docType     = $request->input('doc_type');
+        $pageContext = $request->input('page_context');
 
         $rag = new RagService();
 
@@ -39,7 +44,7 @@ class AgentController extends Controller
         }
 
         try {
-            $result = $rag->query($question, $companyId, $history, $docType);
+            $result = $rag->query($question, $companyId, $history, $docType, $pageContext);
 
             return response()->json([
                 'ok'          => true,
@@ -181,7 +186,8 @@ class AgentController extends Controller
                     'bilancio_' . $doc->id,
                     $companyId,
                     'bilancio',
-                    'Bilancio ' . $nomeAzienda . ' ' . ($period['anno_fine'] ?? '')
+                    'Bilancio ' . $nomeAzienda . ' ' . ($period['anno_fine'] ?? ''),
+                    true // structured=true for larger chunks
                 );
 
                 $indexed[] = ['type' => 'bilancio', 'id' => $doc->id, 'name' => $nomeAzienda];

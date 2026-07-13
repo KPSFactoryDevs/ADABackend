@@ -12,7 +12,7 @@ from typing import List
 
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-from config import CHUNK_SIZE, CHUNK_OVERLAP
+from config import CHUNK_SIZE, CHUNK_OVERLAP, STRUCTURED_CHUNK_SIZE, STRUCTURED_CHUNK_OVERLAP
 
 logger = logging.getLogger(__name__)
 
@@ -89,6 +89,21 @@ def split_text(text: str, chunk_size: int | None = None, chunk_overlap: int | No
         chunk_size=chunk_size or CHUNK_SIZE,
         chunk_overlap=chunk_overlap or CHUNK_OVERLAP,
         separators=["\n\n", "\n", ". ", " ", ""],
+        length_function=len,
+    )
+    return splitter.split_text(text)
+
+
+def split_structured_text(text: str) -> List[str]:
+    """
+    Split structured/tabular text (JSON, financial data) into larger chunks
+    to preserve data integrity. Uses bigger chunk sizes to avoid splitting
+    key-value pairs or table rows.
+    """
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=STRUCTURED_CHUNK_SIZE,
+        chunk_overlap=STRUCTURED_CHUNK_OVERLAP,
+        separators=["\n\n\n", "\n\n", "\n", "}, ", ", ", " ", ""],
         length_function=len,
     )
     return splitter.split_text(text)

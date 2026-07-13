@@ -161,13 +161,16 @@ def delete_document(document_id: str, company_id: int | str) -> int:
 def search(
     query: str,
     company_id: int | str,
-    top_k: int = 6,
+    top_k: int = 10,
     doc_type: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
     """
     Semantic search across the company collection AND the system KB.
 
     Returns a list of dicts: {text, metadata, distance}.
+    
+    Split: up to top_k from company docs, up to 4 from system KB,
+    then merge, sort by distance, and return top_k total.
     """
     client = _get_client()
     embedder = _get_embedder()
@@ -175,18 +178,19 @@ def search(
 
     results: list[dict] = []
 
-    # 1) Company-specific docs
+    # 1) Company-specific docs — request more to ensure good coverage
     col_name = _collection_name(company_id)
     try:
         collection = client.get_collection(name=col_name)
-        where_filter = {"document_id": {"$ne": ""}}  # always-true base filter
+        where_filter = None
         if doc_type:
             where_filter = {"doc_type": doc_type}
 
+        company_k = top_k  # request full top_k from company
         res = collection.query(
             query_embeddings=[query_embedding],
-            n_results=top_k,
-            where=where_filter if doc_type else None,
+            n_results=company_k,
+            where=where_filter,
         )
         for i, doc in enumerate(res["documents"][0]):
             results.append({
@@ -195,15 +199,20 @@ def search(
                 "distance": res["distances"][0][i] if res["distances"] else None,
                 "source": "company",
             })
+        logger.info(
+            "Company search (%s): found %d chunks (requested %d)",
+            col_name, len(res["documents"][0]), company_k,
+        )
     except Exception as e:
         logger.debug("No company collection yet for %s: %s", col_name, e)
 
-    # 2) System knowledge base (always searched)
+    # 2) System knowledge base (always searched, up to 4 results)
+    system_k = min(top_k, 4)
     try:
         sys_collection = client.get_collection(name=SYSTEM_COLLECTION)
         sys_res = sys_collection.query(
             query_embeddings=[query_embedding],
-            n_results=min(top_k, 4),  # cap system results
+            n_results=system_k,
         )
         for i, doc in enumerate(sys_res["documents"][0]):
             results.append({
@@ -212,12 +221,20 @@ def search(
                 "distance": sys_res["distances"][0][i] if sys_res["distances"] else None,
                 "source": "system_kb",
             })
+        logger.info("System KB search: found %d chunks", len(sys_res["documents"][0]))
     except Exception as e:
         logger.debug("No system KB collection yet: %s", e)
 
-    # Sort by distance (ascending = most similar first)
+    # Sort by distance (ascending = most similar first) and cap at top_k
     results.sort(key=lambda r: r.get("distance") or 999)
-    return results[:top_k]
+    final = results[:top_k]
+    logger.info(
+        "Search total: %d candidates → returning %d (company: %d, system: %d)",
+        len(results), len(final),
+        sum(1 for r in final if r["source"] == "company"),
+        sum(1 for r in final if r["source"] == "system_kb"),
+    )
+    return final
 
 
 def get_collection_stats(company_id: int | str | None = None) -> Dict[str, Any]:
