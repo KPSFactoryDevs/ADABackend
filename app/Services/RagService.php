@@ -15,7 +15,7 @@ class RagService
 
     public function __construct()
     {
-        $baseUrl = rtrim(env('RAG_SERVICE_URL', 'http://127.0.0.1:8100'), '/');
+        $baseUrl = rtrim(env('RAG_SERVICE_URL', 'http://127.0.0.1:8200'), '/');
 
         $this->client = new Client([
             'base_uri' => $baseUrl . '/',
