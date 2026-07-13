@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 _client: chromadb.ClientAPI | None = None
 _embedder: OpenAIEmbeddings | None = None
 
-SYSTEM_COLLECTION = "_system_knowledge"
+SYSTEM_COLLECTION = "system-knowledge"
 
 
 def _get_client() -> chromadb.ClientAPI:
