@@ -106,11 +106,33 @@ def query(
             if role in ("user", "assistant"):
                 messages.append({"role": role, "content": msg["content"]})
 
-    # User message with context
-    user_msg = (
-        f"### Contesto recuperato dai documenti\n{context_block}\n\n"
-        f"### Domanda dell'utente\n{question}"
+    # Extract inline page context from the enriched question
+    import re
+    page_context_block = ""
+    clean_question = question
+    page_match = re.match(
+        r'\[Contesto pagina:\s*([^\]]*)\]\s*\n?(?:Dati visibili:\s*(.*?)\n)?Domanda utente:\s*(.*)',
+        question,
+        re.DOTALL
     )
+    if page_match:
+        page_label = page_match.group(1).strip()
+        page_data = page_match.group(2) or ""
+        clean_question = page_match.group(3).strip()
+        page_context_block = (
+            f"### DATI DELLA PAGINA ATTUALMENTE VISUALIZZATA DALL'UTENTE ({page_label})\n"
+            f"Questi sono i dati REALI che l'utente sta guardando. USALI per rispondere.\n"
+            f"{page_data.strip()}\n"
+        )
+        logger.info("Extracted page context: %s (data len=%d)", page_label, len(page_data))
+
+    # User message with context — page data FIRST (highest priority)
+    parts = []
+    if page_context_block:
+        parts.append(page_context_block)
+    parts.append(f"### Contesto recuperato dai documenti\n{context_block}")
+    parts.append(f"### Domanda dell'utente\n{clean_question}")
+    user_msg = "\n\n".join(parts)
     messages.append({"role": "user", "content": user_msg})
 
     # 4) Call GPT
