@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import logging
+import time
 from typing import Any, Dict, List, Optional
 
 from openai import OpenAI
@@ -168,16 +169,27 @@ def query(
 
     logger.info("Prompt assembled: %d messages, user_msg length=%d", len(messages), len(user_msg))
 
-    # 5) Call GPT
+    # 5) Call GPT (with retry for rate limits)
     client = _get_openai()
-    response = client.chat.completions.create(
-        model=OPENAI_MODEL,
-        messages=messages,
-        temperature=0.3,
-        max_tokens=4096,
-    )
-
-    answer = response.choices[0].message.content or ""
+    answer = ""
+    for attempt in range(3):
+        try:
+            response = client.chat.completions.create(
+                model=OPENAI_MODEL,
+                messages=messages,
+                temperature=0.3,
+                max_tokens=4096,
+            )
+            answer = response.choices[0].message.content or ""
+            break
+        except Exception as e:
+            error_str = str(e)
+            if "429" in error_str or "rate" in error_str.lower():
+                wait = 2 ** (attempt + 1)  # 2, 4, 8 seconds
+                logger.warning("Rate limited (attempt %d/3), waiting %ds…", attempt + 1, wait)
+                time.sleep(wait)
+            else:
+                raise
 
     # 6) Build sources list
     sources: list[dict] = []
