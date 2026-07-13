@@ -39,7 +39,6 @@ class AgentController extends Controller
         }
 
         try {
-            \Log::info('[ADA AI DEBUG] Question to RAG', ['len' => strlen($question), 'first200' => substr($question, 0, 200)]);
             $result = $rag->query($question, $companyId, $history, $docType);
 
             return response()->json([
