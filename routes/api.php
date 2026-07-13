@@ -10,6 +10,7 @@ use App\Http\Controllers\InvoicesController;
 use App\Http\Controllers\FactoringController;
 use App\Http\Controllers\DbMetaController;
 use App\Http\Controllers\AIController;
+use App\Http\Controllers\AgentController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\BankAccountController;
 use App\Http\Controllers\BankTransactionController;
@@ -181,4 +182,13 @@ Route::middleware(['cors', 'json.response'])->group(function () {
     Route::get('/bank-statements/{id}', [\App\Http\Controllers\BankStatementController::class, 'show']);
     Route::put('/bank-statements/{id}', [\App\Http\Controllers\BankStatementController::class, 'update']);
     Route::delete('/bank-statements/{id}', [\App\Http\Controllers\BankStatementController::class, 'destroy']);
+});
+
+
+// ===== AGENTE AI (RAG) =====
+Route::middleware(['cors', 'json.response'])->prefix('agent')->group(function () {
+    Route::post('/chat', [AgentController::class, 'chat']);
+    Route::post('/ingest', [AgentController::class, 'ingestDocument']);
+    Route::delete('/document/{id}', [AgentController::class, 'deleteDocument']);
+    Route::get('/health', [AgentController::class, 'health']);
 });

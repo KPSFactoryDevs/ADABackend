@@ -37,3 +37,9 @@ Thumbs.db
 yarn-error.log
 deploy.lock
 storage/logs/deploy.log
+
+# RAG Service
+rag-service/data/
+rag-service/venv/
+rag-service/__pycache__/
+rag-service/services/__pycache__/
