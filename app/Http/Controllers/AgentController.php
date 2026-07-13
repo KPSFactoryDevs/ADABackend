@@ -16,7 +16,7 @@ class AgentController extends Controller
     public function chat(Request $request)
     {
         $request->validate([
-            'question'   => 'required|string|min:2|max:2000',
+            'question'   => 'required|string|min:2|max:15000',
             'company_id' => 'required|integer',
             'history'    => 'nullable|array',
             'history.*.role'    => 'required_with:history|string|in:user,assistant',
