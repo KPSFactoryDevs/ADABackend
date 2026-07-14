@@ -44,9 +44,17 @@ Sei **ADA AI**, l'assistente intelligente della piattaforma ADA — un software 
 - Rispondi a domande sui documenti finanziari dell'utente (bilanci, centrale rischi, fatture, estratti conto).
 - Usa TUTTI i dati disponibili: sia il contesto recuperato dai documenti, sia i dati della pagina visibile dall'utente.
 
+### Terminologia finanziaria (sinonimi da cercare nei documenti)
+- "fatturato" → cerca "Ricavi delle vendite e delle prestazioni" o "Totale valore della produzione"
+- "utile" → cerca "Utile/Perdita dell'esercizio" o "Risultato d'esercizio"
+- "debiti" → cerca "Totale Debiti" o voci Debiti specifiche
+- "patrimonio" → cerca "Totale Patrimonio netto"
+- "costi" → cerca "Totale costi della produzione"
+- "MOL" o "EBITDA" → margine operativo lordo
+
 ### Fonti dati (in ordine di priorità)
 1. **Dati visibili in pagina**: Se presenti nella sezione "DATI PAGINA", questi sono i dati REALI che l'utente sta guardando — usa questi come fonte PRIMARIA per rispondere.
-2. **Documenti indicizzati**: I chunks recuperati dal database vettoriale nella sezione "DOCUMENTI".
+2. **Documenti indicizzati**: I chunks recuperati dal database vettoriale nella sezione "DOCUMENTI". CERCA BENE in tutti i chunks — i dati finanziari potrebbero usare terminologia tecnica diversa.
 3. Se nessuna fonte contiene i dati richiesti, dillo chiaramente — non inventare.
 
 ### Regole
@@ -58,7 +66,45 @@ Sei **ADA AI**, l'assistente intelligente della piattaforma ADA — un software 
 6. Mai inventare numeri o dati finanziari.
 7. Quando i dati della pagina sono disponibili, USALI per rispondere — sono dati reali dell'utente.
 8. Se la domanda riguarda dati che vedi nei DATI PAGINA, rispondi DIRETTAMENTE da lì senza esitazione.
+9. IMPORTANTE: Cerca nei documenti TUTTI i dati rilevanti, anche se usano terminologia diversa dalla domanda.
 """
+
+
+# ---------------------------------------------------------------------------
+# Query expansion for financial terms
+# ---------------------------------------------------------------------------
+
+_FINANCIAL_SYNONYMS = {
+    "fatturato": "ricavi delle vendite e delle prestazioni valore della produzione",
+    "fattura": "ricavi delle vendite e delle prestazioni valore della produzione",
+    "ricavi": "ricavi delle vendite e delle prestazioni fatturato",
+    "utile": "utile perdita dell'esercizio risultato netto",
+    "perdita": "utile perdita dell'esercizio risultato netto",
+    "debiti": "totale debiti passivo debiti verso banche",
+    "patrimonio": "patrimonio netto capitale sociale",
+    "costi": "costi della produzione costi operativi",
+    "ebitda": "margine operativo lordo MOL",
+    "mol": "margine operativo lordo EBITDA",
+    "liquidità": "attivo circolante disponibilità liquide current ratio",
+    "indebitamento": "debiti verso banche totale debiti leverage",
+    "roi": "return on investment redditività investimenti",
+    "roe": "return on equity redditività patrimonio",
+    "ros": "return on sales redditività vendite",
+}
+
+
+def _expand_financial_query(question: str) -> str:
+    """Expand the query with financial synonyms for better retrieval."""
+    q_lower = question.lower()
+    expansions = []
+    for keyword, synonyms in _FINANCIAL_SYNONYMS.items():
+        if keyword in q_lower:
+            expansions.append(synonyms)
+    if expansions:
+        expanded = f"{question} ({' '.join(expansions)})"
+        logger.info("Query expanded: %s → %s", question, expanded[:120])
+        return expanded
+    return question
 
 
 # ---------------------------------------------------------------------------
@@ -98,8 +144,11 @@ def query(
     """
     k = top_k or TOP_K
 
-    # 1) Retrieve from vector store
-    chunks = vs_search(question, company_id=company_id, top_k=k, doc_type=doc_type)
+    # 0) Query expansion: add financial synonyms for better semantic search
+    expanded_query = _expand_financial_query(question)
+
+    # 1) Retrieve from vector store (use expanded query for better semantic matching)
+    chunks = vs_search(expanded_query, company_id=company_id, top_k=k, doc_type=doc_type)
     logger.info("Retrieved %d chunks for question: %.80s…", len(chunks), question)
 
     # 2) Build context block from retrieved documents
