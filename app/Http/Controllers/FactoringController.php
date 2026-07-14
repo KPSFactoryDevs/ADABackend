@@ -314,11 +314,11 @@ class FactoringController extends Controller
             abort_unless((int) $client->company_id === $companyId, 403, 'Azienda non coerente');
         }
 
-        $notes = $request->input('notes', '');
+        $notes = $request->input('notes') ?? '';
 
         // Nome azienda dell'utente
         $company = Company::find($client->company_id);
-        $companyName = $company ? $company->ragione_sociale : 'N/D';
+        $companyName = $company ? ($company->ragione_sociale ?? 'N/D') : 'N/D';
 
         // Carica relazione documenti
         $client->load('documents');
