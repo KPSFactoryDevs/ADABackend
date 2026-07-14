@@ -136,24 +136,36 @@ def query(
             # Format data as readable key-value pairs
             if isinstance(page_data, dict):
                 page_context_block += "\nDati:\n"
-                page_context_block += _format_page_data(page_data)
+                formatted = _format_page_data(page_data)
+                # Cap page context to ~6000 chars to avoid token explosion
+                if len(formatted) > 6000:
+                    formatted = formatted[:6000] + "\n… (dati troncati per lunghezza)"
+                page_context_block += formatted
             else:
-                page_context_block += f"\nDati: {json.dumps(page_data, ensure_ascii=False)}\n"
+                data_str = json.dumps(page_data, ensure_ascii=False)
+                if len(data_str) > 6000:
+                    data_str = data_str[:6000] + "…"
+                page_context_block += f"\nDati: {data_str}\n"
 
         logger.info(
-            "Page context provided: page=%s, summary=%s, data_keys=%s",
-            page_name, page_summary[:50] if page_summary else "none",
-            list(page_data.keys()) if isinstance(page_data, dict) else "non-dict",
+            "Page context provided: page=%s, data_len=%d chars",
+            page_name, len(page_context_block),
         )
     else:
         logger.info("No page context provided")
 
+    # Cap context_block from retrieved documents to avoid token overflow
+    MAX_CONTEXT_CHARS = 8000
+    if len(context_block) > MAX_CONTEXT_CHARS:
+        context_block = context_block[:MAX_CONTEXT_CHARS] + "\n… (altri documenti omessi)"
+        logger.info("Context block truncated to %d chars", MAX_CONTEXT_CHARS)
+
     # 4) Assemble messages
     messages: list[dict] = [{"role": "system", "content": SYSTEM_PROMPT}]
 
-    # Add conversation history (last 10 messages max)
+    # Add conversation history (last 6 messages max to save tokens)
     if history:
-        for msg in history[-10:]:
+        for msg in history[-6:]:
             role = msg.get("role", "user")
             if role in ("user", "assistant"):
                 messages.append({"role": role, "content": msg["content"]})
@@ -167,7 +179,7 @@ def query(
     user_msg = "\n\n".join(parts)
     messages.append({"role": "user", "content": user_msg})
 
-    logger.info("Prompt assembled: %d messages, user_msg length=%d", len(messages), len(user_msg))
+    logger.info("Prompt assembled: %d messages, user_msg length=%d chars (~%d tokens)", len(messages), len(user_msg), len(user_msg) // 4)
 
     # 5) Call GPT (with retry for rate limits)
     client = _get_openai()
