@@ -107,6 +107,67 @@ def ingest_chunks(
     return len(chunks)
 
 
+def ingest_tagged_chunks(
+    tagged_chunks: List[Dict[str, Any]],
+    document_id: str,
+    company_id: int | str,
+) -> int:
+    """
+    Ingest chunks with per-chunk tags/metadata.
+    
+    Each item in tagged_chunks should be:
+        {"text": "...", "tags": {"section": "...", "topic": "...", ...}}
+    
+    Tags are stored as ChromaDB metadata for filtered retrieval.
+    """
+    if not tagged_chunks:
+        return 0
+
+    client = _get_client()
+    embedder = _get_embedder()
+    col_name = _collection_name(company_id)
+    collection = client.get_or_create_collection(name=col_name)
+
+    texts: list[str] = []
+    ids: list[str] = []
+    metadatas: list[dict] = []
+
+    for i, item in enumerate(tagged_chunks):
+        text = item.get("text", "")
+        tags = item.get("tags", {})
+        if not text.strip():
+            continue
+
+        chunk_id = f"{document_id}__tagged_{i}"
+        meta = {
+            "document_id": str(document_id),
+            "chunk_index": i,
+            "company_id": str(company_id),
+            **tags,  # section, topic, anno, azienda, doc_type
+        }
+        texts.append(text)
+        ids.append(chunk_id)
+        metadatas.append(meta)
+
+    if not texts:
+        return 0
+
+    embeddings = embedder.embed_documents(texts)
+
+    collection.upsert(
+        ids=ids,
+        embeddings=embeddings,
+        documents=texts,
+        metadatas=metadatas,
+    )
+    logger.info(
+        "Ingested %d tagged chunks for doc=%s into collection=%s (tags: %s)",
+        len(texts), document_id, col_name,
+        ", ".join(sorted(set(m.get("section", "?") for m in metadatas))),
+    )
+    return len(texts)
+
+
 def ingest_system_chunks(
     chunks: List[str],
     document_id: str,

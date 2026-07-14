@@ -1,0 +1,270 @@
+{
+    "ValoreProduzioneRicaviVenditePrestazioni": {
+        "label": "Ricavi delle vendite e delle prestazioni",
+        "section": "conto_economico",
+        "topic": "ricavi"
+    },
+    "ValoreProduzioneTotale": {
+        "label": "Totale valore della produzione",
+        "section": "conto_economico",
+        "topic": "ricavi"
+    },
+    "ValoreProduzioneVariazioniRimanenzeProdottiInCorsoLavorazioneSemilavoratiFiniti": {
+        "label": "Variazioni delle rimanenze di prodotti in corso di lavorazione, semilavorati e finiti",
+        "section": "conto_economico",
+        "topic": "ricavi"
+    },
+    "ValoreProduzioneIncrementoImmobilizzazioniLavoriInterni": {
+        "label": "Incrementi di immobilizzazioni per lavori interni",
+        "section": "conto_economico",
+        "topic": "ricavi"
+    },
+    "ValoreProduzioneAltriRicaviProventiContributiEsercizio": {
+        "label": "Altri ricavi e proventi, con separata indicazione dei contributi in conto esercizio",
+        "section": "conto_economico",
+        "topic": "ricavi"
+    },
+    "CostiProduzioneTotale": {
+        "label": "Totale costi della produzione",
+        "section": "conto_economico",
+        "topic": "costi"
+    },
+    "CostiProduzioneMateriePrimeSussidiarieConsumoMerci": {
+        "label": "Costi per materie prime, sussidiarie, di consumo e di merci",
+        "section": "conto_economico",
+        "topic": "costi"
+    },
+    "CostiProduzioneServizi": {
+        "label": "Costi per servizi",
+        "section": "conto_economico",
+        "topic": "costi"
+    },
+    "CostiProduzioneGodimentoBeniTerzi": {
+        "label": "Costi per godimento di beni di terzi",
+        "section": "conto_economico",
+        "topic": "costi"
+    },
+    "CostiProduzionePersonaleTotale": {
+        "label": "Totale costi del personale",
+        "section": "conto_economico",
+        "topic": "costi"
+    },
+    "CostiProduzionePersonaleSalariStipendi": {
+        "label": "Salari e stipendi",
+        "section": "conto_economico",
+        "topic": "costi"
+    },
+    "CostiProduzionePersonaleOneriSociali": {
+        "label": "Oneri sociali",
+        "section": "conto_economico",
+        "topic": "costi"
+    },
+    "CostiProduzionePersonaleTrattamentoFineRapporto": {
+        "label": "Trattamento di fine rapporto",
+        "section": "conto_economico",
+        "topic": "costi"
+    },
+    "CostiProduzioneAmmortamentiSvalutazioniTotaleAmmortamentiSvalutazioni": {
+        "label": "Totale ammortamenti e svalutazioni",
+        "section": "conto_economico",
+        "topic": "costi"
+    },
+    "CostiProduzioneAmmortamentiSvalutazioniAmmortamentoImmobilizzazioniImmateriali": {
+        "label": "Ammortamento delle immobilizzazioni immateriali",
+        "section": "conto_economico",
+        "topic": "costi"
+    },
+    "CostiProduzioneAmmortamentiSvalutazioniAmmortamentoImmobilizzazioniMateriali": {
+        "label": "Ammortamento delle immobilizzazioni materiali",
+        "section": "conto_economico",
+        "topic": "costi"
+    },
+    "CostiProduzioneVariazioniRimanenzeMaterieMateriePrimeSussidiarieConsumoMerci": {
+        "label": "Variazioni delle rimanenze di materie prime",
+        "section": "conto_economico",
+        "topic": "costi"
+    },
+    "CostiProduzioneAccantonamentiRischi": {
+        "label": "Accantonamenti per rischi",
+        "section": "conto_economico",
+        "topic": "costi"
+    },
+    "CostiProduzioneAltriAccantonamenti": {
+        "label": "Altri accantonamenti",
+        "section": "conto_economico",
+        "topic": "costi"
+    },
+    "CostiProduzioneOneriDiversiGestione": {
+        "label": "Oneri diversi di gestione",
+        "section": "conto_economico",
+        "topic": "costi"
+    },
+    "DifferenzaValoreCostiProduzione": {
+        "label": "Differenza tra valore e costi della produzione",
+        "section": "conto_economico",
+        "topic": "risultato"
+    },
+    "ProventiOneriFinanziariTotaleProventiFinanziari": {
+        "label": "Totale proventi finanziari",
+        "section": "conto_economico",
+        "topic": "finanziari"
+    },
+    "ProventiOneriFinanziariInteressiAltriOneriFinanziariTotaleInteressiAltriOneriFinanziari": {
+        "label": "Totale interessi e altri oneri finanziari",
+        "section": "conto_economico",
+        "topic": "finanziari"
+    },
+    "ProventiOneriFinanziariTotaleProventiOneriFinanziari": {
+        "label": "Totale proventi e oneri finanziari",
+        "section": "conto_economico",
+        "topic": "finanziari"
+    },
+    "RisultatoPrimaDelleImposte": {
+        "label": "Risultato prima delle imposte",
+        "section": "conto_economico",
+        "topic": "risultato"
+    },
+    "ImposteSulRedditoEsercizioCorrenteDifferiteAnticipate": {
+        "label": "Imposte sul reddito dell'esercizio",
+        "section": "conto_economico",
+        "topic": "risultato"
+    },
+    "UtilePerditaEsercizio": {
+        "label": "Utile/Perdita dell'esercizio",
+        "section": "conto_economico",
+        "topic": "risultato"
+    },
+
+    "ImmobilizzazioniImmaterialiTotale": {
+        "label": "Totale immobilizzazioni immateriali",
+        "section": "stato_patrimoniale_attivo",
+        "topic": "immobilizzazioni"
+    },
+    "ImmobilizzazioniMaterialiTotale": {
+        "label": "Totale immobilizzazioni materiali",
+        "section": "stato_patrimoniale_attivo",
+        "topic": "immobilizzazioni"
+    },
+    "ImmobilizzazioniFinanziarieTotale": {
+        "label": "Totale immobilizzazioni finanziarie",
+        "section": "stato_patrimoniale_attivo",
+        "topic": "immobilizzazioni"
+    },
+    "TotaleImmobilizzazioni": {
+        "label": "Totale immobilizzazioni",
+        "section": "stato_patrimoniale_attivo",
+        "topic": "immobilizzazioni"
+    },
+    "AttivoCircolanteTotale": {
+        "label": "Totale attivo circolante",
+        "section": "stato_patrimoniale_attivo",
+        "topic": "attivo_circolante"
+    },
+    "AttivoCircolanteRimanenzeTotale": {
+        "label": "Totale rimanenze",
+        "section": "stato_patrimoniale_attivo",
+        "topic": "attivo_circolante"
+    },
+    "AttivoCircolanteCreditiTotale": {
+        "label": "Totale crediti dell'attivo circolante",
+        "section": "stato_patrimoniale_attivo",
+        "topic": "crediti"
+    },
+    "AttivoCircolanteCreditiVersoClientiEntroEsercizioSuccessivo": {
+        "label": "Crediti verso clienti (entro esercizio successivo)",
+        "section": "stato_patrimoniale_attivo",
+        "topic": "crediti"
+    },
+    "AttivoCircolanteDisponibilitaLiquideTotale": {
+        "label": "Totale disponibilità liquide",
+        "section": "stato_patrimoniale_attivo",
+        "topic": "liquidita"
+    },
+    "TotaleAttivo": {
+        "label": "Totale attivo",
+        "section": "stato_patrimoniale_attivo",
+        "topic": "totale"
+    },
+
+    "PatrimonioNettoCapitaleSociale": {
+        "label": "Capitale sociale",
+        "section": "stato_patrimoniale_passivo",
+        "topic": "patrimonio"
+    },
+    "PatrimonioNettoRiservaLegale": {
+        "label": "Riserva legale",
+        "section": "stato_patrimoniale_passivo",
+        "topic": "patrimonio"
+    },
+    "PatrimonioNettoTotale": {
+        "label": "Totale patrimonio netto",
+        "section": "stato_patrimoniale_passivo",
+        "topic": "patrimonio"
+    },
+    "FondoTFR": {
+        "label": "Trattamento di fine rapporto di lavoro subordinato",
+        "section": "stato_patrimoniale_passivo",
+        "topic": "fondi"
+    },
+    "DebitiVersoBancheEntroEsercizioSuccessivo": {
+        "label": "Debiti verso banche (entro esercizio successivo)",
+        "section": "stato_patrimoniale_passivo",
+        "topic": "debiti"
+    },
+    "DebitiVersoBancheOltreEsercizioSuccessivo": {
+        "label": "Debiti verso banche (oltre esercizio successivo)",
+        "section": "stato_patrimoniale_passivo",
+        "topic": "debiti"
+    },
+    "DebitiVersoFornitoriEntroEsercizioSuccessivo": {
+        "label": "Debiti verso fornitori (entro esercizio successivo)",
+        "section": "stato_patrimoniale_passivo",
+        "topic": "debiti"
+    },
+    "DebitiTributariEntroEsercizioSuccessivo": {
+        "label": "Debiti tributari (entro esercizio successivo)",
+        "section": "stato_patrimoniale_passivo",
+        "topic": "debiti"
+    },
+    "TotaleDebiti": {
+        "label": "Totale debiti",
+        "section": "stato_patrimoniale_passivo",
+        "topic": "debiti"
+    },
+    "TotalePassivo": {
+        "label": "Totale passivo",
+        "section": "stato_patrimoniale_passivo",
+        "topic": "totale"
+    },
+
+    "ImmobilizzazioniImmaterialiConcessioni": {
+        "label": "Concessioni, licenze, marchi e diritti simili",
+        "section": "stato_patrimoniale_attivo",
+        "topic": "immobilizzazioni"
+    },
+    "ImmobilizzazioniImmaterialiAltreImmobilizzazioniImmateriali": {
+        "label": "Altre immobilizzazioni immateriali",
+        "section": "stato_patrimoniale_attivo",
+        "topic": "immobilizzazioni"
+    },
+    "ImmobilizzazioniMaterialiImpiantiMacchinario": {
+        "label": "Impianti e macchinario",
+        "section": "stato_patrimoniale_attivo",
+        "topic": "immobilizzazioni"
+    },
+    "ImmobilizzazioniMaterialiAttrezzatureIndustrialiCommerciali": {
+        "label": "Attrezzature industriali e commerciali",
+        "section": "stato_patrimoniale_attivo",
+        "topic": "immobilizzazioni"
+    },
+    "ImmobilizzazioniMaterialiAltriBeni": {
+        "label": "Altri beni materiali",
+        "section": "stato_patrimoniale_attivo",
+        "topic": "immobilizzazioni"
+    },
+    "ImmobilizzazioniFinanziariePartecipazioni": {
+        "label": "Partecipazioni in altre imprese",
+        "section": "stato_patrimoniale_attivo",
+        "topic": "immobilizzazioni"
+    }
+}

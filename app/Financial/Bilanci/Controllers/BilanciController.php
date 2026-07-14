@@ -150,23 +150,29 @@ class BilanciController extends Controller
                 $bilancioAnalisi['AdvancedGiudizi'] = $valutazioneAdv['Giudizi'];
                 $bilancioAnalisi['AdvancedDettaglio'] = $valutazioneAdv['Dettaglio'] ?? null;
 
-                // --- RAG: indicizza il bilancio nel vector store ---
+                // --- RAG: indicizza il bilancio strutturato nel vector store ---
                 try {
                     $companyId = $document->company_id ?? $request->header('currentcompany');
                     if ($companyId) {
-                        $ragText = "BILANCIO - {$nomeAzienda}\n"
-                            . "Periodo: " . json_encode($period) . "\n"
-                            . "Analisi Indici: " . json_encode($bilancioAnalisi, JSON_UNESCAPED_UNICODE) . "\n"
-                            . "Voci di Bilancio: " . json_encode($this->cleanBilancioData($bilancioJSON), JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-
                         $rag = new RagService();
-                        $rag->ingestText(
-                            $ragText,
+                        $cleanedVoci = $this->cleanBilancioData($bilancioJSON);
+
+                        // Estrai nota integrativa dal render HTML (se disponibile)
+                        $notaIntegrativa = '';
+                        if ($renderHTML) {
+                            $notaText = strip_tags($renderHTML);
+                            // Prendi solo i primi 10000 chars della nota
+                            $notaIntegrativa = mb_substr($notaText, 0, 10000);
+                        }
+
+                        $rag->ingestBilancio(
                             'bilancio_' . $document->id,
                             $companyId,
-                            'bilancio',
-                            'Bilancio ' . ($nomeAzienda ?? '') . ' ' . ($period['anno_fine'] ?? ''),
-                            true // structured=true for larger chunks on financial data
+                            $nomeAzienda ?? '',
+                            $period['anno_fine'] ?? '',
+                            $cleanedVoci,
+                            $bilancioAnalisi,
+                            $notaIntegrativa
                         );
                     }
                 } catch (\Throwable $e) {

@@ -173,21 +173,17 @@ class AgentController extends Controller
                 );
 
                 $bilController = new \App\Financial\Bilanci\Controllers\BilanciController();
-                $ragText = "BILANCIO - {$nomeAzienda}\n"
-                    . "Periodo: " . json_encode($period) . "\n"
-                    . "Analisi Indici: " . json_encode($bilancioAnalisi, JSON_UNESCAPED_UNICODE) . "\n"
-                    . "Voci di Bilancio: " . json_encode(
-                        $bilController->cleanBilancioData($bilancioJSON),
-                        JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT
-                    );
+                $cleanedVoci = $bilController->cleanBilancioData($bilancioJSON);
 
-                $rag->ingestText(
-                    $ragText,
+                // Use new structured bilancio ingest
+                $rag->ingestBilancio(
                     'bilancio_' . $doc->id,
                     $companyId,
-                    'bilancio',
-                    'Bilancio ' . $nomeAzienda . ' ' . ($period['anno_fine'] ?? ''),
-                    true // structured=true for larger chunks
+                    $nomeAzienda,
+                    $period['anno_fine'] ?? '',
+                    $cleanedVoci,
+                    $bilancioAnalisi,
+                    '' // nota integrativa not available during reindex
                 );
 
                 $indexed[] = ['type' => 'bilancio', 'id' => $doc->id, 'name' => $nomeAzienda];

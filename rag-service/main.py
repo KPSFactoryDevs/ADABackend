@@ -26,6 +26,7 @@ import config  # noqa: F401  — triggers env loading
 from services import document_processor as dp
 from services import vector_store as vs
 from services import rag_chain
+from services import bilancio_processor as bp
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -88,6 +89,29 @@ class IngestResponse(BaseModel):
 class DeleteResponse(BaseModel):
     ok: bool
     chunks_deleted: int
+
+
+class TaggedChunk(BaseModel):
+    text: str
+    tags: Dict[str, str] = {}
+
+
+class StructuredIngestRequest(BaseModel):
+    document_id: str
+    company_id: Union[int, str]
+    doc_type: str = "documento"
+    filename: str = ""
+    sections: List[TaggedChunk]
+
+
+class BilancioIngestRequest(BaseModel):
+    document_id: str
+    company_id: Union[int, str]
+    azienda: str = ""
+    anno: str = ""
+    voci_data: Dict[str, Any]
+    analisi_data: Optional[Dict[str, Any]] = None
+    nota_integrativa: Optional[str] = None
 
 
 # ---------------------------------------------------------------------------
@@ -193,6 +217,52 @@ async def delete_document(document_id: str, company_id: str):
     """Remove a document's chunks from the vector store."""
     deleted = vs.delete_document(document_id, company_id)
     return DeleteResponse(ok=True, chunks_deleted=deleted)
+
+
+@app.post("/ingest-structured", response_model=IngestResponse)
+async def ingest_structured(req: StructuredIngestRequest):
+    """
+    Ingest pre-processed chunks with per-chunk tags.
+    
+    Each section has text + tags (section, topic, anno, azienda).
+    Tags are stored as ChromaDB metadata for filtered retrieval.
+    """
+    if not req.sections:
+        raise HTTPException(400, "sections list is empty")
+
+    tagged_chunks = [{"text": s.text, "tags": {**s.tags, "doc_type": req.doc_type}} for s in req.sections]
+    stored = vs.ingest_tagged_chunks(tagged_chunks, req.document_id, req.company_id)
+    return IngestResponse(ok=True, document_id=req.document_id, chunks_stored=stored)
+
+
+@app.post("/ingest-bilancio", response_model=IngestResponse)
+async def ingest_bilancio(req: BilancioIngestRequest):
+    """
+    Ingest a bilancio by processing XBRL data into semantic chunks.
+    
+    Automatically:
+    - Translates XBRL keys to Italian labels
+    - Groups voci by section (Conto Economico, SP Attivo, SP Passivo)
+    - Creates contextual headers for each chunk
+    - Tags each chunk with section, topic, anno, azienda
+    """
+    # Delete existing chunks for this document
+    vs.delete_document(req.document_id, req.company_id)
+
+    # Process through bilancio processor
+    tagged_chunks = bp.process_bilancio(
+        voci_data=req.voci_data,
+        analisi_data=req.analisi_data,
+        azienda=req.azienda,
+        anno=req.anno,
+        nota_integrativa=req.nota_integrativa or "",
+    )
+
+    if not tagged_chunks:
+        raise HTTPException(400, "No data to index")
+
+    stored = vs.ingest_tagged_chunks(tagged_chunks, req.document_id, req.company_id)
+    return IngestResponse(ok=True, document_id=req.document_id, chunks_stored=stored)
 
 
 @app.get("/health")

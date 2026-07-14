@@ -141,6 +141,57 @@ class RagService
     }
 
     /**
+     * Ingest a bilancio with structured XBRL data processing.
+     *
+     * The Python service will:
+     * - Translate XBRL keys to Italian labels
+     * - Group by section (Conto Economico, SP Attivo, SP Passivo)
+     * - Create contextual chunks with rich tags
+     *
+     * @param string     $documentId
+     * @param int|string $companyId
+     * @param string     $azienda      Company name
+     * @param string     $anno         Fiscal year
+     * @param array      $vociData     Cleaned XBRL voci {key => value}
+     * @param array|null $analisiData  Analysis indices, score, giudizio
+     * @param string     $notaIntegrativa  Text of nota integrativa
+     * @return array
+     */
+    public function ingestBilancio(
+        string $documentId,
+        $companyId,
+        string $azienda = '',
+        string $anno = '',
+        array $vociData = [],
+        ?array $analisiData = null,
+        string $notaIntegrativa = ''
+    ): array {
+        try {
+            $payload = [
+                'document_id'      => $documentId,
+                'company_id'       => (int) $companyId,
+                'azienda'          => $azienda,
+                'anno'             => $anno,
+                'voci_data'        => $vociData,
+                'analisi_data'     => $analisiData,
+                'nota_integrativa' => $notaIntegrativa,
+            ];
+
+            $response = $this->client->post('ingest-bilancio', [
+                'json' => $payload,
+            ]);
+
+            return json_decode((string) $response->getBody(), true) ?: [];
+        } catch (RequestException $e) {
+            Log::error('RagService::ingestBilancio failed', [
+                'document_id' => $documentId,
+                'error'       => $e->getMessage(),
+            ]);
+            return ['ok' => false, 'error' => $e->getMessage()];
+        }
+    }
+
+    /**
      * Delete a document from the vector store.
      *
      * @param string     $documentId
