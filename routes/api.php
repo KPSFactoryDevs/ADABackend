@@ -47,6 +47,7 @@ Route::group(['middleware' => ['cors', 'json.response']], function () {
     Route::post('/predefinito', 'App\Financial\Bilanci\Controllers\BilanciController@bilancioPredefinito');
     Route::post('/copiaBilancio', 'App\Financial\Bilanci\Controllers\BilanciController@copiaBilancio');
     Route::post('/recapBilancio', 'App\Financial\Bilanci\Controllers\BilanciController@recap');
+    Route::post('/importBilancioPdf', 'App\Financial\Bilanci\Controllers\BilanciController@importFromPdf');
 
     Route::get('/recapForAi/{documentId}', 'App\Financial\Bilanci\Controllers\BilanciController@recapForAi');
 

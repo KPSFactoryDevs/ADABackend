@@ -63,6 +63,126 @@ class BilanciController extends Controller
 
 
     /**
+     * Import bilancio from PDF: convert to XBRL via Python script, then process normally.
+     */
+    public function importFromPdf(Request $request)
+    {
+        $bilanciHelper = new BilanciHelper();
+
+        // Validate
+        if (!$request->hasFile('file') && !$request->hasFile('base64')) {
+            return response()->json([
+                'exception' => true,
+                'message' => 'Nessun file PDF caricato'
+            ], 422);
+        }
+
+        $file = $request->file('file') ?? $request->file('base64');
+
+        // Verify it's a PDF
+        $extension = strtolower($file->getClientOriginalExtension());
+        $mimeType = $file->getMimeType();
+        if ($extension !== 'pdf' && $mimeType !== 'application/pdf') {
+            return response()->json([
+                'exception' => true,
+                'message' => 'Il file deve essere in formato PDF'
+            ], 422);
+        }
+
+        $currentUserId = $bilanciHelper->getCurrentUserIdFromToken($request);
+        if ($currentUserId == 'Unauthorized') {
+            return response()->json([
+                'exception' => true,
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
+        try {
+            // Save the PDF temporarily
+            $pdfPath = $file->getPathName();
+            $outputDir = base_path() . '/public/bilanci';
+
+            // Ensure output directory exists
+            if (!file_exists($outputDir)) {
+                mkdir($outputDir, 0755, true);
+            }
+
+            // Get OpenAI config from .env
+            $openaiKey = env('OPENAI_API_KEY', '');
+            $openaiModel = env('OPENAI_MODEL', 'gpt-4o-mini');
+
+            if (empty($openaiKey)) {
+                return response()->json([
+                    'exception' => true,
+                    'message' => 'OPENAI_API_KEY non configurata nel server'
+                ], 500);
+            }
+
+            // Invoke the Python script
+            $scriptPath = base_path() . '/scripts/pdf_to_xbrl.py';
+            $command = sprintf(
+                'OPENAI_API_KEY=%s OPENAI_MODEL=%s python3 %s %s %s 2>&1',
+                escapeshellarg($openaiKey),
+                escapeshellarg($openaiModel),
+                escapeshellarg($scriptPath),
+                escapeshellarg($pdfPath),
+                escapeshellarg($outputDir)
+            );
+
+            $output = shell_exec($command);
+
+            // Parse the JSON output from the script
+            $result = json_decode($output, true);
+
+            if (!$result || !isset($result['success']) || !$result['success']) {
+                $errorMsg = $result['error'] ?? 'Conversione PDF fallita: ' . substr($output ?? '', 0, 500);
+                return response()->json([
+                    'exception' => true,
+                    'message' => $errorMsg
+                ], 500);
+            }
+
+            // Create the Document record
+            $taxonomyName = $result['taxonomy'] ?? 'itcc-ci-abb-2018-11-04.xsd';
+            $xbrlFilename = $result['xbrl_filename'];
+
+            $document = Document::create([
+                'filename' => $xbrlFilename,
+                'path' => asset('bilanci') . '/' . $xbrlFilename,
+                'type' => 'bilancio',
+                'taxonomy' => $taxonomyName,
+                'codice_documento' => rand(1, 999999999),
+                'company_id' => $request->header('currentcompany'),
+                'forma_giuridica' => $request->forma_giuridica,
+                'tipo_azienda' => $request->tipo_azienda,
+                'user_id' => $currentUserId,
+                'nome_azienda' => $result['company_name'] ?? null,
+                'source' => 'pdf_import',
+            ]);
+
+            // Now delegate to the existing recap flow using the documentId
+            $recapRequest = new Request();
+            $recapRequest->merge([
+                'documentId' => $document->id,
+                'userID' => $request->userID,
+                'forma_giuridica' => $request->forma_giuridica,
+                'tipo_azienda' => $request->tipo_azienda,
+            ]);
+            $recapRequest->headers->set('currentcompany', $request->header('currentcompany'));
+            $recapRequest->headers->set('Authorization', $request->header('Authorization'));
+
+            return $this->recap($recapRequest);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'exception' => true,
+                'message' => 'Errore durante la conversione PDF: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    /**
      * @return mixed
      */
     public function recap(Request $request)
