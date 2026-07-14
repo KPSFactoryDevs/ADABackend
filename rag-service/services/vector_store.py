@@ -8,6 +8,7 @@ knowledge-base articles that are visible to every company.
 from __future__ import annotations
 
 import logging
+import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -174,7 +175,23 @@ def search(
     """
     client = _get_client()
     embedder = _get_embedder()
-    query_embedding = embedder.embed_query(query)
+
+    # Embed query with retry for rate limits
+    query_embedding = None
+    for attempt in range(3):
+        try:
+            query_embedding = embedder.embed_query(query)
+            break
+        except Exception as e:
+            if "429" in str(e) or "rate" in str(e).lower():
+                wait = 3 * (attempt + 1)
+                logger.warning("Embedding rate limited (attempt %d/3), waiting %ds", attempt + 1, wait)
+                time.sleep(wait)
+            else:
+                raise
+    if query_embedding is None:
+        logger.error("All embedding retry attempts failed")
+        return []
 
     results: list[dict] = []
 

@@ -172,6 +172,7 @@ def query(
     # 5) Call GPT (with retry for rate limits)
     client = _get_openai()
     answer = ""
+    last_error = None
     for attempt in range(3):
         try:
             response = client.chat.completions.create(
@@ -181,8 +182,10 @@ def query(
                 max_tokens=4096,
             )
             answer = response.choices[0].message.content or ""
+            last_error = None
             break
         except Exception as e:
+            last_error = e
             error_str = str(e)
             if "429" in error_str or "rate" in error_str.lower():
                 wait = 2 ** (attempt + 1)  # 2, 4, 8 seconds
@@ -190,6 +193,11 @@ def query(
                 time.sleep(wait)
             else:
                 raise
+
+    # If all retries failed, raise so the caller gets a proper error
+    if last_error is not None:
+        logger.error("All 3 GPT retry attempts failed: %s", last_error)
+        raise last_error
 
     # 6) Build sources list
     sources: list[dict] = []

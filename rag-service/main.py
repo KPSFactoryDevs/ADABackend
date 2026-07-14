@@ -214,18 +214,37 @@ async def stats():
 
 
 # ---------------------------------------------------------------------------
-# Startup: index knowledge base
+# Startup: index knowledge base (only if not already present)
 # ---------------------------------------------------------------------------
 
-def _index_knowledge_base():
+def _index_knowledge_base(force: bool = False):
     """
     Index all markdown files in the knowledge/ directory
     into the system collection on startup.
+    
+    Skips indexing if the collection already has data (to avoid
+    burning OpenAI embedding rate limits on every restart).
+    Use force=True or the /reindex-kb endpoint to force re-indexing.
     """
     kb_dir = Path(config.KNOWLEDGE_DIR)
     if not kb_dir.exists():
         logger.warning("Knowledge base dir not found: %s", kb_dir)
-        return
+        return 0
+
+    # Check if KB is already indexed
+    if not force:
+        try:
+            stats = vs.get_collection_stats()
+            existing = stats.get("system-knowledge", 0)
+            if isinstance(existing, int) and existing > 0:
+                logger.info(
+                    "Knowledge base already indexed (%d chunks). Skipping. "
+                    "Use POST /reindex-kb to force re-indexing.",
+                    existing,
+                )
+                return existing
+        except Exception:
+            pass  # If we can't check, proceed with indexing
 
     total = 0
     for md_file in sorted(kb_dir.rglob("*.md")):
@@ -246,10 +265,19 @@ def _index_knowledge_base():
         logger.info("KB indexed: %s → %d chunks", md_file.name, stored)
 
     logger.info("Knowledge base indexing complete: %d total chunks", total)
+    return total
+
+
+@app.post("/reindex-kb")
+async def reindex_kb():
+    """Force re-indexing of the knowledge base."""
+    total = _index_knowledge_base(force=True)
+    return {"ok": True, "chunks_indexed": total}
 
 
 @app.on_event("startup")
 async def on_startup():
     logger.info("ADA RAG Service v2.0.0 starting up…")
-    _index_knowledge_base()
+    _index_knowledge_base(force=False)
     logger.info("Ready. Model: %s, Top-K: %d", config.OPENAI_MODEL, config.TOP_K)
+
